@@ -833,10 +833,19 @@ Do not paste long reasoning here.
 - **Decision:** Circle family is 14.9 / 21.5 / 22.8× at n=2000/3000/4000. Losers remain. I186: retire LiveAdj/`drop_live_nbr` on the bits path (remaining wall after miss-skip).
 - **Class:** experiment (support on circle; losers persist)
 
-## 2026-10-13 — I186 retire live-adj scans
+## 2026-10-13 — I186/I187 retire live-adj scans
 
 - **Question:** On the bits path, can we drop LiveAdj star scans (`drop_live_nbr` is ~m²/n) and keep only Tm+bits+deg?
-- **Class:** experiment (running)
+- **Result:** Exact. circle2000 **21.7×** (27.9s/1.29s, collapse 3.46× vs src). circle3000 **27.4×** (117s/4.25s). blobs 0.42×, sphere 0.52×, torus 1.04×.
+- **Decision:** Keep no-LiveAdj as default. I188 remasured n=4000.
+- **Class:** experiment (support)
+
+## 2026-10-13 — I188 no-LiveAdj n=4000
+
+- **Question:** Does I186 raise the flagship n=4000 ratio above I184’s 22.8×?
+- **Result:** **31.3×** exact (304s/9.71s, residual 12562, collapse 9396 ms).
+- **Decision:** New flagship. Next: cheaper `dominated_by` (I189) and I162 losers.
+- **Class:** experiment (support)
 
 ## 2026-10-13 — I164 collapse live-degree trace
 
