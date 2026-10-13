@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-13 — I227 real RedZeD engine (H09) + GUDHI collapse
+
+- **Question:** Is `redzed-tda` a real unused exact VR engine (not I122’s leftover-triangle fake), and is the torus collapse wall an implementation gap vs GUDHI 3.13?
+- **Hypothesis:** Kapulkin–Kershaw RedZeD (arXiv:2606.06310) is MIT. Active enumeration skips most (n+1)-birth columns. Same path on every distance matrix — shape-agnostic. Should match Ripser H1. GUDHI flag collapse on the same \(G_T\) tests whether PITH’s 1.4 s torus collapse is just a slow implementation.
+- **Work:** pip `redzed-tda==0.1.1`. Wave 88 vs Ripser + default PITH on unit square / circle / blobs / sphere / torus / uniform2 / two_circles / figure8 (n≤2000). GUDHI `flag_filtration.edge_collapse` on circle/blobs/torus n=2000.
+- **Result:** **Exact 18/18** (0 unmatched; bottleneck ~1e-7–1e-6; ess H1 matches including figure8 / two_circles / unit square). n=2000 vs Ripser: circle **33.4×**, torus **11.7×**, sphere 6.9×, blobs 4.9×, uniform2 4.5×. vs PITH default: torus **7.5×**, blobs 3.0×, sphere 3.6×, uniform2 2.4×, circle **0.45×** (collapse+implicit still faster). Time slopes RedZeD \(n^{2.03–2.38}\) vs Ripser \(n^{2.04–3.03}\) vs PITH \(n^{1.72–2.67}\). GUDHI collapse is **slower** than PITH (circle 7.94 s vs 273 ms; torus 4.05 s vs 1.40 s); residual |E'| matches (5169 / 6169 / 163426).
+- **Decision:** **Support as a real exact engine** (external). First exact torus 10×; topology loss **0**. Do **not** switch PITH default (PyPI wheel). GUDHI collapse is not the torus gap — the wall is algorithmic. Next: owned active-enumeration reimplementation. H07 kd-tree deprioritized (Euclidean-only). Complexity is a measured exponent gap, not a proven better worst-case class.
+- **Class:** experiment (support identity + torus 10×; reject as default until owned)
+
 ## 2026-10-13 — I226 witness-shrink first_dominator (exact)
 
 - **Question:** Do torus keeps form a suffix we can skip, and if not, does iterated N_t[fail_w] shrinking of the apex pool cut the fail-path without changing PH?

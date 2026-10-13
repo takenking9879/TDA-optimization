@@ -1,9 +1,11 @@
 # Selected algorithm (living)
 
-Updated 2026-10-13 after iterations I001–I226. **Default is I193 + I197 +
+Updated 2026-10-13 after iterations I001–I227. **Default is I193 + I197 +
 I202 gated witness + I203 cofacet early-stop** on I182 live-bit C + I186
 no LiveAdj. Flagship circle n=4000 T=1.5 is **140×** vs Ripser (I196).
 That number is a collapse-friendly regime, **not** the success criterion.
+**I227:** first real RedZeD engine is exact VR on mixed homology and the
+first exact **torus n=2000 11.7×** vs Ripser. Not PITH-default until owned.
 
 ## Success criteria (goal amendment)
 
@@ -18,15 +20,17 @@ quantified (unmatched bars / bottleneck / interleaving).
 Current honest status: the **exact default is shape-agnostic** (0 unmatched
 vs Ripser on every measured family, including figure8 / two_circles) but
 **worst-case Big-O is not improved** — collapse is an extra \(O(E\cdot|C|)\)
-pass; torus residual stays \(\Theta(n^2)\) (I204). **I224 reduced VR** is
-also shape-agnostic and **exact** (0 unmatched on 19 mixed-shape rows,
-including the unit square) with **\(O(n^2)\) triangles** (slopes
-\(n^{2.04–2.20}\)), but construction loses wall-clock to Ripser (time
-\(n^{2.6–3.5}\)). The **optional** `--sparse-eps 0.6` path is also
-shape-agnostic, keeps essential \(H_1\), and **does** sit in a better
-size/time class (I218: edges \(n^{1.31–1.39}\), time \(n^{1.38–1.60}\) vs
-Ripser \(n^{2.14–3.29}\)). Topology loss on that path is quantified
-(bottleneck typically 0.005–0.034; torus n=2000 0.028).
+pass; torus residual stays \(\Theta(n^2)\) (I204). **I227 RedZeD**
+(`redzed-tda` 0.1.1, MIT) is also shape-agnostic and **exact** (0 unmatched
+on 18 mixed-shape rows) with the first exact **torus 10×** (11.7× at
+n=2000). Measured time class is still polynomial \(n^{2.03–2.38}\) vs
+Ripser \(n^{2.04–3.03}\) — better exponents on circle/torus, **not** a
+proven worst-case class change. Topology loss: **0**. Not the PITH default
+until the algorithm is owned (I122–I125 were a fake enumerator). **I224
+reduced VR** is exact with \(O(n^2)\) triangles but loses clock. The
+**optional** `--sparse-eps 0.6` path keeps essential \(H_1\) and sits in a
+better size class (I218: edges \(n^{1.31–1.39}\)) at quantified bottleneck
+0.005–0.034.
 
 ## Selected exact-VR CPU pipeline
 
@@ -125,6 +129,16 @@ residual makes collapse *and* reduce slower (circle3000 1.49× vs full 8.11×).
 | torus | \(H_1\) | 2000 | 1.6 | **1.52×** I203 (1.68s/2.55s, collapse 1470 ms, reduce 172 ms). I202 was 1.31× / 1512 ms collapse / ~450 ms reduce |
 | torus | \(H_1\) | 1000 | 1.6 | **1.63×** I200 (was I139 1.31×) |
 | circle_noisy | \(H_1\) | 1000 | 1.5 | **4.1×** (I083) |
+
+**I227 RedZeD** (`redzed-tda` 0.1.1, not PITH default) vs Ripser, same clouds:
+
+| Dataset | n | T | vs Ripser | vs PITH default | ess H1 |
+| --- | --- | --- | --- | --- | --- |
+| circle_noisy | 2000 | 1.5 | **33.4×** | 0.45× (PITH still faster) | 1=1 |
+| torus | 2000 | 1.6 | **11.7×** | **7.5×** | 1=1 |
+| sphere | 2000 | 1.4 | 6.9× | 3.6× | 0=0 |
+| blobs | 2000 | 1.0 | 4.9× | 3.0× | 0=0 |
+| uniform2 | 2000 | 0.35 | 4.5× | 2.4× | 0=0 |
 
 **Not claimed:** H1 10× clock in general; high-d; **worst-case / all-shape Big-O
 better than Ripser**. Topology loss on the default path is **zero** (exact
@@ -235,10 +249,49 @@ distance matrix is present. Same triangles as I224. Construction
 remaining build cost is finding the lune (neighbor merge), not
 connectivity. Not selected as default. Topology loss: **0**.
 
-## Next levers (still open after I226)
+### I227 real RedZeD (H09, MIT, not default)
+
+I122–I125 enumerated every leftover triangle. `redzed-tda` 0.1.1 is the
+Kapulkin–Kershaw engine (arXiv:2606.06310, **MIT**). Same path on every
+distance matrix — not a circle/sphere/torus special case. Active
+enumeration only considers \((n+1)\)-cofaces that have an active face,
+so most \((n+1)\)-birth columns are never built.
+
+**Topology loss: 0.** Wave 88: exact 18/18 vs Ripser (unit square,
+circle, blobs, sphere, torus, uniform2, two_circles, figure8; n≤2000).
+Bottleneck \(\sim 10^{-7}\)–\(10^{-6}\) (float). Essential \(H_1\)
+matches on every mixed-loop row.
+
+| Family | RedZeD time \(n^{}\) | Ripser \(n^{}\) | PITH default \(n^{}\) |
+| --- | --- | --- | --- |
+| circle | 2.38 | **3.03** | **1.72** |
+| blobs | 2.04 | 2.07 | 1.85 |
+| torus | **2.30** | 2.76 | 2.67 |
+| uniform2 | 2.03 | 2.04 | 1.92 |
+
+Justification: the paper’s active-enumeration skip of \((n+1)\)-birth
+columns. Measured pre-asymptotic time is still \(\sim n^2\)–\(n^{2.4}\),
+not a proven better worst-case class than Ripser. The torus exponent gap
+(2.30 vs 2.76) is the first **exact** clock that is 10× on the collapse
+wall family. Circle 33× is real but PITH collapse+implicit remains
+faster there (0.35 s vs 0.79 s). Blobs/sphere/uniform2 are 4.5–6.9× at
+n=2000 — 10× there is still a scale question.
+
+**GUDHI 3.13 flag collapse** on the same n=2000 graphs is **slower**
+than PITH (circle 7.94 s vs 273 ms; torus 4.05 s vs 1.40 s). Residual
+\(|E'|\) matches (5169 / 6169 / 163426). The torus collapse wall is
+**algorithmic**, not an implementation gap vs GUDHI.
+
+Do **not** switch the PITH default (external wheel). Next is an owned
+reimplementation. Do not vendor until the wrapper is identity-checked
+in-tree. H07 kd-tree lune is deprioritized: Euclidean-only, and I227
+is the better unused exact engine.
+
+## Next levers (still open after I227)
 
 Exact default is shape-agnostic with **0 bars lost** and is **not** a
-general 10×. Optional approx is a multi-family 10× at sufficient n, with
+general 10×. I227 RedZeD is the first exact torus 10× (external MIT
+engine). Optional approx is a multi-family 10× at sufficient n, with
 quantified loss, and a better size exponent.
 
 1. **Exact default:** I193 + I197 + I202 + I203. Shape-agnostic, 0 bars
@@ -249,9 +302,9 @@ quantified loss, and a better size exponent.
    faster.    `--sparse-cap min` **rejected** (I212). `--witness-n`
    **rejected** (I216–I217). `--knn` **rejected** as recommended
    (I220 invents loops at K≤32; I221 K=128 is safer but dominated).
-3. **H07 lune membership** (kd-tree / range search) — I225 closed the
-   UF walk; identity is closed (I224/I225). Clock is not. H08 distilled
-   still unverified (unit-square empty-complex report). H09 RedZeD still
-   unimplemented as a real engine.
+3. **H09 owned RedZeD** — I227 proved the MIT engine is exact and the
+   first exact torus 10×. Reimplement active enumeration in PITH (do
+   not depend on PyPI). H07 kd-tree lune deprioritized (Euclidean-only;
+   identity already closed). H08 distilled still unverified.
 4. Exact torus time-buckets deferred — shift path is Tm, not later[] (I198).
 5. GPU later.

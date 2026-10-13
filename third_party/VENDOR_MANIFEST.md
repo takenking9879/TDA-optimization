@@ -21,7 +21,8 @@ Pinned, unmodified snapshots used as baselines. Do not edit files under
 | Name | Reason |
 | --- | --- |
 | giotto-ph | AGPL-3. Use as an optional pip oracle only; do not copy source. |
-| GUDHI | MIT, but large. Optional system/pip oracle for collapse and Alpha. |
+| GUDHI | MIT, but large. Optional system/pip oracle for collapse and Alpha. I227: flag collapse is slower than PITH on n=2000. |
+| RedZeD / redzed-tda | MIT (Kapulkin–Kershaw, arXiv:2606.06310). I227 pip oracle `redzed-tda==0.1.1` is exact VR on mixed homology. Not vendored yet — own the algorithm before in-tree copy. |
 | Oineus | LBNL BSD + grant-back. Independent reference, not a kernel. |
 | Ripserer.jl | MIT, Julia not installed here. |
 
