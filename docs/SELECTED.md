@@ -1,6 +1,6 @@
 # Selected algorithm (living)
 
-Updated 2026-10-13 after iterations I001–I225. **Default is I193 + I197 +
+Updated 2026-10-13 after iterations I001–I226. **Default is I193 + I197 +
 I202 gated witness + I203 cofacet early-stop** on I182 live-bit C + I186
 no LiveAdj. Flagship circle n=4000 T=1.5 is **140×** vs Ripser (I196).
 That number is a collapse-friendly regime, **not** the success criterion.

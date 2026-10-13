@@ -3,7 +3,7 @@
   "lever": "H01-witness-shrink",
   "class": "experiment",
   "fidelity": "exact",
-  "status": "partial",
+  "status": "reject",
   "summary": "I226 shrink exact=True torus_ms=1449.9367 skips=6116023",
   "receipts": [
     {
