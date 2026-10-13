@@ -214,6 +214,14 @@ struct SparseDist {
 
 static thread_local const SparseDist* g_sparse = nullptr;
 
+static uint64_t edge_key_u32(int a, int b) {
+    if (a > b) std::swap(a, b);
+    return (static_cast<uint64_t>(static_cast<uint32_t>(a)) << 32) | static_cast<uint32_t>(b);
+}
+
+// I272: leftover edges that are not Gabriel are apparent.
+static thread_local const std::unordered_set<uint64_t>* g_gabriel = nullptr;
+
 static value_t face_diam_any(const int32_t* v, int m, int omit, const State& st) {
     value_t diam = 0;
     for (int a = 1; a <= m; ++a) {
@@ -476,6 +484,10 @@ redzed_vr(DistanceMatrix& distIn, int n, value_t threshold, EdgeList* prebuilt) 
                         st.top_buf[1] = hi;
                         const int32_t* xv = &ed.verts[2 * (e - 1)];
                         ae_prepare(st, st.top_buf.data(), ediam);
+                        // I272: non-Gabriel leftovers are apparent. Still
+                        // advanced rbits; skip leftover_coface / pairing.
+                        if (g_gabriel && g_gabriel->find(edge_key_u32(lo, hi)) == g_gabriel->end())
+                            continue;
                         if (st.seedverts.empty()) {
                             const comb_t xidx = comb_index(xv, 2, st.binom);
                             if (leftover_coface_h1_noseen(st, xv, xidx, ediam)) continue;
@@ -1063,7 +1075,8 @@ static bool delaunay_edges_2d_scan(const std::vector<std::vector<value_t>>& pts,
 // Same Delaunay edges as the scan (unique in general position). Expected
 // O(n log n) incircle tests; Morton order keeps walks local.
 static bool delaunay_edges_2d_walk(const std::vector<std::vector<value_t>>& pts,
-                                   std::vector<SpatEdge>& out) {
+                                   std::vector<SpatEdge>& out,
+                                   std::unordered_set<uint64_t>* gabriel = nullptr) {
     const int n = static_cast<int>(pts.size());
     if (n < 3 || static_cast<int>(pts[0].size()) != 2) return false;
     std::vector<double> xs(static_cast<size_t>(n) + 3), ys(static_cast<size_t>(n) + 3);
@@ -1316,10 +1329,49 @@ static bool delaunay_edges_2d_walk(const std::vector<std::vector<value_t>>& pts,
         }
     }
     for (const SpatEdge& e : extra)
-        if (seen.insert((static_cast<uint64_t>(static_cast<uint32_t>(e.u)) << 32) |
-                        static_cast<uint32_t>(e.v))
-                .second)
-            out.push_back(e);
+        if (seen.insert(edge_key_u32(e.u, e.v)).second) out.push_back(e);
+    if (gabriel) {
+        gabriel->clear();
+        gabriel->reserve(static_cast<size_t>(n) * 3);
+        struct Opp {
+            int p[2] = {-1, -1};
+            int c = 0;
+        };
+        std::unordered_map<uint64_t, Opp> opp;
+        opp.reserve(static_cast<size_t>(n) * 3);
+        for (const Tri& tr : tris) {
+            const int v[3] = {tr.v[0], tr.v[1], tr.v[2]};
+            for (int e = 0; e < 3; ++e) {
+                int a = v[e], b = v[(e + 1) % 3];
+                if (a >= n || b >= n) continue;
+                const int w = v[(e + 2) % 3];
+                const uint64_t key = edge_key_u32(a, b);
+                Opp& o = opp[key];
+                if (o.c < 2) o.p[o.c++] = w;
+            }
+        }
+        auto d2 = [&](int i, int j) {
+            const double dx = xs[static_cast<size_t>(i)] - xs[static_cast<size_t>(j)];
+            const double dy = ys[static_cast<size_t>(i)] - ys[static_cast<size_t>(j)];
+            return dx * dx + dy * dy;
+        };
+        for (const auto& kv : opp) {
+            const uint64_t key = kv.first;
+            const int a = static_cast<int>(key >> 32);
+            const int b = static_cast<int>(key & 0xffffffffu);
+            const double uv2 = d2(a, b);
+            bool ok = true;
+            for (int i = 0; i < kv.second.c; ++i) {
+                const int w = kv.second.p[i];
+                if (w >= n) continue;
+                if (d2(a, w) + d2(b, w) <= uv2) {
+                    ok = false;
+                    break;
+                }
+            }
+            if (ok) gabriel->insert(key);
+        }
+    }
     return out.size() >= static_cast<size_t>(n - 1);
 }
 
@@ -1601,6 +1653,16 @@ Result persist_redzed_from_points(const std::vector<std::vector<value_t>>& pts, 
         ~SparseGuard() { g_sparse = nullptr; }
     };
     const SparseGuard guard(spatial ? &csr : nullptr);
+    std::unordered_set<uint64_t> gab;
+    if (dim == 1 && d == 2 && n >= 256 && n <= 100000) {
+        std::vector<SpatEdge> del;
+        if (!delaunay_edges_2d_walk(pts, del, &gab)) gab.clear();
+    }
+    struct GabGuard {
+        explicit GabGuard(const std::unordered_set<uint64_t>* p) { g_gabriel = p; }
+        ~GabGuard() { g_gabriel = nullptr; }
+    };
+    const GabGuard gguard(gab.empty() ? nullptr : &gab);
     const auto t0 = std::chrono::steady_clock::now();
     auto bars = redzed_vr(D, dim, threshold, pre_ptr);
     Result r;
@@ -1613,6 +1675,7 @@ Result persist_redzed_from_points(const std::vector<std::vector<value_t>>& pts, 
     r.counters.metric_ms = std::chrono::duration<double, std::milli>(tfill1 - tfill0).count();
     r.counters.reduce_ms = std::chrono::duration<double, std::milli>(t1 - t0).count();
     r.counters.pipeline = spatial ? "pith:redzed-spatial" : "pith:redzed-thr";
+    if (!gab.empty()) r.counters.pipeline += "-gabriel";
     return r;
 }
 
