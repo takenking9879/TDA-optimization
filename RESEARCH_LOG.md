@@ -683,8 +683,14 @@ Do not paste long reasoning here.
 - **Decision:** Revert to I155 AoS pair. Layout micro-opts after I156 are closed (I158–I160 all slower).
 - **Class:** experiment (negative on clock)
 
-## 2026-10-13 — I161 integer grades (in progress)
+## 2026-10-13 — I161 integer grades
 
-- **Question:** Do order-preserving integer grades + 0-as-missing beat float times on the C-walk?
-- **Hypothesis:** Zero-test misses and integer-valued compares cut collapse_ms ~5% (enough for circle4000 10×). Matching-batch parallel is **unsafe** (shared common neighbors change deg + Tm).
+- **Question:** Do order-preserving integer grades + 0-as-missing beat float times?
+- **Result:** PH still matched (thicker residual is still exact VR) but **collapse broke**. circle80 out 161 vs 93; circle200 6426 vs 283; circle2000 **1.07M vs 5169**, collapse 100 s / 0.20×. n=3000 aborted.
+- **Decision:** **Revert.** 0-as-missing + rank remap under-collapses. Matching-batch parallel also unsafe (shared commons).
+- **Class:** experiment (negative)
+
+## 2026-10-13 — I162 other-family H1 (in progress)
+
+- **Question:** Does the selected stack hit H1 10× on blobs/torus/sphere/uniform2 at n=2000?
 - **Class:** proposal / experiment running

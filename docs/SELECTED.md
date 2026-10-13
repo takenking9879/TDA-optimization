@@ -38,6 +38,8 @@ suite and I137 8/8 (including dense circle80/200 **collapse=0**, the I045 killer
 | Prefetch C-walk (I158) | Exact; **slower** (circle2000 3912 vs 3746 ms) |
 | Vertex-sorted stars (I159) | Exact; **slower** (circle2000 3843 vs 3746 ms) |
 | SoA live adjacency (I160) | Exact; **slower** (circle2000 3872 vs 3746 ms) |
+| Integer grades (I161) | PH match but **under-collapse** (circle2000 1.07M vs 5169 residual) |
+| Matching-batch parallel | **Unsafe** (shared common neighbors change deg + Tm) |
 | Forward 2020 collapse (I149) | **Not exact** (over-collapse; circle80 unmatched 4). Also slower |
 | Time-axis D&C impl (I150) | PH match on n≤200; **fails** n=2000/3000 (19–25 unmatched). No clock win |
 | Forward at current grade (I152/I154) | Exact (same residual as backward). **Slower** (circle2000 6.8 s vs 4.3 s) |
@@ -82,8 +84,8 @@ I153: C-build is the wall (567M probes / 1.12M dom tests / 96% first-apex hits).
 ~49% of probes miss and still paid two gathers. Domination levers are closed.
 
 1. **I155 pair-nbr + I156 fused first-apex — selected.** Flagship **9.50×** (I157).
-2. Layout micro-opts closed (I158–I160 all slower). Matching-batch parallel is **unsafe** (shared commons). **I161 integer grades** in flight.
-3. Closed: prefetch, sorted stars, SoA, exact forward, D&C, progressive/hybrid/budget, merge C, AVX.
+2. Layout micro-opts closed (I158–I160). I161 integer grades **reverted** (under-collapse). Matching-batch **unsafe**.
+3. **I162** other-family H1 at n=2000 (hunt 10× off-circle). Then RedZeD (H09).
 3. Probe count unchanged (4.58B at n=4000). Geometry ceiling still ~2× on C-build.
 4. Fix D&C merge (I150) — parallel schedule only.
 5. GPU later (Ripser++ reference only)
