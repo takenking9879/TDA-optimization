@@ -753,10 +753,18 @@ Do not paste long reasoning here.
 - **Decision:** Reject as a 10× lever. Safe trim still requires a near-full star walk.
 - **Class:** experiment (negative on clock)
 
-## 2026-10-13 — I175 skip-collapse implicit (in progress)
+## 2026-10-13 — I175 skip-collapse implicit
 
-- **Question:** Does `--collapse 0 --engine implicit` beat Ripser on I162 losers (blobs/sphere/uniform2/torus) without touching the circle flagship?
-- **Class:** experiment running
+- **Question:** Does `--collapse 0 --engine implicit` beat Ripser on I162 losers without hurting the circle flagship?
+- **Result:** **No.** Skip is exact but **slower than collapse=1 on every family**, and loses to Ripser everywhere. circle T=1.5: 0.69× (41 s reduce) vs collapse 6.51×. blobs 0.12× vs 0.30×. sphere 0.07× vs 0.16×. torus 0.52× vs 0.74×. Owned implicit on thick \(G_T\) is far behind Ripser; skipping collapse makes I162 worse.
+- **Decision:** Do not skip collapse with our implicit. I162 still needs a cheaper C-walk or a Ripser-speed thick implicit.
+- **Class:** experiment (negative)
+
+## 2026-10-13 — I176 next (open)
+
+- **Question:** Can the ~100 shift-keeps be preserved by leaving every `any_later` edge without finishing the star, while still abort-trimming only proven cones?
+- **Note:** I174 K=0 already does full-walk-to-trim; the missing cut is proving `!any_later` without a full walk (I167: `p.second > t` is too rare on young edges).
+- **Class:** proposal
 
 ## 2026-10-13 — I164 collapse live-degree trace
 

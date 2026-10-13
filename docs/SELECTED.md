@@ -45,6 +45,8 @@ suite and I137 8/8 (including dense circle80/200 **collapse=0**, the I045 killer
 | Forward at current grade (I152/I154) | Exact (same residual as backward). **Slower** (circle2000 6.8 s vs 4.3 s) |
 | Oldest 6n / suffix-back 6n (I165/I166) | **Not exact** at n=2000 (222 unmatched; over-collapse 4059 vs 5169) |
 | suffix-stab / suffix-rescue as default (I168–I172) | Exact **41.7× / 36.5×** on circle n=2000; **2 unmatched** at n=3000/4000 |
+| suffix-k K-sample (I174) | K=0 exact, no clock win. K=2 fast but wrong. K=32 exact at n=3000, 4% probe cut |
+| Skip-collapse + implicit (I175) | Exact; **slower** than collapse=1 and than Ripser on every I162 family |
 
 I107 (`--dom-budget 1`) **still rejected** with implicit (I142–I144): thicker
 residual makes collapse *and* reduce slower (circle3000 1.49× vs full 8.11×).
@@ -91,5 +93,5 @@ I164/I170: n=2000 circle residual **is** an oldest suffix (5169/5169 last 6.25%)
 1. **Default:** I155 pair-nbr + I156 fused first-apex. Flagship **9.50×** (I157).
 2. **Optional exact H1>10× on circle n=2000:** `suffix-stab` 41.7× / `suffix-rescue` 36.5×. Do not default.
 3. Predict / preserve the ~100 shift-keeps without walking every young star (needed for n=3000/4000 10×).
-4. Skip-collapse cost model on I162 losers (Ripser is already cheaper than our C-walk).
-5. Geometry C-query ceiling still ~2× on C-build. D&C merge (I150) still broken. GPU later.
+4. Skip-collapse + our implicit **rejected** (I175): thick-graph reduce is slower than Ripser.
+5. Prove `!any_later` without a full young star walk (I174/I176). Geometry C-query ceiling still ~2×. GPU later.
