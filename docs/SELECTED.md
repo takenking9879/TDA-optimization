@@ -128,7 +128,7 @@ residual makes collapse *and* reduce slower (circle3000 1.49× vs full 8.11×).
 | torus | \(H_1\) | 1000 | 1.6 | **1.63×** I200 (was I139 1.31×) |
 | circle_noisy | \(H_1\) | 1000 | 1.5 | **4.1×** (I083) |
 
-**I227 RedZeD** (`redzed-tda` 0.1.1, not PITH default) vs Ripser, same clouds:
+**I227/I228 RedZeD** vs Ripser, same clouds (I228 in-tree times):
 
 | Dataset | n | T | vs Ripser | vs PITH default | ess H1 |
 | --- | --- | --- | --- | --- | --- |
