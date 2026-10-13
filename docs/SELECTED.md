@@ -582,10 +582,10 @@ Rips is exact and too slow.
 4. Connected uniform2 is **11.2×** at n=5000 (0.33 s).
    Sphere n=2000 H1 **10.1×**. Torus n=2000 **13.0×**. Mixed
    figure8 n=4000 is **27× / 1.07 s**. Sparse n=20000 is **5.6×**.
-   Remaining spatial-path wall is leftover visit (figure8 n=4000
-   reduce 866 ms / 1.98M leftovers). Dense wall is the same visit
-   on all-pairs. I253–I255 leftover-coface inner-loop constants
-   are exact and reverted. Do not retry always-spatial (I262).
+   Remaining spatial-path wall is leftover *visits* (figure8 n=4000
+   reduce 866 ms / 1.98M leftovers), not leftover-coface internals.
+   I253–I255 / I265 leftover-coface skips are exact and reverted.
+   Do not retry always-spatial (I262) or rbit layout (I264).
 5. Hash load-factor constants are exhausted (I259–I261). I263
    edge-frac probe is the selected spatial gate. Dense path stays
    I238 all-pairs when volume≥0.2 **and** probe≥0.25. I264
