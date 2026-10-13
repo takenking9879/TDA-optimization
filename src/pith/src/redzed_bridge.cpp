@@ -19,6 +19,7 @@
 #include <numeric>
 #include <thread>
 #include <unordered_map>
+#include <unordered_set>
 #include <utility>
 
 // I245: same buckets / finish_buckets as vendor build_edges, but the two
@@ -922,6 +923,130 @@ static void spat_to_hash(const std::vector<SpatEdge>& se, int n, SparseDist& S) 
     }
 }
 
+// I270: Euclidean MST ⊆ 2D Delaunay, so VR H0 is Kruskal on Delaunay
+// edges with d≤T. Avoids listing G_T (blobs n=4000: 2.6M pairs).
+// Bowyer–Watson, O(n²) incircle. n≥256, d=2. Fall back on failure.
+static double delaunay_orient(double ax, double ay, double bx, double by, double cx, double cy) {
+    return (bx - ax) * (cy - ay) - (by - ay) * (cx - ax);
+}
+
+static bool delaunay_incircle(double ax, double ay, double bx, double by, double cx, double cy,
+                              double dx, double dy) {
+    const double adx = ax - dx, ady = ay - dy;
+    const double bdx = bx - dx, bdy = by - dy;
+    const double cdx = cx - dx, cdy = cy - dy;
+    const double ad2 = adx * adx + ady * ady;
+    const double bd2 = bdx * bdx + bdy * bdy;
+    const double cd2 = cdx * cdx + cdy * cdy;
+    const double det = adx * (bdy * cd2 - bd2 * cdy) - ady * (bdx * cd2 - bd2 * cdx) +
+                       ad2 * (bdx * cdy - bdy * cdx);
+    return det > 0.0;
+}
+
+static bool delaunay_edges_2d(const std::vector<std::vector<value_t>>& pts,
+                              std::vector<SpatEdge>& out) {
+    const int n = static_cast<int>(pts.size());
+    if (n < 3 || static_cast<int>(pts[0].size()) != 2) return false;
+    std::vector<double> xs(static_cast<size_t>(n) + 3), ys(static_cast<size_t>(n) + 3);
+    double xmin = static_cast<double>(pts[0][0]), xmax = xmin;
+    double ymin = static_cast<double>(pts[0][1]), ymax = ymin;
+    for (int i = 0; i < n; ++i) {
+        xs[static_cast<size_t>(i)] = static_cast<double>(pts[static_cast<size_t>(i)][0]);
+        ys[static_cast<size_t>(i)] = static_cast<double>(pts[static_cast<size_t>(i)][1]);
+        if (xs[static_cast<size_t>(i)] < xmin) xmin = xs[static_cast<size_t>(i)];
+        if (xs[static_cast<size_t>(i)] > xmax) xmax = xs[static_cast<size_t>(i)];
+        if (ys[static_cast<size_t>(i)] < ymin) ymin = ys[static_cast<size_t>(i)];
+        if (ys[static_cast<size_t>(i)] > ymax) ymax = ys[static_cast<size_t>(i)];
+    }
+    const double dx = std::max(xmax - xmin, 1e-9);
+    const double dy = std::max(ymax - ymin, 1e-9);
+    const double mid_x = 0.5 * (xmin + xmax);
+    const double mid_y = 0.5 * (ymin + ymax);
+    const double span = 20.0 * (dx + dy);
+    xs[static_cast<size_t>(n)] = mid_x - span;
+    ys[static_cast<size_t>(n)] = mid_y - span;
+    xs[static_cast<size_t>(n) + 1] = mid_x + span;
+    ys[static_cast<size_t>(n) + 1] = mid_y - span;
+    xs[static_cast<size_t>(n) + 2] = mid_x;
+    ys[static_cast<size_t>(n) + 2] = mid_y + span;
+    if (delaunay_orient(xs[static_cast<size_t>(n)], ys[static_cast<size_t>(n)],
+                        xs[static_cast<size_t>(n) + 1], ys[static_cast<size_t>(n) + 1],
+                        xs[static_cast<size_t>(n) + 2], ys[static_cast<size_t>(n) + 2]) <= 0.0)
+        return false;
+
+    struct Tri {
+        int v[3];
+        bool live;
+    };
+    std::vector<Tri> tris;
+    tris.push_back({{n, n + 1, n + 2}, true});
+
+    auto add_edge = [](std::unordered_map<uint64_t, int>& cnt, std::unordered_map<uint64_t, std::pair<int, int>>& dir,
+                       int a, int b) {
+        const int lo = std::min(a, b), hi = std::max(a, b);
+        const uint64_t key = (static_cast<uint64_t>(static_cast<uint32_t>(lo)) << 32) |
+                             static_cast<uint32_t>(hi);
+        cnt[key] += 1;
+        if (dir.find(key) == dir.end()) dir[key] = {a, b};
+    };
+
+    for (int p = 0; p < n; ++p) {
+        const double px = xs[static_cast<size_t>(p)], py = ys[static_cast<size_t>(p)];
+        std::vector<int> bad;
+        for (int t = 0; t < static_cast<int>(tris.size()); ++t) {
+            if (!tris[static_cast<size_t>(t)].live) continue;
+            const int* v = tris[static_cast<size_t>(t)].v;
+            const double o = delaunay_orient(xs[static_cast<size_t>(v[0])], ys[static_cast<size_t>(v[0])],
+                                             xs[static_cast<size_t>(v[1])], ys[static_cast<size_t>(v[1])],
+                                             xs[static_cast<size_t>(v[2])], ys[static_cast<size_t>(v[2])]);
+            if (o <= 0.0) continue;
+            if (delaunay_incircle(xs[static_cast<size_t>(v[0])], ys[static_cast<size_t>(v[0])],
+                                  xs[static_cast<size_t>(v[1])], ys[static_cast<size_t>(v[1])],
+                                  xs[static_cast<size_t>(v[2])], ys[static_cast<size_t>(v[2])], px, py))
+                bad.push_back(t);
+        }
+        if (bad.empty()) return false;
+        std::unordered_map<uint64_t, int> ecnt;
+        std::unordered_map<uint64_t, std::pair<int, int>> edir;
+        ecnt.reserve(bad.size() * 3);
+        for (int t : bad) {
+            tris[static_cast<size_t>(t)].live = false;
+            const int* v = tris[static_cast<size_t>(t)].v;
+            add_edge(ecnt, edir, v[0], v[1]);
+            add_edge(ecnt, edir, v[1], v[2]);
+            add_edge(ecnt, edir, v[2], v[0]);
+        }
+        for (const auto& kv : ecnt) {
+            if (kv.second != 1) continue;
+            const auto ab = edir[kv.first];
+            int a = ab.first, b = ab.second;
+            if (delaunay_orient(xs[static_cast<size_t>(a)], ys[static_cast<size_t>(a)],
+                                xs[static_cast<size_t>(b)], ys[static_cast<size_t>(b)], px, py) <= 0.0)
+                std::swap(a, b);
+            tris.push_back({{a, b, p}, true});
+        }
+    }
+
+    std::unordered_set<uint64_t> seen;
+    seen.reserve(static_cast<size_t>(n) * 6);
+    out.clear();
+    out.reserve(static_cast<size_t>(n) * 3);
+    for (const Tri& tr : tris) {
+        if (!tr.live) continue;
+        const int v[3] = {tr.v[0], tr.v[1], tr.v[2]};
+        for (int e = 0; e < 3; ++e) {
+            int a = v[e], b = v[(e + 1) % 3];
+            if (a >= n || b >= n) continue;
+            if (a > b) std::swap(a, b);
+            const uint64_t key = (static_cast<uint64_t>(static_cast<uint32_t>(a)) << 32) |
+                                 static_cast<uint32_t>(b);
+            if (!seen.insert(key).second) continue;
+            out.push_back({point_dist(pts, a, b), a, b});
+        }
+    }
+    return out.size() >= static_cast<size_t>(n - 1);
+}
+
 static Result kruskal_h0(int n, std::vector<SpatEdge>&& edges) {
     Result r;
     Counters& c = r.counters;
@@ -1086,17 +1211,31 @@ Result persist_redzed_from_points(const std::vector<std::vector<value_t>>& pts, 
     if (maxdim < 1) {
         const auto tm0 = std::chrono::steady_clock::now();
         std::vector<SpatEdge> E;
-        if (!spatial_edges(pts, threshold, E)) {
-            E.reserve(static_cast<size_t>(n) * 4);
-            for (int j = 1; j < n; ++j)
-                for (int i = 0; i < j; ++i) {
-                    const value_t dist = point_dist(pts, i, j);
-                    if (dist <= threshold) E.push_back({dist, i, j});
-                }
+        bool delaunay = false;
+        const int d0 = n ? static_cast<int>(pts[0].size()) : 0;
+        if (d0 == 2 && n >= 256 && n <= 12000 && std::isfinite(threshold)) {
+            std::vector<SpatEdge> del;
+            if (delaunay_edges_2d(pts, del)) {
+                E.reserve(del.size());
+                for (const SpatEdge& e : del)
+                    if (e.t <= threshold) E.push_back(e);
+                delaunay = true;
+            }
+        }
+        if (!delaunay) {
+            if (!spatial_edges(pts, threshold, E)) {
+                E.reserve(static_cast<size_t>(n) * 4);
+                for (int j = 1; j < n; ++j)
+                    for (int i = 0; i < j; ++i) {
+                        const value_t dist = point_dist(pts, i, j);
+                        if (dist <= threshold) E.push_back({dist, i, j});
+                    }
+            }
         }
         const auto tm1 = std::chrono::steady_clock::now();
         Result r = kruskal_h0(n, std::move(E));
         r.counters.metric_ms = std::chrono::duration<double, std::milli>(tm1 - tm0).count();
+        if (delaunay) r.counters.pipeline += "-delaunay";
         return r;
     }
     // I240: spatial UF then per-component matrices. Never allocate n×n

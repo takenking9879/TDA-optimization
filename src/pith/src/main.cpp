@@ -589,7 +589,9 @@ int main(int argc, char** argv) {
         r.counters.residual_frac = c.residual_frac;
         if (engine == "redzed") {
             if (maxdim < 1) {
+                const bool del = r.counters.pipeline.find("delaunay") != std::string::npos;
                 r.counters.pipeline = auto_dispatch ? "pith:auto-redzed-h0" : "pith:redzed-h0";
+                if (del) r.counters.pipeline += "-delaunay";
             } else {
                 const bool cc = r.counters.n_collapse_trims > 1;
                 const bool spatial = r.counters.pipeline.find("spatial") != std::string::npos;
