@@ -160,6 +160,12 @@ static void clear_seeds(State& st) {
 // skip that mask is a no-op memory tax. Same coface_ready, same rbit AND.
 // I253 coface_ready_h1 was exact but no pith cut (wave n=5000 0.36s was
 // noise; standalone reduce 207≈I252 206 ms). Reverted.
+// I255: when every edge diameter is unique, any common neighbor w of a
+// leftover {u,v} at time r has d(u,w)<r and d(v,w)<r, so {u,v} is the
+// unique longest face of uvw. leftover-coface ≡ nonempty rbit AND.
+// Tied diameters keep vendor coface_ready. H2 is unchanged.
+static thread_local bool g_h1_unique_diam = false;
+
 static bool leftover_coface_h1_noseen(State& st, const int32_t* xv, comb_t xidx, value_t r) {
     const uint64_t* rb = st.rbits.data();
     const int words = st.words, nv = st.nv;
@@ -167,6 +173,12 @@ static bool leftover_coface_h1_noseen(State& st, const int32_t* xv, comb_t xidx,
     int wlo = st.rlo[u], whi = st.rhi[u];
     if (st.rlo[v] > wlo) wlo = st.rlo[v];
     if (st.rhi[v] < whi) whi = st.rhi[v];
+    if (g_h1_unique_diam) {
+        for (int w = wlo; w <= whi; ++w) {
+            if (rb[(size_t)u * words + w] & rb[(size_t)v * words + w]) return true;
+        }
+        return false;
+    }
     int32_t* cbuf = st.coface_buf.data();
     for (int w = wlo; w <= whi; ++w) {
         uint64_t acc = rb[(size_t)u * words + w] & rb[(size_t)v * words + w];
@@ -304,6 +316,17 @@ redzed_vr(DistanceMatrix& distIn, int n, value_t threshold, EdgeList* prebuilt) 
         st.edges = std::move(*prebuilt);
     } else {
         build_edges_parallel(st.dist, thr, st.binom, st.edges);
+    }
+    // I255: unique edge diameters ⇒ leftover-coface is nonempty rbit AND.
+    g_h1_unique_diam = false;
+    if (n == 1 && st.edges.count >= 2) {
+        g_h1_unique_diam = true;
+        for (size_t i = 1; i < st.edges.count; ++i) {
+            if (st.edges.diam[i] == st.edges.diam[i - 1]) {
+                g_h1_unique_diam = false;
+                break;
+            }
+        }
     }
 
     st.words = (nv + 63) / 64;
