@@ -1,0 +1,23 @@
+{
+  "id": "circle4000_implicit",
+  "lever": "H01+H02",
+  "class": "reproduced",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "circle4000 T=1.5 implicit 8.741234527919964\u00d7 (I117 was 8.38\u00d7)",
+  "receipts": [
+    {
+      "n": 4000,
+      "T": 1.5,
+      "engine": "implicit",
+      "match": true,
+      "unmatched": 0,
+      "ripser_s": 293.1743035849995,
+      "pith_s": 33.53923323399977,
+      "time_ratio": 8.741234527919964,
+      "collapse_ms": 33232.608,
+      "reduce_ms": 6.620289,
+      "edges_out": 12562
+    }
+  ]
+}

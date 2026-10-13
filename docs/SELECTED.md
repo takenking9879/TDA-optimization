@@ -1,6 +1,6 @@
 # Selected algorithm (living)
 
-Updated 2026-10-13 after iterations I001–I147.
+Updated 2026-10-13 after iterations I001–I148.
 
 ## Selected exact-VR CPU pipeline
 
@@ -53,7 +53,7 @@ residual makes collapse *and* reduce slower (circle3000 1.49× vs full 8.11×).
 | Dataset | dim | n | T | vs Ripser |
 | --- | --- | --- | --- | --- |
 | sphere | \(H_2\) | 500 | 1.4 | **59×** (I085) / 46× later |
-| circle_noisy | \(H_1\) | 4000 | 1.5 | **8.38×** (I117) |
+| circle_noisy | \(H_1\) | 4000 | 1.5 | **8.74×** (I148 implicit) / 8.38× (I117) |
 | circle_noisy | \(H_1\) | 3000 | 1.5 | **8.13×** (I121) / 8.0× (I115) |
 | circle_noisy | \(H_1\) | 2000 | 1.5 | **7.2×** (I096) / 6.63× (I121) / 6.30× (I140 implicit) |
 | torus | \(H_1\) | 1000 | 1.6 | **1.31×** owned implicit (I139); E3 1.25× same run |
@@ -61,14 +61,15 @@ residual makes collapse *and* reduce slower (circle3000 1.49× vs full 8.11×).
 | circle_noisy | \(H_1\) | 1000 | 1.5 | **4.1×** (I083) |
 
 **Not claimed:** H1 10× clock in general; high-d; worst-case asymptotics.
-I117: n=4000 T=1.5 is **8.38×** (Ripser 287 s / PITH 34 s). Collapse-bound.
+I148: n=4000 T=1.5 is **8.74×** (Ripser 293 s / PITH 33.5 s, collapse 33.2 s, reduce 6.6 ms).
+Still collapse-bound. I117 was 8.38× on homology.
 I139: owned implicit **reduce 67 ms** on torus1000 residual 38k (homology was 1.7 s).
 E3 (collapse + Ripser-sparse) is no longer required; we own that residual class.
 
 **Alpha (I136)** is a different complex: GUDHI Alpha circle3000 0.023 s vs Ripser VR 123 s
 (~5400× empirical) with 2745 \(H_1\) bars. Off the exact-VR 10× board.
 
-## Next levers (still open after I147)
+## Next levers (still open after I148)
 
 1. Forward 2020 collapse (untried; likely worse on dense circle, try small n).
 2. Time-axis parallel collapse (Glisse Lemma 6) — same work, wall-clock only (4 cores).

@@ -565,6 +565,13 @@ Do not paste long reasoning here.
 - **Decision:** I107 rejection stands even with implicit. Do not cap domination search.
 - **Class:** experiment (negative on clock; identity archived)
 
+## 2026-10-13 — I148 circle4000 implicit
+
+- **Question:** Does the selected implicit engine move the I117 H1 flagship?
+- **Result:** Exact. **8.74×** (Ripser 293 s / PITH 33.5 s, collapse 33.2 s, reduce **6.6 ms**, residual 12562). I117 was 8.38× / 34.3 s homology. Implicit does not change the collapse wall. Not 10×.
+- **Decision:** New best H1 clock, still collapse-bound. 10× H1 needs cheaper collapse.
+- **Class:** reproduced
+
 ## 2026-10-13 — I147 AVX-512 domination
 
 - **Question:** Do AVX-512 gathers speed the \(O(k)\) `dominated_by` row scan?
