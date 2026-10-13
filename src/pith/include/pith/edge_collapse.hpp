@@ -280,6 +280,54 @@ inline bool bits_test(const std::vector<std::uint64_t>& words, index_t i) {
     return (words[static_cast<unsigned>(i) >> 6] >> (i & 63)) & 1ull;
 }
 
+// I199: Tm walk when later[cand] is long; bits cover when later[cand] < |C|.
+// I198's blanket AND-eq paid later[] masks on every torus shift rescan.
+inline index_t first_dominator_adapt(const DenseTimes& Tm, const std::vector<index_t>& C_now,
+                                    value_t t, const LiveAdj& nbr, int budget, Counters* ctr,
+                                    const std::vector<int>* deg, LiveBits* bits, LiveAdj* later,
+                                    std::vector<std::uint64_t>& cover) {
+    if (C_now.empty()) return -1;
+    if (C_now.size() == 1) {
+        if (ctr) ++ctr->n_collapse_dom_hits;
+        return C_now[0];
+    }
+    const size_t need = C_now.size() - 1;
+    int tried = 0;
+    for (index_t cand : C_now) {
+        const size_t cand_deg = deg ? static_cast<size_t>((*deg)[cand]) : nbr[cand].size();
+        if (cand_deg < need) continue;
+        if (ctr) ++ctr->n_collapse_dom_tests;
+        bool ok = false;
+        if (bits && later && (*later)[cand].size() < C_now.size()) {
+            const int W = bits->W;
+            if (cover.size() != static_cast<size_t>(W))
+                cover.assign(static_cast<size_t>(W), 0);
+            std::memcpy(cover.data(), bits->row(cand),
+                        static_cast<size_t>(W) * sizeof(std::uint64_t));
+            for (const LiveNbr& p : (*later)[cand]) {
+                if (p.second > t) bits_clear_index(cover, p.first);
+            }
+            ok = true;
+            for (index_t w : C_now) {
+                if (w == cand) continue;
+                if (!bits_test(cover, w)) {
+                    ok = false;
+                    break;
+                }
+            }
+            if (ctr) ctr->n_collapse_c_probes += W;
+        } else {
+            ok = dominated_by(Tm, C_now, cand, t);
+        }
+        if (ok) {
+            if (ctr) ++ctr->n_collapse_dom_hits;
+            return cand;
+        }
+        if (budget > 0 && ++tried >= budget) return -1;
+    }
+    return -1;
+}
+
 inline bool bits_nonzero(const std::vector<std::uint64_t>& words) {
     for (std::uint64_t w : words) {
         if (w) return true;
@@ -716,16 +764,13 @@ inline bool process_one_backward(const Edge& e_in, value_t t_in, DenseTimes& Tm,
     bool heapified = false;
     bool ever_shifted = false;
     bool dead = false;
-    if (bits && later) {
-        const int W = bits->W;
-        S.cwords.assign(static_cast<size_t>(W), 0);
-        for (index_t w : S.C_now) {
-            S.cwords[static_cast<unsigned>(w) >> 6] |= 1ull << (w & 63);
-        }
-    }
     while (true) {
+        // I198 blanket AND-eq here was exact but slower on torus
+        // (1771→2816 ms): later[] masks dwarf Tm walks when C is small.
+        // I199: bits cover only when later[cand] < |C_now|.
         const index_t dominator = (bits && later)
-            ? and_eq_first_in_bits(*bits, *later, t, S.cwords, S.C_now.size(), deg, S.cover, c)
+            ? first_dominator_adapt(Tm, S.C_now, t, nbr, dom_budget, &c, deg, bits, later,
+                                    S.cover)
             : first_dominator_deg(Tm, S.C_now, t, nbr, dom_budget, &c, deg);
         if (dominator < 0) break;
         const value_t* rd = Tm.row(dominator);
@@ -747,9 +792,6 @@ inline bool process_one_backward(const Edge& e_in, value_t t_in, DenseTimes& Tm,
                 ++c.n_collapse_shift_lookups;
                 if (rd[w] > tw) still = false;
                 S.C_now.push_back(w);
-                if (bits) {
-                    S.cwords[static_cast<unsigned>(w) >> 6] |= 1ull << (w & 63);
-                }
                 std::pop_heap(S.C_later.begin(), S.C_later.end(), later_cmp);
                 S.C_later.pop_back();
             }

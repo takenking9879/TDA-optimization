@@ -910,6 +910,13 @@ Do not paste long reasoning here.
 - **Decision:** Select (no regression, small win). Torus wall is the shift heap, not C-build. I198: AND-eq / sticky at shift grades.
 - **Class:** experiment (support as default; torus still shift-bound)
 
+## 2026-10-13 — I198 AND-eq at shift grades
+
+- **Question:** Can AND-eq replace first_dominator_deg Tm walks after each C_later pop?
+- **Result:** **Exact**, same residuals. Circle/blobs/sphere unchanged (~249/182/334 ms). Torus **worse** 1771→2816 ms (0.78× vs Ripser). later[] masks on every candidate dwarf Tm when C is modest; 18.8M dom-tests.
+- **Decision:** Revert shift loop to Tm. I199: AND-eq a candidate only when |later[cand]| < |C|.
+- **Class:** experiment (reject as clock; exact)
+
 ## 2026-10-13 — I164 collapse live-degree trace
 
 - **Question:** Does the live 1-skeleton thin early enough to stop the C-walk?
