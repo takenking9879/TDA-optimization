@@ -157,12 +157,62 @@ static void clear_seeds(State& st) {
     st.seedverts.clear();
 }
 
+// I258: lower-tri CSR of d≤T pairs. get() returns VINF on a miss so a
+// leaked far-read cannot invent a diameter-0 edge. Used only on the
+// spatial path; dense keeps the DistanceMatrix.
+struct SparseDist {
+    int n = 0;
+    std::vector<int> off, nbr;
+    std::vector<value_t> w;
+    value_t get(int i, int j) const {
+        if (i == j) return 0;
+        if (i > j) std::swap(i, j);
+        const int a = off[static_cast<size_t>(i)];
+        const int b = off[static_cast<size_t>(i) + 1];
+        const int* lo = nbr.data() + a;
+        const int* hi = nbr.data() + b;
+        const int* it = std::lower_bound(lo, hi, j);
+        if (it == hi || *it != j) return VINF;
+        return w[static_cast<size_t>(it - nbr.data())];
+    }
+};
+
+static thread_local const SparseDist* g_sparse = nullptr;
+
+static value_t face_diam_any(const int32_t* v, int m, int omit, const State& st) {
+    value_t diam = 0;
+    for (int a = 1; a <= m; ++a) {
+        if (a == omit) continue;
+        for (int b = a + 1; b <= m; ++b) {
+            if (b == omit) continue;
+            const value_t d = g_sparse ? g_sparse->get(v[a - 1], v[b - 1])
+                                       : st.dist(v[a - 1], v[b - 1]);
+            if (d > diam) diam = d;
+        }
+    }
+    return diam;
+}
+
+static bool coface_ready_any(int32_t* cand, const int32_t* xverts, int m, int32_t w, comb_t xidx,
+                             value_t xdiam, State& st) {
+    const int total = m + 1;
+    const int wpos = merge_vertex(cand, xverts, m, w);
+    for (int omit = 1; omit <= total; ++omit) {
+        if (omit == wpos) continue;
+        const comb_t f = face_index_without(cand, total, omit, st.binom);
+        if (f < xidx) continue;
+        if (!(face_diam_any(cand, total, omit, st) < xdiam)) return false;
+    }
+    return true;
+}
+
 // Vendor has_leftover_coface always masks ~seenbits. On the 97% no-seed
 // skip that mask is a no-op memory tax. Same coface_ready, same rbit AND.
 // I253 coface_ready_h1 was exact but no pith cut (wave n=5000 0.36s was
 // noise; standalone reduce 207≈I252 206 ms). Reverted.
 // I255 unique-diam rbit-AND skip was exact 14/14 but no pith cut
 // (n=5000 reduce 211 vs I252 206 ms). Reverted.
+// I258: coface_ready_any so the spatial path can omit the C(n,2) matrix.
 static bool leftover_coface_h1_noseen(State& st, const int32_t* xv, comb_t xidx, value_t r) {
     const uint64_t* rb = st.rbits.data();
     const int words = st.words, nv = st.nv;
@@ -178,7 +228,7 @@ static bool leftover_coface_h1_noseen(State& st, const int32_t* xv, comb_t xidx,
             acc &= acc - 1;
             const int cand = w * 64 + bp;
             if (cand >= nv) break;
-            if (coface_ready(cbuf, xv, 2, (int32_t)cand, xidx, r, st.dist, st.binom))
+            if (coface_ready_any(cbuf, xv, 2, (int32_t)cand, xidx, r, st))
                 return true;
         }
     }
@@ -211,7 +261,41 @@ static bool leftover_coface_noseen(State& st, const int32_t* xverts, int m, comb
             acc &= acc - 1;
             const int cand = w * 64 + bp;
             if (cand >= nv) break;
-            if (coface_ready(cbuf, xverts, m, (int32_t)cand, xidx, r, st.dist, st.binom))
+            if (coface_ready_any(cbuf, xverts, m, (int32_t)cand, xidx, r, st))
+                return true;
+        }
+    }
+    return false;
+}
+
+// Seeded leftover-coface: same as vendor has_leftover_coface but goes
+// through coface_ready_any so a CSR spatial matrix is enough.
+static bool has_leftover_coface_any(State& st, const int32_t* xverts, int m, comb_t xidx,
+                                    value_t r) {
+    if (!g_sparse) return has_leftover_coface(st, xverts, m, xidx, r);
+    const uint64_t* rb = st.rbits.data();
+    const int words = st.words, nv = st.nv;
+    int wlo = 0, whi = words - 1;
+    for (int i = 0; i < m; ++i) {
+        const int v = xverts[i];
+        if (st.rlo[v] > wlo) wlo = st.rlo[v];
+        if (st.rhi[v] < whi) whi = st.rhi[v];
+    }
+    for (int w = wlo; w <= whi; ++w) {
+        uint64_t acc = rb[(size_t)xverts[0] * words + w];
+        if (!acc) continue;
+        for (int i = 1; i < m; ++i) {
+            acc &= rb[(size_t)xverts[i] * words + w];
+            if (!acc) break;
+        }
+        if (!acc) continue;
+        acc &= ~st.seenbits[w];
+        while (acc) {
+            const int bp = redzed_ctz64(acc);
+            acc &= acc - 1;
+            const int cand = w * 64 + bp;
+            if (cand >= nv) break;
+            if (coface_ready_any(st.coface_buf.data(), xverts, m, (int32_t)cand, xidx, r, st))
                 return true;
         }
     }
@@ -249,11 +333,11 @@ static void ae_seeded(State& st, rank_t xrank, comb_t xidx, const int32_t* verts
         const int32_t w = st.seedverts[t];
         const std::vector<slot_t>& sdw = st.seedlists[w];
         if (seeded_is_noop(Rn, xslot, sdw)) continue;
-        if (coface_ready(st.coface_buf.data(), verts, m, w, xidx, sdiam, st.dist, st.binom))
+        if (coface_ready_any(st.coface_buf.data(), verts, m, w, xidx, sdiam, st))
             dirty |= process_seeded(st, xslot, sdw, sdiam);
     }
     if (!dirty) {
-        if (has_leftover_coface(st, verts, m, xidx, sdiam)) {
+        if (has_leftover_coface_any(st, verts, m, xidx, sdiam)) {
             Rn.erase(xrank);
             Rin.erase(xrank);
             return;
@@ -263,7 +347,7 @@ static void ae_seeded(State& st, rank_t xrank, comb_t xidx, const int32_t* verts
     }
     xslot = Rn.slot(xrank);
     if (xslot) {
-        if (has_leftover_coface(st, verts, m, xidx, sdiam)) process_leftover(st, xslot, sdiam);
+        if (has_leftover_coface_any(st, verts, m, xidx, sdiam)) process_leftover(st, xslot, sdiam);
         xslot = Rn.slot(xrank);
     }
     if (xslot) register_active(st, xrank, xslot, verts);
@@ -753,6 +837,49 @@ static void edgelist_from_spat(const std::vector<SpatEdge>& se, value_t threshol
     finish_buckets_parallel(out.diam, out.verts, 2, starts, nb, bt);
 }
 
+// I258: CSR of spatial d≤T pairs (store under lo, binary-search hi).
+// O(|E|) memory instead of C(n,2). Same pairs as SE.
+static void spat_to_csr(const std::vector<SpatEdge>& se, int n, SparseDist& S) {
+    S.n = n;
+    S.off.assign(static_cast<size_t>(n) + 1, 0);
+    for (const SpatEdge& e : se) {
+        const int lo = std::min(e.u, e.v);
+        S.off[static_cast<size_t>(lo) + 1] += 1;
+    }
+    for (int i = 1; i <= n; ++i)
+        S.off[static_cast<size_t>(i)] += S.off[static_cast<size_t>(i) - 1];
+    const int m = S.off[static_cast<size_t>(n)];
+    S.nbr.resize(static_cast<size_t>(m));
+    S.w.resize(static_cast<size_t>(m));
+    std::vector<int> cur = S.off;
+    for (const SpatEdge& e : se) {
+        int lo = e.u, hi = e.v;
+        if (lo > hi) std::swap(lo, hi);
+        const int p = cur[static_cast<size_t>(lo)]++;
+        S.nbr[static_cast<size_t>(p)] = hi;
+        S.w[static_cast<size_t>(p)] = e.t;
+    }
+    std::vector<std::pair<int, value_t>> tmp;
+    for (int i = 0; i < n; ++i) {
+        const int a = S.off[static_cast<size_t>(i)];
+        const int b = S.off[static_cast<size_t>(i) + 1];
+        const int len = b - a;
+        if (len <= 1) continue;
+        tmp.resize(static_cast<size_t>(len));
+        for (int k = 0; k < len; ++k)
+            tmp[static_cast<size_t>(k)] = {S.nbr[static_cast<size_t>(a + k)],
+                                           S.w[static_cast<size_t>(a + k)]};
+        std::sort(tmp.begin(), tmp.end(),
+                  [](const std::pair<int, value_t>& x, const std::pair<int, value_t>& y) {
+                      return x.first < y.first;
+                  });
+        for (int k = 0; k < len; ++k) {
+            S.nbr[static_cast<size_t>(a + k)] = tmp[static_cast<size_t>(k)].first;
+            S.w[static_cast<size_t>(a + k)] = tmp[static_cast<size_t>(k)].second;
+        }
+    }
+}
+
 static Result kruskal_h0(int n, std::vector<SpatEdge>&& edges) {
     Result r;
     Counters& c = r.counters;
@@ -946,10 +1073,10 @@ Result persist_redzed_from_points(const std::vector<std::vector<value_t>>& pts, 
     // I256: when the T-ball is a small fraction of the bbox, skip far
     // distances and pass a prebuilt EdgeList. Dense clouds (π(T/L)²≥0.2)
     // keep I238 parallel all-pairs.
-    // I257: do not ∞-fill C(n,2). With finite T and a prebuilt EdgeList,
-    // coface_ready / generate_stream only read d≤T pairs (rbit AND of
-    // EdgeList neighbors; generate_stream uses the edge-graph, not mat).
-    // Far entries stay 0 from resize_lower and must never be read.
+    // I257: do not ∞-fill C(n,2).
+    // I258: do not allocate C(n,2) at all. CSR of d≤T pairs; D.n is set
+    // so generate_stream can read the vertex count. coface_ready_any
+    // uses g_sparse. Miss → VINF (cannot invent a 0-edge).
     std::vector<SpatEdge> SE;
     bool spatial = false;
     if (std::isfinite(threshold) && threshold > 0 && d >= 2 && d <= 3 && n >= 256) {
@@ -962,14 +1089,13 @@ Result persist_redzed_from_points(const std::vector<std::vector<value_t>>& pts, 
         }
     }
     DistanceMatrix D;
-    D.resize_lower(n);
+    SparseDist csr;
     const auto tfill0 = std::chrono::steady_clock::now();
     if (spatial) {
-        for (const SpatEdge& e : SE) {
-            const int i = std::min(e.u, e.v), j = std::max(e.u, e.v);
-            D.mat[DistanceMatrix::offset(i, j)] = e.t;
-        }
+        spat_to_csr(SE, n, csr);
+        D.n = n;
     } else {
+        D.resize_lower(n);
         const int nth = std::max(1, static_cast<int>(std::thread::hardware_concurrency()));
         auto fill_range = [&](int j0, int j1) {
             for (int j = j0; j < j1; ++j) {
@@ -1001,6 +1127,11 @@ Result persist_redzed_from_points(const std::vector<std::vector<value_t>>& pts, 
         edgelist_from_spat(SE, threshold, bt, pre);
         pre_ptr = &pre;
     }
+    struct SparseGuard {
+        explicit SparseGuard(const SparseDist* p) { g_sparse = p; }
+        ~SparseGuard() { g_sparse = nullptr; }
+    };
+    const SparseGuard guard(spatial ? &csr : nullptr);
     const auto t0 = std::chrono::steady_clock::now();
     auto bars = redzed_vr(D, dim, threshold, pre_ptr);
     Result r;
