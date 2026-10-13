@@ -896,6 +896,13 @@ Do not paste long reasoning here.
 - **Decision:** Circle n=3000 still ≫10×. I196: I193-only n=3000/4000.
 - **Class:** experiment (support, I194-on)
 
+## 2026-10-13 — I196 I193-only n=3000/4000
+
+- **Question:** Does I193 alone (I194 off) beat I189 at flagship sizes?
+- **Result:** **Exact.** n=3000 **119×** (118s/0.99s, collapse 812 ms, residual 9190). n=4000 **140×** (301s/2.15s, collapse 1824 ms, residual 12562). I189/I190 were 93× / 113×.
+- **Decision:** New flagship **140×**. Circle family 83.5 / 119 / 140×. Next: I197 AND-eq on the any_later/shift path (torus).
+- **Class:** experiment (support)
+
 ## 2026-10-13 — I164 collapse live-degree trace
 
 - **Question:** Does the live 1-skeleton thin early enough to stop the C-walk?

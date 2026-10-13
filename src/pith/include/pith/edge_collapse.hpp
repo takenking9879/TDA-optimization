@@ -477,10 +477,93 @@ inline bool process_one_backward(const Edge& e_in, value_t t_in, DenseTimes& Tm,
             }
             out = e_in;
             return true;
+        } else {
+            // I197: any_later — strip later-commons via later[], AND-eq C_now.
+            // No dominator of C_now => keep at t (shift only starts if dominated
+            // at t). Hit => fall through to the shift heap with C_now/C_later.
+            const int W = bits->W;
+            const std::uint64_t* bu = bits->row(u);
+            const std::uint64_t* bv = bits->row(v);
+            S.cwords.assign(static_cast<size_t>(W), 0);
+            for (int w0 = 0; w0 < W; ++w0) {
+                std::uint64_t word = bu[w0] & bv[w0];
+                if (w0 == (u >> 6)) word &= ~(1ull << (u & 63));
+                if (w0 == (v >> 6)) word &= ~(1ull << (v & 63));
+                S.cwords[static_cast<size_t>(w0)] = word;
+            }
+            auto take_later = [&](index_t a, index_t b) {
+                for (const LiveNbr& p : (*later)[a]) {
+                    if (p.second <= t) continue;
+                    const index_t w = p.first;
+                    if (w == u || w == v) continue;
+                    if (!bits_test(S.cwords, w)) continue;
+                    const value_t tw = Tm(b, w);
+                    if (tw >= kInf / 2) continue;
+                    const value_t tau = p.second > tw ? p.second : tw;
+                    S.C_later.push_back({tau, w});
+                    bits_clear_index(S.cwords, w);
+                }
+            };
+            take_later(u, v);
+            take_later(v, u);
+            bits_for_each(S.cwords, [&](index_t w) { S.C_now.push_back(w); });
+            commons = static_cast<std::int64_t>(S.C_now.size() + S.C_later.size());
+            c.n_collapse_c_probes += W;
+            c.n_collapse_c_size_sum += commons;
+            c.n_collapse_last_any_later = S.C_later.empty() ? 0 : 1;
+            if (S.C_now.empty()) {
+                out = e_in;
+                return true;
+            }
+            const size_t need = S.C_now.size() - 1;
+            S.cover.assign(static_cast<size_t>(W), 0);
+            bool hit = false;
+            for (int w0 = 0; w0 < W && !hit; ++w0) {
+                std::uint64_t word = S.cwords[static_cast<size_t>(w0)];
+                while (word) {
+                    const int tz = __builtin_ctzll(word);
+                    word &= word - 1;
+                    const index_t cand = static_cast<index_t>(w0 * 64 + tz);
+                    if (deg && static_cast<size_t>((*deg)[cand]) < need) continue;
+                    ++c.n_collapse_dom_tests;
+                    std::memcpy(S.cover.data(), bits->row(cand),
+                                static_cast<size_t>(W) * sizeof(std::uint64_t));
+                    for (const LiveNbr& p : (*later)[cand]) {
+                        if (p.second > t) bits_clear_index(S.cover, p.first);
+                    }
+                    bool covers = true;
+                    for (int k = 0; k < W; ++k) {
+                        std::uint64_t mask = S.cwords[static_cast<size_t>(k)];
+                        if (k == (cand >> 6)) mask &= ~(1ull << (cand & 63));
+                        if ((S.cover[static_cast<size_t>(k)] & mask) != mask) {
+                            covers = false;
+                            break;
+                        }
+                    }
+                    c.n_collapse_c_probes += W;
+                    if (covers) {
+                        hit = true;
+                        ++c.n_collapse_dom_hits;
+                        break;
+                    }
+                }
+            }
+            if (!hit) {
+                out = e_in;
+                return true;
+            }
+            if (S.C_later.empty()) {
+                drop_uv();
+                ++c.n_collapse_trims;
+                ++c.n_collapse_fast_trims;
+                return false;
+            }
+            // Dominated at t with later-commons: shift heap uses C_now/C_later.
         }
     }
 
-    {
+    const bool skip_consider = bits && later && !S.C_later.empty() && !S.C_now.empty();
+    if (!skip_consider) {
     // I156: fuse first-apex verify into the C walk. If the first common
     // dominates and there is no C_later, trim without materializing C
     // (I155: 1.07M trims vs 2k shifts on circle2000).
