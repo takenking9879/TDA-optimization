@@ -1,0 +1,32 @@
+{
+  "id": "circle3000_h1_full",
+  "lever": "H01",
+  "class": "structural",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "circle n=3000 H1 clock vs Ripser (full collapse)",
+  "receipts": [
+    {
+      "n": 3000,
+      "T": 1.2,
+      "match": true,
+      "ripser_s": 43.6378710529998,
+      "pith_s": 8.565193749999708,
+      "time_ratio": 5.094790885845552,
+      "collapse_ms": 8427.6068,
+      "edges_in": 1838087,
+      "edges_out": 8325
+    },
+    {
+      "n": 3000,
+      "T": 1.5,
+      "match": true,
+      "ripser_s": 114.52118729799986,
+      "pith_s": 14.282324202999916,
+      "time_ratio": 8.01838592026537,
+      "collapse_ms": 14122.776,
+      "edges_in": 2425527,
+      "edges_out": 9190
+    }
+  ]
+}

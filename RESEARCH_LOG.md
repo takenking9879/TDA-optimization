@@ -428,6 +428,23 @@ Do not paste long reasoning here.
 - **Decision:** Still reject implicit as engine. Thin-cycle residual is the only passing case.
 - **Class:** experiment (failure archived; partial support on collapsed circle80)
 
+## 2026-10-13 — I114 reserve + in-place sort
+
+- **Result:** Exact. circle2000 T=1.5 **6.35×** / 4.28 s (Ripser 27.2 s this run; I096 Ripser was 32.5 s). Collapse 4212 ms. Hygiene, not a 10× lever.
+- **Decision:** Keep reserve + in-place sort.
+- **Class:** implementation
+
+## 2026-10-13 — I115 circle n=3000
+
+- **Result:** Exact. T=1.2 **5.1×** (Ripser 43.6 s / PITH 8.6 s, residual 8325). T=1.5 **8.0×** (Ripser 114.5 s / PITH 14.3 s, residual 9190). Ratio still rising with n at large T.
+- **Decision:** Run n=4000 T=1.5 (I117). Do not claim H1 10× yet.
+- **Class:** reproduced
+
+## 2026-10-13 — I116 sphere500 H2
+
+- **Result:** Exact. **45.7×** this run (I085 was 59×; Ripser variance). Residual 1900 edges.
+- **Class:** reproduced
+
 ## 2026-10-13 — I103–I105
 
 - **Result:** Skipped. They required the progressive binary on n=500–3000 after I102 failed.

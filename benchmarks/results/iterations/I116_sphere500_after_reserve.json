@@ -1,0 +1,16 @@
+{
+  "id": "sphere500_after_reserve",
+  "lever": "H01",
+  "class": "reproduced",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "sphere500 H2 after reserve/inplace",
+  "receipts": [
+    {
+      "match": true,
+      "time_ratio": 45.671166229445234,
+      "collapse_ms": 54.379215,
+      "edges_out": 1900
+    }
+  ]
+}

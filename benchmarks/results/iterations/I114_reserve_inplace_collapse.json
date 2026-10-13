@@ -1,0 +1,50 @@
+{
+  "id": "reserve_inplace_collapse",
+  "lever": "H01-reserve",
+  "class": "implementation",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "C_now.reserve + in-place edge sort vs I096",
+  "receipts": [
+    {
+      "n": 80,
+      "T": 1.2,
+      "match": true,
+      "collapse_ms": 0.327174,
+      "ripser_s": 0.0018661270005395636,
+      "pith_s": 0.0017787950000638375,
+      "time_ratio": 1.0490961580578941,
+      "edges_out": 93
+    },
+    {
+      "n": 200,
+      "T": 1.2,
+      "match": true,
+      "collapse_ms": 2.936742,
+      "ripser_s": 0.010824442999364692,
+      "pith_s": 0.004719689999546972,
+      "time_ratio": 2.2934648251058216,
+      "edges_out": 283
+    },
+    {
+      "n": 2000,
+      "T": 1.2,
+      "match": true,
+      "collapse_ms": 2569.7094,
+      "ripser_s": 9.985537028999715,
+      "pith_s": 2.6273304579999603,
+      "time_ratio": 3.800639922775891,
+      "edges_out": 5169
+    },
+    {
+      "n": 2000,
+      "T": 1.5,
+      "match": true,
+      "collapse_ms": 4211.5821,
+      "ripser_s": 27.207245479999983,
+      "pith_s": 4.28359679299956,
+      "time_ratio": 6.351495435906396,
+      "edges_out": 5169
+    }
+  ]
+}
