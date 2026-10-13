@@ -36,6 +36,7 @@ suite and I137 8/8 (including dense circle80/200 **collapse=0**, the I045 killer
 | Sorted-merge C (I146) | Exact; **slower** (circle2000 4.43× / 6.3 s vs 6.30× / 4.2 s) |
 | AVX-512 `dominated_by` (I147) | Exact; **no collapse_ms win** (gather latency) |
 | Prefetch C-walk (I158) | Exact; **slower** (circle2000 3912 vs 3746 ms) |
+| Vertex-sorted stars (I159) | Exact; **slower** (circle2000 3843 vs 3746 ms) |
 | Forward 2020 collapse (I149) | **Not exact** (over-collapse; circle80 unmatched 4). Also slower |
 | Time-axis D&C impl (I150) | PH match on n≤200; **fails** n=2000/3000 (19–25 unmatched). No clock win |
 | Forward at current grade (I152/I154) | Exact (same residual as backward). **Slower** (circle2000 6.8 s vs 4.3 s) |
@@ -80,7 +81,7 @@ I153: C-build is the wall (567M probes / 1.12M dom tests / 96% first-apex hits).
 ~49% of probes miss and still paid two gathers. Domination levers are closed.
 
 1. **I155 pair-nbr + I156 fused first-apex — selected.** Flagship **9.50×** (I157).
-2. **I159 vertex-sorted stars** (in flight). Then integer grade IDs / hub-batch.
-3. I158 prefetch rejected on clock. Probe count unchanged (4.58B at n=4000).
+2. **I160 SoA live adjacency** (in flight). Layout only; probe count unchanged.
+3. I158 prefetch and I159 sorted stars rejected on clock.
 4. Fix D&C merge (I150) — parallel schedule only.
 5. GPU later (Ripser++ reference only)

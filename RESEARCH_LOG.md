@@ -669,8 +669,15 @@ Do not paste long reasoning here.
 - **Decision:** Revert prefetch. Rows already L1-resident.
 - **Class:** experiment (negative on clock)
 
-## 2026-10-13 — I159 vertex-sorted live stars (in progress)
+## 2026-10-13 — I159 vertex-sorted live stars
 
-- **Question:** Does sorting each live star by vertex id make C-walk gathers sequential and faster?
-- **Hypothesis:** High-t edges (largest stars) see sorted access; swap-drop later randomizes the thinned graph. First apex may change; PH must stay exact.
+- **Question:** Does sorting each live star by vertex id make C-walk gathers sequential?
+- **Result:** Exact, same residuals. **Reject on clock.** circle2000 3843 vs I156 3746 ms; circle3000 12784 vs 12606 ms.
+- **Decision:** Revert sort. Sequential gathers do not beat the existing walk order.
+- **Class:** experiment (negative on clock)
+
+## 2026-10-13 — I160 SoA live adjacency (in progress)
+
+- **Question:** Do separate index/time streams beat AoS `pair` on the 567M-probe C-walk?
+- **Hypothesis:** I155 pair doubled entry size; SoA keeps one-gather times with sequential `v[i]`/`t[i]` loads.
 - **Class:** proposal / experiment running

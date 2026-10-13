@@ -1,0 +1,66 @@
+{
+  "id": "vertex_sorted_stars",
+  "lever": "H01-sorted-star",
+  "class": "experiment",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "vertex-sorted live stars vs I156 fused",
+  "baseline": {
+    "I156_circle2000_collapse_ms": 3746.3351,
+    "I156_circle2000_ratio": 7.204315563457339,
+    "I156_circle2000_out": 5169,
+    "I156_circle3000_collapse_ms": 12605.784,
+    "I156_circle3000_ratio": 8.887997792569863,
+    "I156_circle3000_out": 9190
+  },
+  "receipts": [
+    {
+      "n": 80,
+      "T": 1.2,
+      "match": true,
+      "unmatched": 0,
+      "ripser_s": 0.0018967559990414884,
+      "pith_s": 0.001844493999669794,
+      "time_ratio": 1.0283340576770923,
+      "collapse_ms": 0.29669,
+      "edges_out": 93,
+      "fast_trims": 1161
+    },
+    {
+      "n": 200,
+      "T": 1.5,
+      "match": true,
+      "unmatched": 0,
+      "ripser_s": 0.01687941700038209,
+      "pith_s": 0.006863304999569664,
+      "time_ratio": 2.459371542054513,
+      "collapse_ms": 4.931662,
+      "edges_out": 283,
+      "fast_trims": 10457
+    },
+    {
+      "n": 2000,
+      "T": 1.5,
+      "match": true,
+      "unmatched": 0,
+      "ripser_s": 25.950409523000417,
+      "pith_s": 3.9161141670010693,
+      "time_ratio": 6.626571242909663,
+      "collapse_ms": 3842.5004,
+      "edges_out": 5169,
+      "fast_trims": 1010543
+    },
+    {
+      "n": 3000,
+      "T": 1.5,
+      "match": true,
+      "unmatched": 0,
+      "ripser_s": 109.56719276399963,
+      "pith_s": 12.952305319000516,
+      "time_ratio": 8.459281190914247,
+      "collapse_ms": 12783.925,
+      "edges_out": 9190,
+      "fast_trims": 2245606
+    }
+  ]
+}
