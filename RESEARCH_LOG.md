@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-13 — I280 2-hop adaptive Delaunay thicken
+
+- **Question:** Does R_v = 1.5·max(r_v, max_nbr r) stay exact without raising α to 2.25 as n grows?
+- **Hypothesis:** I279’s α treadmill (1.5→2.25) tracks locally long Delaunay spokes. 2-hop max should cover those with a stable α. Median floor adds little (probe).
+- **Work:** `--delaunay-adapt` / `--delaunay-floor`. Unit test circle ess H1. Wave 141 α=1.5+adapt vs Ripser n≤4000 and RedZeD n=8000.
+- **Result:** **Hold (exact, dominated).** Exact H1 **9/9**. blobs closed at α=1.5. figure8 n=4000 **47× / 533 ms / 380k** (I279 **156× / 152 ms / 194k**). n=8000 **26× / 1.08 s / 747k** (I279 **67× / 390 ms / 428k**). Sphere H2 α=1 ess2 1=1. Exact default hold: H0 **61×**, H1 **11.2×**, H2 **58×**.
+- **Decision:** **Hold as optional alternate.** Stable α=1.5 is exact but ~2× edges / 3× clock vs I279. I279 α=2.25 stays the recommended H1 thicken. Do not make adapt the default. Topology loss: 0 on measured H1 oracles; H2 finite 8 on sphere α=1.
+- **Class:** experiment (hold exact alternate; I279 remains recommended)
+
 ## 2026-10-13 — I279 Delaunay-VR α=2.25 (H1)
 
 - **Question:** Does α=2.25 zero I278’s figure8 n=8000 unmatched (2 / bn 4e-4) while staying exact on the smaller families, and does n=16000 stay under 2 s?

@@ -1,6 +1,6 @@
 # Selected algorithm (living)
 
-Updated 2026-10-13 after iterations I001–I279. **CLI default `--engine
+Updated 2026-10-13 after iterations I001–I280. **CLI default `--engine
 auto` (I235+I236+I239+I240+I241+I263+I270+I271+I275):** subsample residual-frac dispatch,
 plus I263 edge-frac so hollow/manifold clouds take RedZeD. Fat →
 RedZeD (torus n=2000 **13.0×**). Thin-circle → collapse+implicit
@@ -648,8 +648,10 @@ Rips is exact and too slow.
    unmatched). **I278 α=1.75 hold** (n=8000 unmatched 2). **I279
    α=2.25 is the recommended H1 thicken**: exact 9/9 oracles,
    figure8 n=4000 **156× / 152 ms**, n=8000 **67× / 390 ms / 428k**
-   vs RedZeD, n=16000 **815 ms / ess1=2**. Do not thicken H2. Do
-   not make it the exact default. Next: adaptive α or linear H2.
+   vs RedZeD, n=16000 **815 ms / ess1=2**.    Do not thicken H2. Do
+   not make it the exact default. **I280 `--delaunay-adapt` is an
+   exact alternate at stable α=1.5** (9/9) but ~2× edges / 3× clock
+   vs I279 — hold, do not replace. Next: linear H2 or exact ae_seeded.
 6. Owned AE leftover-star walk is still Θ(|leftover|·deg★) — rbit cut
    has_leftover_coface, not seeded probes (circle still 875k). Packed
    annotations / seeded_is_noop are the next owned constants.
