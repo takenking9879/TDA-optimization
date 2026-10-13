@@ -191,6 +191,62 @@ inline index_t first_dominator_witness(const DenseTimes& Tm, const std::vector<i
     return -1;
 }
 
+// I226: iterated witness shrink. Each failed apex at w proves every later
+// dominator lies in N_t[w] ∩ remaining candidates. Same exists-dominator
+// decision as first_dominator_deg / _witness. Fail path (torus keeps) should
+// drop candidates instead of walking all of C. `cands` is scratch, not owned.
+inline index_t first_dominator_shrink(const DenseTimes& Tm, const std::vector<index_t>& C_now,
+                                     value_t t, const LiveAdj& nbr, int budget, Counters* ctr,
+                                     const std::vector<int>* deg, std::vector<index_t>& cands,
+                                     index_t witness = -1) {
+    if (C_now.empty()) return -1;
+    if (C_now.size() == 1) {
+        if (ctr) ++ctr->n_collapse_dom_hits;
+        return C_now[0];
+    }
+    const size_t need = C_now.size() - 1;
+    cands.clear();
+    cands.reserve(C_now.size());
+    if (witness >= 0) {
+        const value_t* rw = Tm.row(witness);
+        for (index_t cand : C_now) {
+            if (cand != witness && rw[cand] > t) continue;
+            const size_t cand_deg = deg ? static_cast<size_t>((*deg)[cand]) : nbr[cand].size();
+            if (cand_deg < need) continue;
+            cands.push_back(cand);
+        }
+    } else {
+        for (index_t cand : C_now) {
+            const size_t cand_deg = deg ? static_cast<size_t>((*deg)[cand]) : nbr[cand].size();
+            if (cand_deg < need) continue;
+            cands.push_back(cand);
+        }
+    }
+    int tried = 0;
+    size_t i = 0;
+    while (i < cands.size()) {
+        const index_t cand = cands[i++];
+        if (ctr) ++ctr->n_collapse_dom_tests;
+        index_t fw = -1;
+        if (dominated_by(Tm, C_now, cand, t, nullptr, nullptr, 0, -1, &fw)) {
+            if (ctr) ++ctr->n_collapse_dom_hits;
+            return cand;
+        }
+        if (budget > 0 && ++tried >= budget) return -1;
+        if (fw >= 0 && i < cands.size()) {
+            const value_t* rf = Tm.row(fw);
+            size_t w = i;
+            for (size_t r = i; r < cands.size(); ++r) {
+                const index_t x = cands[r];
+                if (x == fw || rf[x] <= t) cands[w++] = x;
+            }
+            if (ctr) ctr->n_collapse_dom_skips += static_cast<std::int64_t>(cands.size() - w);
+            cands.resize(w);
+        }
+    }
+    return -1;
+}
+
 // I101: progressive intersection. Survivors of ∧_w N_t[w] ∩ C are exactly the
 // dominators. Early abort when S empties (the expensive "not dominated" case).
 inline index_t first_dominator_prog(const DenseTimes& Tm, const std::vector<index_t>& C_now,
@@ -358,6 +414,7 @@ struct BwScratch {
     std::vector<std::pair<value_t, index_t>> C_later;
     std::vector<std::uint64_t> cover;   // I189: bits[first] minus later[first]
     std::vector<std::uint64_t> cwords;  // I191: C = bits[u] & bits[v]
+    std::vector<index_t> cands;         // I226: shrinking witness candidate pool
 };
 
 inline void bits_clear_index(std::vector<std::uint64_t>& words, index_t i) {
@@ -862,10 +919,12 @@ inline bool process_one_backward(const Edge& e_in, value_t t_in, DenseTimes& Tm,
             dominator = known_dom;
             known_dom = -1;
         } else if (witness >= 0 && S.C_now.size() >= 32) {
-            dominator = first_dominator_witness(Tm, S.C_now, t, nbr, dom_budget, &c, deg,
-                                                witness);
+            // I226 shrink on the I202-gated witness seed.
+            dominator = first_dominator_shrink(Tm, S.C_now, t, nbr, dom_budget, &c, deg,
+                                               S.cands, witness);
         } else {
-            dominator = first_dominator_deg(Tm, S.C_now, t, nbr, dom_budget, &c, deg);
+            dominator = first_dominator_shrink(Tm, S.C_now, t, nbr, dom_budget, &c, deg,
+                                               S.cands, -1);
         }
         if (dominator < 0) break;
         const value_t* rd = Tm.row(dominator);
@@ -957,6 +1016,7 @@ inline Graph collapse_edges(Graph g, int iterations, Counters& c, int dom_budget
 
     BwScratch scratch;
     scratch.C_now.reserve(static_cast<size_t>(g.n));
+    scratch.cands.reserve(static_cast<size_t>(g.n));
     scratch.C_later.reserve(static_cast<size_t>(g.n));
 
     for (int pass = 0; pass < iterations; ++pass) {
@@ -1546,6 +1606,7 @@ inline Graph collapse_edges_dc(Graph g, int iterations, Counters& c, int dom_bud
         Counters cR;
         BwScratch scratch_R;
         scratch_R.C_now.reserve(static_cast<size_t>(g.n));
+        scratch_R.cands.reserve(static_cast<size_t>(g.n));
         scratch_R.C_later.reserve(static_cast<size_t>(g.n));
 
         std::thread th_left([&] { left_out = collapse_edges(std::move(gL), 1, cL, dom_budget); });
