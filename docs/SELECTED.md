@@ -672,8 +672,8 @@ Rips is exact and too slow.
    n=50000 **113 ms / 150k** (Ripser timeout). **I285 3D H0 scale:**
    sphere n=16000 **139× / 116 ms** exact; n=30000 **288× / 221 ms /
    151k** vs Ripser 63.6 s; n=50000 **367 ms / 252k**. Next: one
-   Euclidean H0+H1+H2 path is I286 split. ae_seeded leftover wall
-   remains for exact H1.
+   Euclidean H0+H1+H2 path is I286 split (I287: sphere n=8000
+   1.42 s). ae_seeded leftover wall remains for exact H1.
 6. Owned AE leftover-star walk is still Θ(|leftover|·deg★) — rbit cut
    has_leftover_coface, not seeded probes (circle still 875k). Packed
    annotations / seeded_is_noop are the next owned constants.
