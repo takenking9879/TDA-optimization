@@ -20,7 +20,7 @@ justification (residual \(|E'(n)|\) slopes, column counts, or a different
 complex with a proven size bound). Any information loss vs exact VR must be
 quantified (unmatched bars / bottleneck / interleaving).
 
-Current honest status: **`--engine auto` (I235+I236+I238+I239+I240)** is
+Current honest status: **`--engine auto` (I235+I236+I238+I239+I240+I241)** is
 shape-agnostic (0 unmatched) and picks the better exact engine from a
 250-point collapse probe. H1 τ=0.04; H2 τ=0.15. Torus n=2000 H1 **12.7×**;
 circle n=1000 **28×**; sphere n=600 H2 **136×**. Disconnected clouds
@@ -442,6 +442,6 @@ generation were inexact. GUDHI explicit Rips is exact and too slow.
 4. Push **connected** uniform2 from ~6× to 10× (RedZeD reduce is the wall).
 5. Next owned generation cut needs RedZeD-faithful rbit / active
    enumeration — I233/I236 leftovers were inexact.
-6. H07 kd-tree on a connected 1-component fill (T+1 sentinels) — metric
-   only; reduce is the wall.
+6. I241 T-cap fill is rejected (slower metric). Do not retry without
+   a reduce cut.
 7. GPU later.

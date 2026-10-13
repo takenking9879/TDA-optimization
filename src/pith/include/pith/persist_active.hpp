@@ -5,11 +5,11 @@
 namespace pith {
 
 // Owned active PH (RedZeD idea, not the vendor copy). Shape-agnostic.
-// H0: Kruskal. H1: leftover youngest-face triangles + R/Ri resolve_bar
-// (I232). Empty face-XOR is an H2 birth. I233 live-star and I236/I237
-// leftover-coface AE (batch and birth-time insert) are reverted — both
-// invented the same finite H1 on real clouds. H2: I234 tet reduce.
-// Generation stays the I232 full walk.
+// H0: Kruskal. H1: I242 vendor-faithful active enumeration (incremental
+// register_active + leftover-coface erase-without-pair). I233 live-star
+// and I236/I237 leftover-coface AE invented finite H1 — they paired on
+// leftover-coface / first-hit and pre-registered every leftover. H2:
+// I234 tet reduce on empty face-XOR triangles.
 inline Result persist_active_h1(const Graph& g, int maxdim, value_t threshold,
                                 value_t ratio) {
     Result r;
@@ -92,7 +92,8 @@ inline Result persist_active_h1(const Graph& g, int maxdim, value_t threshold,
     for (int i = 0; i < m; ++i) {
         R[static_cast<size_t>(i)] = {i};
         Ri[static_cast<size_t>(i)] = {i};
-        star_add(i);
+        // I242: vendor register_active is *after* AE. Pre-inserting every
+        // leftover (I236) lets later births seed earlier triangles.
     }
 
     struct H2Tri {
@@ -169,6 +170,17 @@ inline Result persist_active_h1(const Graph& g, int maxdim, value_t threshold,
         auto it = edge_id.find(pack2(a, b));
         return it == edge_id.end() ? -1 : it->second;
     };
+    // Vendor process_seeded XORs x plus *registered* active faces, not
+    // later leftovers that already have a singleton R from Kruskal.
+    auto leftover_active = [&](index_t a, index_t b) -> int {
+        const int id = leftover_of(a, b);
+        if (id < 0) return -1;
+        if (star_pos[static_cast<size_t>(id) * 2] < 0 &&
+            star_pos[static_cast<size_t>(id) * 2 + 1] < 0)
+            return -1;
+        if (R[static_cast<size_t>(id)].empty()) return -1;
+        return id;
+    };
 
     auto reduce_tri = [&](int e0, int e1, int e2, value_t td, index_t a, index_t b,
                           index_t w) -> bool {
@@ -208,9 +220,37 @@ inline Result persist_active_h1(const Graph& g, int maxdim, value_t threshold,
         return true;
     };
 
-    // I236: AE leftover-coface / first-hit process_leftover invented
-    // finite H1 on mixed clouds (essentials held). Keep the I232 walk.
-    for (const BirthEdge& e : leftover) {
+    // Vendor coface_ready: combinatorial index, not leftover id.
+    // comb({u<v}) = C(v,2)+u. A later-index face needs strictly smaller diam.
+    auto edge_comb = [](index_t a, index_t b) -> std::uint64_t {
+        if (a > b) std::swap(a, b);
+        return static_cast<std::uint64_t>(b) * static_cast<std::uint64_t>(b - 1) / 2 +
+               static_cast<std::uint64_t>(a);
+    };
+    auto coface_ready = [&](const BirthEdge& e, index_t w, value_t twu, value_t twv) {
+        if (twu > e.t || twv > e.t) return false;
+        const std::uint64_t xidx = edge_comb(e.u, e.v);
+        const std::uint64_t iuw = edge_comb(e.u, w);
+        const std::uint64_t ivw = edge_comb(e.v, w);
+        if (iuw > xidx && !(twu < e.t)) return false;
+        if (ivw > xidx && !(twv < e.t)) return false;
+        return true;
+    };
+
+    // I242: vendor-faithful H1 AE (RedZeD run_active_enumeration).
+    // Seeded cofaces = triangles that share another *registered* leftover.
+    // Leftover-coface with no seeded work erases without pairing
+    // (skip (n+1)-birth / zero bar). I236 paired on leftover-coface
+    // and invented finite H1. Do not first-hit; do not empty-R abort.
+    auto edge_t = [&](index_t a, index_t b) -> value_t {
+        const auto& nb = g.neighbors[static_cast<size_t>(a)];
+        const auto it = std::lower_bound(
+            nb.begin(), nb.end(), b,
+            [](const std::pair<index_t, value_t>& p, index_t x) { return p.first < x; });
+        if (it == nb.end() || it->first != b) return kInf;
+        return it->second;
+    };
+    auto has_leftover_coface = [&](const BirthEdge& e, const std::vector<char>& seen) {
         const auto& nu = g.neighbors[static_cast<size_t>(e.u)];
         const auto& nv = g.neighbors[static_cast<size_t>(e.v)];
         size_t i = 0, j = 0;
@@ -224,16 +264,96 @@ inline Result persist_active_h1(const Graph& g, int maxdim, value_t threshold,
                 continue;
             }
             const index_t w = nu[i].first;
-            ++c.n_cofacet_probes;
-            if (w != e.u && w != e.v) {
-                const value_t twu = nu[i].second;
-                const value_t twv = nv[j].second;
-                if (twu <= threshold && twv <= threshold && e_youngest(e, w, twu, twv))
-                    reduce_tri(e.id, leftover_of(e.u, w), leftover_of(e.v, w), e.t, e.u, e.v,
-                               w);
-            }
+            if (w != e.u && w != e.v && !seen[static_cast<size_t>(w)] &&
+                coface_ready(e, w, nu[i].second, nv[j].second))
+                return true;
             ++i;
             ++j;
+        }
+        return false;
+    };
+
+    if (maxdim >= 2) {
+        // I234 H2 needs every empty-XOR triangle. Vendor also streams all
+        // 2-simplices when dim≥2 (AE is H1-only). Keep the I232 walk.
+        for (const BirthEdge& e : leftover) {
+            const auto& nu = g.neighbors[static_cast<size_t>(e.u)];
+            const auto& nv = g.neighbors[static_cast<size_t>(e.v)];
+            size_t i = 0, j = 0;
+            while (i < nu.size() && j < nv.size()) {
+                if (nu[i].first < nv[j].first) {
+                    ++i;
+                    continue;
+                }
+                if (nv[j].first < nu[i].first) {
+                    ++j;
+                    continue;
+                }
+                const index_t w = nu[i].first;
+                ++c.n_cofacet_probes;
+                if (w != e.u && w != e.v) {
+                    const value_t twu = nu[i].second;
+                    const value_t twv = nv[j].second;
+                    if (twu <= threshold && twv <= threshold && e_youngest(e, w, twu, twv))
+                        reduce_tri(e.id, leftover_of(e.u, w), leftover_of(e.v, w), e.t, e.u, e.v,
+                                   w);
+                }
+                ++i;
+                ++j;
+            }
+        }
+    }
+
+    if (maxdim < 2) {
+        for (const BirthEdge& e : leftover) {
+            if (R[static_cast<size_t>(e.id)].empty()) continue;
+            std::vector<char> seen(static_cast<size_t>(g.n), 0);
+            std::vector<index_t> cands;
+            auto consider_star = [&](index_t v, index_t other) {
+                for (int fid : star[static_cast<size_t>(v)]) {
+                    if (fid == e.id) continue;
+                    const BirthEdge& f = leftover[static_cast<size_t>(fid)];
+                    const index_t w = (f.u == v) ? f.v : f.u;
+                    if (w == e.u || w == e.v) continue;
+                    if (edge_t(other, w) > e.t) continue;
+                    if (!seen[static_cast<size_t>(w)]) {
+                        seen[static_cast<size_t>(w)] = 1;
+                        cands.push_back(w);
+                    }
+                }
+            };
+            consider_star(e.u, e.v);
+            consider_star(e.v, e.u);
+
+            bool dirty = false;
+            for (index_t w : cands) {
+                ++c.n_cofacet_probes;
+                const value_t twu = edge_t(e.u, w);
+                const value_t twv = edge_t(e.v, w);
+                if (coface_ready(e, w, twu, twv))
+                    dirty |= reduce_tri(e.id, leftover_active(e.u, w), leftover_active(e.v, w), e.t,
+                                        e.u, e.v, w);
+                if (R[static_cast<size_t>(e.id)].empty()) break;
+            }
+
+            if (R[static_cast<size_t>(e.id)].empty()) continue;
+            const bool extra = has_leftover_coface(e, seen);
+            if (!dirty) {
+                if (extra) {
+                    // Vendor: leftover coface is an (n+1)-birth. Drop the
+                    // column without a finite bar (zero-persistence skip).
+                    R[static_cast<size_t>(e.id)].clear();
+                    Ri[static_cast<size_t>(e.id)].clear();
+                } else {
+                    star_add(e.id);
+                }
+                continue;
+            }
+            if (extra && !R[static_cast<size_t>(e.id)].empty()) {
+                std::vector<int> bar = R[static_cast<size_t>(e.id)];
+                resolve_bar(R, Ri, leftover_t, 1, bar, e.t);
+            }
+            if (!R[static_cast<size_t>(e.id)].empty()) star_add(e.id);
         }
     }
 
