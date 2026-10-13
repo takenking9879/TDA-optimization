@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-13 — I283 Delaunay 2-complex / Alpha H2
+
+- **Question:** Does the Delaunay complex (only Delaunay faces/tets, max-edge filtration) recover more finite H2 than I276 flag-of-1-skeleton, and does Alpha keep the VR void?
+- **Hypothesis:** Flag adds non-Delaunay 4-cliques. Restricting to Delaunay tets is Θ(n) and should cut finite unmatched. I205 Alpha (circumradius) dropped ess H1; it may also fill the VR void (ess H2→0).
+- **Work:** scipy Delaunay + GUDHI SimplexTree vs Ripser and `--delaunay-vr`. AlphaComplex with 2√r² scale + T-cap. No owned engine (not a uniform win).
+- **Result:** **Hold.** DC keeps ess H0/H1/H2 on all 8 families. sphere n=400 unmatched **33 vs flag 52**. two_spheres **32 vs 28** (worse). torus H1 **22 vs 18**. 2D H1 identical to I276 (same 1-skeleton). Alpha **drops ess H2** (0 vs 1) — fills the ball. Do not implement as default or as `--delaunay-complex`.
+- **Decision:** **Hold / reject as selected.** I276 flag stays the optional H2 path (ess void, fewer moving parts). Exact auto stays the finite-H2 path (I281 n=800 **527×**). Do not thicken H2. Do not retry Alpha as a VR stand-in for H2.
+- **Class:** experiment (hold quantified; reject as default)
+
 ## 2026-10-13 — I282 Delaunay-VR auto-α
 
 - **Question:** Can `--delaunay-alpha auto` replace a magic 2.25 and stay exact on the I279 families, including figure8 n=8000?

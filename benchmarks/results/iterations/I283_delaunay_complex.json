@@ -1,0 +1,22 @@
+{
+  "id": "delaunay_complex",
+  "lever": "H16-delaunay-complex",
+  "class": "algorithm",
+  "fidelity": "approx-ess",
+  "status": "hold",
+  "summary": "DC keeps ess H0/H1/H2; sphere n=400 un 52→33 vs flag; two_spheres 28→32 worse; 2D H1 identical to I276. Alpha drops ess H2.",
+  "all_match": false,
+  "ess_ok": true,
+  "receipts": [
+    {"name": "sphere", "n": 80, "maxdim": 2, "dc_unmatched": 8, "flag_unmatched": 8, "ess2": 1, "ess2_ref": 1, "dc_tets": 192},
+    {"name": "sphere", "n": 400, "maxdim": 2, "dc_unmatched": 33, "flag_unmatched": 52, "ess2": 1, "ess2_ref": 1, "dc_tets": 1161},
+    {"name": "two_spheres", "n": 200, "maxdim": 2, "dc_unmatched": 32, "flag_unmatched": 28, "ess2": 2, "ess2_ref": 2, "dc_tets": 493},
+    {"name": "figure8", "n": 200, "maxdim": 1, "dc_unmatched": 3, "flag_unmatched": 3, "ess1": 2, "ess1_ref": 2},
+    {"name": "two_circles", "n": 200, "maxdim": 1, "dc_unmatched": 7, "flag_unmatched": 7, "ess1": 2, "ess1_ref": 2},
+    {"name": "circle_noisy", "n": 500, "maxdim": 1, "dc_unmatched": 44, "flag_unmatched": 44, "ess1": 1, "ess1_ref": 1},
+    {"name": "torus", "n": 400, "maxdim": 1, "dc_unmatched": 22, "flag_unmatched": 18, "ess1": 1, "ess1_ref": 1},
+    {"name": "blobs", "n": 400, "maxdim": 1, "dc_unmatched": 45, "flag_unmatched": 45, "ess1": 0, "ess1_ref": 0},
+    {"name": "alpha_sphere", "n": 80, "ess2": 0, "ess2_ref": 1, "unmatched": 90},
+    {"name": "alpha_sphere", "n": 400, "ess2": 0, "ess2_ref": 1, "unmatched": 526}
+  ]
+}
