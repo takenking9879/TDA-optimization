@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-13 — I272 Gabriel leftover skip
+
+- **Question:** Non-Gabriel leftovers have a diametral witness, so are they apparent (n+1)-births we can skip leftover_coface on, cutting figure8 n=4000 reduce (866 ms) to O(n) pairing?
+- **Hypothesis:** Gabriel ⊆ Delaunay. Only those leftovers birth positive-persistence H1. advance_rbits still sees every G_T edge. 2D only. Shape-agnostic in the plane. H0/H2 unchanged.
+- **Work:** Walk-locate opposites → Gabriel set; H1 leftover loop continues after ae_prepare when the edge is not Gabriel. Unit test n=256 vs all-pairs RedZeD.
+- **Result:** **Not exact.** n=256 H1 ess **31 vs 0**, finite **37 vs 68**. Non-Gabriel leftovers still take the AE seeded/keep path — leftover_coface is not the diametral-disk test. Skipping invents essentials (older births never die).
+- **Decision:** **Revert.** Do not retry Gabriel / Delaunay leftover filters as a RedZeD visit skip. Topology would have been lost. I271 H0 stays. H1 leftover visits stay Θ(|E|).
+- **Class:** experiment (reject; inexact; reverted)
+
 ## 2026-10-13 — I271 walk-locate 2D Delaunay H0
 
 - **Question:** Is I270’s H0 wall the O(n²) Bowyer–Watson scan (n=8000 metric 557 ms), and does Lawson walk + cavity flood cut construction to expected O(n log n) without changing VR H0?

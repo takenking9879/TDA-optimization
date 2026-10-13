@@ -126,6 +126,7 @@ suite and I137 8/8 (including dense circle80/200 **collapse=0**, the I045 killer
 | Empty-act skip-prepare (I254) | Exact 15/15; **no pith cut** (n=5000 0.31≈I252 0.30 s; n=8000 10.8× / 0.63 s). Reverted |
 | Unique-diam leftover-coface (I255) | Exact 14/14 (lemma: unique edge diams ⇒ leftover-coface ≡ nonempty rbit AND). **No pith cut** (n=5000 reduce 211 vs I252 206 ms). Profile: 3.45M leftovers, first common neighbor always decides, 1309 misses have 0 neighbors. Reverted |
 | GUDHI 3.13 explicit Rips (I237) | Exact 7/7; **slower** (blobs n=1000 15.9 s / 17.8M simplices vs auto 21 ms) |
+| Gabriel leftover skip (I272) | **Not exact.** n=256 H1 invented ess 31 vs 0 and dropped finite 37 vs 68. Non-Gabriel leftovers still reduce in AE (not all leftover_coface). Reverted. Do not retry. |
 
 I107 (`--dom-budget 1`) **still rejected** with implicit (I142–I144): thicker
 residual makes collapse *and* reduce slower (circle3000 1.49× vs full 8.11×).
@@ -615,8 +616,9 @@ Rips is exact and too slow.
    n=8000 **7.6 ms / 137×** (I270 557 ms), n=12000 **218× / 0.027 s /
    36k edges**. Justified: MST ⊆ Delaunay, expected O(n log n)
    incircle vs O(n²) scan vs Θ(|E_T|) listing. H1 leftover visits
-   remain Θ(|E|). Next: a leftover-*visit* skip (not I264–I269
-   layout/AND/Morton), e.g. 2D Gabriel leftovers ⊆ Delaunay.
+   remain Θ(|E|). I272 Gabriel leftover skip is **not exact**
+   (n=256 ess H1 31 vs 0). Do not retry. Leftover_coface ≠ diametral
+   witness; non-Gabriel leftovers still reduce in AE.
 6. Owned AE leftover-star walk is still Θ(|leftover|·deg★) — rbit cut
    has_leftover_coface, not seeded probes (circle still 875k). Packed
    annotations / seeded_is_noop are the next owned constants.
