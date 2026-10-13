@@ -1862,13 +1862,14 @@ bool delaunay_one_skeleton(const std::vector<std::vector<value_t>>& pts, std::ve
 }
 
 bool delaunay_vr_skeleton(const std::vector<std::vector<value_t>>& pts, value_t T, value_t alpha,
-                          std::vector<Edge>& out) {
+                          std::vector<Edge>& out, value_t floor, bool adapt) {
     if (!delaunay_one_skeleton(pts, out)) return false;
-    if (!(alpha > 1.0) || pts.empty()) return true;
+    if ((!(alpha > 1.0) && !(floor > 0) && !adapt) || pts.empty()) return true;
     const int n = static_cast<int>(pts.size());
     const int d = static_cast<int>(pts[0].size());
     if (d < 2 || d > 3) return true;
     std::vector<double> rad(static_cast<size_t>(n), 0);
+    std::vector<std::vector<int>> adj(static_cast<size_t>(n));
     std::unordered_set<uint64_t> have;
     have.reserve(out.size() * 2 + static_cast<size_t>(n) * 8);
     auto ek = [](int u, int v) -> uint64_t {
@@ -1880,6 +1881,15 @@ bool delaunay_vr_skeleton(const std::vector<std::vector<value_t>>& pts, value_t 
         const double dt = static_cast<double>(e.t);
         if (dt > rad[static_cast<size_t>(e.u)]) rad[static_cast<size_t>(e.u)] = dt;
         if (dt > rad[static_cast<size_t>(e.v)]) rad[static_cast<size_t>(e.v)] = dt;
+        adj[static_cast<size_t>(e.u)].push_back(e.v);
+        adj[static_cast<size_t>(e.v)].push_back(e.u);
+    }
+    std::vector<double> hop = rad;
+    if (adapt) {
+        for (int i = 0; i < n; ++i)
+            for (int j : adj[static_cast<size_t>(i)])
+                if (rad[static_cast<size_t>(j)] > hop[static_cast<size_t>(i)])
+                    hop[static_cast<size_t>(i)] = rad[static_cast<size_t>(j)];
     }
     std::vector<double> rr = rad;
     std::nth_element(rr.begin(), rr.begin() + n / 2, rr.end());
@@ -1899,8 +1909,10 @@ bool delaunay_vr_skeleton(const std::vector<std::vector<value_t>>& pts, value_t 
     }
     out.reserve(out.size() + static_cast<size_t>(n) * 16);
     const int cap = (d == 2) ? 16 : 8;
+    const double floorR = (floor > 0) ? static_cast<double>(floor) * med : 0;
+    const double a0 = (alpha > 0) ? static_cast<double>(alpha) : 1.0;
     for (int i = 0; i < n; ++i) {
-        const double R = alpha * rad[static_cast<size_t>(i)];
+        const double R = std::max(a0 * hop[static_cast<size_t>(i)], floorR);
         if (!(R > 0)) continue;
         const int reach = std::min(cap, std::max(1, static_cast<int>(std::ceil(R * inv + 1e-9))));
         int c0[3] = {0, 0, 0};

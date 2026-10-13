@@ -34,10 +34,11 @@ double probe_edge_frac_points(const std::vector<std::vector<value_t>>& pts, valu
 // edges is not exact VR; it is the optional `--delaunay-vr` scale path.
 bool delaunay_one_skeleton(const std::vector<std::vector<value_t>>& pts, std::vector<Edge>& out);
 
-// I277–I279: Delaunay plus edges with d≤min(T, α·r_v) from each vertex
-// (r_v = longest incident Delaunay edge). Spatial query. H1-only;
-// α=1 is I276. α=1.75 zeros blobs; α=2.25 was exact on figure8 n=8000.
+// I277–I280: Delaunay plus edges with d≤min(T, R_v) from each vertex.
+// r_v = longest incident Delaunay edge. Default R_v = α·r_v (I279 α=2.25).
+// I280 adapt: R_v = α·max(r_v, max_{nbr} r_u), plus floor·median(r).
+// Spatial query. H1-only; α=1 is I276.
 bool delaunay_vr_skeleton(const std::vector<std::vector<value_t>>& pts, value_t T, value_t alpha,
-                          std::vector<Edge>& out);
+                          std::vector<Edge>& out, value_t floor = 0, bool adapt = false);
 
 }  // namespace pith

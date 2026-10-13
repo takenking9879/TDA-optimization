@@ -47,6 +47,8 @@ static void usage() {
         << "  --reduced-vr        H07 reduced VR 2-complex (exact PH1 claimed; I224)\n"
         << "  --delaunay-vr       flag of Euclidean Delaunay 1-skeleton (I276; not exact VR)\n"
         << "  --delaunay-alpha A  I277–I279 H1 thicken: add d≤A·r_local (default 1; 2.25 exact at n=8000)\n"
+        << "  --delaunay-adapt    I280: R_v = A·max(r_v, max_nbr r) instead of A·r_v\n"
+        << "  --delaunay-floor F  I280: also thicken to F·median(r) (default 0)\n"
         << "  --sparse-only       write residual edges and exit\n"
         << "  --probe-only        print ROI probe on G_T and exit (I163)\n"
         << "  --probe-vertex      print dominated-vertex count on G_T and exit (I192)\n"
@@ -308,6 +310,8 @@ int main(int argc, char** argv) {
     bool reduced_vr = false;
     bool delaunay_vr = false;
     value_t delaunay_alpha = 1;
+    value_t delaunay_floor = 0;
+    bool delaunay_adapt = false;
     bool later_b = false;
     int later_escalate = 0;
     int later_esc_until = 0;
@@ -334,6 +338,8 @@ int main(int argc, char** argv) {
         else if (a == "--reduced-vr") reduced_vr = true;
         else if (a == "--delaunay-vr") delaunay_vr = true;
         else if (a == "--delaunay-alpha") delaunay_alpha = std::stof(need("--delaunay-alpha"));
+        else if (a == "--delaunay-adapt") delaunay_adapt = true;
+        else if (a == "--delaunay-floor") delaunay_floor = std::stof(need("--delaunay-floor"));
         else if (a == "--sparse-cap") {
             const std::string v = need("--sparse-cap");
             if (v == "min") sparse_cap = SparseCap::Min;
@@ -456,7 +462,9 @@ int main(int argc, char** argv) {
                 // thicken (α>1). H2 stays α=1 — extra edges explode tets.
                 std::vector<Edge> de;
                 const value_t a = (maxdim <= 1) ? delaunay_alpha : value_t{1};
-                if (!delaunay_vr_skeleton(pts, threshold, a, de)) {
+                const value_t fl = (maxdim <= 1) ? delaunay_floor : value_t{0};
+                const bool ad = (maxdim <= 1) && delaunay_adapt;
+                if (!delaunay_vr_skeleton(pts, threshold, a, de, fl, ad)) {
                     std::cerr << "--delaunay-vr requires Euclidean d=2 or d=3\n";
                     return 2;
                 }
@@ -627,8 +635,8 @@ int main(int argc, char** argv) {
         } else {
             r.counters.n_vertices = g.n;
             r.counters.pipeline = delaunay_vr
-                                      ? ((maxdim <= 1 && delaunay_alpha > 1)
-                                             ? std::string("pith:delaunay-vr-alpha")
+                                      ? ((maxdim <= 1 && (delaunay_alpha > 1 || delaunay_adapt || delaunay_floor > 0))
+                                             ? std::string(delaunay_adapt ? "pith:delaunay-vr-adapt" : "pith:delaunay-vr-alpha")
                                              : std::string("pith:delaunay-vr"))
                                       : (reduced_vr
                                              ? std::string("pith:reduced-vr")
