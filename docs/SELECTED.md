@@ -1,6 +1,6 @@
 # Selected algorithm (living)
 
-Updated 2026-10-13 after iterations I001–I286. **CLI default `--engine
+Updated 2026-10-13 after iterations I001–I287. **CLI default `--engine
 auto` (I235+I236+I239+I240+I241+I263+I270+I271+I275):** subsample residual-frac dispatch,
 plus I263 edge-frac so hollow/manifold clouds take RedZeD. Fat →
 RedZeD (torus n=2000 **13.0×**). Thin-circle → collapse+implicit
@@ -599,8 +599,10 @@ Rips is exact and too slow.
    maxdim=1: H1 thicken (I282). maxdim≥2: **I286 split** — H1 on
    the thicken, H2 on the α=1 flag (do not thicken H2). figure8
    n=2000 maxdim=2 **exact H1 33× / 75 ms**; n=4000 **158 ms /
-   186k / ess1=2**. sphere n=2000 H0+H1+H2 **203 ms / ess2=1**
-   (n=400 unmatched 3 vs I276 flag 52). two_spheres ess2 2=2.
+   186k / ess1=2**; n=8000 **430 ms / ess1=2**. sphere n=2000
+   H0+H1+H2 **203 ms / ess2=1**; n=4000 **621 ms**; n=8000
+   **1.42 s / 1.07M / ess2=1** (I287). n=400 unmatched 3 vs I276
+   flag 52. two_spheres n=400 ess2 2=2, unmatched 2.
    I279 fixed 2.25 is the measured H1 constant. Default α=1 stays
    I276 ess-only. Not a VR identity.
 4. Connected uniform2 is **11.2×** at n=5000 (0.33 s).
@@ -661,7 +663,9 @@ Rips is exact and too slow.
    unmatched finite).    **I282 `--delaunay-alpha auto` is the
    recommended H1 thicken CLI** (exact 9/9, n=8000 65×). **I286
    split** makes auto work at maxdim≥2 (figure8 n=4000 158 ms;
-   sphere n=2000 H0+H1+H2 203 ms). **I283
+   sphere n=2000 H0+H1+H2 203 ms). **I287 split scale:** sphere
+   n=8000 H0+H1+H2 **1.42 s / ess2=1**; figure8 n=8000 **430 ms**.
+   **I283
    Delaunay 2-complex hold:** ess kept, sphere n=400 un 52→33, but
    two_spheres worse (28→32). Alpha drops ess H2. I276 flag stays.
    **I284 H0 scale:** blobs n=25000 **515× / 55 ms** exact;

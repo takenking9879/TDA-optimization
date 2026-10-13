@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-13 — I287 harder I286 split (sphere n=8k H0+H1+H2)
+
+- **Question:** Does I286 split stay usable at more 3D points (sphere n=4000/8000 maxdim=2) and figure8 n=8000, without breaking ess H1/H2 or the exact default?
+- **Hypothesis:** Same construction. n=2000 was 203 ms / 201k. Thicken |E| should stay near-linear in n; implicit H1 on ~1M edges should stay seconds, not Ripser-tet minutes.
+- **Work:** Wave 147 pith-only at large n; two_spheres n=400 vs Ripser; exact default hold. No new engine.
+- **Result:** **Support (scale receipt).** sphere n=2000 **205 ms / ess2=1**. n=4000 **621 ms / 477k / ess2=1**. n=8000 **1.42 s / 1.07M / ess2=1**. figure8 n=8000 **430 ms / ess1=2**. two_spheres n=400 ess2 2=2, unmatched **2**, **11.6×**. Exact default hold: H0 **60×**, figure8 **17×**, uniform2 **11.2×**, sphere H2 **57×**.
+- **Decision:** **Support as I286 scale receipt.** One optional command now does H0+H1+H2 at 8k Euclidean points in ~1.4 s with ess voids/loops kept. Do not switch the exact default. Do not thicken H2. Next: ae_seeded leftover wall for exact H1. Do not mark the goal complete.
+- **Class:** experiment (support optional split scale; no new engine)
+
 ## 2026-10-13 — I286 split H1 thicken / H2 α=1
 
 - **Question:** Can `--delaunay-vr --delaunay-alpha auto --maxdim 2` keep finite H1 and essential H2 together without the H2 tet explosion that forced α=1?
