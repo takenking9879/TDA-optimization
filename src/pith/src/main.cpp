@@ -369,13 +369,13 @@ int main(int argc, char** argv) {
     try {
         Counters c;
         Graph g;
+        std::vector<std::vector<value_t>> dist;
         if (!edges_path.empty()) {
             // I207: 1-skeleton input. Enclosing radius needs a full metric;
             // do not invent missing distances.
             g = read_edge_list(edges_path, threshold);
             c.n_distances = static_cast<std::int64_t>(g.edges.size());
         } else {
-            std::vector<std::vector<value_t>> dist;
             if (!dist_path.empty()) {
                 dist = read_distance_matrix(dist_path);
                 c.n_distances = static_cast<std::int64_t>(dist.size()) * (dist.size() - 1) / 2;
@@ -492,7 +492,7 @@ int main(int argc, char** argv) {
         Result r;
         if (reduced_vr) {
             const auto t_build0 = std::chrono::steady_clock::now();
-            const auto rtris = build_reduced_triangles(g, threshold);
+            const auto rtris = build_reduced_triangles(g, threshold, dist.empty() ? nullptr : &dist);
             const auto t_build1 = std::chrono::steady_clock::now();
             c.collapse_ms = std::chrono::duration<double, std::milli>(t_build1 - t_build0).count();
             r = persist_triangles(g, rtris, maxdim, threshold, ratio);
