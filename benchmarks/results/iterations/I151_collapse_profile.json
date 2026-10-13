@@ -1,0 +1,58 @@
+{
+  "id": "collapse_profile",
+  "lever": "H01-profile",
+  "class": "experiment",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "C-probe vs domination-test mix on circle T=1.5",
+  "receipts": [
+    {
+      "n": 200,
+      "T": 1.5,
+      "match": true,
+      "ripser_s": 0.015478450999580673,
+      "pith_s": 0.006502223999632406,
+      "time_ratio": 2.380485661591438,
+      "collapse_ms": 4.431703,
+      "edges_in": 10880,
+      "edges_out": 283,
+      "c_probes": 0,
+      "dom_tests": 0,
+      "dom_hits": 0,
+      "hit_rate": null,
+      "probes_per_edge": 0.0
+    },
+    {
+      "n": 2000,
+      "T": 1.5,
+      "match": true,
+      "ripser_s": 25.62152153200077,
+      "pith_s": 4.202586481000253,
+      "time_ratio": 6.096607802798295,
+      "collapse_ms": 4128.7869,
+      "edges_in": 1077130,
+      "edges_out": 5169,
+      "c_probes": 0,
+      "dom_tests": 0,
+      "dom_hits": 0,
+      "hit_rate": null,
+      "probes_per_edge": 0.0
+    },
+    {
+      "n": 3000,
+      "T": 1.5,
+      "match": true,
+      "ripser_s": 111.10667727299915,
+      "pith_s": 15.115707696000754,
+      "time_ratio": 7.350411870057216,
+      "collapse_ms": 14950.675,
+      "edges_in": 2425527,
+      "edges_out": 9190,
+      "c_probes": 0,
+      "dom_tests": 0,
+      "dom_hits": 0,
+      "hit_rate": null,
+      "probes_per_edge": 0.0
+    }
+  ]
+}

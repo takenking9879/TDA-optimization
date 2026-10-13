@@ -297,6 +297,9 @@ int main(int argc, char** argv) {
         r.counters.n_edges_in = c.n_edges_in;
         r.counters.n_collapse_trims = c.n_collapse_trims;
         r.counters.n_collapse_shifts = c.n_collapse_shifts;
+        r.counters.n_collapse_c_probes = c.n_collapse_c_probes;
+        r.counters.n_collapse_dom_tests = c.n_collapse_dom_tests;
+        r.counters.n_collapse_dom_hits = c.n_collapse_dom_hits;
         r.counters.collapse_ms = c.collapse_ms;
         r.counters.metric_ms = c.metric_ms;
         r.counters.n_vertices = g.n;
