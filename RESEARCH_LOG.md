@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-13 — I279 Delaunay-VR α=2.25 (H1)
+
+- **Question:** Does α=2.25 zero I278’s figure8 n=8000 unmatched (2 / bn 4e-4) while staying exact on the smaller families, and does n=16000 stay under 2 s?
+- **Hypothesis:** Probe: α=2.0 still 2 unmatched; α=2.25 matched RedZeD (67× / 391 ms / 428k). α is empirical and grew 1.5→2.25 as n went 4000→8000 (noise-scale finite bars). Not a VR identity.
+- **Work:** Help text + wave 140 α=2.25. n≤4000 vs Ripser; n=8000 vs RedZeD; n=16000 pith-only. H2 α=1. Exact default H0/H1/H2 hold.
+- **Result:** **Support (optional).** Exact H1 **9/9** oracles. figure8 n=4000 **156× / 152 ms / 194k** vs Ripser 23.7 s. n=8000 **67× / 390 ms / 428k** vs RedZeD 26.2 s (exact, ess1 2=2, bn 0). Hard n=16000 **815 ms / 878k / ess1=2**. Circle **20×**. Sphere H2 α=1 ess2 1=1 un=8. Exact default hold: blobs H0 **63×**, uniform2 **11.1×**, sphere H2 **58×**.
+- **Decision:** **Support as recommended H1 thicken** (`--delaunay-vr --delaunay-alpha 2.25`). Do **not** switch the exact default (empirical, α grew with n). Prefer over I276/I277/I278 when the user wants finite H1 at more points. Do not thicken H2. Next: adaptive α (stop raising a global constant) or a linear H2 complex. Topology loss: 0 on measured H1 oracles; H2 finite 8 on sphere α=1; n=16000 unoracle’d.
+- **Class:** experiment (support optional H1 scale)
+
 ## 2026-10-13 — I278 Delaunay-VR α=1.75 (H1)
 
 - **Question:** Does α=1.75 zero I277’s blobs unmatched and stay exact on the mixed families, and does figure8 n=8000 stay under a second vs exact RedZeD?

@@ -1,6 +1,6 @@
 # Selected algorithm (living)
 
-Updated 2026-10-13 after iterations I001–I277. **CLI default `--engine
+Updated 2026-10-13 after iterations I001–I279. **CLI default `--engine
 auto` (I235+I236+I239+I240+I241+I263+I270+I271+I275):** subsample residual-frac dispatch,
 plus I263 edge-frac so hollow/manifold clouds take RedZeD. Fat →
 RedZeD (torus n=2000 **13.0×**). Thin-circle → collapse+implicit
@@ -591,13 +591,14 @@ Rips is exact and too slow.
    d∈{2,3}: flag of the Delaunay 1-skeleton, Θ(n) edges, **essential
    H0/H1/H2 kept** on mixed families (figure8 n=2000 **419× / 6 ms /
    5.9k edges**, 209 unmatched finite; n=8000 **24 ms / ess1=2**).
-   **`--delaunay-alpha 1.75` (I278)** is the recommended H1 thicken:
-   exact on the I277 suite including blobs; figure8 n=4000 **221× /
-   112 ms / 148k** vs Ripser 24.8 s. Hard n=8000 **102× / 256 ms /
-   307k** vs RedZeD, 2 unmatched / bn 4e-4, ess1 2=2. I277 α=1.5
-   was exact on loops but left blobs 2 unmatched. H2 stays α=1
-   (thicken explodes tets). Not exact VR. Prefer I278 over I276
-   when the user wants finite H1; prefer I276 for ess-only / H2.
+   **`--delaunay-alpha 2.25` (I279)** is the recommended H1 thicken:
+   exact H1 9/9 oracles including figure8 n=8000 vs RedZeD
+   (**67× / 390 ms / 428k**). n=4000 **156× / 152 ms** vs Ripser.
+   Hard n=16000 **815 ms / 878k / ess1=2** (no oracle). I278 α=1.75
+   left 2 unmatched at n=8000; I277 α=1.5 left blobs 2 unmatched.
+   H2 stays α=1 (thicken explodes tets). Not a proven VR identity
+   (α grew with n). Prefer I279 over I276 when the user wants
+   finite H1; prefer I276 for ess-only / H2.
 4. Connected uniform2 is **11.2×** at n=5000 (0.33 s).
    Sphere n=2000 H1 **10.1×**. Torus n=2000 **13.0×**. Mixed
    figure8 n=4000 is **27× / 1.07 s**. Sparse n=20000 is **5.6×**.
@@ -644,10 +645,11 @@ Rips is exact and too slow.
    **I276 `--delaunay-vr` is the owned optional Euclidean scale path**
    (not default): ess 8/8, figure8 n=2000 **419× / 6 ms**, n=8000
    **24 ms**. Finite unmatched 3–209. **I277 α=1.5 hold** (blobs 2
-   unmatched). **I278 α=1.75 is the recommended H1 thicken**: exact
-   on 9/10 dvr (blobs closed), figure8 n=4000 **221× / 112 ms**,
-   n=8000 **102× / 256 ms / 307k** vs RedZeD, 2 unmatched / bn 4e-4.
-   Do not thicken H2. Do not make either the exact default.
+   unmatched). **I278 α=1.75 hold** (n=8000 unmatched 2). **I279
+   α=2.25 is the recommended H1 thicken**: exact 9/9 oracles,
+   figure8 n=4000 **156× / 152 ms**, n=8000 **67× / 390 ms / 428k**
+   vs RedZeD, n=16000 **815 ms / ess1=2**. Do not thicken H2. Do
+   not make it the exact default. Next: adaptive α or linear H2.
 6. Owned AE leftover-star walk is still Θ(|leftover|·deg★) — rbit cut
    has_leftover_coface, not seeded probes (circle still 875k). Packed
    annotations / seeded_is_noop are the next owned constants.
