@@ -95,6 +95,7 @@ suite and I137 8/8 (including dense circle80/200 **collapse=0**, the I045 killer
 | High-deg prefix-8 (I223) | Exact 5/5; torus 1537 vs 1470 ms. Fail-path tax. Reverted |
 | Reduced VR as default (I224) | **Exact H1** on 19/19 mixed rows (unit square, figure8, two_circles, …). Triangles \(n^{2.04–2.20}\). Construction loses clock (circle n=500 2.65s vs Ripser 0.31s). Keep `--reduced-vr` experimental |
 | Reduced VR lune walk (I224 path) | I225 all-pairs is **2.7×** faster construction, still exact; still slower than Ripser (circle n=500 0.73s / 0.42×) |
+| Witness-shrink first_dominator (I226) | Exact 5/5; torus tests 12.5M→9.0M / 6.1M skips; collapse **1450 vs 1470** ms. Circle 275 vs 263. Reverted |
 
 I107 (`--dom-budget 1`) **still rejected** with implicit (I142–I144): thicker
 residual makes collapse *and* reduce slower (circle3000 1.49× vs full 8.11×).
@@ -234,7 +235,7 @@ distance matrix is present. Same triangles as I224. Construction
 remaining build cost is finding the lune (neighbor merge), not
 connectivity. Not selected as default. Topology loss: **0**.
 
-## Next levers (still open after I225)
+## Next levers (still open after I226)
 
 Exact default is shape-agnostic with **0 bars lost** and is **not** a
 general 10×. Optional approx is a multi-family 10× at sufficient n, with

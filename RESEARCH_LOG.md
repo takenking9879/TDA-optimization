@@ -1125,15 +1125,6 @@ Do not paste long reasoning here.
 - **Decision:** **Reject and revert.** I106 stands: degree-first does not pay on the torus fail path. Topology loss: **0**.
 - **Class:** experiment (reject; revert hot path)
 
-## 2026-10-13 — I225 reduced VR all-pairs lune (H07)
-
-- **Question:** Is I224’s construction wall the \(O(|L|\cdot\deg)\) neighbor walk, and does all-pairs connectivity (same Def 3.3 edges) cut it without changing the 2-complex?
-- **Hypothesis:** Most lunes have \(|L|\ll\deg\) on \(G_T\). With the distance matrix, each pair is \(O(1)\). Singleton lunes skip UF. Same representatives ⇒ same PH₁. Shape-agnostic.
-- **Work:** `build_reduced_triangles(..., dist*)`; wave 86 vs Ripser + I224 receipts.
-- **Result:** **Exact 13/13** (0 unmatched; ess H1 matches including figure8 / two_circles / unit square). Triangle counts **identical** to I224. Construction **2.3–3.7×** vs I224 (median 2.7×). circle n=500: 2617→701 ms build, 0.73s / **0.42×** vs Ripser 0.31s (was 0.12×). Still loses to default PITH (15 ms).
-- **Decision:** **Support as construction** on the experimental `--reduced-vr` path. Do **not** select as default. Topology loss: **0**. Remaining H07 cost is lune membership (neighbor merge), not UF. Default unchanged.
-- **Class:** experiment (support construction; reject as default clock)
-
 ## 2026-10-13 — I224 reduced VR engine (H07)
 
 - **Question:** Does a paper-faithful reduced VR 2-complex (Koyama–Mémoli–Robins–Turner, arXiv:2307.16333) give exact PH₁ vs Ripser on mixed homology, with a better triangle size class than flag VR?
@@ -1142,6 +1133,24 @@ Do not paste long reasoning here.
 - **Result:** **Exact 19/19** (0 unmatched; bottleneck ~1e-6 float). Essential H1: unit square 0=0 (1 finite bar [1,√2)), circle 1=1, torus 1=1, two_circles/figure8 2=2. Triangle slopes **2.04–2.20** (circle 2.20 / blobs 2.05 / torus 2.04 / uniform2 2.09). Time slopes **2.63–3.53** vs Ripser **1.42–2.56** — construction loses (circle n=500: 67k tris, build 2617 ms, reduce 21 ms, **0.12×** vs Ripser 308 ms). Default collapse+implicit stays far faster.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
+
+## 2026-10-13 — I226 witness-shrink first_dominator (exact)
+
+- **Question:** Do torus keeps form a suffix we can skip, and if not, does iterated N_t[fail_w] shrinking of the apex pool cut the fail-path without changing PH?
+- **Hypothesis:** keep_hist on n=2000: circle/sphere/uniform2/blobs are a last-bucket suffix; **torus keeps span buckets 6–15** (134k early keeps) — skip-oldest is not a cut. Each failed apex at w implies later dominators ⊆ N_t[w]. Same exists-dominator. Shape-agnostic.
+- **Work:** `first_dominator_shrink` as default; wave 87 vs src+Ripser.
+- **Result:** **Exact 5/5.** Torus skips **6.12M**, tests **9.04M vs 12.5M**, collapse **1450 vs 1470** ms (1.54×). circle 275 vs 263 / 73×; blobs 196 vs 190; sphere 357 vs 365. Residual 163426 identical.
+- **Decision:** **Reject and revert** from the hot path. 28% fewer tests did not show up in wall-clock (compact tax / memory-bound Tm). Shrink stays compiled, unused. Topology loss: **0**. Default I193+I197+I202+I203 unchanged.
+- **Class:** experiment (reject; exact but not faster)
+
+## 2026-10-13 — I225 reduced VR all-pairs lune (H07)
+
+- **Question:** Is I224’s construction wall the \(O(|L|\cdot\deg)\) neighbor walk, and does all-pairs connectivity (same Def 3.3 edges) cut it without changing the 2-complex?
+- **Hypothesis:** Most lunes have \(|L|\ll\deg\) on \(G_T\). With the distance matrix, each pair is \(O(1)\). Singleton lunes skip UF. Same representatives ⇒ same PH₁. Shape-agnostic.
+- **Work:** `build_reduced_triangles(..., dist*)`; wave 86 vs Ripser + I224 receipts.
+- **Result:** **Exact 13/13** (0 unmatched; ess H1 matches including figure8 / two_circles / unit square). Triangle counts **identical** to I224. Construction **2.3–3.7×** vs I224 (median 2.7×). circle n=500: 2617→701 ms build, 0.73s / **0.42×** vs Ripser 0.31s (was 0.12×). Still loses to default PITH (15 ms).
+- **Decision:** **Support as construction** on the experimental `--reduced-vr` path. Do **not** select as default. Topology loss: **0**. Remaining H07 cost is lune membership (neighbor merge), not UF. Default unchanged.
+- **Class:** experiment (support construction; reject as default clock)
 
 ## 2026-10-13 — I164 collapse live-degree trace
 

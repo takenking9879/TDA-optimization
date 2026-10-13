@@ -919,12 +919,10 @@ inline bool process_one_backward(const Edge& e_in, value_t t_in, DenseTimes& Tm,
             dominator = known_dom;
             known_dom = -1;
         } else if (witness >= 0 && S.C_now.size() >= 32) {
-            // I226 shrink on the I202-gated witness seed.
-            dominator = first_dominator_shrink(Tm, S.C_now, t, nbr, dom_budget, &c, deg,
-                                               S.cands, witness);
+            dominator = first_dominator_witness(Tm, S.C_now, t, nbr, dom_budget, &c, deg,
+                                                witness);
         } else {
-            dominator = first_dominator_shrink(Tm, S.C_now, t, nbr, dom_budget, &c, deg,
-                                               S.cands, -1);
+            dominator = first_dominator_deg(Tm, S.C_now, t, nbr, dom_budget, &c, deg);
         }
         if (dominator < 0) break;
         const value_t* rd = Tm.row(dominator);
