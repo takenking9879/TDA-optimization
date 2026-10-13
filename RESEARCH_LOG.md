@@ -861,6 +861,13 @@ Do not paste long reasoning here.
 - **Decision:** New flagship. Next: fused-fail/keep path (I191) and vertex collapse on blobs (I192).
 - **Class:** experiment (support)
 
+## 2026-10-13 — I191 progressive word-AND
+
+- **Question:** Can bits-AND progressive ∩ replace the Θ(|C|) Tm consider walk on fused-fail / keep?
+- **Result:** **Exact**, same residuals. Circle2000 72.3× (314 ms, no regression). Losers **worse**: blobs 809→1309 ms (0.31×), sphere 1553→2663 ms (0.32×), torus 1849→3233 ms (0.70×). Full ∩ cannot early-abort the dominated (trim) case; blobs 98M / sphere 188M dom-tests.
+- **Decision:** Reject as default. Revert slow path. I193: AND-eq later apexes (stop at first hit) when !any_later.
+- **Class:** experiment (reject as clock; exact)
+
 ## 2026-10-13 — I164 collapse live-degree trace
 
 - **Question:** Does the live 1-skeleton thin early enough to stop the C-walk?

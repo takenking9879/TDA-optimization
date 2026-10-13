@@ -1,6 +1,6 @@
 # Selected algorithm (living)
 
-Updated 2026-10-13 after iterations I001–I190. **Default collapse is I189 AND-equality first-apex** on I182 live-bit C + I186 no LiveAdj. Flagship circle n=4000 T=1.5 is **113×** vs Ripser (I190). Optional suffix-* are no longer the clock leaders. `--collapse-alg back-src` is the pre-I182 src walk.
+Updated 2026-10-13 after iterations I001–I191. **Default collapse is I189 AND-equality first-apex** on I182 live-bit C + I186 no LiveAdj. Flagship circle n=4000 T=1.5 is **113×** vs Ripser (I190). I191 progressive ∩ was exact but slower on I162 losers — not selected. Optional suffix-* are no longer the clock leaders. `--collapse-alg back-src` is the pre-I182 src walk.
 
 ## Selected exact-VR CPU pipeline
 
@@ -51,6 +51,7 @@ suite and I137 8/8 (including dense circle80/200 **collapse=0**, the I045 killer
 | suffix-later Case B other-star (I178) | K=8 exact at n=3000; other-star scan kills the I176 13.4× |
 | kept-later Case B leave (I180) | Exact at n=4000 K=2 (9.08×) and n=3000 K=8 (7.78×); leave-cascade kills the 16.9× |
 | escalate-until-keep (I181/I183) | n=3000 still 2 unmatched (8325). Early leave turns escalate off |
+| Progressive word-AND on fused-fail (I191) | Exact; **slower** on losers (blobs 809→1309 ms). Full ∩ cannot early-abort trims |
 
 I107 (`--dom-budget 1`) **still rejected** with implicit (I142–I144): thicker
 residual makes collapse *and* reduce slower (circle3000 1.49× vs full 8.11×).
@@ -88,11 +89,11 @@ E3 (collapse + Ripser-sparse) is no longer required; we own that residual class.
 **Alpha (I136)** is a different complex: GUDHI Alpha circle3000 0.023 s vs Ripser VR 123 s
 (~5400× empirical) with 2745 \(H_1\) bars. Off the exact-VR 10× board.
 
-## Next levers (still open after I190)
+## Next levers (still open after I191)
 
-Circle family: **71 / 93 / 113×** at n=2000/3000/4000. I162 losers persist (0.48–1.10×): most edges miss the AND-eq fast path (blobs 211k/649k fast-trims).
+Circle family: **71 / 93 / 113×** at n=2000/3000/4000. I162 losers persist (0.48–1.10×). I191 rejected (exact, slower).
 
 1. **Default:** I189 AND-eq first-apex. Flagship **113×**.
-2. I191: word-AND progressive ∩ on the fused-fail / keep path (torus, blobs slow path).
-3. I192: flag vertex/strong collapse before the edge walk on blobs.
+2. I193: multi-apex AND-eq when !any_later (stop at first hit; keep if none).
+3. I192: flag vertex/strong collapse count on blobs G_T (implement only if frac ≥ ~0.30).
 4. GPU later.

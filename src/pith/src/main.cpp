@@ -33,6 +33,7 @@ static void usage() {
         << "  --no-enclosing      do not cap T by enclosing radius\n"
         << "  --sparse-only       write residual edges and exit\n"
         << "  --probe-only        print ROI probe on G_T and exit (I163)\n"
+        << "  --probe-vertex      print dominated-vertex count on G_T and exit (I192)\n"
         << "  --format text|json  output format (default text)\n";
 }
 
@@ -227,6 +228,7 @@ int main(int argc, char** argv) {
     bool use_enclosing = true;
     bool sparse_only = false;
     bool probe_only = false;
+    bool probe_vertex = false;
     std::string format = "text";
     std::string engine = "auto";
     std::string collapse_alg = "back";
@@ -266,6 +268,7 @@ int main(int argc, char** argv) {
         else if (a == "--no-enclosing") use_enclosing = false;
         else if (a == "--sparse-only") sparse_only = true;
         else if (a == "--probe-only") probe_only = true;
+        else if (a == "--probe-vertex") probe_vertex = true;
         else if (a == "--format") format = need("--format");
         else if (a == "--help" || a == "-h") {
             usage();
@@ -309,6 +312,16 @@ int main(int argc, char** argv) {
                       << " leftover_median=" << roi.leftover_median
                       << " domination=" << dom
                       << " n=" << g.n
+                      << " edges=" << g.edges.size()
+                      << " T=" << threshold << "\n";
+            return 0;
+        }
+        if (probe_vertex) {
+            const VertexDomProbe vd = probe_vertex_domination(g);
+            std::cout << "# VERTEX_DOM n=" << vd.n
+                      << " n_dom=" << vd.n_dom
+                      << " frac=" << vd.frac
+                      << " star_edges=" << vd.star_edges
                       << " edges=" << g.edges.size()
                       << " T=" << threshold << "\n";
             return 0;
