@@ -690,6 +690,13 @@ Do not paste long reasoning here.
 - **Decision:** **Revert.** 0-as-missing + rank remap under-collapses. Matching-batch parallel also unsafe (shared commons).
 - **Class:** experiment (negative)
 
+## 2026-10-13 — I163 ROI probe
+
+- **Question:** Does leftover-apparent rate separate circle T=1.5 from I162 losers?
+- **Result:** **No.** leftover_apparent=1.0 and domination=1.0 on circle, blobs, torus, sphere, uniform2. Probe cannot decide skip. leftover_median/mst_max is higher on circle (9.0) than blobs (1.1) but sphere is 7.5 (would still collapse and lose).
+- **Decision:** Do not wire skip on apparent rate. I164: trace when the live 1-skeleton thins.
+- **Class:** experiment (negative as a skip oracle)
+
 ## 2026-10-13 — I162 other-family H1 n=2000
 
 - **Question:** Does pair-nbr+fused hit H1 10× off-circle?

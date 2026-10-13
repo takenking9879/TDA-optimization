@@ -343,10 +343,19 @@ inline Graph collapse_edges(Graph g, int iterations, Counters& c, int dom_budget
 
         std::vector<Edge> kept;
         kept.reserve(E.size() / 4 + 8);
-        for (const Edge& e_in : E) {
+        const size_t mE = E.size();
+        const size_t step = std::max<size_t>(mE / 8, 1);
+        for (size_t i = 0; i < mE; ++i) {
             Edge out;
-            if (process_one_backward(e_in, e_in.t, Tm, nbr, scratch, dom_budget, out, c))
+            if (process_one_backward(E[i], E[i].t, Tm, nbr, scratch, dom_budget, out, c))
                 kept.push_back(out);
+            if (i == mE - 1 || (i % step) == 0) {
+                std::int64_t live = 0;
+                for (const auto& row : nbr) live += static_cast<std::int64_t>(row.size());
+                std::fprintf(stderr, "# COLLAPSE_TRACE i=%zu/%zu live=%lld kept=%zu trims=%lld\n",
+                             i + 1, mE, static_cast<long long>(live / 2), kept.size(),
+                             static_cast<long long>(c.n_collapse_trims));
+            }
         }
         g.edges.swap(kept);
     }
