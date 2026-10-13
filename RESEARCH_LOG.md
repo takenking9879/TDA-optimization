@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-13 — I243 incremental rbit on owned AE
+
+- **Question:** Does RedZeD-style incremental rbit (word-AND neighborhoods at the current leftover diameter) cut I242’s common-neighbor walk without changing the barcode, and does that help connected uniform2 at n=5000?
+- **Hypothesis:** Same I242 pairing. rbit(a,b) iff d≤current t. has_leftover_coface becomes a bitset intersection. Seeded probes stay leftover-star (circle 875k). Shape-agnostic. Exact if identity holds.
+- **Work:** `persist_active.hpp` rbits + reusable seenbits. Wave 104 vs Ripser / RedZeD / auto. Hard case: uniform2 n=5000 H1.
+- **Result:** **Exact 11/11** (figure8 2=2; sphere void 1=1; two_spheres 2=2; blobs H0 3=3). Circle AE **0.26s** vs I242 0.38s / RedZeD 0.021s (**0.08×**). Uniform2 n=1000 AE 0.35× RedZeD. Hard uniform2 n=5000 auto **5.6×** (0.61s/3.41s). Blobs n=4000 H1 **22×**. Sphere n=400 H2 **61×**.
+- **Decision:** **Hold.** Exact rbit, modest AE constant, not a default, not connected 10×. Topology loss: **0**. Next owned cut is leftover-star / packed annotations, not another pairing rule.
+- **Class:** experiment (hold; exact, small AE cut)
+
 ## 2026-10-13 — I242 vendor-faithful owned H1 AE
 
 - **Question:** Does RedZeD’s H1 AE pairing (incremental register, leftover-coface erase-without-pair, combinatorial `coface_ready`) keep exact H0–H2 on mixed clouds, and can owned AE push connected uniform2 past the ~6× wall at more points?

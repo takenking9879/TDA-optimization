@@ -1,6 +1,6 @@
 # Selected algorithm (living)
 
-Updated 2026-10-13 after iterations I001–I242. **CLI default `--engine
+Updated 2026-10-13 after iterations I001–I243. **CLI default `--engine
 auto` (I235+I236+I239+I240+I241):** subsample residual-frac dispatch. Fat →
 RedZeD (torus n=2000 **12.7×**). Thin-circle → collapse+implicit
 (n=1000 **28×**; n=4000 still **140×**). Disconnected G_T → spatial UF
@@ -110,6 +110,7 @@ suite and I137 8/8 (including dense circle80/200 **collapse=0**, the I045 killer
 | Leftover-coface AE (I236) | **Not exact** (figure8 unmatched 12; essentials held). First-hit `process_leftover` / empty-R abort skipped later same-diameter deaths. Reverted. I242 pairing is exact |
 | Birth-time leftover-coface AE (I237) | **Not exact** — same unmatched counts as I236. Incremental insert did not change the barcode. Reverted. I242 pairing is exact |
 | Vendor-faithful owned AE as clock (I242) | **Exact 13/13** (figure8 2=2; sphere void 1=1). **Slower** than RedZeD (circle n=500 0.06×; uniform2 n=1000 0.33×). Keep `--engine active` experimental |
+| rbit owned AE as clock (I243) | **Exact 11/11.** Circle AE 0.38→0.26 s (~1.5× vs I242) still **0.08×** vs RedZeD. Probe count unchanged (leftover-star). Default unchanged |
 | GUDHI 3.13 explicit Rips (I237) | Exact 7/7; **slower** (blobs n=1000 15.9 s / 17.8M simplices vs auto 21 ms) |
 
 I107 (`--dom-budget 1`) **still rejected** with implicit (I142–I144): thicker
@@ -443,7 +444,14 @@ erases that column and only seeds from already-registered actives.
 Exact, not a clock engine, not a better Big-O. Do not change the
 default.
 
-## Next levers (still open after I242)
+**I243 incremental rbit AE:** word-AND neighborhoods advance by leftover
+diameter (vendor `advance_rbits`). Same I242 pairing. Wave 104
+**exact 11/11** H0–H2. Circle AE **0.26s** (I242 0.38s, RedZeD 0.021s).
+Uniform2 n=5000 auto **5.6×**. Blobs n=4000 H1 **22×**. Sphere n=400
+H2 **61×**. Topology loss: **0**. Constant-factor AE cut, not a better
+Big-O, not a default.
+
+## Next levers (still open after I243)
 
 `--engine auto` is a shape-agnostic exact H0–H2 portfolio: circle H1
 10×, torus H1 10×, sphere H2 **136×** at n=600, **disconnected blobs
@@ -458,8 +466,9 @@ exact and too slow.
 3. **Owned optional approx:** `--sparse-eps 0.6 --sparse-cap max` (I213/I218)
    when n grows past exact VR.
 4. Push **connected** uniform2 from ~5.5× to 10× (RedZeD reduce is the wall).
-5. Owned AE next cut is **rbit neighborhood bitsets** (I242 identity holds;
-   generation is still a common-neighbor walk).
+5. Owned AE leftover-star walk is still Θ(|leftover|·deg★) — rbit cut
+   has_leftover_coface, not seeded probes (circle still 875k). Packed
+   annotations / seeded_is_noop are the next owned constants.
 6. I241 T-cap fill is rejected (slower metric). Do not retry without
    a reduce cut.
 7. GPU later.
