@@ -113,6 +113,7 @@ suite and I137 8/8 (including dense circle80/200 **collapse=0**, the I045 killer
 | rbit owned AE as clock (I243) | **Exact 11/11.** Circle AE 0.38→0.26 s (~1.5× vs I242) still **0.08×** vs RedZeD. Probe count unchanged (leftover-star). Default unchanged |
 | Fill-collect + std::sort EdgeList (I244 try) | Exact; **slower** metric (10→460 ms on uniform2 n=5000). Vendor `build_edges` stays |
 | leftover-coface fast (I247) | Exact 11/11; **slower** (uniform2 n=5000 9.24× / 279 ms vs I246 9.56× / 264 ms). Reverted |
+| Fuse fill + histogram (I248) | Exact 11/11; **slower** (metric 10→46 ms; 8.40× vs I246 9.56×). Reverted |
 | GUDHI 3.13 explicit Rips (I237) | Exact 7/7; **slower** (blobs n=1000 15.9 s / 17.8M simplices vs auto 21 ms) |
 
 I107 (`--dom-budget 1`) **still rejected** with implicit (I142–I144): thicker

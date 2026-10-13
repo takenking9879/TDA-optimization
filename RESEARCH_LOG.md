@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-13 — I248 fuse fill + edge histogram
+
+- **Question:** Can counting edge buckets during the from-points fill skip I245’s extra n² count pass without changing (diam, comb_index) order?
+- **Hypothesis:** Same stripes as `build_edges_parallel`. One fewer matrix scan. Shape-agnostic. Exact.
+- **Work:** `EdgeCountScratch` into `redzed_vr`. Wave 109 vs Ripser. Hard cases: uniform2 n=5000 / n=6000.
+- **Result:** **Exact 11/11**. Uniform2 n=5000 **8.40×** (0.42s/3.51s; metric 10→46 ms, reduce 264→280 ms). n=6000 **9.15×**. Histogram-in-fill tax > skipped count pass.
+- **Decision:** **Hold identity, revert from the engine.** Same class as I244 fill-collect. Topology loss: **0**. Do not retry fusing work into the fill inner loop.
+- **Class:** experiment (hold identity; reject as clock; reverted)
+
 ## 2026-10-13 — I247 leftover-coface fast path
 
 - **Question:** Can a cheaper exact leftover-coface (strictly shorter common neighbor, then vendor `coface_ready`) cut the ~3.5M zero-persistence leftovers enough for connected 10×?

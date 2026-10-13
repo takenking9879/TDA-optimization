@@ -46,32 +46,8 @@ static void finish_buckets_parallel(std::vector<value_t>& diam, std::vector<int3
     for (auto& th : pool) th.join();
 }
 
-// I248: histogram collected during the from-points fill (same stripes).
-struct EdgeCountScratch {
-    int nth = 0;
-    int nb = 0;
-    std::vector<std::vector<rank_t>> local;
-};
-
-static void edge_bucket_params(int n, value_t threshold, int& nb, value_t& dmin, value_t& inv) {
-    const int64_t cap = (int64_t)n * (n - 1) / 2;
-    nb = (int)(cap >> 2);
-    if (nb < 1024) nb = 1024;
-    if (nb > (1 << 16)) nb = 1 << 16;
-    dmin = 0.0;
-    inv = (std::isfinite(threshold) && threshold > 0) ? 1.0f / threshold : 0.0f;
-}
-
-static std::pair<int, int> edge_stripe(int n, int nth, int t) {
-    const int span = (n - 1 + nth - 1) / nth;
-    const int j0 = 1 + t * span;
-    const int j1 = std::min(n, j0 + span);
-    return {j0, j1};
-}
-
 static void build_edges_parallel(const DistanceMatrix& dist, value_t threshold,
-                                 const BinomialTable& bt, EdgeList& out,
-                                 EdgeCountScratch* pre = nullptr) {
+                                 const BinomialTable& bt, EdgeList& out) {
     const int n = dist.n;
     const int nth = std::max(1, static_cast<int>(std::thread::hardware_concurrency()));
     if (nth <= 1 || n < 256) {
@@ -79,22 +55,28 @@ static void build_edges_parallel(const DistanceMatrix& dist, value_t threshold,
         build_edges(dist, threshold, bt, sc, out);
         return;
     }
-    int nb = 0;
-    value_t dmin = 0, inv = 0;
-    edge_bucket_params(n, threshold, nb, dmin, inv);
+    const int64_t cap = (int64_t)n * (n - 1) / 2;
+    int nb = (int)(cap >> 2);
+    if (nb < 1024) nb = 1024;
+    if (nb > (1 << 16)) nb = 1 << 16;
+    const value_t dmin = 0.0;
+    const value_t inv = (std::isfinite(threshold) && threshold > 0) ? 1.0f / threshold : 0.0f;
 
-    std::vector<std::vector<rank_t>> local;
-    if (pre && pre->nth == nth && pre->nb == nb &&
-        static_cast<int>(pre->local.size()) == nth) {
-        local = std::move(pre->local);
-    } else {
-        local.assign(static_cast<size_t>(nth),
-                     std::vector<rank_t>(static_cast<size_t>(nb) + 1, 0));
+    auto stripe = [&](int t) {
+        const int span = (n - 1 + nth - 1) / nth;
+        const int j0 = 1 + t * span;
+        const int j1 = std::min(n, j0 + span);
+        return std::pair<int, int>{j0, j1};
+    };
+
+    std::vector<std::vector<rank_t>> local(static_cast<size_t>(nth),
+                                           std::vector<rank_t>(static_cast<size_t>(nb) + 1, 0));
+    {
         std::vector<std::thread> pool;
         pool.reserve(static_cast<size_t>(nth));
         for (int t = 0; t < nth; ++t) {
             pool.emplace_back([&, t]() {
-                const auto [j0, j1] = edge_stripe(n, nth, t);
+                const auto [j0, j1] = stripe(t);
                 auto& cnt = local[static_cast<size_t>(t)];
                 for (int j = j0; j < j1; ++j) {
                     for (int i = 0; i < j; ++i) {
@@ -133,7 +115,7 @@ static void build_edges_parallel(const DistanceMatrix& dist, value_t threshold,
         pool.reserve(static_cast<size_t>(nth));
         for (int t = 0; t < nth; ++t) {
             pool.emplace_back([&, t]() {
-                const auto [j0, j1] = edge_stripe(n, nth, t);
+                const auto [j0, j1] = stripe(t);
                 auto& hd = head[static_cast<size_t>(t)];
                 for (int j = j0; j < j1; ++j) {
                     for (int i = 0; i < j; ++i) {
@@ -208,10 +190,8 @@ static void active_enum_lazy(State& st, rank_t xrank, comb_t xidx, const int32_t
 // I244: VR≤T does not need enclosing (cone). Finite T → thr=T is exact.
 // I245: parallel build_edges when no prebuilt EdgeList.
 // I246: lazy R/Ri insert on top-dimension AE.
-// I248: optional histogram from the from-points fill (skip count pass).
 static std::vector<std::vector<std::pair<value_t, value_t>>>
-redzed_vr(DistanceMatrix& distIn, int n, value_t threshold, EdgeList* prebuilt,
-          EdgeCountScratch* hist = nullptr) {
+redzed_vr(DistanceMatrix& distIn, int n, value_t threshold, EdgeList* prebuilt) {
     int nv = distIn.n;
     value_t thr = threshold;
     if (!std::isfinite(threshold)) {
@@ -232,7 +212,7 @@ redzed_vr(DistanceMatrix& distIn, int n, value_t threshold, EdgeList* prebuilt,
     if (prebuilt && prebuilt->count) {
         st.edges = std::move(*prebuilt);
     } else {
-        build_edges_parallel(st.dist, thr, st.binom, st.edges, hist);
+        build_edges_parallel(st.dist, thr, st.binom, st.edges);
     }
 
     st.words = (nv + 63) / 64;
@@ -778,42 +758,31 @@ Result persist_redzed_from_points(const std::vector<std::vector<value_t>>& pts, 
     D.resize_lower(n);
     const auto tfill0 = std::chrono::steady_clock::now();
     const int nth = std::max(1, static_cast<int>(std::thread::hardware_concurrency()));
-    EdgeCountScratch hist;
-    int nb = 0;
-    value_t dmin = 0, inv = 0;
-    const bool fuse = nth > 1 && n >= 256 && std::isfinite(threshold);
-    if (fuse) {
-        edge_bucket_params(n, threshold, nb, dmin, inv);
-        hist.nth = nth;
-        hist.nb = nb;
-        hist.local.assign(static_cast<size_t>(nth),
-                          std::vector<rank_t>(static_cast<size_t>(nb) + 1, 0));
-    }
-    auto fill_stripe = [&](int t) {
-        const auto [j0, j1] = edge_stripe(n, nth, t);
-        rank_t* cnt = fuse ? hist.local[static_cast<size_t>(t)].data() : nullptr;
+    auto fill_range = [&](int j0, int j1) {
         for (int j = j0; j < j1; ++j) {
             for (int i = 0; i < j; ++i) {
-                const value_t d = point_dist(pts, i, j);
-                D.mat[DistanceMatrix::offset(i, j)] = d;
-                if (cnt && d <= threshold) cnt[bucket_of(d, dmin, inv, nb) + 1] += 1;
+                D.mat[DistanceMatrix::offset(i, j)] = point_dist(pts, i, j);
             }
         }
     };
     if (nth <= 1 || n < 64) {
-        for (int j = 1; j < n; ++j)
-            for (int i = 0; i < j; ++i)
-                D.mat[DistanceMatrix::offset(i, j)] = point_dist(pts, i, j);
+        fill_range(1, n);
     } else {
         std::vector<std::thread> pool;
         pool.reserve(static_cast<size_t>(nth));
-        for (int t = 0; t < nth; ++t) pool.emplace_back(fill_stripe, t);
+        const int span = (n - 1 + nth - 1) / nth;
+        for (int t = 0; t < nth; ++t) {
+            const int j0 = 1 + t * span;
+            const int j1 = std::min(n, j0 + span);
+            if (j0 >= j1) break;
+            pool.emplace_back(fill_range, j0, j1);
+        }
         for (auto& th : pool) th.join();
     }
     const auto tfill1 = std::chrono::steady_clock::now();
     const int dim = maxdim;
     const auto t0 = std::chrono::steady_clock::now();
-    auto bars = redzed_vr(D, dim, threshold, nullptr, fuse ? &hist : nullptr);
+    auto bars = redzed_vr(D, dim, threshold, nullptr);
     Result r;
     append_bars(r, bars, dim);
     const auto t1 = std::chrono::steady_clock::now();
