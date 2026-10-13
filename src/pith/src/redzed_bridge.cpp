@@ -615,7 +615,12 @@ redzed_vr(DistanceMatrix& distIn, int n, value_t threshold, EdgeList* prebuilt) 
                 }
             };
             if (d == 2) generate_stream_h2_tight(st.edges, st.nv, st.binom, on_simplex);
-            else generate_stream(st.edges, st.dist, d, st.binom, on_simplex);
+            else {
+                // vendor EdStream stores F*; an lvalue lambda decays to F&,
+                // which cannot form F*. Pass a temporary wrapper.
+                generate_stream(st.edges, st.dist, d, st.binom,
+                                [&](value_t sdiam, const int32_t* cv) { on_simplex(sdiam, cv); });
+            }
 
             st.cson = false;
             st.csmap.init(0);
