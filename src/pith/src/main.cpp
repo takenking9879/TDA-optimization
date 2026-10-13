@@ -46,7 +46,7 @@ static void usage() {
         << "  --gic-k K           kNN degree for --gic-n (default 16)\n"
         << "  --reduced-vr        H07 reduced VR 2-complex (exact PH1 claimed; I224)\n"
         << "  --delaunay-vr       flag of Euclidean Delaunay 1-skeleton (I276; not exact VR)\n"
-        << "  --delaunay-alpha A  I277 H1 thicken: add d≤A·r_local (default 1; 1.5 recovered exact H1)\n"
+        << "  --delaunay-alpha A  I277/I278 H1 thicken: add d≤A·r_local (default 1; 1.75 zeros blobs)\n"
         << "  --sparse-only       write residual edges and exit\n"
         << "  --probe-only        print ROI probe on G_T and exit (I163)\n"
         << "  --probe-vertex      print dominated-vertex count on G_T and exit (I192)\n"
