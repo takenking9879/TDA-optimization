@@ -15,10 +15,129 @@
 #include <numeric>
 #include <thread>
 #include <unordered_map>
+#include <utility>
 
-// I244: VR≤T does not need enclosing (cone) or a second n² edge scan.
-// Vendor redzed() always computes both. Finite T → thr=T is exact.
-// Optional prebuilt EdgeList from the fill we already paid.
+// I245: same buckets / finish_buckets as vendor build_edges, but the two
+// n² scans and the per-bucket sorts run on a thread pool. Final order is
+// still (diam, comb_index) so VR≤T is unchanged.
+static void finish_buckets_parallel(std::vector<value_t>& diam, std::vector<int32_t>& verts, int vpc,
+                                    const std::vector<rank_t>& starts, int nb,
+                                    const BinomialTable& bt) {
+    const int nth = std::max(1, static_cast<int>(std::thread::hardware_concurrency()));
+    if (nth <= 1 || nb < 8) {
+        SortScratch sc;
+        finish_buckets(diam, verts, vpc, starts, nb, bt, sc);
+        return;
+    }
+    std::atomic<int> next{0};
+    auto worker = [&]() {
+        SortScratch sc;
+        while (true) {
+            const int b = next.fetch_add(1, std::memory_order_relaxed);
+            if (b >= nb) break;
+            const size_t a = static_cast<size_t>(starts[b]) + 1;
+            const size_t e = static_cast<size_t>(starts[b + 1]);
+            if (e > a) sort_slice(diam, verts, vpc, a, e, bt, sc, 1);
+        }
+    };
+    std::vector<std::thread> pool;
+    pool.reserve(static_cast<size_t>(nth));
+    for (int t = 0; t < nth; ++t) pool.emplace_back(worker);
+    for (auto& th : pool) th.join();
+}
+
+static void build_edges_parallel(const DistanceMatrix& dist, value_t threshold,
+                                 const BinomialTable& bt, EdgeList& out) {
+    const int n = dist.n;
+    const int nth = std::max(1, static_cast<int>(std::thread::hardware_concurrency()));
+    if (nth <= 1 || n < 256) {
+        SortScratch sc;
+        build_edges(dist, threshold, bt, sc, out);
+        return;
+    }
+    const int64_t cap = (int64_t)n * (n - 1) / 2;
+    int nb = (int)(cap >> 2);
+    if (nb < 1024) nb = 1024;
+    if (nb > (1 << 16)) nb = 1 << 16;
+    const value_t dmin = 0.0;
+    const value_t inv = (std::isfinite(threshold) && threshold > 0) ? 1.0f / threshold : 0.0f;
+
+    auto stripe = [&](int t) {
+        const int span = (n - 1 + nth - 1) / nth;
+        const int j0 = 1 + t * span;
+        const int j1 = std::min(n, j0 + span);
+        return std::pair<int, int>{j0, j1};
+    };
+
+    std::vector<std::vector<rank_t>> local(static_cast<size_t>(nth),
+                                           std::vector<rank_t>(static_cast<size_t>(nb) + 1, 0));
+    {
+        std::vector<std::thread> pool;
+        pool.reserve(static_cast<size_t>(nth));
+        for (int t = 0; t < nth; ++t) {
+            pool.emplace_back([&, t]() {
+                const auto [j0, j1] = stripe(t);
+                auto& cnt = local[static_cast<size_t>(t)];
+                for (int j = j0; j < j1; ++j) {
+                    for (int i = 0; i < j; ++i) {
+                        const value_t d = dist(i, j);
+                        if (d <= threshold) cnt[bucket_of(d, dmin, inv, nb) + 1] += 1;
+                    }
+                }
+            });
+        }
+        for (auto& th : pool) th.join();
+    }
+
+    std::vector<rank_t> cnt(static_cast<size_t>(nb) + 1, 0);
+    for (int t = 0; t < nth; ++t)
+        for (int b = 1; b <= nb; ++b) cnt[static_cast<size_t>(b)] += local[static_cast<size_t>(t)][static_cast<size_t>(b)];
+    for (int t = 1; t <= nb; ++t) cnt[static_cast<size_t>(t)] += cnt[static_cast<size_t>(t) - 1];
+    const size_t count = static_cast<size_t>(cnt[static_cast<size_t>(nb)]);
+    out.count = count;
+    if (count == 0) return;
+    const std::vector<rank_t> starts = cnt;
+
+    std::vector<std::vector<rank_t>> head(static_cast<size_t>(nth),
+                                          std::vector<rank_t>(static_cast<size_t>(nb), 0));
+    for (int b = 0; b < nb; ++b) {
+        rank_t p = starts[static_cast<size_t>(b)];
+        for (int t = 0; t < nth; ++t) {
+            head[static_cast<size_t>(t)][static_cast<size_t>(b)] = p;
+            p += local[static_cast<size_t>(t)][static_cast<size_t>(b) + 1];
+        }
+    }
+
+    out.diam.resize(count);
+    out.verts.resize(2 * count);
+    {
+        std::vector<std::thread> pool;
+        pool.reserve(static_cast<size_t>(nth));
+        for (int t = 0; t < nth; ++t) {
+            pool.emplace_back([&, t]() {
+                const auto [j0, j1] = stripe(t);
+                auto& hd = head[static_cast<size_t>(t)];
+                for (int j = j0; j < j1; ++j) {
+                    for (int i = 0; i < j; ++i) {
+                        const value_t d = dist(i, j);
+                        if (d <= threshold) {
+                            const int b = bucket_of(d, dmin, inv, nb);
+                            const rank_t p = hd[static_cast<size_t>(b)]++;
+                            out.diam[static_cast<size_t>(p)] = d;
+                            out.verts[2 * static_cast<size_t>(p)] = i;
+                            out.verts[2 * static_cast<size_t>(p) + 1] = j;
+                        }
+                    }
+                }
+            });
+        }
+        for (auto& th : pool) th.join();
+    }
+    finish_buckets_parallel(out.diam, out.verts, 2, starts, nb, bt);
+}
+
+// I244: VR≤T does not need enclosing (cone). Finite T → thr=T is exact.
+// I245: parallel build_edges when no prebuilt EdgeList.
 static std::vector<std::vector<std::pair<value_t, value_t>>>
 redzed_vr(DistanceMatrix& distIn, int n, value_t threshold, EdgeList* prebuilt) {
     int nv = distIn.n;
@@ -38,11 +157,10 @@ redzed_vr(DistanceMatrix& distIn, int n, value_t threshold, EdgeList* prebuilt) 
     st.n = n;
     st.dist = std::move(distIn);
     st.binom = BinomialTable(nv, n + 2);
-    SortScratch sortsc;
     if (prebuilt && prebuilt->count) {
         st.edges = std::move(*prebuilt);
     } else {
-        build_edges(st.dist, thr, st.binom, sortsc, st.edges);
+        build_edges_parallel(st.dist, thr, st.binom, st.edges);
     }
 
     st.words = (nv + 63) / 64;
