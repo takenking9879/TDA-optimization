@@ -136,42 +136,11 @@ static void build_edges_parallel(const DistanceMatrix& dist, value_t threshold,
     finish_buckets_parallel(out.diam, out.verts, 2, starts, nb, bt);
 }
 
-// I247: exact leftover-coface. A common neighbor with every other face
-// strictly shorter than r is already born, so x is an (n+1)-birth. H1
-// (an edge) is two distance reads; equal-diameter youngest-face still
-// falls through to vendor coface_ready.
-static bool leftover_coface_fast(State& st, const int32_t* xv, int m, comb_t xidx, value_t r) {
-    if (m == 2) {
-        const int u = xv[0], v = xv[1];
-        const uint64_t* rb = st.rbits.data();
-        const int words = st.words, nv = st.nv;
-        int wlo = st.rlo[u], whi = st.rhi[u];
-        if (st.rlo[v] > wlo) wlo = st.rlo[v];
-        if (st.rhi[v] < whi) whi = st.rhi[v];
-        for (int w = wlo; w <= whi; ++w) {
-            uint64_t acc = rb[static_cast<size_t>(u) * words + w] &
-                           rb[static_cast<size_t>(v) * words + w];
-            acc &= ~st.seenbits[w];
-            while (acc) {
-                const int bp = redzed_ctz64(acc);
-                acc &= acc - 1;
-                const int cand = w * 64 + bp;
-                if (cand >= nv) break;
-                if (st.dist(u, cand) < r && st.dist(v, cand) < r) return true;
-                if (coface_ready(st.coface_buf.data(), xv, 2, static_cast<int32_t>(cand), xidx, r,
-                                 st.dist, st.binom))
-                    return true;
-            }
-        }
-        return false;
-    }
-    return has_leftover_coface(st, xv, m, xidx, r);
-}
-
 // I246: vendor AE inserts R/Ri singleton then often erases it (no seeds +
 // leftover coface = (n+1)-birth / zero bar). Skip that insert. When seeds
 // exist, insert once and finish AE without re-advance / re-collect.
 // set_side is a no-op unless side_vpc is set (H2+).
+// I247 leftover_coface_fast was exact but slower (9.24× vs I246 9.56×) — reverted.
 static void active_enum_lazy(State& st, rank_t xrank, comb_t xidx, const int32_t* verts,
                              value_t sdiam) {
     const int m = st.n + 1;
@@ -180,7 +149,7 @@ static void active_enum_lazy(State& st, rank_t xrank, comb_t xidx, const int32_t
     SetDict& Rn = st.R[st.n];
     SetDict& Rin = st.Ri[st.n];
     if (st.seedverts.empty()) {
-        if (leftover_coface_fast(st, verts, m, xidx, sdiam)) return;
+        if (has_leftover_coface(st, verts, m, xidx, sdiam)) return;
         const slot_t s1 = Rn.singleton(xrank, xrank);
         const slot_t s2 = Rin.singleton(xrank, xrank);
         Rn.set_side(s1, sdiam, verts);
@@ -202,7 +171,7 @@ static void active_enum_lazy(State& st, rank_t xrank, comb_t xidx, const int32_t
             dirty |= process_seeded(st, xslot, sdw, sdiam);
     }
     if (!dirty) {
-        if (leftover_coface_fast(st, verts, m, xidx, sdiam)) {
+        if (has_leftover_coface(st, verts, m, xidx, sdiam)) {
             Rn.erase(xrank);
             Rin.erase(xrank);
             return;
@@ -212,7 +181,7 @@ static void active_enum_lazy(State& st, rank_t xrank, comb_t xidx, const int32_t
     }
     xslot = Rn.slot(xrank);
     if (xslot) {
-        if (leftover_coface_fast(st, verts, m, xidx, sdiam)) process_leftover(st, xslot, sdiam);
+        if (has_leftover_coface(st, verts, m, xidx, sdiam)) process_leftover(st, xslot, sdiam);
         xslot = Rn.slot(xrank);
     }
     if (xslot) register_active(st, xrank, xslot, verts);

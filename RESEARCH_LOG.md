@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-13 — I247 leftover-coface fast path
+
+- **Question:** Can a cheaper exact leftover-coface (strictly shorter common neighbor, then vendor `coface_ready`) cut the ~3.5M zero-persistence leftovers enough for connected 10×?
+- **Hypothesis:** On continuous uniform2 the first common neighbor has both other edges < r, so two distance reads beat `comb_index`. Shape-agnostic. Exact if identity holds.
+- **Work:** `leftover_coface_fast` in `active_enum_lazy`. Wave 108 vs Ripser. Hard cases: uniform2 n=5000 / n=6000.
+- **Result:** **Exact 11/11** (figure8 2=2; sphere void 1=1; blobs H0 3=3). Uniform2 n=5000 **9.24×** (0.37s/3.42s; reduce 279 vs I246 264 ms). n=6000 **8.61×**. No clock win.
+- **Decision:** **Hold identity, revert from the engine.** Extra distance reads before `coface_ready` did not beat vendor leftover-coface. Topology loss: **0**. Do not retry this constant.
+- **Class:** experiment (hold identity; reject as clock; reverted)
+
 ## 2026-10-13 — I246 lazy R/Ri insert on leftover-coface
 
 - **Question:** Most leftover edges on a dense connected G_T are zero-persistence (n+1)-births. Does skipping the vendor R/Ri singleton insert when AE has no seeds and leftover-coface would erase keep exact H0–H2 and cut the connected wall?
