@@ -820,24 +820,6 @@ static bool spatial_edges(const std::vector<std::vector<value_t>>& pts, value_t 
     return true;
 }
 
-static double bbox_max_extent(const std::vector<std::vector<value_t>>& pts) {
-    const int n = static_cast<int>(pts.size());
-    const int d = n ? static_cast<int>(pts[0].size()) : 0;
-    if (n <= 0 || d <= 0) return 0;
-    double L = 0;
-    for (int k = 0; k < d; ++k) {
-        double lo = static_cast<double>(pts[0][static_cast<size_t>(k)]);
-        double hi = lo;
-        for (int i = 1; i < n; ++i) {
-            const double x = static_cast<double>(pts[static_cast<size_t>(i)][static_cast<size_t>(k)]);
-            if (x < lo) lo = x;
-            if (x > hi) hi = x;
-        }
-        if (hi - lo > L) L = hi - lo;
-    }
-    return L;
-}
-
 // I256: EdgeList from spatial d≤T pairs. Same (diam, comb_index) buckets
 // as vendor build_edges, so VR≤T order is unchanged.
 static void edgelist_from_spat(const std::vector<SpatEdge>& se, value_t threshold,
@@ -1083,24 +1065,17 @@ Result persist_redzed_from_points(const std::vector<std::vector<value_t>>& pts, 
 
     const int dim = maxdim;
     const int d = static_cast<int>(pts[0].size());
-    // I256: when the T-ball is a small fraction of the bbox, skip far
-    // distances and pass a prebuilt EdgeList. Dense clouds (π(T/L)²≥0.2)
-    // keep I238 parallel all-pairs.
+    // I262: Moore neighborhood is exact for any finite T. Always build
+    // G_T spatially on 2D/3D (n≥256) and use the I258–I261 hash — never
+    // allocate C(n,2). The old π(T/L)²<0.2 gate kept dense clouds on
+    // I238 all-pairs; that writes an n×n matrix real data cannot afford.
     // I257: do not ∞-fill C(n,2).
-    // I258: do not allocate C(n,2). I259–I261: hash of d≤T pairs
-    // (load 0.5, occupancy bitmap, no eager Slot zero). D.n is set
-    // so generate_stream can read the vertex count. Miss → VINF.
+    // I258–I261: hash of d≤T pairs. D.n is set so generate_stream can
+    // read the vertex count. Miss → VINF.
     std::vector<SpatEdge> SE;
     bool spatial = false;
-    if (std::isfinite(threshold) && threshold > 0 && d >= 2 && d <= 3 && n >= 256) {
-        const double L = bbox_max_extent(pts);
-        if (L > 0) {
-            const double tL = static_cast<double>(threshold) / L;
-            const double frac = (d == 2) ? (3.141592653589793 * tL * tL)
-                                         : (4.188790204786391 * tL * tL * tL);
-            if (frac < 0.20) spatial = spatial_edges(pts, threshold, SE);
-        }
-    }
+    if (std::isfinite(threshold) && threshold > 0 && d >= 2 && d <= 3 && n >= 256)
+        spatial = spatial_edges(pts, threshold, SE);
     DistanceMatrix D;
     SparseDist csr;
     const auto tfill0 = std::chrono::steady_clock::now();
