@@ -641,9 +641,16 @@ Do not paste long reasoning here.
 - **Decision:** Reject on clock. Default stays backward.
 - **Class:** experiment (negative on clock)
 
-## 2026-10-13 — I155 pair-nbr one-gather (in progress)
+## 2026-10-13 — I155 pair-nbr one-gather
 
-- **Question:** Does storing `(w,t)` on live adjacency cut C-build from two DenseTimes gathers to one, without changing residuals?
-- **Hypothesis:** ~2× fewer random loads; probe count unchanged. Shift must update stored times or identity breaks.
-- **Work:** `LiveAdj` + `set_live_time` on shift; `n_collapse_shift_lookups`. Wave28 pending.
+- **Question:** Does storing `(w,t)` on live adjacency cut C-build from two gathers to one?
+- **Result:** Exact 4/4. Residuals match I153 (93/283/5169/9190). Probe count unchanged. circle2000 collapse **4068 vs 4253 ms** (1.05×); **6.52×** vs Ripser. circle3000 **13536 vs 14622 ms** (1.08×); **8.18×**. Shift lookups 4799 vs 567M probes — shift is not the wall. Two-row gathers were already L1-resident; not a 2× lever.
+- **Decision:** **Select** (small exact win). Next: skip the separate domination pass (I156).
+- **Class:** reproduced
+
+## 2026-10-13 — I156 fused first-apex (in progress)
+
+- **Question:** Can we trim when the first common dominates and `C_later` is empty, without materializing `C` or calling `first_dominator_deg`?
+- **Hypothesis:** I155: 1.07M trims / 2k shifts / 96% first-apex hits. Fast trim drops ~290M `C_now` stores and the O(|C|) verify pass on that class.
+- **Work:** Two-phase `process_one_backward`. Wave29 + circle4000 (I157) pending.
 - **Class:** proposal / experiment running

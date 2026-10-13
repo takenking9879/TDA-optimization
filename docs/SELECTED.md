@@ -1,12 +1,13 @@
 # Selected algorithm (living)
 
-Updated 2026-10-13 after iterations I001–I154. I155 pair-nbr is the live collapse cut.
+Updated 2026-10-13 after iterations I001–I155. I156 fused first-apex is the live collapse cut.
 
 ## Selected exact-VR CPU pipeline
 
 **Name:** **PITH** — threshold graph \(G_T\) → backward flag **edge collapse**
-(GUDHI sticky-dominator + lazy heap + cheap degree filter) → **Ripser-heap
-implicit cohomology** on the residual flag graph (I137).
+(GUDHI sticky-dominator + lazy heap + cheap degree filter + I155 pair-nbr
+times on live adjacency) → **Ripser-heap implicit cohomology** on the residual
+flag graph (I137). I156 fused first-apex is the live cut on top of this.
 
 - \(H_0\): Kruskal. `--collapse -1` **skips collapse** when `maxdim=0`.
 - \(H_1\): leftover (non-MST, non-apparent) edges, youngest-first; F₂ heap
@@ -77,9 +78,9 @@ E3 (collapse + Ripser-sparse) is no longer required; we own that residual class.
 I153: C-build is the wall (567M probes / 1.12M dom tests / 96% first-apex hits).
 ~49% of probes miss and still paid two gathers. Domination levers are closed.
 
-1. **I155 pair-nbr** — store times on live adjacency; one gather per C-probe (in flight).
-2. If I155 wins: drop `DenseTimes` for the shift path; hub-batch edges sharing a vertex; integer grade IDs.
-3. If I155 loses: time-sorted early exit on the walked star; then close C-construction and reopen RedZeD (H09).
-4. Geometric lens / range query: ceiling ~2× (`|C|`≈269 vs probes≈527). Not a 10× path.
-5. Fix D&C merge (I150) — parallel schedule only; not less sequential work.
+1. **I155 pair-nbr — selected.** One gather per probe. circle2000 4068 vs 4253 ms; circle3000 8.18×. Shift lookups negligible.
+2. **I156 fused first-apex** — trim without materializing C when first common dominates and no `C_later` (in flight).
+3. I157 remasure circle4000 (I148 was 8.74×). Need ~14% more collapse cut for 10× on that flagship.
+4. After I156: integer grade IDs; hub-batch; live-neighbor membership filter. Geometry ceiling still ~2×.
+5. Fix D&C merge (I150) — parallel schedule only.
 6. GPU later (Ripser++ reference only)

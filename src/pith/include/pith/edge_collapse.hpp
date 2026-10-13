@@ -196,6 +196,45 @@ inline bool process_one_backward(const Edge& e_in, value_t t_in, DenseTimes& Tm,
     const auto& src = walk_u ? nbr[u] : nbr[v];
     const value_t* r_other = walk_u ? Tm.row(v) : Tm.row(u);
     c.n_collapse_c_probes += static_cast<std::int64_t>(src.size());
+
+    // I156: fuse first-apex verify into the C walk. If the first common
+    // dominates and there is no C_later, trim without materializing C
+    // (I155: 1.07M trims vs 2k shifts on circle2000).
+    index_t first = -1;
+    const value_t* r_first = nullptr;
+    bool fused_ok = true;
+    bool any_later = false;
+    std::int64_t commons = 0;
+    for (const LiveNbr& p : src) {
+        const index_t w = p.first;
+        if (w == u || w == v) continue;
+        const value_t t_other = r_other[w];
+        if (t_other >= kInf / 2) continue;
+        ++commons;
+        const value_t tau = p.second > t_other ? p.second : t_other;
+        if (tau <= t) {
+            if (first < 0) {
+                first = w;
+                r_first = Tm.row(w);
+            } else if (fused_ok && r_first[w] > t) {
+                fused_ok = false;
+            }
+        } else {
+            any_later = true;
+        }
+    }
+    c.n_collapse_c_size_sum += commons;
+
+    if (first >= 0 && fused_ok && !any_later) {
+        Tm.erase(u, v);
+        drop_live_nbr(nbr, u, v);
+        drop_live_nbr(nbr, v, u);
+        ++c.n_collapse_trims;
+        ++c.n_collapse_fast_trims;
+        ++c.n_collapse_dom_hits;
+        return false;
+    }
+
     for (const LiveNbr& p : src) {
         const index_t w = p.first;
         if (w == u || w == v) continue;
@@ -205,7 +244,6 @@ inline bool process_one_backward(const Edge& e_in, value_t t_in, DenseTimes& Tm,
         if (tau <= t) S.C_now.push_back(w);
         else S.C_later.push_back({tau, w});
     }
-    c.n_collapse_c_size_sum += static_cast<std::int64_t>(S.C_now.size() + S.C_later.size());
 
     const auto later_cmp = [](const std::pair<value_t, index_t>& a,
                               const std::pair<value_t, index_t>& b) {
