@@ -903,6 +903,13 @@ Do not paste long reasoning here.
 - **Decision:** New flagship **140×**. Circle family 83.5 / 119 / 140×. Next: I197 AND-eq on the any_later/shift path (torus).
 - **Class:** experiment (support)
 
+## 2026-10-13 — I197 AND-eq any_later
+
+- **Question:** Can AND-eq of C_now (bits AND minus later-commons) skip consider() on any_later edges?
+- **Result:** **Exact**, same residuals. Modest clock win: circle2000 collapse 270→249 ms (83.5×). blobs 192→178 ms (1.85×). sphere 357→334 ms (2.03×). torus 1828→1771 ms (1.14×) — still 113k shifts.
+- **Decision:** Select (no regression, small win). Torus wall is the shift heap, not C-build. I198: AND-eq / sticky at shift grades.
+- **Class:** experiment (support as default; torus still shift-bound)
+
 ## 2026-10-13 — I164 collapse live-degree trace
 
 - **Question:** Does the live 1-skeleton thin early enough to stop the C-walk?
