@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-13 — I255 unique-diameter leftover-coface
+
+- **Question:** On unique edge diameters, is leftover-coface just a nonempty rbit AND (skip `coface_ready`), and does that cut the connected wall without changing H0–H2?
+- **Hypothesis:** Profile on uniform2/torus/sphere: 3.45M leftovers, first common neighbor always passes `coface_ready`, 1309 misses have zero neighbors. Unique diams ⇒ any common neighbor has strictly shorter other edges ⇒ {u,v} is the unique longest face. Tied diams keep vendor `coface_ready`. Shape-agnostic. Exact if identity holds.
+- **Work:** `g_h1_unique_diam` from consecutive edge diams. Wave 116 vs Ripser: unit square (ties) + H0–H2 + sphere n=2000 H1 + uniform2 n=5000/7000/8000. Remeasured n=5000/7000 standalone.
+- **Result:** **Exact 14/14** (figure8 2=2; unit square ess H1 0=0; sphere void 1=1; torus 1=1; blobs H0 3=3). Wave n=5000 **11.1×** (0.30s/3.39s; reduce 212 vs I252 206 ms). n=7000 11.8× (0.49s; standalone reduce 334–345 ≈ I252 346). n=8000 **10.6×** (0.61s). Sphere H1 **10.5×**. Torus **14.5×**.
+- **Decision:** **Hold identity, revert from the engine.** The lemma holds; skipping 3.45M `coface_ready` is not the wall (rbit/UF/advance). Do not claim a win from the wave’s 15 ms n=7000 blip. Topology loss: **0**. Next leftover-coface inner-loop constants are exhausted.
+- **Class:** experiment (hold identity; reject as clock; reverted)
+
 ## 2026-10-13 — I254 skip ae_prepare on empty ActiveReg
 
 - **Question:** Empty ActiveReg means no seeds. Can the H1 leftover loop skip `ae_prepare` / `clear_seeds` (still `advance_rbits`) without changing H0–H2, and does that cut the connected wall at n=8000?

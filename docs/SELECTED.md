@@ -1,6 +1,6 @@
 # Selected algorithm (living)
 
-Updated 2026-10-13 after iterations I001–I252. **CLI default `--engine
+Updated 2026-10-13 after iterations I001–I255. **CLI default `--engine
 auto` (I235+I236+I239+I240+I241):** subsample residual-frac dispatch. Fat →
 RedZeD (torus n=2000 **14.5×**). Thin-circle → collapse+implicit
 (n=1000 **28×**; n=4000 still **140×**). Disconnected G_T → spatial UF
@@ -120,6 +120,7 @@ suite and I137 8/8 (including dense circle80/200 **collapse=0**, the I045 killer
 | Parallel leftover-coface precompute (I249) | Exact 11/11; pith **unchanged** (0.353≈0.354 s). Apparent 10.05× was Ripser 3.55 vs 3.38 s. n=6000 slower. Reverted |
 | H1 coface_ready specialize (I253) | Exact 15/15; **no pith cut**. Wave n=5000 0.36s was noise (standalone reduce 207≈I252 206 ms). n=8000 **11.9×** / 0.59 s. Reverted |
 | Empty-act skip-prepare (I254) | Exact 15/15; **no pith cut** (n=5000 0.31≈I252 0.30 s; n=8000 10.8× / 0.63 s). Reverted |
+| Unique-diam leftover-coface (I255) | Exact 14/14 (lemma: unique edge diams ⇒ leftover-coface ≡ nonempty rbit AND). **No pith cut** (n=5000 reduce 211 vs I252 206 ms). Profile: 3.45M leftovers, first common neighbor always decides, 1309 misses have 0 neighbors. Reverted |
 | GUDHI 3.13 explicit Rips (I237) | Exact 7/7; **slower** (blobs n=1000 15.9 s / 17.8M simplices vs auto 21 ms) |
 
 I107 (`--dom-budget 1`) **still rejected** with implicit (I142–I144): thicker
@@ -524,10 +525,12 @@ too slow.
    when n grows past exact VR.
 4. Connected uniform2 is **12.7× / 11.2× / 11.8×** at n=5000 / 6000 /
    7000 after I252. Sphere n=2000 H1 **10.3×**. Torus n=2000 **14.5×**.
-   Remaining wall is sequential leftover-coface / `coface_ready` on
-   ~3.5M zero-persistence edges. Scale holds: n=7000 **11.8×** / 0.51 s
-   (I252), n=8000 **10.8–11.9×** / 0.59–0.63 s. I253 `coface_ready_h1`
-   and I254 empty-act skip-prepare are exact and reverted (no pith cut).
+   Remaining wall is visiting ~3.5M leftover edges (UF + `advance_rbits`
+   + first rbit AND), not `coface_ready`: I255 skipped it with a proven
+   unique-diam lemma and reduce stayed 211≈206 ms. Scale holds: n=7000
+   **11.8×** / 0.51 s (I252), n=8000 **10.6–11.9×** / 0.59–0.63 s.
+   I253 `coface_ready_h1`, I254 empty-act skip-prepare, and I255
+   unique-diam AND are exact and reverted (no pith cut).
    Fill-collect sort, I247 leftover-coface fast, I248 fuse-fill
    histogram, and I249 parallel leftover-coface precompute are rejected.
    Parallel `build_edges`, lazy insert, skip-collect, inline skip, and
