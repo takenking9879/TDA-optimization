@@ -99,6 +99,7 @@ suite and I137 8/8 (including dense circle80/200 **collapse=0**, the I045 killer
 | Reduced VR lune walk (I224 path) | I225 all-pairs is **2.7×** faster construction, still exact; still slower than Ripser (circle n=500 0.73s / 0.42×) |
 | Witness-shrink first_dominator (I226) | Exact 5/5; torus tests 12.5M→9.0M / 6.1M skips; collapse **1450 vs 1470** ms. Circle 275 vs 263. Reverted |
 | Live leftover-star generation (I233) | **Not exact** on real clouds (invents H1). Unit square held. Reverted |
+| Leftover-coface AE (I236) | **Not exact** (figure8 unmatched 12; essentials held). First-hit `process_leftover` / empty-R abort skipped later same-diameter deaths. Reverted |
 
 I107 (`--dom-budget 1`) **still rejected** with implicit (I142–I144): thicker
 residual makes collapse *and* reduce slower (circle3000 1.49× vs full 8.11×).
