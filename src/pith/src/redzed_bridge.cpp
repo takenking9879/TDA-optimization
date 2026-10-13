@@ -457,42 +457,66 @@ redzed_vr(DistanceMatrix& distIn, int n, value_t threshold, EdgeList* prebuilt) 
         SetDict* R1 = want_h1 ? &st.R[1] : nullptr;
         SetDict* Ri1 = want_h1 ? &st.Ri[1] : nullptr;
         const EdgeList& ed = st.edges;
-        for (size_t e = 1; e <= ed.count; ++e) {
-            int lo = ed.verts[2 * (e - 1)];
-            int hi = ed.verts[2 * (e - 1) + 1];
-            int32_t a = uf.find(lo), b = uf.find(hi);
-            value_t ediam = ed.diam[e - 1];
-            if (a == b) {
-                if (want_h1) {
-                    rank_t er = (rank_t)e;
-                    if (n == 1) {
-                        // I251: inline the 97% empty-seed leftover-coface skip so
-                        // those leftovers do not enter active_enum_lazy.
-                        // I254 skip-prepare on empty ActiveReg was exact but
-                        // no pith cut (n=5000 0.31≈I252 0.30 s). Reverted.
-                        st.top_buf[0] = lo;
-                        st.top_buf[1] = hi;
-                        const int32_t* xv = &ed.verts[2 * (e - 1)];
-                        ae_prepare(st, st.top_buf.data(), ediam);
-                        if (st.seedverts.empty()) {
-                            const comb_t xidx = comb_index(xv, 2, st.binom);
-                            if (leftover_coface_h1_noseen(st, xv, xidx, ediam)) continue;
-                            ae_keep_singleton(st, er, st.top_buf.data(), ediam);
+        const int words = st.words;
+        // I266: add each diam-tie group to rbits once, then UF + leftover
+        // AE without ae_prepare/advance_rbits. Same G_≤r as vendor
+        // advance_rbits (whole tie group is in before leftover-coface).
+        auto add_rbit = [&](int i, int j) {
+            const int wj = j >> 6, wi = i >> 6;
+            st.rbits[(size_t)i * words + wj] |= (uint64_t)1 << (j & 63);
+            st.rbits[(size_t)j * words + wi] |= (uint64_t)1 << (i & 63);
+            if (st.rlo[i] > wj) st.rlo[i] = wj;
+            if (st.rhi[i] < wj) st.rhi[i] = wj;
+            if (st.rlo[j] > wi) st.rlo[j] = wi;
+            if (st.rhi[j] < wi) st.rhi[j] = wi;
+        };
+        for (size_t e = 1; e <= ed.count;) {
+            const value_t ediam = ed.diam[e - 1];
+            size_t end = e;
+            while (end <= ed.count && ed.diam[end - 1] == ediam) ++end;
+            for (size_t k = e; k < end; ++k)
+                add_rbit(ed.verts[2 * (k - 1)], ed.verts[2 * (k - 1) + 1]);
+            for (size_t k = e; k < end; ++k) {
+                const int lo = ed.verts[2 * (k - 1)];
+                const int hi = ed.verts[2 * (k - 1) + 1];
+                const int32_t a = uf.find(lo), b = uf.find(hi);
+                if (a == b) {
+                    if (want_h1) {
+                        const rank_t er = (rank_t)k;
+                        if (n == 1) {
+                            const int32_t* xv = &ed.verts[2 * (k - 1)];
+                            st.top_buf[0] = lo;
+                            st.top_buf[1] = hi;
+                            if (st.act.slot_of.count == 0) {
+                                if (!st.seedverts.empty()) clear_seeds(st);
+                                const comb_t xidx = comb_index(xv, 2, st.binom);
+                                if (leftover_coface_h1_noseen(st, xv, xidx, ediam)) continue;
+                                ae_keep_singleton(st, er, st.top_buf.data(), ediam);
+                            } else {
+                                collect_candidates(st, st.top_buf.data());
+                                if (st.seedverts.empty()) {
+                                    const comb_t xidx = comb_index(xv, 2, st.binom);
+                                    if (leftover_coface_h1_noseen(st, xv, xidx, ediam)) continue;
+                                    ae_keep_singleton(st, er, st.top_buf.data(), ediam);
+                                } else {
+                                    const comb_t xidx = comb_index(xv, 2, st.binom);
+                                    ae_seeded(st, er, xidx, st.top_buf.data(), ediam);
+                                }
+                            }
                         } else {
-                            const comb_t xidx = comb_index(xv, 2, st.binom);
-                            ae_seeded(st, er, xidx, st.top_buf.data(), ediam);
+                            R1->singleton(er, er);
+                            Ri1->singleton(er, er);
                         }
-                    } else {
-                        R1->singleton(er, er);
-                        Ri1->singleton(er, er);
                     }
+                } else {
+                    const int32_t jj = std::max(a, b), oo = std::min(a, b);
+                    uf.parent[jj] = oo;
+                    if (ediam != 0.0) st.pairs[0].push_back({0.0, ediam});
                 }
-            } else {
-                int32_t jj = std::max(a, b), oo = std::min(a, b);
-                uf.parent[jj] = oo;
-                if (ediam != 0.0) st.pairs[0].push_back({0.0, ediam});
             }
+            e = end;
         }
+        st.rptr = ed.count + 1;
     }
 
     if (n >= 2) {
