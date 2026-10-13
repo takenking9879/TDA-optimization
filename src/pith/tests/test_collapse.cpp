@@ -563,6 +563,96 @@ int main() {
         std::cout << "ok active-h012 octahedron\n";
     }
 
+    // I239: two unit squares far apart — G_T has 2 components; PH is the sum.
+    {
+        const value_t T = 2.0f;
+        std::vector<std::vector<value_t>> pts = {
+            {0, 0}, {1, 0}, {1, 1}, {0, 1}, {10, 0}, {11, 0}, {11, 1}, {10, 1},
+        };
+        std::vector<std::vector<value_t>> dist(8, std::vector<value_t>(8, 0));
+        for (int i = 0; i < 8; ++i) {
+            for (int j = i + 1; j < 8; ++j) {
+                const value_t dx = pts[i][0] - pts[j][0];
+                const value_t dy = pts[i][1] - pts[j][1];
+                dist[i][j] = dist[j][i] = std::sqrt(dx * dx + dy * dy);
+            }
+        }
+        Result rz = persist_redzed(dist, 1, T);
+        int ess0 = 0, ess1 = 0, fin1 = 0;
+        for (const auto& p : rz.pairs) {
+            if (!std::isfinite(p.death)) {
+                if (p.dim == 0) ++ess0;
+                if (p.dim == 1) ++ess1;
+            } else if (p.dim == 1 && p.death - p.birth > 1e-5f) {
+                ++fin1;
+            }
+        }
+        if (ess0 != 2 || ess1 != 0 || fin1 != 2) {
+            std::cerr << "I239 two-squares ess0/ess1/fin1=" << ess0 << "/" << ess1 << "/" << fin1
+                      << "\n";
+            return 1;
+        }
+        if (rz.counters.n_collapse_trims != 2) {
+            std::cerr << "I239 two-squares cc=" << rz.counters.n_collapse_trims << "\n";
+            return 1;
+        }
+        Graph g = graph_from_distance(dist, T);
+        Result im = persist_implicit_coh(g, 1, T, 1);
+        int iess0 = 0, ifin1 = 0;
+        for (const auto& p : im.pairs) {
+            if (p.dim == 0 && !std::isfinite(p.death)) ++iess0;
+            if (p.dim == 1 && std::isfinite(p.death) && p.death - p.birth > 1e-5f) ++ifin1;
+        }
+        if (iess0 != 2 || ifin1 != 2) {
+            std::cerr << "I239 implicit two-squares " << iess0 << " " << ifin1 << "\n";
+            return 1;
+        }
+        Result rzp = persist_redzed_from_points(pts, 1, T);
+        int pess0 = 0, pfin1 = 0;
+        for (const auto& p : rzp.pairs) {
+            if (p.dim == 0 && !std::isfinite(p.death)) ++pess0;
+            if (p.dim == 1 && std::isfinite(p.death) && p.death - p.birth > 1e-5f) ++pfin1;
+        }
+        if (pess0 != 2 || pfin1 != 2 || rzp.counters.n_collapse_trims != 2) {
+            std::cerr << "I239 from-points two-squares\n";
+            return 1;
+        }
+        std::cout << "ok I239 two-squares cc-split\n";
+    }
+
+    // I239: two octahedra far apart — H0=2 and H2=2 (wedge of voids).
+    {
+        const value_t T = 1.5f;
+        const value_t oct[6][3] = {
+            {1, 0, 0}, {-1, 0, 0}, {0, 1, 0}, {0, -1, 0}, {0, 0, 1}, {0, 0, -1},
+        };
+        std::vector<std::vector<value_t>> pts;
+        pts.reserve(12);
+        for (int i = 0; i < 6; ++i) pts.push_back({oct[i][0], oct[i][1], oct[i][2]});
+        for (int i = 0; i < 6; ++i) pts.push_back({oct[i][0] + 8, oct[i][1], oct[i][2]});
+        Result rz = persist_redzed_from_points(pts, 2, T);
+        int ess0 = 0, ess1 = 0, ess2 = 0, fin2 = 0;
+        for (const auto& p : rz.pairs) {
+            if (!std::isfinite(p.death)) {
+                if (p.dim == 0) ++ess0;
+                if (p.dim == 1) ++ess1;
+                if (p.dim == 2) ++ess2;
+            } else if (p.dim == 2 && p.death - p.birth > 1e-5f) {
+                ++fin2;
+            }
+        }
+        if (ess0 != 2 || ess1 != 0 || ess2 != 2 || fin2 != 0) {
+            std::cerr << "I239 two-octahedra H0/H1/H2 ess=" << ess0 << "/" << ess1 << "/" << ess2
+                      << " fin2=" << fin2 << "\n";
+            return 1;
+        }
+        if (rz.counters.n_collapse_trims != 2) {
+            std::cerr << "I239 two-octahedra cc=" << rz.counters.n_collapse_trims << "\n";
+            return 1;
+        }
+        std::cout << "ok I239 two-octahedra H012 cc-split\n";
+    }
+
     std::cout << "all collapse/persist unit tests passed\n";
     return 0;
 }

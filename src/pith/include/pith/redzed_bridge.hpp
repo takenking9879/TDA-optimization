@@ -12,6 +12,8 @@ Result persist_redzed(const std::vector<std::vector<value_t>>& dist, int maxdim,
 
 // I238: points → compact lower-tri metric (parallel fill). Skips the
 // vector<vector> pairwise + copy that auto-redzed paid before reduce.
+// I239: if G_T has >1 component, RedZeD each block (bounded pool) and
+// merge bars. Exact: VR of a disjoint union is the direct sum.
 Result persist_redzed_from_points(const std::vector<std::vector<value_t>>& pts, int maxdim,
                                  value_t threshold);
 

@@ -7,12 +7,28 @@
 
 #include "pith/redzed_bridge.hpp"
 
+#include <atomic>
 #include <chrono>
 #include <cmath>
+#include <functional>
+#include <numeric>
 #include <thread>
 
 namespace pith {
 
+static void append_bars(Result& r, const std::vector<std::vector<std::pair<value_t, value_t>>>& bars,
+                        int dim) {
+    const int up = std::min(dim, static_cast<int>(bars.size()) - 1);
+    for (int d = 0; d <= up; ++d) {
+        for (const auto& p : bars[static_cast<size_t>(d)]) {
+            r.pairs.push_back({d, p.first, p.second});
+        }
+    }
+}
+
+// I239: VR≤T of a disconnected G_T is the wedge of the components.
+// Split, run RedZeD on each block, merge bars. Exact. Superadditive
+// reduce (blobs = 3 clusters at T=1). One component → same as I228.
 static Result finish_redzed(DistanceMatrix&& D, int maxdim, value_t threshold) {
     Result r;
     Counters& c = r.counters;
@@ -20,17 +36,88 @@ static Result finish_redzed(DistanceMatrix&& D, int maxdim, value_t threshold) {
     c.n_vertices = n;
     if (n <= 0 || maxdim < 0) return r;
     const int dim = maxdim < 1 ? 0 : maxdim;
-    const auto t0 = std::chrono::steady_clock::now();
-    auto bars = redzed(D, dim, threshold);
-    const auto t1 = std::chrono::steady_clock::now();
-    c.reduce_ms = std::chrono::duration<double, std::milli>(t1 - t0).count();
-    c.pipeline = "pith:redzed";
-    const int up = std::min(dim, static_cast<int>(bars.size()) - 1);
-    for (int d = 0; d <= up; ++d) {
-        for (const auto& p : bars[static_cast<size_t>(d)]) {
-            r.pairs.push_back({d, p.first, p.second});
+
+    std::vector<int> parent(static_cast<size_t>(n));
+    std::iota(parent.begin(), parent.end(), 0);
+    auto find = [&](int x) {
+        while (parent[static_cast<size_t>(x)] != x) {
+            parent[static_cast<size_t>(x)] = parent[static_cast<size_t>(parent[static_cast<size_t>(x)])];
+            x = parent[static_cast<size_t>(x)];
+        }
+        return x;
+    };
+    for (int j = 1; j < n; ++j) {
+        for (int i = 0; i < j; ++i) {
+            const value_t d = D(i, j);
+            if (d <= threshold) {
+                const int a = find(i), b = find(j);
+                if (a != b) parent[static_cast<size_t>(b)] = a;
+            }
         }
     }
+    std::vector<std::vector<int>> buckets(static_cast<size_t>(n));
+    for (int i = 0; i < n; ++i) buckets[static_cast<size_t>(find(i))].push_back(i);
+    std::vector<std::vector<int>> comps;
+    comps.reserve(static_cast<size_t>(n));
+    for (auto& b : buckets)
+        if (!b.empty()) comps.push_back(std::move(b));
+    c.n_collapse_trims = static_cast<std::int64_t>(comps.size());
+
+    const auto t0 = std::chrono::steady_clock::now();
+    if (comps.size() <= 1) {
+        auto bars = redzed(D, dim, threshold);
+        append_bars(r, bars, dim);
+        c.pipeline = "pith:redzed";
+    } else {
+        c.pipeline = "pith:redzed-cc";
+        struct Block {
+            std::vector<int> verts;
+            std::vector<std::vector<std::pair<value_t, value_t>>> bars;
+        };
+        std::vector<Block> blocks(comps.size());
+        for (size_t i = 0; i < comps.size(); ++i) blocks[i].verts = std::move(comps[i]);
+        auto run_block = [&](Block& b) {
+            const int m = static_cast<int>(b.verts.size());
+            if (m <= 1) return;
+            DistanceMatrix S;
+            S.resize_lower(m);
+            for (int j = 1; j < m; ++j)
+                for (int i = 0; i < j; ++i)
+                    S.mat[DistanceMatrix::offset(i, j)] =
+                        D(b.verts[static_cast<size_t>(i)], b.verts[static_cast<size_t>(j)]);
+            b.bars = redzed(S, dim, threshold);
+        };
+        // Bounded pool: one thread per component would explode on a
+        // dust cloud (many size-1 / tiny blocks). Size-1 is H0-only.
+        std::vector<Block*> work;
+        work.reserve(blocks.size());
+        for (auto& b : blocks)
+            if (b.verts.size() > 1) work.push_back(&b);
+        const int nth = std::max(1, static_cast<int>(std::thread::hardware_concurrency()));
+        const int nworkers = std::min(nth, static_cast<int>(work.size()));
+        if (nworkers > 1) {
+            std::atomic<size_t> next{0};
+            auto worker = [&]() {
+                while (true) {
+                    const size_t i = next.fetch_add(1, std::memory_order_relaxed);
+                    if (i >= work.size()) break;
+                    run_block(*work[i]);
+                }
+            };
+            std::vector<std::thread> pool;
+            pool.reserve(static_cast<size_t>(nworkers));
+            for (int t = 0; t < nworkers; ++t) pool.emplace_back(worker);
+            for (auto& th : pool) th.join();
+        } else {
+            for (Block* b : work) run_block(*b);
+        }
+        for (auto& b : blocks) {
+            if (b.verts.size() <= 1) r.pairs.push_back({0, 0, kInf});
+            else append_bars(r, b.bars, dim);
+        }
+    }
+    const auto t1 = std::chrono::steady_clock::now();
+    c.reduce_ms = std::chrono::duration<double, std::milli>(t1 - t0).count();
     return r;
 }
 

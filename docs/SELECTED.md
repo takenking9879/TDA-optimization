@@ -18,7 +18,7 @@ justification (residual \(|E'(n)|\) slopes, column counts, or a different
 complex with a proven size bound). Any information loss vs exact VR must be
 quantified (unmatched bars / bottleneck / interleaving).
 
-Current honest status: **`--engine auto` (I235+I236)** is shape-agnostic (0
+Current honest status: **`--engine auto` (I235+I236+I238)** is shape-agnostic (0
 unmatched) and picks the better exact engine from a 250-point collapse
 probe. H1 τ=0.04; H2 τ=0.15. Torus n=2000 H1 **12.5×**; circle n=1000
 **28×**; sphere n=600 H2 **136×**. **Worst-case Big-O is not improved** —

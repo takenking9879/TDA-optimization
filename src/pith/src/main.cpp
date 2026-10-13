@@ -542,9 +542,12 @@ int main(int argc, char** argv) {
             r = use_implicit ? persist_implicit_coh(g, maxdim, threshold, ratio)
                              : persist_sparse(g, maxdim, threshold, ratio);
         }
+        const std::int64_t redzed_cc = r.counters.n_collapse_trims;
         r.counters.n_distances = c.n_distances;
         r.counters.n_edges_in = c.n_edges_in;
-        r.counters.n_collapse_trims = c.n_collapse_trims;
+        r.counters.n_collapse_trims = (engine == "redzed" && redzed_cc > 0)
+                                          ? redzed_cc
+                                          : c.n_collapse_trims;
         r.counters.n_collapse_shifts = c.n_collapse_shifts;
         r.counters.n_collapse_c_probes = c.n_collapse_c_probes;
         r.counters.n_collapse_dom_tests = c.n_collapse_dom_tests;
@@ -570,7 +573,10 @@ int main(int argc, char** argv) {
         r.counters.metric_ms = c.metric_ms;
         r.counters.residual_frac = c.residual_frac;
         if (engine == "redzed") {
-            r.counters.pipeline = auto_dispatch ? "pith:auto-redzed" : "pith:redzed";
+            const bool cc = r.counters.n_collapse_trims > 1;
+            r.counters.pipeline = auto_dispatch
+                                      ? (cc ? "pith:auto-redzed-cc" : "pith:auto-redzed")
+                                      : (cc ? "pith:redzed-cc" : "pith:redzed");
         } else if (engine == "active") {
             r.counters.n_vertices = g.n;
             if (r.counters.pipeline.empty()) r.counters.pipeline = "pith:active-h1";
