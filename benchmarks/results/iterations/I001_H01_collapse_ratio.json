@@ -1,0 +1,130 @@
+{
+  "id": "H01_collapse_ratio",
+  "lever": "H01",
+  "class": "structural",
+  "fidelity": "exact",
+  "status": "hold",
+  "summary": "median_ratio=7.295774647887324 n=12",
+  "receipts": [
+    {
+      "dataset": "circle_noisy",
+      "n": 80,
+      "edges_in": 1261,
+      "edges_out": 93,
+      "ratio": 13.559139784946236,
+      "e3_match": true,
+      "ripser_s": 0.0019579100001010374,
+      "e3_s": 0.0016952759999639966
+    },
+    {
+      "dataset": "circle_noisy",
+      "n": 200,
+      "edges_in": 8197,
+      "edges_out": 283,
+      "ratio": 28.964664310954063,
+      "e3_match": true,
+      "ripser_s": 0.009006262999946557,
+      "e3_s": 0.001651896000112174
+    },
+    {
+      "dataset": "sphere",
+      "n": 80,
+      "edges_in": 1564,
+      "edges_out": 286,
+      "ratio": 5.468531468531468,
+      "e3_match": true,
+      "ripser_s": 0.0020928149999690504,
+      "e3_s": 0.0015128259999528382
+    },
+    {
+      "dataset": "sphere",
+      "n": 200,
+      "edges_in": 9675,
+      "edges_out": 819,
+      "ratio": 11.813186813186814,
+      "e3_match": true,
+      "ripser_s": 0.0070737979999648815,
+      "e3_s": 0.0023073100001056446
+    },
+    {
+      "dataset": "torus",
+      "n": 80,
+      "edges_in": 761,
+      "edges_out": 196,
+      "ratio": 3.88265306122449,
+      "e3_match": true,
+      "ripser_s": 0.0015151659999901312,
+      "e3_s": 0.0014442310000504222
+    },
+    {
+      "dataset": "torus",
+      "n": 200,
+      "edges_in": 4789,
+      "edges_out": 1260,
+      "ratio": 3.8007936507936506,
+      "e3_match": true,
+      "ripser_s": 0.00468691400010357,
+      "e3_s": 0.003123377000065375
+    },
+    {
+      "dataset": "blobs",
+      "n": 80,
+      "edges_in": 1036,
+      "edges_out": 142,
+      "ratio": 7.295774647887324,
+      "e3_match": true,
+      "ripser_s": 0.0014164550000259624,
+      "e3_s": 0.0010895769999024196
+    },
+    {
+      "dataset": "blobs",
+      "n": 200,
+      "edges_in": 6495,
+      "edges_out": 445,
+      "ratio": 14.595505617977528,
+      "e3_match": true,
+      "ripser_s": 0.003603039999916291,
+      "e3_s": 0.0022837430001345638
+    },
+    {
+      "dataset": "uniform2",
+      "n": 80,
+      "edges_in": 817,
+      "edges_out": 181,
+      "ratio": 4.513812154696133,
+      "e3_match": true,
+      "ripser_s": 0.0015176580000115791,
+      "e3_s": 0.0012172050001026946
+    },
+    {
+      "dataset": "uniform2",
+      "n": 200,
+      "edges_in": 5405,
+      "edges_out": 528,
+      "ratio": 10.236742424242424,
+      "e3_match": true,
+      "ripser_s": 0.004388772000083918,
+      "e3_s": 0.0018410330001188413
+    },
+    {
+      "dataset": "uniform10",
+      "n": 80,
+      "edges_in": 3132,
+      "edges_out": 847,
+      "ratio": 3.6977567886658798,
+      "e3_match": true,
+      "ripser_s": 0.0036731079999299254,
+      "e3_s": 0.002870703000098729
+    },
+    {
+      "dataset": "uniform10",
+      "n": 200,
+      "edges_in": 19622,
+      "edges_out": 9543,
+      "ratio": 2.056166823849942,
+      "e3_match": true,
+      "ripser_s": 0.01626924099991811,
+      "e3_s": 0.015724523000017143
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "id": "H01b_iterated_collapse",
+  "lever": "H01-iter",
+  "class": "structural",
+  "fidelity": "exact",
+  "status": "hold",
+  "summary": "extra passes vs 1-core size on circles",
+  "receipts": [
+    {
+      "n": 80,
+      "iters": 1,
+      "edges_out": 93,
+      "match": true
+    },
+    {
+      "n": 80,
+      "iters": 2,
+      "edges_out": 93,
+      "match": true
+    },
+    {
+      "n": 80,
+      "iters": 3,
+      "edges_out": 93,
+      "match": true
+    },
+    {
+      "n": 80,
+      "iters": 5,
+      "edges_out": 93,
+      "match": true
+    },
+    {
+      "n": 200,
+      "iters": 1,
+      "edges_out": 283,
+      "match": true
+    },
+    {
+      "n": 200,
+      "iters": 2,
+      "edges_out": 281,
+      "match": true
+    },
+    {
+      "n": 200,
+      "iters": 3,
+      "edges_out": 281,
+      "match": true
+    },
+    {
+      "n": 200,
+      "iters": 5,
+      "edges_out": 281,
+      "match": true
+    }
+  ]
+}

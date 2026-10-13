@@ -1,0 +1,44 @@
+{
+  "id": "larger_n",
+  "lever": "H01",
+  "class": "structural",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "circle n=1000 H1 and sphere n=500 H2",
+  "receipts": [
+    {
+      "id": "circle1000",
+      "path": "benchmarks/datasets/generated/circle_noisy_n1000.csv",
+      "T": 1.2,
+      "dim": 1,
+      "edges_in": 204915,
+      "edges_out": 2265,
+      "ratio": 90.47019867549669,
+      "ripser_s": 0.8857437169999685,
+      "collapse_s": 1.6433062459998382,
+      "residual_ripser_s": 0.005054220999909376,
+      "total_e3_s": 1.6483604669997476,
+      "speedup_total": 0.5373483135106661,
+      "speedup_residual_only": 175.24831561893518,
+      "match": true,
+      "unmatched": 0
+    },
+    {
+      "id": "sphere500_H2",
+      "path": "benchmarks/datasets/generated/sphere_n500.csv",
+      "T": 1.4,
+      "dim": 2,
+      "edges_in": 61299,
+      "edges_out": 1671,
+      "ratio": 36.68402154398564,
+      "ripser_s": 2.6523119379999116,
+      "collapse_s": 0.22347974200010867,
+      "residual_ripser_s": 0.005281974000126866,
+      "total_e3_s": 0.22876171600023554,
+      "speedup_total": 11.5942124599082,
+      "speedup_residual_only": 502.1440730181949,
+      "match": true,
+      "unmatched": 0
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "id": "H03_threshold_sweep",
+  "lever": "H03",
+  "class": "structural",
+  "fidelity": "exact_VR_le_T",
+  "status": "support",
+  "summary": "circle200 threshold sweep",
+  "receipts": [
+    {
+      "T": 0.4,
+      "edges_in": 2505,
+      "edges_out": 283,
+      "ratio": 8.851590106007068,
+      "match": true,
+      "ripser_s": 0.002318946000059441,
+      "e3_s": 0.001524491999816746
+    },
+    {
+      "T": 0.6,
+      "edges_in": 3796,
+      "edges_out": 283,
+      "ratio": 13.413427561837455,
+      "match": true,
+      "ripser_s": 0.003163212999879761,
+      "e3_s": 0.0016354239999145648
+    },
+    {
+      "T": 0.8,
+      "edges_in": 5232,
+      "edges_out": 283,
+      "ratio": 18.487632508833922,
+      "match": true,
+      "ripser_s": 0.004414387999986502,
+      "e3_s": 0.0015995769999790355
+    },
+    {
+      "T": 1.0,
+      "edges_in": 6707,
+      "edges_out": 283,
+      "ratio": 23.699646643109542,
+      "match": true,
+      "ripser_s": 0.0060799020000104065,
+      "e3_s": 0.0016658869999446324
+    },
+    {
+      "T": 1.2,
+      "edges_in": 8197,
+      "edges_out": 283,
+      "ratio": 28.964664310954063,
+      "match": true,
+      "ripser_s": 0.008548682000082408,
+      "e3_s": 0.0017156169999452686
+    },
+    {
+      "T": 1.5,
+      "edges_in": 10880,
+      "edges_out": 283,
+      "ratio": 38.4452296819788,
+      "match": true,
+      "ripser_s": 0.015770459000123083,
+      "e3_s": 0.001612419999901249
+    }
+  ]
+}

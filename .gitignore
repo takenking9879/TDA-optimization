@@ -218,3 +218,17 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Local build artifacts
+third_party/ripser/ripser
+third_party/ripser/ripser-coeff
+third_party/ripser/ripser-debug
+src/pith/build/
+src/pith/pith
+src/instruments/ripser_count
+*.o
+*.out
+
+# Generated large datasets (scripts recreate them)
+benchmarks/datasets/generated/
+benchmarks/results/_tmp/

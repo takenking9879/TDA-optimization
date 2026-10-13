@@ -1,0 +1,28 @@
+{
+  "id": "H02_pith_core_no_collapse",
+  "lever": "H02",
+  "class": "structural",
+  "fidelity": "exact-claimed",
+  "status": "reject",
+  "summary": "own reducer vs Ripser without collapse",
+  "receipts": [
+    {
+      "dataset": "circle_noisy",
+      "n": 80,
+      "match": false,
+      "unmatched": 1137,
+      "ripser_s": 0.0018104549999407027,
+      "pith_s": 0.008519445000047199,
+      "cols": 1182
+    },
+    {
+      "dataset": "blobs",
+      "n": 80,
+      "match": false,
+      "unmatched": 953,
+      "ripser_s": 0.001524460000155159,
+      "pith_s": 0.005707547999918461,
+      "cols": 959
+    }
+  ]
+}
