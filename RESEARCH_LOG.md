@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-13 — I242 vendor-faithful owned H1 AE
+
+- **Question:** Does RedZeD’s H1 AE pairing (incremental register, leftover-coface erase-without-pair, combinatorial `coface_ready`) keep exact H0–H2 on mixed clouds, and can owned AE push connected uniform2 past the ~6× wall at more points?
+- **Hypothesis:** I236/I237 invented finite H1 because they pre-registered every leftover and paired on leftover-coface / first-hit. Vendor erases that column (zero bar / (n+1)-birth skip) and only seeds from already-registered actives. Same path on every flag graph. maxdim≥2 stays the I232 walk (vendor AE is H1-only). Shape-agnostic. Exact if identity holds.
+- **Work:** `persist_active.hpp` I242 AE. Wave 103 vs Ripser / RedZeD / auto. Hard case: uniform2 n=5000 H1 (more points than I241 n=4000, still seconds).
+- **Result:** **Exact 13/13** (0 unmatched; figure8/two_circles ess H1 2=2; sphere void 1=1; two_spheres 2=2; blobs H0 3=3). Owned AE is **not** a clock engine: circle n=500 0.38s vs RedZeD 0.022s (**0.06×**) / Ripser 0.31s; uniform2 n=1000 0.065s vs RedZeD 0.021s (**0.33×**). Hard connected uniform2 n=5000 auto-redzed **5.5×** (0.62s/3.42s, reduce 488 ms, 1 component). Blobs n=4000 H1 **23×**. Sphere n=400 H2 **61×**. H0 Kruskal 1.9×.
+- **Decision:** **Hold.** Support as exact `--engine active` (I236 pairing bug is fixed). Do **not** change the default. Topology loss: **0**. Connected 10× still open. Next owned cut is rbit bitsets, not another leftover-coface pairing.
+- **Class:** experiment (hold; exact identity, no clock vs RedZeD)
+
 ## 2026-10-13 — I241 H0 spatial Kruskal (no RedZeD)
 
 - **Question:** Is VR H0 just Kruskal, and does skipping RedZeD on `maxdim=0` keep identity at more points without a long H1 test? Does T-capping a connected metric (fill only d≤T) cut uniform2 toward 10×?

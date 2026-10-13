@@ -1,14 +1,15 @@
 # Selected algorithm (living)
 
-Updated 2026-10-13 after iterations I001–I241. **CLI default `--engine
+Updated 2026-10-13 after iterations I001–I242. **CLI default `--engine
 auto` (I235+I236+I239+I240+I241):** subsample residual-frac dispatch. Fat →
 RedZeD (torus n=2000 **12.7×**). Thin-circle → collapse+implicit
 (n=1000 **28×**; n=4000 still **140×**). Disconnected G_T → spatial UF
-+ parallel RedZeD per component (blobs n=4000 **22×**, n=8000 **27×**
++ parallel RedZeD per component (blobs n=4000 **23×**, n=8000 **27×**
 in 0.38 s). **H0** is Kruskal (no RedZeD). **H2:** τ=0.15 so sphere void
 stays collapse (**61×** at n=400; **136×** at n=600). Shape-agnostic,
-0 bars lost. Circle 140× is a collapse-friendly regime, **not** the
-success criterion.
+0 bars lost. **I242** owned H1 AE is now exact (figure8 2=2) but not a
+clock engine vs RedZeD. Circle 140× is a collapse-friendly regime, **not**
+the success criterion.
 
 ## Success criteria (goal amendment)
 
@@ -24,12 +25,14 @@ Current honest status: **`--engine auto` (I235+I236+I238+I239+I240+I241)** is
 shape-agnostic (0 unmatched) and picks the better exact engine from a
 250-point collapse probe. H1 τ=0.04; H2 τ=0.15. Torus n=2000 H1 **12.7×**;
 circle n=1000 **28×**; sphere n=600 H2 **136×**. Disconnected clouds
-(blobs) now **22× / 24× / 27×** at n=4000/6000/8000 via I239 split +
+(blobs) now **23× / 24× / 27×** at n=4000/6000/8000 via I239 split +
 I240 spatial metric (⅓ of the pairs, no n×n matrix). **Worst-case Big-O
 is not improved** on a connected G_T — this is a portfolio, not a new
 complexity class. Torus residual stays \(\Theta(n^2)\) (I204). Connected
-uniform2 n=4000 H1 is still **~6×**. **I228 `--engine redzed`** (with
-I239/I240 split) remains the single-engine general exact path.
+uniform2 n=5000 H1 is still **5.5×** (0.62s/3.42s). **I228 `--engine
+redzed`** (with I239/I240 split) remains the single-engine general exact
+path. **I242 `--engine active`** is exact H1 AE (I236 pairing bug fixed)
+but loses to RedZeD (circle n=500 0.06×; uniform2 n=1000 0.33×).
 Topology loss: **0**. **I224 reduced VR** is exact with \(O(n^2)\)
 triangles but loses clock. The **optional** `--sparse-eps 0.6` path keeps
 essential \(H_1\) and sits in a better size class (I218) at quantified
@@ -104,8 +107,9 @@ suite and I137 8/8 (including dense circle80/200 **collapse=0**, the I045 killer
 | Reduced VR lune walk (I224 path) | I225 all-pairs is **2.7×** faster construction, still exact; still slower than Ripser (circle n=500 0.73s / 0.42×) |
 | Witness-shrink first_dominator (I226) | Exact 5/5; torus tests 12.5M→9.0M / 6.1M skips; collapse **1450 vs 1470** ms. Circle 275 vs 263. Reverted |
 | Live leftover-star generation (I233) | **Not exact** on real clouds (invents H1). Unit square held. Reverted |
-| Leftover-coface AE (I236) | **Not exact** (figure8 unmatched 12; essentials held). First-hit `process_leftover` / empty-R abort skipped later same-diameter deaths. Reverted |
-| Birth-time leftover-coface AE (I237) | **Not exact** — same unmatched counts as I236. Incremental insert did not change the barcode. Reverted |
+| Leftover-coface AE (I236) | **Not exact** (figure8 unmatched 12; essentials held). First-hit `process_leftover` / empty-R abort skipped later same-diameter deaths. Reverted. I242 pairing is exact |
+| Birth-time leftover-coface AE (I237) | **Not exact** — same unmatched counts as I236. Incremental insert did not change the barcode. Reverted. I242 pairing is exact |
+| Vendor-faithful owned AE as clock (I242) | **Exact 13/13** (figure8 2=2; sphere void 1=1). **Slower** than RedZeD (circle n=500 0.06×; uniform2 n=1000 0.33×). Keep `--engine active` experimental |
 | GUDHI 3.13 explicit Rips (I237) | Exact 7/7; **slower** (blobs n=1000 15.9 s / 17.8M simplices vs auto 21 ms) |
 
 I107 (`--dom-budget 1`) **still rejected** with implicit (I142–I144): thicker
@@ -425,23 +429,37 @@ was **reverted** (uniform2 metric 7→80 ms). H1 holds: blobs n=4000
 loss: **0**. Support as the H0 path. Hold for H0 10× and for general
 H1 10×.
 
-## Next levers (still open after I241)
+**I242 vendor-faithful owned H1 AE:** incremental `register_active`,
+leftover-coface erase-without-pair, combinatorial `coface_ready`.
+maxdim≥2 keeps the I232 walk (vendor AE is H1-only). Wave 103
+**exact 13/13** H0–H2 (figure8 2=2; two_circles 2=2; sphere void 1=1;
+two_spheres 2=2; blobs H0 3=3). Hard connected uniform2 n=5000 auto
+**5.5×** (0.62s/3.42s, reduce 488 ms, 1 component). Blobs n=4000 H1
+**23×**. Sphere n=400 H2 **61×**. Owned AE vs RedZeD: figure8 1.3×
+(tiny), circle n=500 **0.06×**, uniform2 n=1000 **0.33×**. Topology
+loss: **0**. Justification: I236 invented bars by pairing on leftover
+coface and pre-registering later leftovers into earlier stars. Vendor
+erases that column and only seeds from already-registered actives.
+Exact, not a clock engine, not a better Big-O. Do not change the
+default.
+
+## Next levers (still open after I242)
 
 `--engine auto` is a shape-agnostic exact H0–H2 portfolio: circle H1
 10×, torus H1 10×, sphere H2 **136×** at n=600, **disconnected blobs
 27×** at n=8000 (0.38 s) on one CLI path. Connected uniform2 H1 is
-still ~6× at n=4000 (RedZeD reduce on one block). Owned active H0–H2
-is exact but not a scale engine. I233/I236/I237 star / leftover-coface
-generation were inexact. GUDHI explicit Rips is exact and too slow.
+still **5.5×** at n=5000 (RedZeD reduce on one block). I242 owned AE
+is exact but 3–17× slower than vendor RedZeD. GUDHI explicit Rips is
+exact and too slow.
 
 1. **CLI default:** `--engine auto` (I235+I236+I239+I240+I241). H1 τ=0.04; H2 τ=0.15.
 2. **Forced engines:** `--engine implicit` = I193+I197+I202+I203 only;
    `--engine redzed` = I228+I239+I240; H0 = Kruskal.
 3. **Owned optional approx:** `--sparse-eps 0.6 --sparse-cap max` (I213/I218)
    when n grows past exact VR.
-4. Push **connected** uniform2 from ~6× to 10× (RedZeD reduce is the wall).
-5. Next owned generation cut needs RedZeD-faithful rbit / active
-   enumeration — I233/I236 leftovers were inexact.
+4. Push **connected** uniform2 from ~5.5× to 10× (RedZeD reduce is the wall).
+5. Owned AE next cut is **rbit neighborhood bitsets** (I242 identity holds;
+   generation is still a common-neighbor walk).
 6. I241 T-cap fill is rejected (slower metric). Do not retry without
    a reduce cut.
 7. GPU later.
