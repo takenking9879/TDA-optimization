@@ -5,11 +5,10 @@
 namespace pith {
 
 // Owned active PH (RedZeD idea, not the vendor copy). Shape-agnostic.
-// H0: Kruskal. H1: I242 vendor-faithful active enumeration (incremental
-// register_active + leftover-coface erase-without-pair). I233 live-star
-// and I236/I237 leftover-coface AE invented finite H1 — they paired on
-// leftover-coface / first-hit and pre-registered every leftover. H2:
-// I234 tet reduce on empty face-XOR triangles.
+// H0: Kruskal. H1: I242 vendor-faithful AE + I243 incremental rbit
+// neighborhoods. I233/I236/I237 leftover-coface pairing invented finite
+// H1. H2: I234 tet reduce on empty face-XOR triangles (I232 walk, rbit
+// AND).
 inline Result persist_active_h1(const Graph& g, int maxdim, value_t threshold,
                                 value_t ratio) {
     Result r;
@@ -182,6 +181,39 @@ inline Result persist_active_h1(const Graph& g, int maxdim, value_t threshold,
         return id;
     };
 
+    // I243: RedZeD-style rbit neighborhoods. Incremental by diameter so
+    // a test is d(a,b)≤current leftover time, not a neighbor-list walk.
+    const int nverts = g.n;
+    const int words = (nverts + 63) / 64;
+    std::vector<std::uint64_t> rbits(
+        static_cast<size_t>(nverts) * static_cast<size_t>(std::max(1, words)), 0);
+    std::vector<int> rlo(static_cast<size_t>(nverts), words),
+        rhi(static_cast<size_t>(nverts), -1);
+    auto rbit_add = [&](int i, int j) {
+        const int wj = j >> 6, wi = i >> 6;
+        rbits[static_cast<size_t>(i) * static_cast<size_t>(words) + static_cast<size_t>(wj)] |=
+            std::uint64_t{1} << (j & 63);
+        rbits[static_cast<size_t>(j) * static_cast<size_t>(words) + static_cast<size_t>(wi)] |=
+            std::uint64_t{1} << (i & 63);
+        if (rlo[static_cast<size_t>(i)] > wj) rlo[static_cast<size_t>(i)] = wj;
+        if (rhi[static_cast<size_t>(i)] < wj) rhi[static_cast<size_t>(i)] = wj;
+        if (rlo[static_cast<size_t>(j)] > wi) rlo[static_cast<size_t>(j)] = wi;
+        if (rhi[static_cast<size_t>(j)] < wi) rhi[static_cast<size_t>(j)] = wi;
+    };
+    auto rbit = [&](int a, int b) -> bool {
+        return (rbits[static_cast<size_t>(a) * static_cast<size_t>(words) +
+                      static_cast<size_t>(b >> 6)] >>
+                (b & 63)) &
+               1ull;
+    };
+    size_t rptr = 0;
+    auto advance_rbits = [&](value_t r) {
+        while (rptr < edges.size() && edges[rptr].t <= r) {
+            if (edges[rptr].t <= threshold) rbit_add(edges[rptr].u, edges[rptr].v);
+            ++rptr;
+        }
+    };
+
     auto reduce_tri = [&](int e0, int e1, int e2, value_t td, index_t a, index_t b,
                           index_t w) -> bool {
         int ids[3];
@@ -250,74 +282,91 @@ inline Result persist_active_h1(const Graph& g, int maxdim, value_t threshold,
         if (it == nb.end() || it->first != b) return kInf;
         return it->second;
     };
-    auto has_leftover_coface = [&](const BirthEdge& e, const std::vector<char>& seen) {
-        const auto& nu = g.neighbors[static_cast<size_t>(e.u)];
-        const auto& nv = g.neighbors[static_cast<size_t>(e.v)];
-        size_t i = 0, j = 0;
-        while (i < nu.size() && j < nv.size()) {
-            if (nu[i].first < nv[j].first) {
-                ++i;
-                continue;
+    auto has_leftover_coface = [&](const BirthEdge& e, const std::vector<std::uint64_t>& seenbits) {
+        int wlo = rlo[static_cast<size_t>(e.u)];
+        int whi = rhi[static_cast<size_t>(e.u)];
+        if (rlo[static_cast<size_t>(e.v)] > wlo) wlo = rlo[static_cast<size_t>(e.v)];
+        if (rhi[static_cast<size_t>(e.v)] < whi) whi = rhi[static_cast<size_t>(e.v)];
+        if (wlo > whi) return false;
+        const std::uint64_t* ru =
+            rbits.data() + static_cast<size_t>(e.u) * static_cast<size_t>(words);
+        const std::uint64_t* rv =
+            rbits.data() + static_cast<size_t>(e.v) * static_cast<size_t>(words);
+        for (int w = wlo; w <= whi; ++w) {
+            std::uint64_t acc = ru[w] & rv[w] & ~seenbits[static_cast<size_t>(w)];
+            while (acc) {
+                const int bp = __builtin_ctzll(acc);
+                acc &= acc - 1;
+                const int cand = w * 64 + bp;
+                if (cand >= nverts) break;
+                if (cand == e.u || cand == e.v) continue;
+                const value_t twu = edge_t(e.u, static_cast<index_t>(cand));
+                const value_t twv = edge_t(e.v, static_cast<index_t>(cand));
+                if (coface_ready(e, static_cast<index_t>(cand), twu, twv)) return true;
             }
-            if (nv[j].first < nu[i].first) {
-                ++j;
-                continue;
-            }
-            const index_t w = nu[i].first;
-            if (w != e.u && w != e.v && !seen[static_cast<size_t>(w)] &&
-                coface_ready(e, w, nu[i].second, nv[j].second))
-                return true;
-            ++i;
-            ++j;
         }
         return false;
     };
 
     if (maxdim >= 2) {
         // I234 H2 needs every empty-XOR triangle. Vendor also streams all
-        // 2-simplices when dim≥2 (AE is H1-only). Keep the I232 walk.
+        // 2-simplices when dim≥2 (AE is H1-only). I243: rbit AND, same
+        // youngest-face reduce as I232.
+        advance_rbits(threshold);
         for (const BirthEdge& e : leftover) {
-            const auto& nu = g.neighbors[static_cast<size_t>(e.u)];
-            const auto& nv = g.neighbors[static_cast<size_t>(e.v)];
-            size_t i = 0, j = 0;
-            while (i < nu.size() && j < nv.size()) {
-                if (nu[i].first < nv[j].first) {
-                    ++i;
-                    continue;
+            int wlo = rlo[static_cast<size_t>(e.u)];
+            int whi = rhi[static_cast<size_t>(e.u)];
+            if (rlo[static_cast<size_t>(e.v)] > wlo) wlo = rlo[static_cast<size_t>(e.v)];
+            if (rhi[static_cast<size_t>(e.v)] < whi) whi = rhi[static_cast<size_t>(e.v)];
+            if (wlo > whi) continue;
+            const std::uint64_t* ru =
+                rbits.data() + static_cast<size_t>(e.u) * static_cast<size_t>(words);
+            const std::uint64_t* rv =
+                rbits.data() + static_cast<size_t>(e.v) * static_cast<size_t>(words);
+            for (int w = wlo; w <= whi; ++w) {
+                std::uint64_t acc = ru[w] & rv[w];
+                while (acc) {
+                    const int bp = __builtin_ctzll(acc);
+                    acc &= acc - 1;
+                    const int cand = w * 64 + bp;
+                    if (cand >= nverts) break;
+                    ++c.n_cofacet_probes;
+                    if (cand == e.u || cand == e.v) continue;
+                    const value_t twu = edge_t(e.u, static_cast<index_t>(cand));
+                    const value_t twv = edge_t(e.v, static_cast<index_t>(cand));
+                    if (twu <= threshold && twv <= threshold &&
+                        e_youngest(e, static_cast<index_t>(cand), twu, twv))
+                        reduce_tri(e.id, leftover_of(e.u, cand), leftover_of(e.v, cand), e.t, e.u,
+                                   e.v, static_cast<index_t>(cand));
                 }
-                if (nv[j].first < nu[i].first) {
-                    ++j;
-                    continue;
-                }
-                const index_t w = nu[i].first;
-                ++c.n_cofacet_probes;
-                if (w != e.u && w != e.v) {
-                    const value_t twu = nu[i].second;
-                    const value_t twv = nv[j].second;
-                    if (twu <= threshold && twv <= threshold && e_youngest(e, w, twu, twv))
-                        reduce_tri(e.id, leftover_of(e.u, w), leftover_of(e.v, w), e.t, e.u, e.v,
-                                   w);
-                }
-                ++i;
-                ++j;
             }
         }
     }
 
     if (maxdim < 2) {
+        std::vector<std::uint64_t> seenbits(static_cast<size_t>(std::max(1, words)), 0);
+        std::vector<index_t> cands, seen_list;
+        cands.reserve(64);
+        seen_list.reserve(64);
         for (const BirthEdge& e : leftover) {
             if (R[static_cast<size_t>(e.id)].empty()) continue;
-            std::vector<char> seen(static_cast<size_t>(g.n), 0);
-            std::vector<index_t> cands;
+            advance_rbits(e.t);
+            for (index_t w : seen_list)
+                seenbits[static_cast<size_t>(w) >> 6] = 0;
+            seen_list.clear();
+            cands.clear();
             auto consider_star = [&](index_t v, index_t other) {
                 for (int fid : star[static_cast<size_t>(v)]) {
                     if (fid == e.id) continue;
                     const BirthEdge& f = leftover[static_cast<size_t>(fid)];
                     const index_t w = (f.u == v) ? f.v : f.u;
                     if (w == e.u || w == e.v) continue;
-                    if (edge_t(other, w) > e.t) continue;
-                    if (!seen[static_cast<size_t>(w)]) {
-                        seen[static_cast<size_t>(w)] = 1;
+                    if (!rbit(static_cast<int>(other), static_cast<int>(w))) continue;
+                    const int wb = static_cast<int>(w) >> 6;
+                    const std::uint64_t mask = std::uint64_t{1} << (static_cast<int>(w) & 63);
+                    if (!(seenbits[static_cast<size_t>(wb)] & mask)) {
+                        seenbits[static_cast<size_t>(wb)] |= mask;
+                        seen_list.push_back(w);
                         cands.push_back(w);
                     }
                 }
@@ -337,7 +386,7 @@ inline Result persist_active_h1(const Graph& g, int maxdim, value_t threshold,
             }
 
             if (R[static_cast<size_t>(e.id)].empty()) continue;
-            const bool extra = has_leftover_coface(e, seen);
+            const bool extra = has_leftover_coface(e, seenbits);
             if (!dirty) {
                 if (extra) {
                     // Vendor: leftover coface is an (n+1)-birth. Drop the
