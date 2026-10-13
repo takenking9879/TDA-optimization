@@ -267,6 +267,11 @@ int main(int argc, char** argv) {
         }
 
         if (sparse_only) {
+            // Pin vertex count for Ripser --format sparse (i==j lines are ignored).
+            int mx = 0;
+            for (const auto& e : g.edges) mx = std::max(mx, std::max(e.u, e.v));
+            if (g.n >= 2 && mx + 1 < g.n)
+                std::cout << "0 " << (g.n - 1) << " 1e30\n";
             for (const auto& e : g.edges) std::cout << e.u << " " << e.v << " " << e.t << "\n";
             return 0;
         }
