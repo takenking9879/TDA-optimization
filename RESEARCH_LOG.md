@@ -445,6 +445,17 @@ Do not paste long reasoning here.
 - **Result:** Exact. **45.7×** this run (I085 was 59×; Ripser variance). Residual 1900 edges.
 - **Class:** reproduced
 
+## 2026-10-13 — I117 circle n=4000
+
+- **Result:** Exact. T=1.2 **5.94×**. T=1.5 **8.38×** (Ripser 287 s / PITH 34.3 s, residual 12562). Not 10×. Diminishing returns vs n=3000 (8.0×).
+- **Decision:** Do not claim H1 10×. T-sweep next, not n=5000.
+- **Class:** reproduced
+
+## 2026-10-13 — I118 torus200
+
+- **Result:** Exact. 1-pass 0.71×; adaptive **1.12×** (was 0.96×). Still a hold-out.
+- **Class:** reproduced
+
 ## 2026-10-13 — I103–I105
 
 - **Result:** Skipped. They required the progressive binary on n=500–3000 after I102 failed.

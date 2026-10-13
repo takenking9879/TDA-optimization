@@ -1,0 +1,32 @@
+{
+  "id": "circle4000_h1",
+  "lever": "H01",
+  "class": "structural",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "circle n=4000 H1 clock best 8.38\u00d7",
+  "receipts": [
+    {
+      "n": 4000,
+      "T": 1.2,
+      "match": true,
+      "ripser_s": 119.99861422499998,
+      "pith_s": 20.197108679999474,
+      "time_ratio": 5.9413758734600775,
+      "collapse_ms": 19962.803,
+      "edges_in": 3272855,
+      "edges_out": 11361
+    },
+    {
+      "n": 4000,
+      "T": 1.5,
+      "match": true,
+      "ripser_s": 287.2070680329998,
+      "pith_s": 34.27620351399946,
+      "time_ratio": 8.379197186050536,
+      "collapse_ms": 33989.204,
+      "edges_in": 4320193,
+      "edges_out": 12562
+    }
+  ]
+}

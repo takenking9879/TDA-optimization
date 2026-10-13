@@ -41,18 +41,19 @@ after the I081 bitset revert.
 | Dataset | dim | n | T | vs Ripser |
 | --- | --- | --- | --- | --- |
 | sphere | \(H_2\) | 500 | 1.4 | **59×** (I085) |
+| circle_noisy | \(H_1\) | 4000 | 1.5 | **8.38×** (I117) |
 | circle_noisy | \(H_1\) | 3000 | 1.5 | **8.0×** (I115) |
 | circle_noisy | \(H_1\) | 2000 | 1.5 | **7.2×** (I096) / 6.4× (I114, same machine) |
 | circle_noisy | \(H_1\) | 2000 | 1.2 | **3.8–4.8×** |
 | circle_noisy | \(H_1\) | 1000 | 1.5 | **4.1×** (I083) |
 
 **Not claimed:** H1 10× clock in general; high-d; thick torus; worst-case asymptotics.
-I115 shows the H1 ratio still climbing with n at large T (7.2× → 8.0× from n=2000 to 3000).
+I117: n=4000 T=1.5 is **8.38×** (Ripser 287 s / PITH 34 s). Gains vs n=3000 are diminishing; 10× H1 is not a pure-n play.
 
-## Next levers (still open after I116)
+## Next levers (still open after I118)
 
-1. n=4000 T=1.5 H1 clock (I117) — scaling says this may cross 10×
+1. T-sweep around 1.5 on n=3000 (I119) for a better large-T sweet spot
 2. A collapse cheaper than \(O(n^3)\) sequential (progressive/bitset/budget all failed)
 3. A correct Ripser-class residual engine (implicit still rejected; RedZeD unimplemented)
-4. Alpha as a documented other-complex Euclidean fast path
+4. Thick torus / high-d remainder (torus200 adaptive 1.12× this run)
 5. GPU later (Ripser++ reference only)
