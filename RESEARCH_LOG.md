@@ -690,11 +690,19 @@ Do not paste long reasoning here.
 - **Decision:** **Revert.** 0-as-missing + rank remap under-collapses. Matching-batch parallel also unsafe (shared commons).
 - **Class:** experiment (negative)
 
-## 2026-10-13 — I165 oldest-prefix (in progress)
+## 2026-10-13 — I165 oldest-prefix (no C-walk)
 
-- **Question:** Does keeping the oldest \(6n\) edges (no C-walk) match Ripser, given I164’s suffix residual?
-- **Hypothesis:** Essential H1 lives on short edges; high-t trims do not need to be processed. Risk: finite deaths that need shifts.
-- **Class:** proposal / experiment running
+- **Question:** Does keeping the oldest \(4n/6n/8n\) edges (no domination) match Ripser?
+- **Result:** **No at scale.** circle80 matches at 4n+. circle200 matches at 6n/8n, **fails at 4n** (7 unmatched). circle2000 6n: **222 unmatched**, 12k residual, 0.19 s / **147×** vs Ripser (wrong barcode). blobs2000 6n: **533 unmatched**.
+- **Decision:** Reject as an exact algorithm. Speed is real; identity is not. I164’s 12.5% bins hid first-keep inside the last 134k edges.
+- **Class:** experiment (negative on identity)
+
+## 2026-10-13 — I166 prefix-then-backward
+
+- **Question:** Does oldest-6n then real backward collapse recover the barcode?
+- **Result:** **No.** circle2000 suffix-back 6n: residual **4059 vs 5169** (over-collapse), **222 unmatched**, 0.19 s. Dropping the young 1.06M edges shrinks C on the prefix and over-trims. The live context for the first kept edge is larger than 6n.
+- **Decision:** Reject 6n. I167: measure first-keep index; sweep `--suffix-keep = m − first_keep`.
+- **Class:** experiment (negative at 6n)
 
 ## 2026-10-13 — I164 collapse live-degree trace
 

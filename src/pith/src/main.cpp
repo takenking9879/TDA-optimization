@@ -21,6 +21,7 @@ static void usage() {
         << "  --collapse N        collapse passes (default -1 adaptive+probe; 0 = off)\n"
         << "  --collapse-alg back|dc|forward|suffix|suffix-back\n"
         << "  --suffix-mult X     oldest X·n edges for suffix* (default 6; I165)\n"
+        << "  --suffix-keep N     oldest N edges (overrides --suffix-mult; I167)\n"
         << "  --dom-budget K      max domination candidates per edge (-1 = all; I107)\n"
         << "  --engine auto|homology|implicit   residual PH engine (default auto)\n"
         << "  --ratio R           skip pairs with death <= birth*R (default 1)\n"
@@ -157,6 +158,9 @@ static void print_text(const Result& r) {
               << " collapse_c_size=" << c.n_collapse_c_size_sum
               << " collapse_shift_lookups=" << c.n_collapse_shift_lookups
               << " collapse_fast_trims=" << c.n_collapse_fast_trims
+              << " collapse_first_keep=" << c.n_collapse_first_keep
+              << " collapse_tau_late=" << c.n_collapse_tau_late
+              << " collapse_tau_late_common=" << c.n_collapse_tau_late_common
               << " metric_ms=" << c.metric_ms
               << " collapse_ms=" << c.collapse_ms
               << " reduce_ms=" << c.reduce_ms
@@ -212,6 +216,7 @@ int main(int argc, char** argv) {
     std::string engine = "auto";
     std::string collapse_alg = "back";
     double suffix_mult = 6;
+    std::int64_t suffix_keep = -1;
 
     for (int i = 1; i < argc; ++i) {
         const std::string a = argv[i];
@@ -229,6 +234,7 @@ int main(int argc, char** argv) {
         else if (a == "--collapse") collapse_iters = std::stoi(need("--collapse"));
         else if (a == "--collapse-alg") collapse_alg = need("--collapse-alg");
         else if (a == "--suffix-mult") suffix_mult = std::stod(need("--suffix-mult"));
+        else if (a == "--suffix-keep") suffix_keep = std::stoll(need("--suffix-keep"));
         else if (a == "--dom-budget") dom_budget = std::stoi(need("--dom-budget"));
         else if (a == "--engine") engine = need("--engine");
         else if (a == "--ratio") ratio = std::stof(need("--ratio"));
@@ -285,9 +291,10 @@ int main(int argc, char** argv) {
         auto do_collapse = [&](Graph&& h, int iters) -> Graph {
             if (collapse_alg == "dc") return collapse_edges_dc(std::move(h), iters, c, dom_budget);
             if (collapse_alg == "forward") return collapse_edges_forward(std::move(h), iters, c);
-            if (collapse_alg == "suffix") return collapse_edges_oldest_prefix(std::move(h), suffix_mult, c);
+            if (collapse_alg == "suffix")
+                return collapse_edges_oldest_prefix(std::move(h), suffix_mult, c, suffix_keep);
             if (collapse_alg == "suffix-back")
-                return collapse_edges_oldest_then_back(std::move(h), suffix_mult, c, dom_budget);
+                return collapse_edges_oldest_then_back(std::move(h), suffix_mult, c, dom_budget, suffix_keep);
             return collapse_edges(std::move(h), iters, c, dom_budget);
         };
         if (collapse_iters < 0) {
@@ -330,6 +337,9 @@ int main(int argc, char** argv) {
         r.counters.n_collapse_c_size_sum = c.n_collapse_c_size_sum;
         r.counters.n_collapse_shift_lookups = c.n_collapse_shift_lookups;
         r.counters.n_collapse_fast_trims = c.n_collapse_fast_trims;
+        r.counters.n_collapse_first_keep = c.n_collapse_first_keep;
+        r.counters.n_collapse_tau_late = c.n_collapse_tau_late;
+        r.counters.n_collapse_tau_late_common = c.n_collapse_tau_late_common;
         r.counters.collapse_ms = c.collapse_ms;
         r.counters.metric_ms = c.metric_ms;
         r.counters.n_vertices = g.n;

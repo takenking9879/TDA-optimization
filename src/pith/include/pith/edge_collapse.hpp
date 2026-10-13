@@ -209,9 +209,11 @@ inline bool process_one_backward(const Edge& e_in, value_t t_in, DenseTimes& Tm,
     for (const LiveNbr& p : src) {
         const index_t w = p.first;
         if (w == u || w == v) continue;
+        if (p.second > t) ++c.n_collapse_tau_late;
         const value_t t_other = r_other[w];
         if (t_other >= kInf / 2) continue;
         ++commons;
+        if (p.second > t) ++c.n_collapse_tau_late_common;
         const value_t tau = p.second > t_other ? p.second : t_other;
         if (tau <= t) {
             if (first < 0) {
@@ -348,8 +350,11 @@ inline Graph collapse_edges(Graph g, int iterations, Counters& c, int dom_budget
         const size_t step = std::max<size_t>(mE / 8, 1);
         for (size_t i = 0; i < mE; ++i) {
             Edge out;
-            if (process_one_backward(E[i], E[i].t, Tm, nbr, scratch, dom_budget, out, c))
+            if (process_one_backward(E[i], E[i].t, Tm, nbr, scratch, dom_budget, out, c)) {
+                if (c.n_collapse_first_keep < 0)
+                    c.n_collapse_first_keep = static_cast<std::int64_t>(i);
                 kept.push_back(out);
+            }
             if ((i == mE - 1 || (i % step) == 0) && std::getenv("PITH_COLLAPSE_TRACE")) {
                 std::int64_t live = 0;
                 for (const auto& row : nbr) live += static_cast<std::int64_t>(row.size());
@@ -372,7 +377,8 @@ inline Graph collapse_edges(Graph g, int iterations, Counters& c, int dom_budget
 // Exact iff the true residual pairs are among those oldest edges *and* their
 // unshifted times already realize the VR≤T barcode (likely false if deaths
 // need high-t shifts). Cheapest reject: identity vs Ripser.
-inline Graph collapse_edges_oldest_prefix(Graph g, double mult, Counters& c) {
+inline Graph collapse_edges_oldest_prefix(Graph g, double mult, Counters& c,
+                                         std::int64_t keep = -1) {
     const auto t0 = std::chrono::steady_clock::now();
     if (c.n_edges_in == 0) c.n_edges_in = static_cast<std::int64_t>(g.edges.size());
     for (Edge& e : g.edges) normalize_edge(e);
@@ -381,8 +387,13 @@ inline Graph collapse_edges_oldest_prefix(Graph g, double mult, Counters& c) {
         if (a.u != b.u) return a.u < b.u;
         return a.v < b.v;
     });
-    size_t k = static_cast<size_t>(std::max(0.0, mult) * static_cast<double>(g.n));
-    if (g.n > 0) k = std::max(k, static_cast<size_t>(g.n - 1));
+    size_t k;
+    if (keep > 0) {
+        k = static_cast<size_t>(keep);
+    } else {
+        k = static_cast<size_t>(std::max(0.0, mult) * static_cast<double>(g.n));
+        if (g.n > 0) k = std::max(k, static_cast<size_t>(g.n - 1));
+    }
     if (k > g.edges.size()) k = g.edges.size();
     c.n_collapse_trims += static_cast<std::int64_t>(g.edges.size() - k);
     g.edges.resize(k);
@@ -394,8 +405,9 @@ inline Graph collapse_edges_oldest_prefix(Graph g, double mult, Counters& c) {
 }
 
 // I166: oldest prefix, then real backward collapse on that subgraph.
-inline Graph collapse_edges_oldest_then_back(Graph g, double mult, Counters& c, int dom_budget) {
-    g = collapse_edges_oldest_prefix(std::move(g), mult, c);
+inline Graph collapse_edges_oldest_then_back(Graph g, double mult, Counters& c, int dom_budget,
+                                            std::int64_t keep = -1) {
+    g = collapse_edges_oldest_prefix(std::move(g), mult, c, keep);
     return collapse_edges(std::move(g), 1, c, dom_budget);
 }
 
