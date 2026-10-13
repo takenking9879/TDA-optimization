@@ -1021,6 +1021,13 @@ Do not paste long reasoning here.
 - **Decision:** Optional approx path now has a **10× point on every scaled family** (circle, blobs, sphere, torus, uniform2) at sufficient n. Loss is quantified (bn typically 0.005–0.04; unmatched are short bars). Exact-VR default is still not a general 10×.
 - **Class:** experiment (support as approx; last holdout crossed)
 
+## 2026-10-13 — I212 owned sparse-cap min vs max
+
+- **Question:** Does `cap = min(λ_i, λ_j)` thin the owned greedy-net graph toward GUDHI's density without dropping essential H1?
+- **Result:** Pending wave73.
+- **Decision:** Select min as `--sparse-eps` default only if ess H1 holds on the mixed suite and torus is faster than max. Time-bucket later[] is deferred — the default shift path uses Tm, not later[] masks (I198 already rejected AND-eq at shift).
+- **Class:** experiment (in progress)
+
 ## 2026-10-13 — I164 collapse live-degree trace
 
 - **Question:** Does the live 1-skeleton thin early enough to stop the C-walk?
