@@ -1049,9 +1049,9 @@ Do not paste long reasoning here.
 - **Question:** Does marking only the sticky-failed dominator (no I197 seed, no per-fail marks) drop torus collapse vs I203 without the I214 tax?
 - **Hypothesis:** After sticky breaks on w, d cannot cover C at tw; skip d until t ≥ Tm(d,w). One mark per sticky break (~113k on torus) vs I214's 10.6M stores. Exact; 0 topology loss. Still not a Big-O change.
 - **Work:** Drop I197 seeding and first_dominator fail-marks; keep CannotDom + sticky mark + blocked/resume. Wave 76 vs src+Ripser.
-- **Result:** *(wave pending)*
-- **Decision:** Select only if exact and torus collapse <1400 ms without blobs/circle regression. If not, revert CannotDom from the default path.
-- **Class:** experiment
+- **Result:** **Exact 5/5.** Torus collapse **1544 ms** (I214 1714, I203 1470), 200k skips / 12.3M tests, **1.48×**. blobs **227 ms** (regressed vs 190). circle 267 ms / 79×. Sticky-only is cheaper than I214 but still a tax vs I203.
+- **Decision:** **Reject and revert** CannotDom from the default path. Exact shift-skip is not a clock win. Topology loss: **0**. Default stays I193+I197+I202+I203.
+- **Class:** experiment (reject; revert hot path)
 
 ## 2026-10-13 — I164 collapse live-degree trace
 

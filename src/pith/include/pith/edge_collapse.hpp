@@ -133,8 +133,7 @@ inline index_t first_dominator(const DenseTimes& Tm, const std::vector<index_t>&
 inline index_t first_dominator_deg(const DenseTimes& Tm, const std::vector<index_t>& C_now,
                                   value_t t, const LiveAdj& nbr,
                                   int budget = -1, Counters* ctr = nullptr,
-                                  const std::vector<int>* deg = nullptr,
-                                  CannotDom* skip = nullptr) {
+                                  const std::vector<int>* deg = nullptr) {
     if (C_now.empty()) return -1;
     if (C_now.size() == 1) {
         if (ctr) ++ctr->n_collapse_dom_hits;
@@ -143,19 +142,13 @@ inline index_t first_dominator_deg(const DenseTimes& Tm, const std::vector<index
     const size_t need = C_now.size() - 1;
     int tried = 0;
     for (index_t cand : C_now) {
-        if (skip && skip->blocked(cand, t)) {
-            if (ctr) ++ctr->n_collapse_dom_skips;
-            continue;
-        }
         const size_t cand_deg = deg ? static_cast<size_t>((*deg)[cand]) : nbr[cand].size();
         if (cand_deg < need) continue;
         if (ctr) ++ctr->n_collapse_dom_tests;
-        const int from = skip ? skip->resume_at(cand) : 0;
-        if (dominated_by(Tm, C_now, cand, t, nullptr, nullptr, from)) {
+        if (dominated_by(Tm, C_now, cand, t)) {
             if (ctr) ++ctr->n_collapse_dom_hits;
             return cand;
         }
-        // I215: do not mark every fail (I214 tax). Only sticky-fail marks.
         if (budget > 0 && ++tried >= budget) return -1;
     }
     return -1;
@@ -165,8 +158,7 @@ inline index_t first_dominator_deg(const DenseTimes& Tm, const std::vector<index
 // C_now ∩ N_t[w] (including w). Skip the rest of C_now.
 inline index_t first_dominator_witness(const DenseTimes& Tm, const std::vector<index_t>& C_now,
                                       value_t t, const LiveAdj& nbr, int budget, Counters* ctr,
-                                      const std::vector<int>* deg, index_t witness,
-                                      CannotDom* skip = nullptr) {
+                                      const std::vector<int>* deg, index_t witness) {
     if (C_now.empty()) return -1;
     if (C_now.size() == 1) {
         if (ctr) ++ctr->n_collapse_dom_hits;
@@ -177,19 +169,13 @@ inline index_t first_dominator_witness(const DenseTimes& Tm, const std::vector<i
     int tried = 0;
     for (index_t cand : C_now) {
         if (cand != witness && rw[cand] > t) continue;
-        if (skip && skip->blocked(cand, t)) {
-            if (ctr) ++ctr->n_collapse_dom_skips;
-            continue;
-        }
         const size_t cand_deg = deg ? static_cast<size_t>((*deg)[cand]) : nbr[cand].size();
         if (cand_deg < need) continue;
         if (ctr) ++ctr->n_collapse_dom_tests;
-        const int from = skip ? skip->resume_at(cand) : 0;
-        if (dominated_by(Tm, C_now, cand, t, nullptr, nullptr, from)) {
+        if (dominated_by(Tm, C_now, cand, t)) {
             if (ctr) ++ctr->n_collapse_dom_hits;
             return cand;
         }
-        // I215: sticky-only marks (see first_dominator_deg).
         if (budget > 0 && ++tried >= budget) return -1;
     }
     return -1;
@@ -362,7 +348,6 @@ struct BwScratch {
     std::vector<std::pair<value_t, index_t>> C_later;
     std::vector<std::uint64_t> cover;   // I189: bits[first] minus later[first]
     std::vector<std::uint64_t> cwords;  // I191: C = bits[u] & bits[v]
-    CannotDom cannot;                   // I214: shift-loop obstruction resume
 };
 
 inline void bits_clear_index(std::vector<std::uint64_t>& words, index_t i) {
@@ -506,8 +491,6 @@ inline bool process_one_backward(const Edge& e_in, value_t t_in, DenseTimes& Tm,
     value_t t = t_in;
     S.C_now.clear();
     S.C_later.clear();
-    S.cannot.ensure(Tm.n);
-    S.cannot.next();
     std::int64_t commons = 0;
     index_t known_dom = -1;
     const bool walk_u = nbr[u].size() <= nbr[v].size();
@@ -870,10 +853,9 @@ inline bool process_one_backward(const Edge& e_in, value_t t_in, DenseTimes& Tm,
             known_dom = -1;
         } else if (witness >= 0 && S.C_now.size() >= 32) {
             dominator = first_dominator_witness(Tm, S.C_now, t, nbr, dom_budget, &c, deg,
-                                                witness, &S.cannot);
+                                                witness);
         } else {
-            dominator = first_dominator_deg(Tm, S.C_now, t, nbr, dom_budget, &c, deg,
-                                           &S.cannot);
+            dominator = first_dominator_deg(Tm, S.C_now, t, nbr, dom_budget, &c, deg);
         }
         if (dominator < 0) break;
         const value_t* rd = Tm.row(dominator);
@@ -894,13 +876,11 @@ inline bool process_one_backward(const Edge& e_in, value_t t_in, DenseTimes& Tm,
                 const index_t w = S.C_later.front().second;
                 const value_t tw = S.C_later.front().first;
                 ++c.n_collapse_shift_lookups;
-                S.C_now.push_back(w);
                 if (rd[w] > tw) {
                     still = false;
                     witness = w;
-                    // Exact: d fails on this C at tw; skip d until t >= Tm(d,w).
-                    S.cannot.mark(dominator, rd[w], static_cast<int>(S.C_now.size() - 1));
                 }
+                S.C_now.push_back(w);
                 std::pop_heap(S.C_later.begin(), S.C_later.end(), later_cmp);
                 S.C_later.pop_back();
             }
