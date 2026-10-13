@@ -10,7 +10,7 @@ from pathlib import Path
 
 BENCH = Path(__file__).resolve().parent
 sys.path.insert(0, str(BENCH))
-from run_suite import PITH, RESULTS, compare, essential, parse_pith_text, run_cmd  # noqa: E402
+from run_suite import PITH, RESULTS, compare, parse_pith_text, run_cmd  # noqa: E402
 from run_wave69 import bottleneck_h1, ripser  # noqa: E402
 from run_wave73 import pith_sparse  # noqa: E402
 

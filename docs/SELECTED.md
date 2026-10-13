@@ -86,6 +86,7 @@ suite and I137 8/8 (including dense circle80/200 **collapse=0**, the I045 killer
 | Lazy witness ν=0 (I217) | torus ess OK but bn 0.64; circle1000 drops a loop; others invent |
 | Killer-first dominated_by (I219) | Exact 5/5; 17% torus hits; collapse 1474≈1470; sphere 388 vs 365. Reverted |
 | kNN flag K=16/32 (I220) | Invents torus H1 at K=32 (bn 0.36); K=16 invents many loops. Fast but unsafe |
+| kNN K=128 (I221) | Ess H1 6/6, torus bn 0.003, but 6.6× / 139k vs sparse 17.8× / 91k. Dominated |
 
 I107 (`--dom-budget 1`) **still rejected** with implicit (I142–I144): thicker
 residual makes collapse *and* reduce slower (circle3000 1.49× vs full 8.11×).
@@ -207,7 +208,8 @@ quantified loss, and a better size exponent.
 2. **Owned optional approx:** `--sparse-eps 0.6 --sparse-cap max` (I213/I218).
    Better size class \(n^{1.31–1.39}\) vs Ripser \(n^2\); ess H1 held;
    bottleneck typically ≤0.03. ε=0.5 is the low-loss setting; ε=0.7 is
-   faster. `--sparse-cap min` **rejected** (I212). `--witness-n`
-   **rejected** (I216–I217): invents or drops essential loops.
+   faster.    `--sparse-cap min` **rejected** (I212). `--witness-n`
+   **rejected** (I216–I217). `--knn` **rejected** as recommended
+   (I220 invents loops at K≤32; I221 K=128 is safer but dominated).
 3. Exact torus time-buckets deferred — shift path is Tm, not later[] (I198).
 4. GPU later.

@@ -1103,9 +1103,9 @@ Do not paste long reasoning here.
 - **Question:** At the first K where torus H1ess matches VR (128), is kNN still a better size/clock class than `--sparse-eps 0.6` with ess H1 on mixed families?
 - **Hypothesis:** K=128 is O(n) but constants exceed greedy-net (139k vs 91k on torus n=2000). May keep ess H1; bottleneck unknown. Dominated if slower or lossier than I213/I218.
 - **Work:** Wave 82, dim-1 essential only.
-- **Result:** *(wave pending)*
-- **Decision:** Select only if ess H1 + bn≲0.05 and not dominated by sparse-eps 0.6.
-- **Class:** experiment
+- **Result:** **Ess H1 6/6.** bn excellent (circle/blobs/sphere/two_circles/figure8 ≈0; torus **0.003** vs sparse 0.028). But **dominated on clock and size**: torus 6.6× / 139k vs sparse **17.8× / 91k**; circle 39× vs 93×; two_circles 1.1× vs 4.6×. Unmatched 0 except torus 2 short bars.
+- **Decision:** **Reject as recommended optional** — homology-safer than K=32 but slower and denser than `--sparse-eps 0.6`. Leave `--knn` as an experimental low-loss flag (K≥128). Exact default unchanged.
+- **Class:** experiment (reject as recommended; dominated by I213/I218)
 
 ## 2026-10-13 — I164 collapse live-degree trace
 
