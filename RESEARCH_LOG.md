@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-13 — I291 collapse fat Delaunay thicken
+
+- **Question:** Does collapsing an auto-α Delaunay thicken (mean deg 40–100) cut I286/I287 H0+H1+H2 at more points, while keeping ess H1/H2?
+- **Hypothesis:** I276 forced collapse=0 because α=1 is O(n) (I207 tax). Thicken is fat and circle-like, so collapse should thin to ~n and keep the flag PH. Hard: figure8 n=16000 and sphere n=12000 maxdim=2.
+- **Work:** `|E|≥8n` gate + collapse=1 on the thicken only (H2 stays α=1). Unit test: 256-pt circle 2857→256, ess H1=1. Wave 151. Reverted the hot path after the clock miss.
+- **Result:** Flag identity held (figure8 n=2000 exact H1 2=2, **38× / 66 ms**; sphere ess2 1=1; two_spheres 2=2). **Slower at the scale that matters:** figure8 n=4000 **269 vs I286 158 ms**; n=8000 **1.16 vs I287 0.43 s**; n=16000 **4.65 s** (collapse 4.05 s / 977k). sphere n=8000 **2.49 vs 1.42 s**. Collapse is Θ(|E|) and costs more than implicit on the uncollapsed thicken. Exact default held (H0 58×, figure8 16×, uniform2 11.2×, sphere H2 57×).
+- **Decision:** **Hold / revert** the default dvr path to collapse=0. Lemma stands (unit test kept). Do not collapse thicken at n≥4000. Do not mark the goal complete.
+- **Class:** experiment (hold identity; revert clock)
+
 ## 2026-10-13 — I290 implicit R-column cache
 
 - **Question:** Does storing the reduced coboundary \(R[j]=DV[j]\) cut implicit `--collapse 0` on figure8 (I289: 24 s / 103M cofacet probes / 170k V-adds)?
