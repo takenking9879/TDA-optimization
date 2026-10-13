@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-13 — I284 harder exact H0 (n=25k/50k)
+
+- **Question:** Does I271 2D walk-locate H0 stay exact and ~linear at n=25000/50000 (past I271’s n=12000 receipt), without breaking H1/H2?
+- **Hypothesis:** Construction is expected O(n log n). Ripser H0 lists G_T. blobs at large n may merge clusters (ess0 drops) — identity is vs Ripser, not vs n=4000’s 3 clusters.
+- **Work:** Wave 144 vs Ripser. n=50000 timeout 90s on Ripser.
+- **Result:** **Support (scale receipt).** n=12000 **202× / 28 ms / 36k** exact ess0 3=3. n=25000 **515× / 55 ms / 75k** exact ess0 2=2 (clusters merged). n=50000 **113 ms / 150k / ess0=1**, delaunay pipeline; Ripser timed out. Metric 12.4 / 26.5 / 56.4 ms ~linear. H1 figure8 **14×**, uniform2 **11.1×**. H2 sphere **51×**. Topology loss: **0** where the oracle finished.
+- **Decision:** **Support as H0 scale receipt.** I271 gate n≤100000 holds at 50k. Do not claim 515× as a new algorithm — same MST ⊆ Delaunay path. Wave marked reject because it required ess0=3; at n=25000 Ripser also has ess0=2 (clusters merged). Next: ae_seeded leftover wall. Do not mark the goal complete.
+- **Class:** experiment (support H0 scale; no new engine)
+
 ## 2026-10-13 — I283 Delaunay 2-complex / Alpha H2
 
 - **Question:** Does the Delaunay complex (only Delaunay faces/tets, max-edge filtration) recover more finite H2 than I276 flag-of-1-skeleton, and does Alpha keep the VR void?

@@ -1,6 +1,6 @@
 # Selected algorithm (living)
 
-Updated 2026-10-13 after iterations I001–I283. **CLI default `--engine
+Updated 2026-10-13 after iterations I001–I284. **CLI default `--engine
 auto` (I235+I236+I239+I240+I241+I263+I270+I271+I275):** subsample residual-frac dispatch,
 plus I263 edge-frac so hollow/manifold clouds take RedZeD. Fat →
 RedZeD (torus n=2000 **13.0×**). Thin-circle → collapse+implicit
@@ -657,7 +657,8 @@ Rips is exact and too slow.
    recommended H1 thicken CLI** (exact 9/9, n=8000 65×). **I283
    Delaunay 2-complex hold:** ess kept, sphere n=400 un 52→33, but
    two_spheres worse (28→32). Alpha drops ess H2. I276 flag stays.
-   Next: exact H0 n=50k / ae_seeded leftover wall.
+   **I284 H0 scale:** blobs n=25000 **515× / 55 ms** exact;
+   n=50000 **113 ms / 150k** (Ripser timeout). Next: ae_seeded.
 6. Owned AE leftover-star walk is still Θ(|leftover|·deg★) — rbit cut
    has_leftover_coface, not seeded probes (circle still 875k). Packed
    annotations / seeded_is_noop are the next owned constants.
