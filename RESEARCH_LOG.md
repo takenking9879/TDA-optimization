@@ -402,6 +402,13 @@ Do not paste long reasoning here.
 - **Next:** max-degree-first (I106); MST-apparent implicit fix (I111); incomplete collapse if residual PH stays cheap.
 - **Class:** experiment (negative on time; identity archived)
 
+## 2026-10-13 — I106 max-degree-first
+
+- **Question:** Does trying the max-degree eligible apex first cut failed `dominated_by` scans?
+- **Result:** Exact 5/5. circle2000 T=1.5 **6.2×** / 4495 ms collapse vs I096 **7.2×** / ~4.5 s total. circle1000 334 ms vs I082 315 ms. Extra argmax pass + worse sticky apex choice.
+- **Decision:** Revert order to list-order `first_dominator_deg`. Keep `--dom-budget` for incomplete collapse (I107).
+- **Class:** experiment (negative on clock)
+
 ## 2026-10-13 — I103–I105
 
 - **Result:** Skipped. They required the progressive binary on n=500–3000 after I102 failed.

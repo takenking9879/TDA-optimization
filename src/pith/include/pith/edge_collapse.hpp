@@ -43,27 +43,20 @@ inline index_t first_dominator(const DenseTimes& Tm, const std::vector<index_t>&
 }
 
 // I082: skip apexes whose live degree cannot cover C_now.
-// I106: try the max-degree eligible apex first (same predicate, better order).
+// I106 max-degree-first was exact but slower (circle2000 T=1.5: 6.2× vs 7.2×).
+// I107: budget>0 keeps the edge after that many failed exact checks (still
+// filtration-safe: fewer trims, same PH as the thicker residual).
 inline index_t first_dominator_deg(const DenseTimes& Tm, const std::vector<index_t>& C_now,
-                                  value_t t, const std::vector<std::vector<index_t>>& nbr) {
+                                  value_t t, const std::vector<std::vector<index_t>>& nbr,
+                                  int budget = -1) {
     if (C_now.empty()) return -1;
     if (C_now.size() == 1) return C_now[0];
     const size_t need = C_now.size() - 1;
-    index_t best = -1;
-    size_t best_d = 0;
+    int tried = 0;
     for (index_t cand : C_now) {
-        const size_t d = nbr[cand].size();
-        if (d < need) continue;
-        if (d > best_d) {
-            best_d = d;
-            best = cand;
-        }
-    }
-    if (best < 0) return -1;
-    if (dominated_by(Tm, C_now, best, t)) return best;
-    for (index_t cand : C_now) {
-        if (cand == best || nbr[cand].size() < need) continue;
+        if (nbr[cand].size() < need) continue;
         if (dominated_by(Tm, C_now, cand, t)) return cand;
+        if (budget > 0 && ++tried >= budget) return -1;
     }
     return -1;
 }
@@ -126,7 +119,7 @@ inline double probe_domination(const Graph& g, int samples = 64) {
 
 // Backward filtration-preserving edge collapse (Glisse–Pritam / GUDHI).
 // I044: sticky dominator across C_later shifts + lazy heap (GUDHI L237–264).
-inline Graph collapse_edges(Graph g, int iterations, Counters& c) {
+inline Graph collapse_edges(Graph g, int iterations, Counters& c, int dom_budget = -1) {
     const auto t0 = std::chrono::steady_clock::now();
     if (c.n_edges_in == 0) c.n_edges_in = static_cast<std::int64_t>(g.edges.size());
 
@@ -194,7 +187,7 @@ inline Graph collapse_edges(Graph g, int iterations, Counters& c) {
             bool ever_shifted = false;
             bool dead = false;
             while (true) {
-                const index_t dominator = first_dominator_deg(Tm, C_now, t, nbr);
+                const index_t dominator = first_dominator_deg(Tm, C_now, t, nbr, dom_budget);
                 if (dominator < 0) break;
                 // Sticky: keep shifting while this apex still dominates newcomers.
                 bool still = true;

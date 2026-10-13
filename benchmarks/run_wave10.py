@@ -78,7 +78,7 @@ def I111_implicit_vs_ripser():
         fid = compare(pr, pp, dim)
         recs.append({"dataset": name, "n": n, "collapse": coll, "match": fid.get("exact_match_tol"),
                      "unmatched": fid.get("unmatched"),
-                     "h1_pith": sum(1 for p in pp if p[0] == 1),
+                     "h1_pith": sum(1 for p in pp if p.get("dim") == 1),
                      "apparent": c.get("columns_apparent")})
     ok = all(r["match"] for r in recs)
     write({"id": "implicit_mst_apparent", "lever": "H02", "class": "experiment",
@@ -133,7 +133,6 @@ def I113_thick_clock():
 
 
 def main():
-    I106_maxdeg_circle()
     I111_implicit_vs_ripser()
     I112_implicit_vs_homology()
     I113_thick_clock()
