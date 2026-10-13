@@ -588,7 +588,9 @@ Rips is exact and too slow.
    are exact and reverted. Do not retry always-spatial (I262).
 5. Hash load-factor constants are exhausted (I259–I261). I263
    edge-frac probe is the selected spatial gate. Dense path stays
-   I238 all-pairs when volume≥0.2 **and** probe≥0.25.
+   I238 all-pairs when volume≥0.2 **and** probe≥0.25. I264
+   word-major rbits is exact and reverted (figure8 reduce 866→1118
+   ms; dense 9.8×). Do not retry rbit layout.
 6. Owned AE leftover-star walk is still Θ(|leftover|·deg★) — rbit cut
    has_leftover_coface, not seeded probes (circle still 875k). Packed
    annotations / seeded_is_noop are the next owned constants.

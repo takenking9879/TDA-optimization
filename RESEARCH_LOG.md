@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-13 — I264 word-major rbits (H1 leftover)
+
+- **Question:** Does storing rbits word-major (w·n+v) cut leftover AND cache misses on manifold clouds (figure8 n=4000 reduce 866 ms) without inventing bars or losing dense 10×?
+- **Hypothesis:** Vendor vertex-major AND(u,v) strides n·words. Word-major keeps u,v adjacent when ids are close. Same leftover-coface. H2 stays vendor layout. Shape-agnostic.
+- **Work:** H1-only advance/collect/leftover-coface on word-major. Wave 125 vs Ripser: H0–H2 + figure8 n=4000 + dense n=5000.
+- **Result:** **Exact 13/13** (figure8 n=4000 2=2; sphere void 1=1; two_spheres 2=2; blobs H0 3=3). **Clock rejects:** figure8 n=4000 reduce **1118 vs I263 866 ms** (1.30s / 19.9× vs 1.07s / 27×). Dense n=5000 **9.76× / 0.34s** (was 11.2×). Torus 11.7×. Sphere H1 10.8×. Sphere H2 59×.
+- **Decision:** **Revert.** Writes to rbits are now stride-n (worse than vertex-major stride-words). Topology loss: **0**. Leftover-layout constants join I253–I255 as exhausted. I263 edge-frac gate stays. Next: a different leftover-visit cut, not another rbit layout.
+- **Class:** experiment (reject; exact, slower; reverted)
+
 ## 2026-10-13 — I263 edge-frac probe for spatial + auto
 
 - **Question:** Can a 250-point |E|/C(m,2) probe send hollow/manifold clouds (figure8 T=1.1, vol≈0.22) to spatial+hash without pulling dense uniform2/sphere off I238 all-pairs? Does that scale mixed H1 past n=2000? H0/H2 must hold.
