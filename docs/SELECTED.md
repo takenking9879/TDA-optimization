@@ -1,6 +1,6 @@
 # Selected algorithm (living)
 
-Updated 2026-10-13 after iterations I001–I230. **CLI default is still
+Updated 2026-10-13 after iterations I001–I231. **CLI default is still
 I193 + I197 + I202 + I203** collapse+implicit (circle n=4000 **140×**).
 **Recommended general exact path:** `--engine redzed` (I228, vendored
 MIT RedZeD). Shape-agnostic, 0 bars lost, first exact **torus n=2000
@@ -295,18 +295,33 @@ families stay ~5–8× at n=4000 (sphere 8.3× is closest). blobs n=4000
 reduce_ms=313 of wall 394 (metric 59). Algebra needs ~2× for a 10×
 wall. Not a general exact 10×.
 
-## Next levers (still open after I230)
+**I230 `-DNDEBUG`:** exact 8/8, median 1.00× vs I229. Not a clock win.
+Keep the flag. Topology loss: **0**.
+
+**I231 owned `--engine active`:** leftover youngest-face H1 (RedZeD idea,
+not the vendor). **Exact 12/12** through n=500 including figure8 /
+two_circles / unit square. Topology loss: **0**. Clock **rejects**:
+circle n=500 0.079× vs Ripser (3.85 s / 0.30 s, 4.5M triangles);
+blobs n=500 0.004×; circle n=2000 **timeout 180 s**. Same O(|E|·deg)
+triangle walk as persist_sparse without the annotation dictionaries /
+rbit coface skip that make RedZeD fast. Leave `--engine active`
+experimental. Vendored `--engine redzed` stays the recommended exact
+path.
+
+## Next levers (still open after I231)
 
 Collapse+implicit is shape-agnostic with **0 bars lost** and is **not**
 a general 10×. `--engine redzed` is the first owned exact torus 10×
-and a 5–8× exact win on the other families.
+and a 5–8× exact win on the other families. Scale and NDEBUG do not
+make blobs/uniform2 10×.
 
 1. **CLI default:** I193 + I197 + I202 + I203. Faster on collapse-friendly
    circle.
 2. **Recommended general exact:** `--engine redzed` (I228/I229). Exact,
-   torus 12–14×, blobs/uniform2 ~5×, sphere 8.3× at n=4000. I230 `-DNDEBUG`
-   on the vendor TU: exact 8/8, **no clock win** (median 1.00×). Next:
-   from-scratch owned active enumeration.
+   torus 12–14×, blobs/uniform2 ~5×, sphere 8.3× at n=4000. I231 owned
+   active H1 is exact but **much slower** (no rbit / annotation skip).
+   Next owned port must copy those data structures, not only the
+   youngest-face filter.
 3. **Owned optional approx:** `--sparse-eps 0.6 --sparse-cap max` (I213/I218).
 4. H07 kd-tree / H08 distilled still open, lower priority.
 5. GPU later.

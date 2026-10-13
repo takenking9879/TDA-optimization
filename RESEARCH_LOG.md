@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-13 — I231 owned active H1
+
+- **Question:** Does an owned leftover-youngest-face H1 (generate a triangle only from its youngest leftover face; same F₂ reduce as persist_sparse) match Ripser on mixed homology and beat RedZeD / Ripser?
+- **Hypothesis:** I163 leftover_apparent=1.0. Skipping MST-as-generator and (n+1)-births should cut triangles. Shape-agnostic. Early-stop after pairing the current leftover is **inexact** (unit square: later same-youngest-face triangle reduces onto the older leftover).
+- **Work:** `--engine active`, collapse=0. Wave 92 vs Ripser / default / redzed.
+- **Result:** **Exact 12/12** through n=500 (unit square, figure8, two_circles, …). Early-stop unit-square bug fixed before the wave. Clock **rejects**: circle n=500 3.85 s / **0.079×** vs Ripser (4.5M tris); blobs 4.42 s / 0.004×; torus 1.77 s / 0.026×. circle n=2000 **timeout 180 s**. Dominated by vendored RedZeD and by collapse+implicit.
+- **Decision:** **Reject as a clock engine.** Keep `--engine active` experimental (identity holds). Topology loss: **0**. The vendor win is the annotation / rbit coface skip, not the youngest-face filter alone. Do not switch default. Next owned port needs those structures.
+- **Class:** experiment (support identity; reject clock)
+
 ## 2026-10-13 — I230 RedZeD -DNDEBUG
 
 - **Question:** Does compiling the vendored TU with the paper’s `-O3 -DNDEBUG` cut I229’s 313 ms blobs-n=4000 reduce enough to push sphere over 10×?

@@ -1,0 +1,27 @@
+{
+  "id": "owned_active_h1",
+  "lever": "H09-owned",
+  "class": "structural",
+  "fidelity": "exact-claimed",
+  "status": "reject",
+  "summary": "exact 12/12 through n=500 mixed; slower than Ripser/RedZeD; circle n=2000 timeout 180s",
+  "all_match": true,
+  "ess_ok": true,
+  "mixed_ok": true,
+  "n2000_timeout": "circle_noisy",
+  "beats_redzed": false,
+  "receipts": [
+    {"name": "unit_square", "n": 4, "T": 2.0, "match_ripser": true, "unmatched": 0, "ess1_active": 0, "ess1_ripser": 0, "bottleneck": 3.5e-06, "simplices": 4, "active_s": 0.00112, "ripser_s": 0.00126, "vs_ripser": 1.12},
+    {"name": "circle_noisy", "n": 80, "T": 1.2, "match_ripser": true, "unmatched": 0, "ess1_active": 1, "ess1_ripser": 1, "simplices": 9500, "active_s": 0.00498, "ripser_s": 0.00167, "vs_ripser": 0.335},
+    {"name": "circle_noisy", "n": 200, "T": 1.5, "match_ripser": true, "unmatched": 0, "ess1_active": 1, "ess1_ripser": 1, "simplices": 294725, "active_s": 0.127, "ripser_s": 0.0177, "vs_ripser": 0.140},
+    {"name": "blobs", "n": 200, "T": 1.0, "match_ripser": true, "unmatched": 0, "ess1_active": 0, "ess1_ripser": 0, "simplices": 138557, "active_s": 0.082, "ripser_s": 0.00386, "vs_ripser": 0.047},
+    {"name": "sphere", "n": 200, "T": 1.4, "match_ripser": true, "unmatched": 0, "ess1_active": 0, "ess1_ripser": 0, "simplices": 209387, "active_s": 0.347, "ripser_s": 0.00627, "vs_ripser": 0.018},
+    {"name": "torus", "n": 200, "T": 1.6, "match_ripser": true, "unmatched": 0, "ess1_active": 1, "ess1_ripser": 1, "simplices": 56877, "active_s": 0.0395, "ripser_s": 0.00426, "vs_ripser": 0.108},
+    {"name": "uniform2", "n": 200, "T": 0.35, "match_ripser": true, "unmatched": 0, "ess1_active": 0, "ess1_ripser": 0, "simplices": 76313, "active_s": 0.0606, "ripser_s": 0.00401, "vs_ripser": 0.066},
+    {"name": "two_circles", "n": 200, "T": 1.2, "match_ripser": true, "unmatched": 0, "ess1_active": 2, "ess1_ripser": 2, "simplices": 42470, "active_s": 0.0150, "ripser_s": 0.00346, "vs_ripser": 0.230},
+    {"name": "figure8", "n": 200, "T": 1.0, "match_ripser": true, "unmatched": 0, "ess1_active": 2, "ess1_ripser": 2, "simplices": 54364, "active_s": 0.0209, "ripser_s": 0.00448, "vs_ripser": 0.215},
+    {"name": "circle_noisy", "n": 500, "T": 1.5, "match_ripser": true, "unmatched": 0, "ess1_active": 1, "ess1_ripser": 1, "simplices": 4513608, "active_s": 3.85, "ripser_s": 0.305, "vs_ripser": 0.079},
+    {"name": "blobs", "n": 500, "T": 1.0, "match_ripser": true, "unmatched": 0, "ess1_active": 0, "ess1_ripser": 0, "simplices": 2225114, "active_s": 4.42, "ripser_s": 0.0188, "vs_ripser": 0.0043},
+    {"name": "torus", "n": 500, "T": 1.6, "match_ripser": true, "unmatched": 0, "ess1_active": 1, "ess1_ripser": 1, "simplices": 878085, "active_s": 1.77, "ripser_s": 0.0460, "vs_ripser": 0.026}
+  ]
+}
