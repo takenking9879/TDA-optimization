@@ -398,6 +398,81 @@ static void active_enum_lazy(State& st, rank_t xrank, comb_t xidx, const int32_t
     ae_seeded(st, xrank, xidx, verts, sdiam);
 }
 
+// I267: H2 triangle stream only ANDs words in the live rlo/rhi
+// intersection. Vendor generate_stream ANDs all n/64 words per edge.
+// Same emit order: unique diam immediate; ties sorted by comb_index.
+// d>2 stays on vendor generate_stream (need>1 rec).
+template <class F>
+static void generate_stream_h2_tight(const EdgeList& edges, int nv, const BinomialTable& bt, F&& emit) {
+    if (edges.count == 0 || nv <= 0) return;
+    const int words = (nv + 63) / 64;
+    std::vector<uint64_t> g((size_t)words * nv, 0);
+    std::vector<int> glo(nv, words), ghi(nv, -1);
+    std::vector<comb_t> akey;
+    std::vector<int32_t> avert;
+    int32_t tri[3];
+    auto put = [&](int32_t u, int32_t v, int32_t w, value_t diam, bool acc) {
+        int32_t a = u, b = v, c = w;
+        if (a > b) std::swap(a, b);
+        if (b > c) std::swap(b, c);
+        if (a > b) std::swap(a, b);
+        tri[0] = a;
+        tri[1] = b;
+        tri[2] = c;
+        if (acc) {
+            akey.push_back(comb_index(tri, 3, bt));
+            avert.insert(avert.end(), tri, tri + 3);
+        } else {
+            emit(diam, tri);
+        }
+    };
+    size_t i = 0;
+    const size_t E = edges.count;
+    while (i < E) {
+        const value_t r = edges.diam[i];
+        size_t jend = i;
+        while (jend < E && edges.diam[jend] == r) ++jend;
+        const bool acc = (jend != i + 1);
+        for (size_t k = i; k < jend; ++k) {
+            const int u = edges.verts[2 * k], v = edges.verts[2 * k + 1];
+            int wlo = glo[u], whi = ghi[u];
+            if (glo[v] > wlo) wlo = glo[v];
+            if (ghi[v] < whi) whi = ghi[v];
+            if (wlo <= whi) {
+                const uint64_t* gu = g.data() + (size_t)u * words;
+                const uint64_t* gv = g.data() + (size_t)v * words;
+                for (int w = wlo; w <= whi; ++w) {
+                    uint64_t bits = gu[w] & gv[w];
+                    while (bits) {
+                        const int bp = redzed_ctz64(bits);
+                        bits &= bits - 1;
+                        const int x = w * 64 + bp;
+                        if (x >= nv) break;
+                        put(u, v, x, r, acc);
+                    }
+                }
+            }
+            const int wj = v >> 6, wi = u >> 6;
+            g[(size_t)u * words + wj] |= (uint64_t)1 << (v & 63);
+            g[(size_t)v * words + wi] |= (uint64_t)1 << (u & 63);
+            if (glo[u] > wj) glo[u] = wj;
+            if (ghi[u] < wj) ghi[u] = wj;
+            if (glo[v] > wi) glo[v] = wi;
+            if (ghi[v] < wi) ghi[v] = wi;
+        }
+        if (acc && !akey.empty()) {
+            std::vector<uint32_t> ord(akey.size());
+            for (size_t t = 0; t < ord.size(); ++t) ord[t] = (uint32_t)t;
+            std::sort(ord.begin(), ord.end(),
+                      [&](uint32_t a, uint32_t b) { return akey[a] < akey[b]; });
+            for (uint32_t o : ord) emit(r, &avert[(size_t)o * 3]);
+            akey.clear();
+            avert.clear();
+        }
+        i = jend;
+    }
+}
+
 // I244: VR≤T does not need enclosing (cone). Finite T → thr=T is exact.
 // I245: parallel build_edges when no prebuilt EdgeList.
 // I246: lazy R/Ri insert on top-dimension AE.
@@ -517,7 +592,7 @@ redzed_vr(DistanceMatrix& distIn, int n, value_t threshold, EdgeList* prebuilt) 
             Rid.side_vpc = m;
             rank_t next_rank = 0;
 
-            generate_stream(st.edges, st.dist, d, st.binom, [&](value_t sdiam, const int32_t* cv) {
+            auto on_simplex = [&](value_t sdiam, const int32_t* cv) {
                 rank_t sr = ++next_rank;
                 st.bar.clear();
                 for (int omit = 1; omit <= m; ++omit) {
@@ -538,7 +613,9 @@ redzed_vr(DistanceMatrix& distIn, int n, value_t threshold, EdgeList* prebuilt) 
                 } else {
                     resolve_bar(st, d, st.bar, sdiam);
                 }
-            });
+            };
+            if (d == 2) generate_stream_h2_tight(st.edges, st.nv, st.binom, on_simplex);
+            else generate_stream(st.edges, st.dist, d, st.binom, on_simplex);
 
             st.cson = false;
             st.csmap.init(0);
