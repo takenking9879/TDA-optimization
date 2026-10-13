@@ -3,10 +3,10 @@
 Updated 2026-10-13 after iterations I001–I237. **CLI default `--engine
 auto` (I235+I236):** subsample residual-frac dispatch. Fat → RedZeD (torus
 n=2000 **12.5×**). Thin-circle → I193+I197+I202+I203 collapse+implicit
-(n=1000 **28×**; n=4000 still **140×**). **H2:** τ=0.15 so sphere n=400
-void stays collapse **61×** (I235’s τ=0.04 would have sent it to RedZeD
-at ~3×). Shape-agnostic, 0 bars lost. Circle 140× is a collapse-friendly
-regime, **not** the success criterion.
+(n=1000 **28×**; n=4000 still **140×**). **H2:** τ=0.15 so sphere void
+stays collapse (**61×** at n=400; **136×** at n=600). Shape-agnostic,
+0 bars lost. Circle 140× is a collapse-friendly regime, **not** the
+success criterion.
 
 ## Success criteria (goal amendment)
 
@@ -21,7 +21,7 @@ quantified (unmatched bars / bottleneck / interleaving).
 Current honest status: **`--engine auto` (I235+I236)** is shape-agnostic (0
 unmatched) and picks the better exact engine from a 250-point collapse
 probe. H1 τ=0.04; H2 τ=0.15. Torus n=2000 H1 **12.5×**; circle n=1000
-**28×**; sphere n=400 H2 **61×**. **Worst-case Big-O is not improved** —
+**28×**; sphere n=600 H2 **136×**. **Worst-case Big-O is not improved** —
 this is a portfolio, not a new complexity class. Torus residual stays
 \(\Theta(n^2)\) (I204). Blobs n=1000 H1 **3.6×** (still not 10×).
 **I228 `--engine redzed`** remains the single-engine general exact path.
@@ -100,6 +100,8 @@ suite and I137 8/8 (including dense circle80/200 **collapse=0**, the I045 killer
 | Witness-shrink first_dominator (I226) | Exact 5/5; torus tests 12.5M→9.0M / 6.1M skips; collapse **1450 vs 1470** ms. Circle 275 vs 263. Reverted |
 | Live leftover-star generation (I233) | **Not exact** on real clouds (invents H1). Unit square held. Reverted |
 | Leftover-coface AE (I236) | **Not exact** (figure8 unmatched 12; essentials held). First-hit `process_leftover` / empty-R abort skipped later same-diameter deaths. Reverted |
+| Birth-time leftover-coface AE (I237) | **Not exact** — same unmatched counts as I236. Incremental insert did not change the barcode. Reverted |
+| GUDHI 3.13 explicit Rips (I237) | Exact 7/7; **slower** (blobs n=1000 15.9 s / 17.8M simplices vs auto 21 ms) |
 
 I107 (`--dom-budget 1`) **still rejected** with implicit (I142–I144): thicker
 residual makes collapse *and* reduce slower (circle3000 1.49× vs full 8.11×).
@@ -374,9 +376,10 @@ loss: **0**. Still not a general H1 10×. Not a better Big-O.
 ## Next levers (still open after I237)
 
 `--engine auto` is a shape-agnostic exact H0–H2 portfolio: circle H1
-10×, torus H1 10×, sphere H2 61× on one CLI path. Blobs/uniform2 H1
-are still ~3–5×. Owned active H0–H2 is exact but not a scale engine.
-I233/I236 star / leftover-coface generation were inexact.
+10×, torus H1 10×, sphere H2 **136×** at n=600 on one CLI path.
+Blobs/uniform2 H1 are still ~5× at n=2000. Owned active H0–H2 is exact
+but not a scale engine. I233/I236/I237 star / leftover-coface
+generation were inexact. GUDHI explicit Rips is exact and too slow.
 
 1. **CLI default:** `--engine auto` (I235+I236). H1 τ=0.04; H2 τ=0.15.
 2. **Forced engines:** `--engine implicit` = I193+I197+I202+I203 only;
