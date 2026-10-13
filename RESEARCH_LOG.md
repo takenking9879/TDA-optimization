@@ -999,6 +999,20 @@ Do not paste long reasoning here.
 - **Decision:** Keep optional approx at **ε=0.5** (torus 10× with bn≈0.03). ε=0.3 is the conservative documented alternative (bn≤0.017, torus 9.3×). Do not take ε=0.7 as default. Exact path unchanged. Next exact-path lever is still torus time-buckets (constant-factor); next approx lever is an in-process Sheehy (drop GUDHI Python) or larger-n blobs to see if 10× appears from the exponent.
 - **Class:** experiment (support as frontier; ε=0.5 stays the optional default)
 
+## 2026-10-13 — I209 Sheehy+implicit scaling
+
+- **Question:** Does the I207 approx path cross 10× on blobs/uniform2/sphere at n=3000 from the exponent gap?
+- **Result:** Pending wave71.
+- **Decision:** If yes, the optional approx is a second-family 10× (still inexact). If no, the exponent is not enough at these sizes.
+- **Class:** experiment (in progress)
+
+## 2026-10-13 — I210 in-process greedy-net sparse Rips
+
+- **Question:** Can PITH own a `--sparse-eps` 1-skeleton (greedy insertion radii, keep d ≤ ((1+ε)/ε) max(λ_i,λ_j)) without GUDHI, preserving essential H1 and the torus 10×?
+- **Result:** Pending wave72. Construction is flag-of-greedy-net, not bit-identical to GUDHI Sheehy.
+- **Decision:** Select as optional engine only if essential H1 holds on the mixed-homology suite and torus ≥10× vs Ripser.
+- **Class:** experiment (in progress)
+
 ## 2026-10-13 — I164 collapse live-degree trace
 
 - **Question:** Does the live 1-skeleton thin early enough to stop the C-walk?
