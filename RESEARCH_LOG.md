@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-13 — I230 RedZeD -DNDEBUG
+
+- **Question:** Does compiling the vendored TU with the paper’s `-O3 -DNDEBUG` cut I229’s 313 ms blobs-n=4000 reduce enough to push sphere over 10×?
+- **Hypothesis:** asserts in the vendor inner loop are a 15–30% tax. Same PH. Shape-agnostic.
+- **Work:** `COMPILE_FLAGS -DNDEBUG` on `redzed_bridge.cpp`. Wave 91 vs I228/I229 walls.
+- **Result:** **Exact 8/8.** Median vs previous **1.00×**. sphere n=4000 8.34× (was 8.30×). blobs n=4000 5.27× / reduce 300 ms (was 313). No clock win — vendor has essentially no hot-path asserts, or `-O3` already dropped them.
+- **Decision:** **Reject as a clock lever.** Keep `-DNDEBUG` (matches paper, no regression). Topology loss: **0**. Next: owned active-enumeration (drop vendor) or a different exact representation. General 10× is still open.
+- **Class:** experiment (reject; exact, no faster)
+
 ## 2026-10-13 — I229 RedZeD scale (general 10×?)
 
 - **Question:** Does `--engine redzed` become a general exact H1 10× at n=3000/4000 on blobs/sphere/uniform2 (the I228 5–8× families), while staying exact on mixed loops?
