@@ -49,7 +49,8 @@ def pith_edges(edge_path, T, collapse, timeout=120):
          "--collapse", str(collapse), "--engine", "implicit", "--no-enclosing"],
         timeout,
     )
-    return parse_pith_text(out)[0], parse_pith_text(out)[1], dt
+    pairs, c = parse_pith_text(out)
+    return pairs, c, dt
 
 
 def st_bars(st, maxdim=1):

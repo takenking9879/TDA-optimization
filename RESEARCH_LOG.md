@@ -984,6 +984,13 @@ Do not paste long reasoning here.
 - **Decision:** This is the only measured **better size exponent on torus** (~n^{1.36} vs collapse residual n^{2.08} and Ripser n² edges). It is **approximate** (I205 bottleneck ≤0.05, essential H1 kept). Do not replace the exact default. Next: I207 owned implicit on a Sheehy 1-skeleton (keep cohomology, inherit the size exponent, quantify the same loss).
 - **Class:** experiment (support as approx Big-O evidence; not a default switch)
 
+## 2026-10-13 — I207 owned implicit on Sheehy 1-skeleton
+
+- **Question:** Does PITH implicit on a Sheehy ε=0.5 1-skeleton inherit the ~n^{1.3} size exponent, keep essential H1, and beat Ripser on blobs/uniform2 (where GUDHI explicit sparse lost)?
+- **Result:** Pending wave69. `--edges` consumes `# n=N` + `u v t`. collapse=0 vs 1. Loss vs Ripser VR + identity vs GUDHI sparse (is Sheehy flag?).
+- **Decision:** Approx path only. Select as an optional engine if essential H1 holds and wall-clock beats Ripser on I205 losers. Exact default stays collapse+implicit on full G_T.
+- **Class:** experiment (in progress)
+
 ## 2026-10-13 — I164 collapse live-degree trace
 
 - **Question:** Does the live 1-skeleton thin early enough to stop the C-walk?
