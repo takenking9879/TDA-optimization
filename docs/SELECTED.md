@@ -1,6 +1,6 @@
 # Selected algorithm (living)
 
-Updated 2026-10-13 after iterations I001–I160. Selected collapse is I155 pair-nbr + I156 fused first-apex.
+Updated 2026-10-13 after iterations I001–I172. Default collapse is I155 pair-nbr + I156 fused first-apex. Optional `--collapse-alg suffix-rescue` / `suffix-stab` are exact H1>10× on circle n=2000 T=1.5 only.
 
 ## Selected exact-VR CPU pipeline
 
@@ -62,9 +62,9 @@ residual makes collapse *and* reduce slower (circle3000 1.49× vs full 8.11×).
 | Dataset | dim | n | T | vs Ripser |
 | --- | --- | --- | --- | --- |
 | sphere | \(H_2\) | 500 | 1.4 | **59×** (I085) / 46× later |
-| circle_noisy | \(H_1\) | 4000 | 1.5 | **9.50×** (I157 pair-nbr+fused) / 8.74× (I148) / 8.38× (I117) |
-| circle_noisy | \(H_1\) | 3000 | 1.5 | **8.89×** (I156) / 8.13× (I121) / 8.0× (I115) |
-| circle_noisy | \(H_1\) | 2000 | 1.5 | **7.20×** (I156) / 6.52× (I155) / 6.30× (I140) |
+| circle_noisy | \(H_1\) | 4000 | 1.5 | **9.50×** default back (I157). suffix-* not exact (I168–I172) |
+| circle_noisy | \(H_1\) | 3000 | 1.5 | **8.89×** default back (I156). suffix-* 2 unmatched |
+| circle_noisy | \(H_1\) | 2000 | 1.5 | **41.7×** suffix-stab (I168) / **36.5×** suffix-rescue (I172) / 7.20× default |
 | torus | \(H_1\) | 1000 | 1.6 | **1.31×** owned implicit (I139); E3 1.25× same run |
 | circle_noisy | \(H_1\) | 2000 | 1.2 | **4.13×** (I162) / 3.8–4.8× earlier |
 | blobs / sphere / uniform2 | \(H_1\) | 2000 | default T | **0.17–0.32×** (I162) — collapse loses to Ripser |
@@ -72,25 +72,22 @@ residual makes collapse *and* reduce slower (circle3000 1.49× vs full 8.11×).
 | circle_noisy | \(H_1\) | 1000 | 1.5 | **4.1×** (I083) |
 
 **Not claimed:** H1 10× clock in general; high-d; worst-case asymptotics.
-I157: n=4000 T=1.5 is **9.50×** (Ripser 294 s / PITH 30.9 s, collapse 30.6 s, reduce 7.0 ms).
-I162: at n=2000 the same stack **loses** on blobs (0.32×), sphere (0.17×), uniform2 (0.30×), torus (0.74×).
-Collapse still reduces those graphs; Ripser's full implicit is cheaper than our C-walk there.
+**Honest H1>10× (exact, no oracle):** circle n=2000 T=1.5 via `--collapse-alg suffix-stab` **41.7×** (I168) or `suffix-rescue` **36.5×** (I172). Both fail at n=3000/4000 (2 unmatched): ~100 nonempty-C **shift-keeps** (I170–I171) are not an oldest suffix.
+I157 default back: n=4000 T=1.5 is **9.50×** (Ripser 294 s / PITH 30.9 s).
+I162: at n=2000 the same default **loses** on blobs (0.32×), sphere (0.17×), uniform2 (0.30×), torus (0.74×).
 I139: owned implicit **reduce 67 ms** on torus1000 residual 38k (homology was 1.7 s).
 E3 (collapse + Ripser-sparse) is no longer required; we own that residual class.
 
 **Alpha (I136)** is a different complex: GUDHI Alpha circle3000 0.023 s vs Ripser VR 123 s
 (~5400× empirical) with 2745 \(H_1\) bars. Off the exact-VR 10× board.
 
-## Next levers (still open after I154)
+## Next levers (still open after I172)
 
 I153: C-build is the wall (567M probes / 1.12M dom tests / 96% first-apex hits).
-~49% of probes miss and still paid two gathers. Domination levers are closed.
+I164/I170: n=2000 circle residual **is** an oldest suffix (5169/5169 last 6.25%). n=3000/4000 add ~100 earlier **shift-keeps** (nonempty C, almost all shifted to one grade ≈1.489). Early-stop and 6n prefix are dead. I171: those keeps are not C-empty, so abort-at-first-common over-trims.
 
-1. **I155 pair-nbr + I156 fused first-apex — selected.** Flagship **9.50×** (I157).
-2. Layout micro-opts closed (I158–I160). I161 integer grades **reverted** (under-collapse). Matching-batch **unsafe**.
-3. I163 leftover-apparent is **1.0 on every family** — not a skip oracle.
-4. I164: live graph thins 1:1 with the scan; residual is an oldest-edge suffix. Early-stop is dead.
-5. Next: cheaper per-edge C-walk (probe count is Ω(m·k) until the suffix); RedZeD does not move the collapse wall.
-3. Probe count unchanged (4.58B at n=4000). Geometry ceiling still ~2× on C-build.
-4. Fix D&C merge (I150) — parallel schedule only.
-5. GPU later (Ripser++ reference only)
+1. **Default:** I155 pair-nbr + I156 fused first-apex. Flagship **9.50×** (I157).
+2. **Optional exact H1>10× on circle n=2000:** `suffix-stab` 41.7× / `suffix-rescue` 36.5×. Do not default.
+3. Predict / preserve the ~100 shift-keeps without walking every young star (needed for n=3000/4000 10×).
+4. Skip-collapse cost model on I162 losers (Ripser is already cheaper than our C-walk).
+5. Geometry C-query ceiling still ~2× on C-build. D&C merge (I150) still broken. GPU later.

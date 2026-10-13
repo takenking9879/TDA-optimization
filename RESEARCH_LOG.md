@@ -732,10 +732,12 @@ Do not paste long reasoning here.
 - **Decision:** Suffix-only cannot be exact at n≥3000. I171: if those ~100 early keeps have empty C, cheap-trim (abort at first common) + suffix-back can rescue them.
 - **Class:** reproduced
 
-## 2026-10-13 — I171/I172 suffix-rescue (in progress)
+## 2026-10-13 — I171/I172 suffix-rescue
 
 - **Question:** Are early keeps C-empty, and does cheap-common-trim + suffix-back match Ripser?
-- **Class:** experiment running
+- **Result:** Early keeps are **not** C-empty: circle3000 **0/97**, circle4000 **0/94**, blobs 7/223. 96/97 circle3000 early keeps **shift** to t=1.48911 (original t from 0.13 to 1.49). Rescue is **exact on circle2000 (0 early keeps), 36.5× vs Ripser** (27.4 s / 0.75 s), 10.3M vs 568M probes. n=3000: **2 unmatched** (8325 vs 9190). blobs: 8 unmatched. Same false residual as I168.
+- **Decision:** suffix-rescue/stab are the first **honest H1>10×** on circle n=2000. Not default (fail at n≥3000). Cannot cheap-trim nonempty-C shift-keeps. Next: predict shift-to-t* without the full young C-walk, or skip collapse on I162 losers.
+- **Class:** experiment (select as optional; not default)
 
 ## 2026-10-13 — I164 collapse live-degree trace
 
