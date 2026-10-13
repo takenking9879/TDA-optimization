@@ -1,6 +1,6 @@
 # Selected algorithm (living)
 
-Updated 2026-10-13 after iterations I001–I285. **CLI default `--engine
+Updated 2026-10-13 after iterations I001–I286. **CLI default `--engine
 auto` (I235+I236+I239+I240+I241+I263+I270+I271+I275):** subsample residual-frac dispatch,
 plus I263 edge-frac so hollow/manifold clouds take RedZeD. Fat →
 RedZeD (torus n=2000 **13.0×**). Thin-circle → collapse+implicit
@@ -594,13 +594,15 @@ Rips is exact and too slow.
    d∈{2,3}: flag of the Delaunay 1-skeleton, Θ(n) edges, **essential
    H0/H1/H2 kept** on mixed families (figure8 n=2000 **419× / 6 ms /
    5.9k edges**, 209 unmatched finite; n=8000 **24 ms / ess1=2**).
-   **`--delaunay-alpha auto` (I282)** is the recommended H1 thicken:
-   α(n)=min(2.75, 1.75+0.125 log2(n/400)). Exact 9/9 oracles;
-   figure8 n=4000 **160× / 148 ms / 186k**; n=8000 **65× / 408 ms /
-   438k** vs RedZeD; n=16000 **974 ms / ess1=2**. I279 fixed 2.25
-   is the measured constant (67× / 390 ms). Default α=1 stays
-   I276 ess-only. H2 stays α=1. Not a VR identity. Prefer auto
-   over I276 when the user wants finite H1.
+   **`--delaunay-alpha auto` (I282/I286)** is the recommended
+   optional Euclidean path. α(n)=min(2.75, 1.75+0.125 log2(n/400)).
+   maxdim=1: H1 thicken (I282). maxdim≥2: **I286 split** — H1 on
+   the thicken, H2 on the α=1 flag (do not thicken H2). figure8
+   n=2000 maxdim=2 **exact H1 33× / 75 ms**; n=4000 **158 ms /
+   186k / ess1=2**. sphere n=2000 H0+H1+H2 **203 ms / ess2=1**
+   (n=400 unmatched 3 vs I276 flag 52). two_spheres ess2 2=2.
+   I279 fixed 2.25 is the measured H1 constant. Default α=1 stays
+   I276 ess-only. Not a VR identity.
 4. Connected uniform2 is **11.2×** at n=5000 (0.33 s).
    Sphere n=2000 H1 **10.1×**. Torus n=2000 **13.0×**. Mixed
    figure8 n=4000 is **27× / 1.07 s**. Sparse n=20000 is **5.6×**.
@@ -656,16 +658,18 @@ Rips is exact and too slow.
    vs I279 — hold, do not replace. **I281 exact H2 scale:** sphere
    n=800 **527× / 56 ms** vs Ripser 29.6 s (auto-collapse, 0 unmatched).
    Optional Delaunay-flag H2 keeps the void at n=800 (17 ms, 86
-   unmatched finite). **I282 `--delaunay-alpha auto` is the
-   recommended H1 thicken CLI** (exact 9/9, n=8000 65×). **I283
+   unmatched finite).    **I282 `--delaunay-alpha auto` is the
+   recommended H1 thicken CLI** (exact 9/9, n=8000 65×). **I286
+   split** makes auto work at maxdim≥2 (figure8 n=4000 158 ms;
+   sphere n=2000 H0+H1+H2 203 ms). **I283
    Delaunay 2-complex hold:** ess kept, sphere n=400 un 52→33, but
    two_spheres worse (28→32). Alpha drops ess H2. I276 flag stays.
    **I284 H0 scale:** blobs n=25000 **515× / 55 ms** exact;
    n=50000 **113 ms / 150k** (Ripser timeout). **I285 3D H0 scale:**
    sphere n=16000 **139× / 116 ms** exact; n=30000 **288× / 221 ms /
    151k** vs Ripser 63.6 s; n=50000 **367 ms / 252k**. Next: one
-   Euclidean path that keeps finite H1 and ess H2 together (today
-   maxdim≥2 forces α=1). ae_seeded leftover wall remains.
+   Euclidean H0+H1+H2 path is I286 split. ae_seeded leftover wall
+   remains for exact H1.
 6. Owned AE leftover-star walk is still Θ(|leftover|·deg★) — rbit cut
    has_leftover_coface, not seeded probes (circle still 875k). Packed
    annotations / seeded_is_noop are the next owned constants.

@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-13 — I286 split H1 thicken / H2 α=1
+
+- **Question:** Can `--delaunay-vr --delaunay-alpha auto --maxdim 2` keep finite H1 and essential H2 together without the H2 tet explosion that forced α=1?
+- **Hypothesis:** Persist H0/H1 on the thickened 1-skeleton and H2 on the α=1 Delaunay flag. MST ⊆ Delaunay ⊆ thicken ⇒ H0 unchanged. H2 thicken explodes (I277); the thin flag already keeps ess voids (I276/I281).
+- **Work:** Split persist in `main.cpp`. Unit tests: 16-pt circle ess H1; two octahedra ess H0/H2. Wave 146 vs Ripser H1 on figure8 n=2000 and H2 on sphere/two_spheres; pith-only hard cases figure8 n=4000 and sphere n=2000. Exact default hold.
+- **Result:** **Support (optional).** Pipeline `pith:delaunay-vr-split`. figure8 n=2000 **exact H1** ess1 2=2, **33× / 75 ms / 80k**. n=4000 ess1=2, **158 ms / 186k** (same I282 H1 work, H2 empty). sphere n=400 ess2 1=1, unmatched **3** (I276 flag was 52), **48× / 21 ms**. Hard sphere n=2000 H0+H1+H2 **203 ms / 201k / ess2=1**. two_spheres ess2 2=2, unmatched 6. Exact default hold: H0 **48×**, figure8 **17×**, uniform2 **11.0×**, sphere H2 **58×**.
+- **Decision:** **Support as the recommended optional Euclidean H0+H1+H2 CLI** (`--delaunay-vr --delaunay-alpha auto`, any maxdim). Do not switch the exact default. Do not thicken H2. Topology loss: 0 on figure8 H1; finite unmatched 3/6 on sphere/two_spheres H2 (ess kept). Next: push the split to more 3D points; ae_seeded leftover wall remains for exact H1. Do not mark the goal complete.
+- **Class:** experiment (support optional split; not exact VR)
+
 ## 2026-10-13 — I285 harder exact 3D H0 (n=30k/50k)
 
 - **Question:** Does I275 walk-locate 3D Delaunay H0 stay exact and ~linear at n=30000/50000 (past I275’s n=16000 receipt), without breaking H1/H2?
