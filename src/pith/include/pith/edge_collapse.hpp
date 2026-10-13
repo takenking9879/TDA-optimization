@@ -299,6 +299,59 @@ inline void bits_for_each(const std::vector<std::uint64_t>& words, Fn&& fn) {
     }
 }
 
+// I198: N_t domination via bits[cand] (minus later[cand]>t) covering C bits.
+// Used in the shift heap so we do not rebuild Tm walks of C_now at each grade.
+inline index_t and_eq_first_in_bits(const LiveBits& bits, const LiveAdj& later, value_t t,
+                                   const std::vector<std::uint64_t>& cwords, size_t nC,
+                                   const std::vector<int>* deg,
+                                   std::vector<std::uint64_t>& cover, Counters& c) {
+    if (nC == 0) return -1;
+    const int W = bits.W;
+    if (cover.size() != static_cast<size_t>(W))
+        cover.assign(static_cast<size_t>(W), 0);
+    if (nC == 1) {
+        for (int w0 = 0; w0 < W; ++w0) {
+            const std::uint64_t word = cwords[static_cast<size_t>(w0)];
+            if (word) {
+                ++c.n_collapse_dom_hits;
+                return static_cast<index_t>(w0 * 64 + __builtin_ctzll(word));
+            }
+        }
+        return -1;
+    }
+    const size_t need = nC - 1;
+    for (int w0 = 0; w0 < W; ++w0) {
+        std::uint64_t word = cwords[static_cast<size_t>(w0)];
+        while (word) {
+            const int tz = __builtin_ctzll(word);
+            word &= word - 1;
+            const index_t cand = static_cast<index_t>(w0 * 64 + tz);
+            if (deg && static_cast<size_t>((*deg)[cand]) < need) continue;
+            ++c.n_collapse_dom_tests;
+            std::memcpy(cover.data(), bits.row(cand),
+                        static_cast<size_t>(W) * sizeof(std::uint64_t));
+            for (const LiveNbr& p : later[cand]) {
+                if (p.second > t) bits_clear_index(cover, p.first);
+            }
+            bool covers = true;
+            for (int k = 0; k < W; ++k) {
+                std::uint64_t mask = cwords[static_cast<size_t>(k)];
+                if (k == (cand >> 6)) mask &= ~(1ull << (cand & 63));
+                if ((cover[static_cast<size_t>(k)] & mask) != mask) {
+                    covers = false;
+                    break;
+                }
+            }
+            c.n_collapse_c_probes += W;
+            if (covers) {
+                ++c.n_collapse_dom_hits;
+                return cand;
+            }
+        }
+    }
+    return -1;
+}
+
 // One backward edge (Glisse–Pritam). t_in is the start filtration (may be t_*
 // on a D&C merge replay). Returns true if the edge is kept.
 inline bool process_one_backward(const Edge& e_in, value_t t_in, DenseTimes& Tm,
@@ -663,8 +716,17 @@ inline bool process_one_backward(const Edge& e_in, value_t t_in, DenseTimes& Tm,
     bool heapified = false;
     bool ever_shifted = false;
     bool dead = false;
+    if (bits && later) {
+        const int W = bits->W;
+        S.cwords.assign(static_cast<size_t>(W), 0);
+        for (index_t w : S.C_now) {
+            S.cwords[static_cast<unsigned>(w) >> 6] |= 1ull << (w & 63);
+        }
+    }
     while (true) {
-        const index_t dominator = first_dominator_deg(Tm, S.C_now, t, nbr, dom_budget, &c, deg);
+        const index_t dominator = (bits && later)
+            ? and_eq_first_in_bits(*bits, *later, t, S.cwords, S.C_now.size(), deg, S.cover, c)
+            : first_dominator_deg(Tm, S.C_now, t, nbr, dom_budget, &c, deg);
         if (dominator < 0) break;
         const value_t* rd = Tm.row(dominator);
         bool still = true;
@@ -685,6 +747,9 @@ inline bool process_one_backward(const Edge& e_in, value_t t_in, DenseTimes& Tm,
                 ++c.n_collapse_shift_lookups;
                 if (rd[w] > tw) still = false;
                 S.C_now.push_back(w);
+                if (bits) {
+                    S.cwords[static_cast<unsigned>(w) >> 6] |= 1ull << (w & 63);
+                }
                 std::pop_heap(S.C_later.begin(), S.C_later.end(), later_cmp);
                 S.C_later.pop_back();
             }
