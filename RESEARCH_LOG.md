@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-13 — I239 exact G_T component split + parallel RedZeD
+
+- **Question:** Is VR≤T of a disconnected G_T exactly the direct sum of the components, and does splitting + bounded parallel RedZeD push clustered clouds (blobs) past 10× at more points without losing H0–H2 identity or circle/sphere collapse?
+- **Hypothesis:** blobs T=1.0 is 3 clusters (centers 3 apart, noise 0.25). RedZeD time is superadditive (~n^{2.3}), so 3 blocks of n/3 beat one n-matrix, and they run independently. Uniform2 stays 1 component — no clock change there. Shape-agnostic. Exact.
+- **Work:** `finish_redzed` UF on d≤T; extract submatrices; bounded hardware-concurrency pool; merge bars. Size-1 → H0 essential. `main` keeps `n_collapse_trims` as the component count. Wave 100 vs Ripser. Hard case: blobs n=4000/6000 (seconds). H2 wedge: two_spheres n=200.
+- **Result:** **Exact 10/10** (0 unmatched; figure8/two_circles 2=2; sphere void 1=1; two_spheres H0=2 H2=2; blobs H0 3=3). Circle auto-collapse **18×**. Sphere n=400 H2 **61×**. Blobs auto-redzed-cc cc=3: n=2000 **13.0×** (reduce 20 ms), n=4000 **18.3×** (0.12s/2.18s, reduce 77 ms vs I238 297 ms), n=6000 **13.5×** (0.38s/5.16s). Uniform2 n=4000 **6.3×** / cc=1. Forced redzed-cc matches on two_spheres and blobs.
+- **Decision:** **Support as the RedZeD path on disconnected G_T.** **Hold** for general 10× — connected uniform2 is unchanged. Topology loss: **0**. Not a better worst-case Big-O. Real clustered data is the payoff. Next: skip the full n×n fill (spatial UF + per-component matrices) and attack the connected reduce wall.
+- **Class:** experiment (support disconnected 10×; hold general 10×)
+
 ## 2026-10-13 — I238 lazy parallel RedZeD metric
 
 - **Question:** Does skipping the full n×n pairwise `vector<vector>` + copy on auto-redzed (probe from points, parallel fill of RedZeD’s lower-tri matrix) cut the blobs/uniform2 wall toward 10× without losing identity or circle/H2 collapse?

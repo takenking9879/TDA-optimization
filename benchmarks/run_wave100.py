@@ -72,7 +72,7 @@ def main():
             "residual_frac": cs.get("residual_frac"),
             "metric_ms": cs.get("metric_ms"),
             "reduce_ms": cs.get("reduce_ms"),
-            "n_cc": cs.get("n_collapse_trims"),
+            "n_cc": cs.get("collapse_trims"),
             "auto_s": ta,
             "ripser_s": tr,
             "vs_ripser": (tr / ta) if ta else None,
@@ -82,7 +82,7 @@ def main():
                 pz, cz, tz = pith_redzed_d(path, T, dim, rto)
                 zfid = compare(pr, pz, dim)
                 rec["forced_redzed_s"] = tz
-                rec["forced_redzed_cc"] = cz.get("n_collapse_trims")
+                rec["forced_redzed_cc"] = cz.get("collapse_trims")
                 rec["forced_redzed_pipe"] = cz.get("pipeline")
                 rec["forced_redzed_match"] = zfid.get("exact_match_tol")
                 rec["forced_redzed_unmatched"] = zfid.get("unmatched")
