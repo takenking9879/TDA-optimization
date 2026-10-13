@@ -572,7 +572,7 @@ Sphere n=2000 all-pairs, remesure **10.1×** (wave 9.58× noise).
 Torus **13.0×**. Circle collapse **16.5×**. Sphere H2 **58×**.
 Blobs H0 **1.8×** / H1 **24×**. Topology loss: **0**.
 
-## Next levers (still open after I263)
+## Next levers (still open after I275)
 
 `--engine auto` is a shape-agnostic exact H0–H2 portfolio: circle H1
 10×, torus H1 **13.0×**, sphere H1 **10.1×** at n=2000, mixed
@@ -583,7 +583,7 @@ blobs 24×** at n=4000 on one CLI path. Connected uniform2 H1 is
 ~1.5× on circle AE and still 12× slower than RedZeD. GUDHI explicit
 Rips is exact and too slow.
 
-1. **CLI default:** `--engine auto` (I235+I236+I239+I240+I241+I263). H1 τ=0.04; H2 τ=0.15; hollow edge-frac <0.25 → redzed.
+1. **CLI default:** `--engine auto` (I235+I236+I239+I240+I241+I263+I271+I275). H1 τ=0.04; H2 τ=0.15; hollow edge-frac <0.25 → redzed.
 2. **Forced engines:** `--engine implicit` = I193+I197+I202+I203 only;
    `--engine redzed` = I228+I239+I240+I244+I245+I246+I250+I251+I252+I256+I257+I258+I259+I260+I261+I263+I270+I271+I275; H0 = Kruskal / I271 2D / I275 3D walk-locate Delaunay.
 3. **Owned optional approx:** `--sparse-eps 0.6 --sparse-cap max` (I213/I218)
