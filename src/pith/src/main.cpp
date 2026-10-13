@@ -19,7 +19,7 @@ static void usage() {
         << "  --maxdim K          homology dimension (default 1)\n"
         << "  --threshold T       VR diameter threshold (default inf)\n"
         << "  --collapse N        collapse passes (default -1 adaptive+probe; 0 = off)\n"
-        << "  --collapse-alg back|dc|forward|suffix|suffix-back\n"
+        << "  --collapse-alg back|dc|forward|suffix|suffix-back|suffix-stab\n"
         << "  --suffix-mult X     oldest X·n edges for suffix* (default 6; I165)\n"
         << "  --suffix-keep N     oldest N edges (overrides --suffix-mult; I167)\n"
         << "  --dom-budget K      max domination candidates per edge (-1 = all; I107)\n"
@@ -295,6 +295,8 @@ int main(int argc, char** argv) {
                 return collapse_edges_oldest_prefix(std::move(h), suffix_mult, c, suffix_keep);
             if (collapse_alg == "suffix-back")
                 return collapse_edges_oldest_then_back(std::move(h), suffix_mult, c, dom_budget, suffix_keep);
+            if (collapse_alg == "suffix-stab")
+                return collapse_edges_suffix_stabilize(std::move(h), c, dom_budget);
             return collapse_edges(std::move(h), iters, c, dom_budget);
         };
         if (collapse_iters < 0) {

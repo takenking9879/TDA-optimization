@@ -704,6 +704,18 @@ Do not paste long reasoning here.
 - **Decision:** Reject 6n. I167: measure first-keep index; sweep `--suffix-keep = m − first_keep`.
 - **Class:** experiment (negative at 6n)
 
+## 2026-10-13 — I167 first-keep + suffix-keep
+
+- **Question:** Where is the first kept edge, and is suffix-back exact at `keep = m − first_keep`?
+- **Result:** circle2000 first_keep=1022569/1077130, **remain=54561 (27.3n)**. suffix-back at 54561: **exact vs back and Ripser**, residual 5169, collapse 130 ms / 1.4M probes vs 4176 ms / 567M. **139× vs Ripser** (28.5 s / 0.205 s) — oracle cutoff. 40k almost (2 unmatched); 20k fails. blobs first_keep at 31% (remain 225n) — suffix does not pay. tau_late 16k/567M — I171 dead.
+- **Decision:** Oracle suffix-back is the first H1 **>10×** on circle2000. I168: find the cutoff without a full C-walk (stabilize / double keep).
+- **Class:** reproduced (oracle)
+
+## 2026-10-13 — I168 suffix-stabilize (in progress)
+
+- **Question:** Does doubling oldest-keep until the residual plateaus recover I167 without an oracle?
+- **Class:** experiment running
+
 ## 2026-10-13 — I164 collapse live-degree trace
 
 - **Question:** Does the live 1-skeleton thin early enough to stop the C-walk?

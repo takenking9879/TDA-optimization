@@ -188,6 +188,11 @@ int main() {
         assert(h1(rb) == h1(rd));
         assert(h1(rb) == h1(rf));
         std::cout << "ok dc/forward C4+diagonals H1 match backward\n";
+        Counters cs;
+        Graph hs = collapse_edges_suffix_stabilize(g, cs, -1);
+        Result rs = persist_sparse(hs, 1, 10, 1);
+        assert(h1(rb) == h1(rs));
+        std::cout << "ok suffix-stab C4+diagonals H1 match backward\n";
     }
 
     std::cout << "all collapse/persist unit tests passed\n";

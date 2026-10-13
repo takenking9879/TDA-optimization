@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <chrono>
+#include <cmath>
 #include <cstdint>
 #include <cstring>
 #include <cstdlib>
@@ -409,6 +410,91 @@ inline Graph collapse_edges_oldest_then_back(Graph g, double mult, Counters& c, 
                                             std::int64_t keep = -1) {
     g = collapse_edges_oldest_prefix(std::move(g), mult, c, keep);
     return collapse_edges(std::move(g), 1, c, dom_budget);
+}
+
+inline void add_collapse_counters(Counters& c, const Counters& t) {
+    c.n_collapse_trims += t.n_collapse_trims;
+    c.n_collapse_shifts += t.n_collapse_shifts;
+    c.n_collapse_c_probes += t.n_collapse_c_probes;
+    c.n_collapse_dom_tests += t.n_collapse_dom_tests;
+    c.n_collapse_dom_hits += t.n_collapse_dom_hits;
+    c.n_collapse_c_size_sum += t.n_collapse_c_size_sum;
+    c.n_collapse_shift_lookups += t.n_collapse_shift_lookups;
+    c.n_collapse_fast_trims += t.n_collapse_fast_trims;
+    c.n_collapse_tau_late += t.n_collapse_tau_late;
+    c.n_collapse_tau_late_common += t.n_collapse_tau_late_common;
+    c.collapse_ms += t.collapse_ms;
+}
+
+inline bool same_residual(const Graph& a, const Graph& b) {
+    if (a.n != b.n || a.edges.size() != b.edges.size()) return false;
+    std::vector<Edge> ea = a.edges, eb = b.edges;
+    for (Edge& e : ea) normalize_edge(e);
+    for (Edge& e : eb) normalize_edge(e);
+    const auto cmp = [](const Edge& x, const Edge& y) {
+        if (x.u != y.u) return x.u < y.u;
+        if (x.v != y.v) return x.v < y.v;
+        return x.t < y.t;
+    };
+    std::sort(ea.begin(), ea.end(), cmp);
+    std::sort(eb.begin(), eb.end(), cmp);
+    for (size_t i = 0; i < ea.size(); ++i) {
+        if (ea[i].u != eb[i].u || ea[i].v != eb[i].v) return false;
+        if (std::fabs(ea[i].t - eb[i].t) > 1e-5f) return false;
+    }
+    return true;
+}
+
+// I168: double oldest-keep until the residual plateaus (no first-keep oracle).
+// I167: circle2000 is exact at keep ≥ 54561 (27.3n). Start at 8n, cap at 64n
+// (or 12.5% of m); bail to full backward if the residual never settles.
+inline Graph collapse_edges_suffix_stabilize(Graph g, Counters& c, int dom_budget) {
+    const auto t0 = std::chrono::steady_clock::now();
+    if (c.n_edges_in == 0) c.n_edges_in = static_cast<std::int64_t>(g.edges.size());
+    const size_t m = g.edges.size();
+    const size_t n = static_cast<size_t>(std::max(g.n, 1));
+    if (m <= n) return collapse_edges(std::move(g), 1, c, dom_budget);
+
+    size_t k = std::max(n * 8, n);
+    const size_t k_cap = std::min(m, std::max(n * 64, m / 8 + 1));
+    if (k > k_cap) k = k_cap;
+
+    Graph prev;
+    bool have_prev = false;
+    Graph cur;
+    size_t used = k;
+    while (k <= k_cap) {
+        Graph attempt;
+        attempt.n = g.n;
+        attempt.edges = g.edges;
+        Counters tmp;
+        cur = collapse_edges_oldest_then_back(std::move(attempt), 0, tmp, dom_budget,
+                                             static_cast<std::int64_t>(k));
+        add_collapse_counters(c, tmp);
+        used = k;
+        if (have_prev && same_residual(prev, cur)) break;
+        prev = cur;
+        have_prev = true;
+        if (k >= k_cap) {
+            // No plateau: full backward on the original graph.
+            Counters full;
+            Graph out = collapse_edges(std::move(g), 1, full, dom_budget);
+            add_collapse_counters(c, full);
+            c.n_edges_out = static_cast<std::int64_t>(out.edges.size());
+            c.n_collapse_first_keep = -1;
+            const auto t1 = std::chrono::steady_clock::now();
+            c.collapse_ms = std::chrono::duration<double, std::milli>(t1 - t0).count();
+            return out;
+        }
+        const size_t nxt = (k > k_cap / 2) ? k_cap : k * 2;
+        if (nxt == k) break;
+        k = nxt;
+    }
+    c.n_edges_out = static_cast<std::int64_t>(cur.edges.size());
+    c.n_collapse_first_keep = static_cast<std::int64_t>(used);
+    const auto t1 = std::chrono::steady_clock::now();
+    c.collapse_ms = std::chrono::duration<double, std::milli>(t1 - t0).count();
+    return cur;
 }
 
 // I150: Glisse 2022 Lemma 6 — 2-way time-axis D&C. Same output as sequential
