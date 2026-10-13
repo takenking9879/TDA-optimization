@@ -1819,4 +1819,43 @@ inline double probe_residual_frac(const std::vector<std::vector<value_t>>& dist,
     return static_cast<double>(g.edges.size()) / e0;
 }
 
+// I238: same probe without a full n×n matrix — only the s-stride points.
+inline double probe_residual_frac_points(const std::vector<std::vector<value_t>>& pts, value_t T,
+                                         int sample = 250) {
+    const int n = static_cast<int>(pts.size());
+    if (n < 8) return 0;
+    const int s = std::min(sample, n);
+    const int d = n ? static_cast<int>(pts[0].size()) : 0;
+    std::vector<int> id(static_cast<size_t>(s));
+    if (s == n) {
+        for (int i = 0; i < s; ++i) id[static_cast<size_t>(i)] = i;
+    } else {
+        for (int i = 0; i < s; ++i)
+            id[static_cast<size_t>(i)] =
+                static_cast<int>((static_cast<std::int64_t>(i) * (n - 1)) / (s - 1));
+    }
+    std::vector<std::vector<value_t>> sub(static_cast<size_t>(s),
+                                         std::vector<value_t>(static_cast<size_t>(s), 0));
+    for (int i = 0; i < s; ++i)
+        for (int j = i + 1; j < s; ++j) {
+            double sum = 0;
+            const auto& a = pts[static_cast<size_t>(id[static_cast<size_t>(i)])];
+            const auto& b = pts[static_cast<size_t>(id[static_cast<size_t>(j)])];
+            for (int k = 0; k < d; ++k) {
+                const double df = static_cast<double>(a[static_cast<size_t>(k)]) -
+                                  static_cast<double>(b[static_cast<size_t>(k)]);
+                sum += df * df;
+            }
+            const value_t t = static_cast<value_t>(std::sqrt(sum));
+            sub[static_cast<size_t>(i)][static_cast<size_t>(j)] = t;
+            sub[static_cast<size_t>(j)][static_cast<size_t>(i)] = t;
+        }
+    Graph g = graph_from_distance(sub, T);
+    const double e0 = static_cast<double>(g.edges.size());
+    if (e0 <= 0) return 0;
+    Counters dummy;
+    g = collapse_edges(std::move(g), 1, dummy, -1, true);
+    return static_cast<double>(g.edges.size()) / e0;
+}
+
 }  // namespace pith

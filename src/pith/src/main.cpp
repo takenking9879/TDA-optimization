@@ -374,6 +374,8 @@ int main(int argc, char** argv) {
         Counters c;
         Graph g;
         std::vector<std::vector<value_t>> dist;
+        std::vector<std::vector<value_t>> pts;
+        bool have_pts = false;
         bool auto_dispatch = false;
         if (!edges_path.empty()) {
             // I207: 1-skeleton input. Enclosing radius needs a full metric;
@@ -385,26 +387,32 @@ int main(int argc, char** argv) {
                 dist = read_distance_matrix(dist_path);
                 c.n_distances = static_cast<std::int64_t>(dist.size()) * (dist.size() - 1) / 2;
             } else {
-                const auto pts = read_points(points_path);
-                dist = pairwise(pts, c);
+                pts = read_points(points_path);
+                have_pts = true;
             }
-            if (use_enclosing) {
-                const value_t R = enclosing_radius(dist);
-                if (R < threshold) threshold = R;
-            }
-            // I235/I236: --engine auto on a metric. Fat subsample residual
-            // → RedZeD (skip full G_T + collapse). Thin → collapse+implicit.
-            // H2 tet work is on the residual, so a mid frac (~0.05 sphere)
-            // that wants RedZeD for H1 still wants collapse for H2 (I234
-            // sphere n=200: collapse 26× vs RedZeD 3.2×). τ=0.15 for
-            // maxdim≥2; torus ~0.28 still RedZeD. Shape-agnostic probe.
+            // I235/I236/I238: --engine auto. Probe first. Fat residual →
+            // RedZeD without building the n×n vector<vector> (I238). Thin
+            // → pairwise + collapse+implicit. H2 τ=0.15 (I236).
+            const int n_metric = have_pts ? static_cast<int>(pts.size())
+                                          : static_cast<int>(dist.size());
             if (engine == "auto" && maxdim >= 1 && gic_n == 0 && knn_k == 0 &&
                 witness_n == 0 && !(sparse_eps > 0 && sparse_eps < 1) && !reduced_vr &&
-                static_cast<int>(dist.size()) >= 400) {
+                n_metric >= 400) {
                 auto_dispatch = true;
-                c.residual_frac = probe_residual_frac(dist, threshold, 250);
+                c.residual_frac = have_pts ? probe_residual_frac_points(pts, threshold, 250)
+                                           : probe_residual_frac(dist, threshold, 250);
                 const double tau = (maxdim >= 2) ? 0.15 : 0.04;
                 if (c.residual_frac > tau) engine = "redzed";
+            }
+            const bool skip_full_metric = (engine == "redzed" && have_pts && gic_n == 0 &&
+                                           knn_k == 0 && witness_n == 0 && !reduced_vr &&
+                                           !(sparse_eps > 0 && sparse_eps < 1));
+            if (!skip_full_metric) {
+                if (dist.empty() && have_pts) dist = pairwise(pts, c);
+                if (use_enclosing && !dist.empty()) {
+                    const value_t R = enclosing_radius(dist);
+                    if (R < threshold) threshold = R;
+                }
             }
             if (gic_n > 0) {
                 // I222: flag of a kNN-quotient on farthest-point landmarks.
@@ -512,11 +520,16 @@ int main(int argc, char** argv) {
         const bool use_implicit = (engine == "implicit" || engine == "auto");
         Result r;
         if (engine == "redzed") {
-            if (dist.empty()) {
+            if (have_pts && dist.empty()) {
+                r = persist_redzed_from_points(pts, maxdim, threshold);
+                c.n_distances = r.counters.n_distances;
+                c.metric_ms = r.counters.metric_ms;
+            } else if (dist.empty()) {
                 std::cerr << "--engine redzed requires --points or --distances\n";
                 return 2;
+            } else {
+                r = persist_redzed(dist, maxdim, threshold);
             }
-            r = persist_redzed(dist, maxdim, threshold);
         } else if (engine == "active") {
             r = persist_active_h1(g, maxdim, threshold, ratio);
         } else if (reduced_vr) {
