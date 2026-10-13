@@ -108,32 +108,45 @@ residual makes collapse *and* reduce slower (circle3000 1.49× vs full 8.11×).
 | torus | \(H_1\) | 1000 | 1.6 | **1.63×** I200 (was I139 1.31×) |
 | circle_noisy | \(H_1\) | 1000 | 1.5 | **4.1×** (I083) |
 
-**Not claimed:** H1 10× clock in general; high-d; **worse-case / all-shape Big-O
+**Not claimed:** H1 10× clock in general; high-d; **worst-case / all-shape Big-O
 better than Ripser**. Topology loss on the default path is **zero** (exact
-VR≤T vs Ripser).
+VR≤T vs Ripser on I204's 25/25 including figure8, two_circles, annulus,
+swiss, blobs3d). swiss n=400 is **0.91×** — collapse can lose on thin graphs.
+
 **Honest H1>10× (exact, no oracle, default path):** circle n=4000 T=1.5
-**140×** (I196), n=3000 **119×**, n=2000 T=1.5 **84.4×** (I202), n=2000 T=1.2
-**33.8×** (I200). These are **not** a general or asymptotic claim.
-I202 vs Ripser at n=2000: blobs **1.77×**, sphere **1.84×**, torus **1.31×**.
-I200 uniform2 **2.10×**. All measured families still beat Ripser; none but
-circle is 10×.
-I139: owned implicit **reduce 67 ms** on torus1000 residual 38k (homology was 1.7 s).
-E3 (collapse + Ripser-sparse) is no longer required; we own that residual class.
+**140×** (I196), n=3000 **119×**, n=2000 T=1.5 **84.4×** (I202) / **79×**
+(I204 remasure). These are **not** a general or asymptotic claim.
+
+### Complexity (I204, n=500…2000, fixed T)
+
+| Family | \(E \sim n^{}\) | residual \(E' \sim n^{}\) | \(E'/E\) at n=2000 | PITH time \(n^{}\) | Ripser time \(n^{}\) |
+| --- | --- | --- | --- | --- | --- |
+| circle | 2.00 | **1.22** | 0.48% | 2.22 | **3.25** |
+| blobs | 2.00 | **1.10** | 0.94% | 2.16 | 2.25 |
+| sphere | 2.00 | **0.91** | 0.68% | 2.22 | 2.20 |
+| uniform2 | 1.99 | **1.04** | 1.08% | 2.14 | 2.14 |
+| torus | 2.01 | **2.08** | **34%** | 2.97 | 2.95 |
+
+Justification: collapse-friendly residuals are ~\(O(n)\), so reduce is cheap;
+input \(G_T\) is still \(\Theta(n^2)\) and collapse walks it, so wall-clock
+stays \(\sim n^{2.2}\) except torus \(\sim n^3\). Circle's 10×–80× is the
+**exponent gap** vs Ripser \(n^{3.25}\), not a better worst-case class.
+Torus residual is \(\Theta(n^2)\) — **no general Big-O win**.
 
 **Alpha (I136)** is a different complex: GUDHI Alpha circle3000 0.023 s vs Ripser VR 123 s
 (~5400× empirical) with 2745 \(H_1\) bars. Candidate for a **better Big-O in
-low-d Euclidean** (Delaunay size) if we quantify barcode distance vs VR.
-Not a drop-in exact-VR replacement.
+low-d Euclidean** (Delaunay size) if we quantify barcode distance vs VR
+(I205). Not a drop-in exact-VR replacement.
 
-## Next levers (still open after I202)
+## Next levers (still open after I204)
 
 Circle family: **84.4 / 119 / 140×**. Other families ~1.3–2.1×. Default is
-shape-agnostic and exact; residual complexity is not.
+shape-agnostic and exact; residual complexity is **not** uniformly better.
 
 1. **Default:** I193 + I197 + I202 gated witness + I203 cofacet early-stop.
-2. **I204:** residual \(|E'(n)|\) log-log slopes across families — required
-   before any Big-O claim. If torus/sphere stay \(\Theta(n^2)\), next
-   construction is Alpha / sparse Rips with quantified topology loss (I205).
-3. Torus shift heap: time-bucket / later-bits only if I204 says collapse
-   (not reduce) is still the wall.
+2. **I205:** Alpha / Sheehy sparse vs VR — bottleneck, unmatched, simplex
+   count — only remaining path to a better *worst-case* bound. Quantify
+   topology loss; do not call Alpha “exact VR”.
+3. Torus shift heap (time-bucket / later-bits) is a constant-factor lever
+   on a \(\Theta(n^2)\) residual, not a Big-O change.
 4. GPU later.

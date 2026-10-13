@@ -960,6 +960,15 @@ Do not paste long reasoning here.
 - **Decision:** Select (shape-agnostic, exact, less algebraic work on every residual). Topology loss: **0 bars**. Complexity: same Big-O class (still Θ(|E'| · deg) worst case) but a smaller leading constant on the apparent pass. I204 measures whether |E'(n)| is o(n²) across shapes.
 - **Class:** experiment (support as default)
 
+## 2026-10-13 — I204 residual |E'(n)| slopes (shape-agnostic Big-O)
+
+- **Question:** Does flag collapse give o(n²) residual — and a better wall-clock exponent than Ripser — on every family, not only circle?
+- **Result:** **Exact** 25/25 (0 unmatched vs Ripser), including figure8 / two_circles / annulus / swiss / blobs3d. Topology loss: **0 bars**.
+  Residual log-log slope `edges_out ~ n^α`: circle **1.22**, blobs **1.10**, sphere **0.91**, uniform2 **1.04**, torus **2.08**. Input `edges_in` is **~n²** on all five. Residual fraction shrinks with n on the first four (circle 1.4%→0.48%) and **stays ~31–34%** on torus.
+  Wall-clock exponents: circle PITH **2.22** vs Ripser **3.25** (the 20–79× comes from this gap). blobs/sphere/uniform2 ≈ Ripser (~2.1–2.2). torus PITH **2.97** ≈ Ripser **2.95**. Collapse on torus is **n^3.20**. swiss n=400 is **0.91×** (collapse tax on a thin graph).
+- **Decision:** Collapse is **shape-agnostic and exact**, but **not a worst-case Big-O win**. Residual is ~O(n) on collapse-friendly geometry and **Θ(n²) on torus**. Do not claim better asymptotics than Ripser in general. I205: quantify Alpha / Sheehy sparse vs VR (bottleneck, unmatched, size) as the remaining path to a better worst-case bound.
+- **Class:** experiment (partial — exact + honest complexity; torus blocks a general o(n²) claim)
+
 ## 2026-10-13 — I164 collapse live-degree trace
 
 - **Question:** Does the live 1-skeleton thin early enough to stop the C-walk?
