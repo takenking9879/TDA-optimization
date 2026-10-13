@@ -6,9 +6,11 @@ namespace pith {
 
 // Owned active PH (RedZeD idea, not the vendor copy). Shape-agnostic.
 // H0: Kruskal. H1: leftover youngest-face triangles + R/Ri resolve_bar
-// (I232). Empty face-XOR is an H2 birth. I233 live-star generation is
-// reverted — it invented H1 bars on real clouds (dead-partner cofaces).
-// H2: annotation reduce of tets on those empty-XOR triangles.
+// (I232). Empty face-XOR is an H2 birth. I233 live-star and I236
+// leftover-coface AE are reverted — both invented finite H1 on real
+// clouds (first-hit process_leftover / empty-R abort skipped later
+// same-diameter deaths). H2: annotation reduce of tets on empty-XOR
+// triangles (I234). Generation stays the I232 full walk.
 inline Result persist_active_h1(const Graph& g, int maxdim, value_t threshold,
                                 value_t ratio) {
     Result r;
@@ -59,9 +61,39 @@ inline Result persist_active_h1(const Graph& g, int maxdim, value_t threshold,
 
     const int m = static_cast<int>(leftover.size());
     std::vector<std::vector<int>> R(static_cast<size_t>(m)), Ri(static_cast<size_t>(m));
+    // I236: active = nonempty R (RedZeD key of R), not Ri. Carriers stay
+    // in the star after Ri[j] is cleared so process_leftover can still
+    // resolve_bar(R[e]) (unit-square death). I233 used Ri and skipped that.
+    std::vector<std::vector<int>> star(static_cast<size_t>(g.n));
+    std::vector<int> star_pos(static_cast<size_t>(m) * 2, -1);
+    auto star_add = [&](int id) {
+        const BirthEdge& e = leftover[static_cast<size_t>(id)];
+        star_pos[static_cast<size_t>(id) * 2] = static_cast<int>(star[static_cast<size_t>(e.u)].size());
+        star[static_cast<size_t>(e.u)].push_back(id);
+        star_pos[static_cast<size_t>(id) * 2 + 1] = static_cast<int>(star[static_cast<size_t>(e.v)].size());
+        star[static_cast<size_t>(e.v)].push_back(id);
+    };
+    auto star_del_at = [&](index_t v, int id, int which) {
+        const int p = star_pos[static_cast<size_t>(id) * 2 + static_cast<size_t>(which)];
+        if (p < 0) return;
+        auto& row = star[static_cast<size_t>(v)];
+        const int last = row.back();
+        row[static_cast<size_t>(p)] = last;
+        const BirthEdge& le = leftover[static_cast<size_t>(last)];
+        const int last_which = (le.u == v) ? 0 : 1;
+        star_pos[static_cast<size_t>(last) * 2 + static_cast<size_t>(last_which)] = p;
+        row.pop_back();
+        star_pos[static_cast<size_t>(id) * 2 + static_cast<size_t>(which)] = -1;
+    };
+    auto star_del = [&](int id) {
+        const BirthEdge& e = leftover[static_cast<size_t>(id)];
+        star_del_at(e.u, id, 0);
+        star_del_at(e.v, id, 1);
+    };
     for (int i = 0; i < m; ++i) {
         R[static_cast<size_t>(i)] = {i};
         Ri[static_cast<size_t>(i)] = {i};
+        star_add(i);
     }
 
     struct H2Tri {
@@ -108,7 +140,10 @@ inline Result persist_active_h1(const Graph& g, int maxdim, value_t threshold,
             Rid[static_cast<size_t>(j)].clear();
             for (int z : touched) {
                 remove_elem(Rd[static_cast<size_t>(z)], j);
-                if (Rd[static_cast<size_t>(z)].empty()) Rid[static_cast<size_t>(z)].clear();
+                if (Rd[static_cast<size_t>(z)].empty()) {
+                    Rid[static_cast<size_t>(z)].clear();
+                    if (dim == 1) star_del(z);
+                }
             }
             return;
         }
@@ -119,7 +154,10 @@ inline Result persist_active_h1(const Graph& g, int maxdim, value_t threshold,
         for (int z : touched) {
             xor_sorted(Rd[static_cast<size_t>(z)], bar);
             ++c.n_additions;
-            if (Rd[static_cast<size_t>(z)].empty()) Rid[static_cast<size_t>(z)].clear();
+            if (Rd[static_cast<size_t>(z)].empty()) {
+                Rid[static_cast<size_t>(z)].clear();
+                if (dim == 1) star_del(z);
+            }
         }
         for (int y : others) xor_sorted(Rid[static_cast<size_t>(y)], touched);
         Rid[static_cast<size_t>(j)].clear();
@@ -171,6 +209,8 @@ inline Result persist_active_h1(const Graph& g, int maxdim, value_t threshold,
         return true;
     };
 
+    // I236: AE leftover-coface / first-hit process_leftover invented
+    // finite H1 on mixed clouds (essentials held). Keep the I232 walk.
     for (const BirthEdge& e : leftover) {
         const auto& nu = g.neighbors[static_cast<size_t>(e.u)];
         const auto& nv = g.neighbors[static_cast<size_t>(e.v)];
@@ -190,7 +230,8 @@ inline Result persist_active_h1(const Graph& g, int maxdim, value_t threshold,
                 const value_t twu = nu[i].second;
                 const value_t twv = nv[j].second;
                 if (twu <= threshold && twv <= threshold && e_youngest(e, w, twu, twv))
-                    reduce_tri(e.id, leftover_of(e.u, w), leftover_of(e.v, w), e.t, e.u, e.v, w);
+                    reduce_tri(e.id, leftover_of(e.u, w), leftover_of(e.v, w), e.t, e.u, e.v,
+                               w);
             }
             ++i;
             ++j;

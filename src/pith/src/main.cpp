@@ -392,15 +392,19 @@ int main(int argc, char** argv) {
                 const value_t R = enclosing_radius(dist);
                 if (R < threshold) threshold = R;
             }
-            // I235: --engine auto on a metric. Fat subsample residual → RedZeD
-            // (skip full G_T + collapse). Thin → existing collapse+implicit.
-            // Shape-agnostic: same probe for every cloud. Both engines exact.
+            // I235/I236: --engine auto on a metric. Fat subsample residual
+            // → RedZeD (skip full G_T + collapse). Thin → collapse+implicit.
+            // H2 tet work is on the residual, so a mid frac (~0.05 sphere)
+            // that wants RedZeD for H1 still wants collapse for H2 (I234
+            // sphere n=200: collapse 26× vs RedZeD 3.2×). τ=0.15 for
+            // maxdim≥2; torus ~0.28 still RedZeD. Shape-agnostic probe.
             if (engine == "auto" && maxdim >= 1 && gic_n == 0 && knn_k == 0 &&
                 witness_n == 0 && !(sparse_eps > 0 && sparse_eps < 1) && !reduced_vr &&
                 static_cast<int>(dist.size()) >= 400) {
                 auto_dispatch = true;
                 c.residual_frac = probe_residual_frac(dist, threshold, 250);
-                if (c.residual_frac > 0.04) engine = "redzed";
+                const double tau = (maxdim >= 2) ? 0.15 : 0.04;
+                if (c.residual_frac > tau) engine = "redzed";
             }
             if (gic_n > 0) {
                 // I222: flag of a kNN-quotient on farthest-point landmarks.
