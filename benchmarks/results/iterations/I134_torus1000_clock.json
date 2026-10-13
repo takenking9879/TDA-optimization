@@ -1,0 +1,26 @@
+{
+  "id": "torus1000_clock",
+  "lever": "H01",
+  "class": "reproduced",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "torus n=1000 H1 vs Ripser",
+  "receipts": [
+    {
+      "collapse": 1,
+      "match": true,
+      "time_ratio": 0.20584656704746648,
+      "edges_out": 38732,
+      "pith_s": 1.959075421000307,
+      "ripser_s": 0.4032689499999833
+    },
+    {
+      "collapse": -1,
+      "match": true,
+      "time_ratio": 0.335707977096811,
+      "edges_out": 27550,
+      "pith_s": 1.2012492330013629,
+      "ripser_s": 0.4032689499999833
+    }
+  ]
+}

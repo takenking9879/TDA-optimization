@@ -492,6 +492,23 @@ Do not paste long reasoning here.
 - **Decision:** Thick torus remains a hold-out.
 - **Class:** reproduced
 
+## 2026-10-13 — I131 sequential C-scan
+
+- **Result:** Exact (same residuals 5169 / 9190). **Slower**: circle2000 5.83× / 4462 ms vs I121 6.63× / 4137 ms. circle3000 7.37× vs 8.13×. Different `C_now` order changes first-apex / sticky work.
+- **Decision:** Revert to neighbor-list gather + row pointers.
+- **Class:** experiment (negative)
+
+## 2026-10-13 — I132 collapse + Ripser-sparse (E3)
+
+- **Result:** Exact 4/4. torus500 **1.14×** vs Ripser (owned homology was 0.71×). circle80 0.75× (process overhead). torus200 0.76×.
+- **Decision:** E3 is the better *thick-residual* engine. Not a circle H1 10× lever (collapse-bound).
+- **Class:** reproduced
+
+## 2026-10-13 — I133 / I134
+
+- **Result:** sphere500 H2 **46.5×** after seqscan (still exact). torus1000 homology **0.21×** / adaptive **0.34×**, residual 27k–38k. Collapse already > Ripser (1.2 s vs 0.40 s).
+- **Class:** reproduced
+
 ## 2026-10-13 — I103–I105
 
 - **Result:** Skipped. They required the progressive binary on n=500–3000 after I102 failed.

@@ -185,30 +185,15 @@ inline Graph collapse_edges(Graph g, int iterations, Counters& c, int dom_budget
             C_later.clear();
             const value_t* ru = Tm.row(u);
             const value_t* rv = Tm.row(v);
-            // I131: dense edges — sequential row scan (linear prefetch) instead of
-            // random-gather along the live neighbor list.
-            const size_t dmin = nbr[u].size() <= nbr[v].size() ? nbr[u].size() : nbr[v].size();
-            if (dmin * 2 > static_cast<size_t>(n)) {
-                for (int w = 0; w < n; ++w) {
-                    if (w == u || w == v) continue;
-                    const value_t tu = ru[w];
-                    const value_t tv = rv[w];
-                    if (tu >= kInf / 2 || tv >= kInf / 2) continue;
-                    const value_t tau = std::max(tu, tv);
-                    if (tau <= t) C_now.push_back(w);
-                    else C_later.push_back({tau, w});
-                }
-            } else {
-                const auto& src = nbr[u].size() <= nbr[v].size() ? nbr[u] : nbr[v];
-                for (index_t w : src) {
-                    if (w == u || w == v) continue;
-                    const value_t tu = ru[w];
-                    const value_t tv = rv[w];
-                    if (tu >= kInf / 2 || tv >= kInf / 2) continue;
-                    const value_t tau = std::max(tu, tv);
-                    if (tau <= t) C_now.push_back(w);
-                    else C_later.push_back({tau, w});
-                }
+            const auto& src = nbr[u].size() <= nbr[v].size() ? nbr[u] : nbr[v];
+            for (index_t w : src) {
+                if (w == u || w == v) continue;
+                const value_t tu = ru[w];
+                const value_t tv = rv[w];
+                if (tu >= kInf / 2 || tv >= kInf / 2) continue;
+                const value_t tau = std::max(tu, tv);
+                if (tau <= t) C_now.push_back(w);
+                else C_later.push_back({tau, w});
             }
 
             bool heapified = false;
