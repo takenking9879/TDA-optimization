@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-13 — I276 Delaunay-flag VR (optional)
+
+- **Question:** Does the flag of the Euclidean Delaunay 1-skeleton (I271/I275) keep essential H0/H1/H2 on mixed families at Θ(n) edges, and is that a better owned scale path than `--sparse-eps 0.6`?
+- **Hypothesis:** I205 Alpha (circumradius) dropped ess H1. VR filtration on Delaunay edges fills a clique only at max-edge time, so shape loops/voids that are not a single Delaunay simplex should survive. Not exact VR — quantify unmatched finite bars. Shape-agnostic in d∈{2,3}.
+- **Work:** `--delaunay-vr` → walk-locate 1-skeleton → implicit, collapse=0. Unit tests: circle ess H1=1; two octahedra ess H2=2. Wave 137 vs Ripser + sparse-eps; hard figure8 n=8000 (no Ripser).
+- **Result:** **Ess 8/8** (figure8 2=2; two_circles 2=2; circle 1=1; torus 1=1; sphere void 1=1; two_spheres 2=2). Finite unmatched 3–209 (figure8 n=2000 **209**). figure8 n=2000 **419× / 6.1 ms / 5941 edges** vs Ripser 2.55 s. n=8000 **24 ms / 23940 edges / ess1=2**. sparse-eps 0.6 on the same n=2000 is **47× / 54 ms** and still lists 2.0M distances. Exact default hold: blobs H0 **60×**, uniform2 **10.8×**, sphere H2 **59×**.
+- **Decision:** **Support as owned optional** (`--delaunay-vr`). Do **not** switch the exact default (finite bars lost). Better Euclidean d∈{2,3} scale path than `--sparse-eps 0.6` when the user wants essential homology at more points. Topology loss: unmatched finite H1/H2; essential bars **0 lost** on the measured families. Next exact H1: ae_seeded leftover wall (do not retry empty-seed geometric skips).
+- **Class:** experiment (support optional scale; reject as default)
+
 ## 2026-10-13 — I275 3D walk-locate Delaunay H0
 
 - **Question:** Does a no-reuse 3D Bowyer–Watson walk (containment fallback) cut I274’s O(n²) scan so 3D H0 reaches the I271 construction class, at a harder n=16000, without breaking H1/H2?

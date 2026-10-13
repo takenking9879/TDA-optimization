@@ -587,7 +587,12 @@ Rips is exact and too slow.
 2. **Forced engines:** `--engine implicit` = I193+I197+I202+I203 only;
    `--engine redzed` = I228+I239+I240+I244+I245+I246+I250+I251+I252+I256+I257+I258+I259+I260+I261+I263+I270+I271+I275; H0 = Kruskal / I271 2D / I275 3D walk-locate Delaunay.
 3. **Owned optional approx:** `--sparse-eps 0.6 --sparse-cap max` (I213/I218)
-   when n grows past exact VR.
+   when n grows past exact VR. **`--delaunay-vr` (I276)** for Euclidean
+   d∈{2,3}: flag of the Delaunay 1-skeleton, Θ(n) edges, **essential
+   H0/H1/H2 kept** on mixed families (figure8 n=2000 **419× / 6 ms /
+   5.9k edges**, 209 unmatched finite; n=8000 **24 ms / ess1=2**).
+   Not exact VR. Prefer over sparse-eps on low-d Euclidean when the
+   user wants loops/voids at more points.
 4. Connected uniform2 is **11.2×** at n=5000 (0.33 s).
    Sphere n=2000 H1 **10.1×**. Torus n=2000 **13.0×**. Mixed
    figure8 n=4000 is **27× / 1.07 s**. Sparse n=20000 is **5.6×**.
@@ -631,6 +636,9 @@ Rips is exact and too slow.
    2.39 s), hard n=16000 **147× / 0.112 s / 81k**. I274 walk failed
    on `F_b >= T` (false for a 3-ball) and cavity-slot reuse. Do not
    retry leftover empty-seed skips. H1 leftover visits remain Θ(|E|).
+   **I276 `--delaunay-vr` is the owned optional Euclidean scale path**
+   (not default): ess 8/8, figure8 n=2000 **419× / 6 ms**, n=8000
+   **24 ms**. Finite unmatched 3–209. Do not make it the exact default.
 6. Owned AE leftover-star walk is still Θ(|leftover|·deg★) — rbit cut
    has_leftover_coface, not seeded probes (circle still 875k). Packed
    annotations / seeded_is_noop are the next owned constants.
