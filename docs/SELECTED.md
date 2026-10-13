@@ -1,6 +1,6 @@
 # Selected algorithm (living)
 
-Updated 2026-10-13 after iterations I001–I236. **CLI default `--engine
+Updated 2026-10-13 after iterations I001–I237. **CLI default `--engine
 auto` (I235+I236):** subsample residual-frac dispatch. Fat → RedZeD (torus
 n=2000 **12.5×**). Thin-circle → I193+I197+I202+I203 collapse+implicit
 (n=1000 **28×**; n=4000 still **140×**). **H2:** τ=0.15 so sphere n=400
@@ -120,6 +120,7 @@ residual makes collapse *and* reduce slower (circle3000 1.49× vs full 8.11×).
 | --- | --- | --- | --- | --- |
 | sphere | \(H_2\) | 500 | 1.4 | **59×** (I085) / 46× later |
 | sphere | \(H_2\) | 400 | 1.4 | **61×** I236 auto-collapse (1.05s/0.017s). I235 τ=0.04 would RedZeD at 3.1× |
+| sphere | \(H_2\) | 600 | 1.4 | **136×** I237 auto-collapse (4.41s/0.032s); **54×** vs RedZeD |
 | circle_noisy | \(H_1\) | 4000 | 1.5 | **140×** I196 I193 (301s/2.15s, collapse 1824 ms). I190 first-apex was 113× |
 | circle_noisy | \(H_1\) | 3000 | 1.5 | **119×** I196 I193 (118s/0.99s, collapse 812 ms). I189 was 93.2× |
 | circle_noisy | \(H_1\) | 2000 | 1.5 | **84.4×** I202 (28.6s/0.34s, collapse 263 ms). I197 was 83.5× / 249 ms |
@@ -360,7 +361,17 @@ to the I232 walk. Justification: H2 tet work is on the residual, so a
 mid frac that wants RedZeD for H1 wants collapse for H2. Still a
 portfolio, not a better Big-O.
 
-## Next levers (still open after I236)
+**I237 GUDHI explicit Rips + scale H0–H2:** GUDHI 3.13
+`RipsComplex`+`SimplexTree` is **exact** (7/7 vs Ripser including
+figure8 / sphere void / torus H2) but **not a clock engine**: blobs
+n=1000 15.9 s / 17.8M simplices vs auto 21 ms (**0.001×**). Birth-time
+leftover-coface AE matched I236’s unmatched finite H1 (figure8 +12) —
+reverted. Selected `--engine auto` at more points: sphere n=600 H2
+**136×** (void 1=1); blobs/uniform2 n=2000 H1 **5.4× / 5.5×**; torus
+n=600 H2 auto-redzed **4.5×** and **88×** vs collapse (13.9 s). Topology
+loss: **0**. Still not a general H1 10×. Not a better Big-O.
+
+## Next levers (still open after I237)
 
 `--engine auto` is a shape-agnostic exact H0–H2 portfolio: circle H1
 10×, torus H1 10×, sphere H2 61× on one CLI path. Blobs/uniform2 H1

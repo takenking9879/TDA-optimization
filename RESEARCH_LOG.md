@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-13 — I237 GUDHI Rips + scale H0–H2
+
+- **Question:** Is GUDHI 3.13 explicit Rips a faster exact engine on the blobs/uniform2 5× wall, and does birth-time leftover-coface AE fix I236 identity? Can `--engine auto` hold H0–H2 at more points without a long test?
+- **Hypothesis:** GUDHI cohomology on the flag VR is exact and might beat RedZeD reduce. Incremental AE (insert leftover only at birth) should match RedZeD pairing. Sphere n=600 H2 stays collapse (I236 τ=0.15). Shape-agnostic.
+- **Work:** Birth-time AE implemented, smoked, reverted (same unmatched as I236). Wave 98: GUDHI vs auto/RedZeD/Ripser; sphere n=600 H2; blobs/uniform2 n=2000; torus n=600 H2.
+- **Result:** **Exact 11/11** auto vs Ripser (0 unmatched; figure8/two_circles 2=2; sphere void 1=1 at n=200 and n=600; blobs H0 3=3). GUDHI **exact 7/7** but slow (blobs n=1000 15.9 s / 744× worse than auto; torus n=600 H2 52 s / 39M simplices). Sphere n=600 H2 **auto-collapse 136×** (0.032s/4.41s) and **54×** vs RedZeD. Blobs/uniform2 n=2000 **5.4× / 5.5×**. Torus n=600 H2 auto-redzed **4.5×**, collapse 13.9 s (**88×** worse). AE **rejected** (figure8 unmatched 12).
+- **Decision:** **Reject GUDHI as a clock engine** (materializes the flag VR). **Hold** selected auto at more points — H2 136× is the scale payoff of I236’s τ. Topology loss: **0**. Do not retry leftover-coface AE without rbit + vendor-faithful pairing. Blobs 10× still open (RedZeD reduce).
+- **Class:** experiment (reject GUDHI clock + AE; hold selected scale)
+
 ## 2026-10-13 — I236 H2-aware auto dispatch
 
 - **Question:** Does I235’s τ=0.04 mis-route H2 on mid-residual spheres (collapse tets are cheap; RedZeD H2 is on the full metric), and can `--engine auto` stay exact on mixed H0–H2 at more points without a long test? Is a RedZeD-faithful leftover-coface AE exact on real clouds?
