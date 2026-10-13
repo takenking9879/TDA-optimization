@@ -690,6 +690,64 @@ int main() {
         std::cout << "ok I271 walk-locate Delaunay H0 n=256\n";
     }
 
+    // I274: n=256 3D H0 Delaunay matches all-pairs Kruskal.
+    {
+        const int n = 256;
+        const value_t T = 0.55f;
+        std::vector<std::vector<value_t>> pts(static_cast<size_t>(n), std::vector<value_t>(3));
+        uint32_t s = 0xBADC0DEu;
+        for (int i = 0; i < n; ++i) {
+            for (int k = 0; k < 3; ++k) {
+                s = s * 1664525u + 1013904223u;
+                pts[static_cast<size_t>(i)][static_cast<size_t>(k)] =
+                    static_cast<value_t>((s >> 8) & 0xffffu) / 65535.0f;
+            }
+        }
+        std::vector<std::vector<value_t>> dist(static_cast<size_t>(n),
+                                              std::vector<value_t>(static_cast<size_t>(n), 0));
+        for (int i = 0; i < n; ++i)
+            for (int j = i + 1; j < n; ++j) {
+                value_t acc = 0;
+                for (int k = 0; k < 3; ++k) {
+                    const value_t d = pts[static_cast<size_t>(i)][static_cast<size_t>(k)] -
+                                      pts[static_cast<size_t>(j)][static_cast<size_t>(k)];
+                    acc += d * d;
+                }
+                dist[static_cast<size_t>(i)][static_cast<size_t>(j)] =
+                    dist[static_cast<size_t>(j)][static_cast<size_t>(i)] = std::sqrt(acc);
+            }
+        Result del = persist_redzed_from_points(pts, 0, T);
+        Result full = persist_redzed(dist, 0, T);
+        auto deaths = [](const Result& r) {
+            std::vector<value_t> d;
+            int ess = 0;
+            for (const auto& p : r.pairs) {
+                if (p.dim != 0) continue;
+                if (!std::isfinite(p.death)) ++ess;
+                else d.push_back(p.death);
+            }
+            std::sort(d.begin(), d.end());
+            return std::pair<int, std::vector<value_t>>{ess, d};
+        };
+        const auto a = deaths(del), b = deaths(full);
+        if (a.first != b.first || a.second.size() != b.second.size()) {
+            std::cerr << "I274 H0 3D Delaunay count " << a.first << "/" << a.second.size() << " vs "
+                      << b.first << "/" << b.second.size() << "\n";
+            return 1;
+        }
+        for (size_t i = 0; i < a.second.size(); ++i) {
+            if (std::abs(a.second[i] - b.second[i]) > 1e-4f) {
+                std::cerr << "I274 H0 3D Delaunay death mismatch\n";
+                return 1;
+            }
+        }
+        if (del.counters.pipeline.find("delaunay") == std::string::npos) {
+            std::cerr << "I274 expected delaunay pipeline " << del.counters.pipeline << "\n";
+            return 1;
+        }
+        std::cout << "ok I274 walk-locate 3D Delaunay H0 n=256\n";
+    }
+
     // I239: two octahedra far apart — H0=2 and H2=2 (wedge of voids).
     {
         const value_t T = 1.5f;

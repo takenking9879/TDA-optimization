@@ -8,10 +8,12 @@
 #include "pith/redzed_bridge.hpp"
 
 #include <algorithm>
+#include <array>
 #include <atomic>
 #include <chrono>
 #include <cmath>
 #include <cstdint>
+#include <cstdio>
 #include <cstdlib>
 #include <functional>
 #include <iterator>
@@ -1331,6 +1333,486 @@ static bool delaunay_edges_2d(const std::vector<std::vector<value_t>>& pts,
     return false;
 }
 
+// I274: Euclidean MST ⊆ 3D Delaunay. Walk-locate + circumsphere flood.
+// Same H0 identity as I271 in the plane. Fall back to spatial Kruskal.
+static double delaunay_orient3(double ax, double ay, double az, double bx, double by, double bz,
+                               double cx, double cy, double cz, double dx, double dy, double dz) {
+    const double adx = ax - dx, ady = ay - dy, adz = az - dz;
+    const double bdx = bx - dx, bdy = by - dy, bdz = bz - dz;
+    const double cdx = cx - dx, cdy = cy - dy, cdz = cz - dz;
+    return adx * (bdy * cdz - bdz * cdy) - ady * (bdx * cdz - bdz * cdx) +
+           adz * (bdx * cdy - bdy * cdx);
+}
+
+static bool delaunay_insphere(double ax, double ay, double az, double bx, double by, double bz,
+                              double cx, double cy, double cz, double dx, double dy, double dz,
+                              double px, double py, double pz) {
+    const double aex = ax - px, aey = ay - py, aez = az - pz;
+    const double bex = bx - px, bey = by - py, bez = bz - pz;
+    const double cex = cx - px, cey = cy - py, cez = cz - pz;
+    const double dex = dx - px, dey = dy - py, dez = dz - pz;
+    const double ae2 = aex * aex + aey * aey + aez * aez;
+    const double be2 = bex * bex + bey * bey + bez * bez;
+    const double ce2 = cex * cex + cey * cey + cez * cez;
+    const double de2 = dex * dex + dey * dey + dez * dez;
+    const double det =
+        aex * (bey * (cez * de2 - ce2 * dez) - bez * (cey * de2 - ce2 * dey) + be2 * (cey * dez - cez * dey)) -
+        aey * (bex * (cez * de2 - ce2 * dez) - bez * (cex * de2 - ce2 * dex) + be2 * (cex * dez - cez * dex)) +
+        aez * (bex * (cey * de2 - ce2 * dey) - bey * (cex * de2 - ce2 * dex) + be2 * (cex * dey - cey * dex)) -
+        ae2 * (bex * (cey * dez - cez * dey) - bey * (cex * dez - cez * dex) + bez * (cex * dey - cey * dex));
+    const double o = delaunay_orient3(ax, ay, az, bx, by, bz, cx, cy, cz, dx, dy, dz);
+    return det * o > 0.0;
+}
+
+static uint32_t delaunay_morton3(uint32_t x, uint32_t y, uint32_t z) {
+    auto part = [](uint32_t n) {
+        n &= 0x3ffu;
+        n = (n | (n << 16)) & 0x030000FFu;
+        n = (n | (n << 8)) & 0x0300F00Fu;
+        n = (n | (n << 4)) & 0x030C30C3u;
+        n = (n | (n << 2)) & 0x09249249u;
+        return n;
+    };
+    return part(x) | (part(y) << 1) | (part(z) << 2);
+}
+
+static uint64_t tet_face_key(int a, int b, int c) {
+    if (a > b) std::swap(a, b);
+    if (b > c) std::swap(b, c);
+    if (a > b) std::swap(a, b);
+    return (static_cast<uint64_t>(static_cast<uint32_t>(a)) << 42) |
+           (static_cast<uint64_t>(static_cast<uint32_t>(b)) << 21) | static_cast<uint32_t>(c);
+}
+
+static bool delaunay_edges_3d_walk(const std::vector<std::vector<value_t>>& pts,
+                                   std::vector<SpatEdge>& out) {
+    const int n = static_cast<int>(pts.size());
+    if (n < 4 || static_cast<int>(pts[0].size()) != 3) return false;
+    std::vector<double> xs(static_cast<size_t>(n) + 4), ys(static_cast<size_t>(n) + 4),
+        zs(static_cast<size_t>(n) + 4);
+    double xmin = static_cast<double>(pts[0][0]), xmax = xmin;
+    double ymin = static_cast<double>(pts[0][1]), ymax = ymin;
+    double zmin = static_cast<double>(pts[0][2]), zmax = zmin;
+    for (int i = 0; i < n; ++i) {
+        xs[static_cast<size_t>(i)] = static_cast<double>(pts[static_cast<size_t>(i)][0]);
+        ys[static_cast<size_t>(i)] = static_cast<double>(pts[static_cast<size_t>(i)][1]);
+        zs[static_cast<size_t>(i)] = static_cast<double>(pts[static_cast<size_t>(i)][2]);
+        xmin = std::min(xmin, xs[static_cast<size_t>(i)]);
+        xmax = std::max(xmax, xs[static_cast<size_t>(i)]);
+        ymin = std::min(ymin, ys[static_cast<size_t>(i)]);
+        ymax = std::max(ymax, ys[static_cast<size_t>(i)]);
+        zmin = std::min(zmin, zs[static_cast<size_t>(i)]);
+        zmax = std::max(zmax, zs[static_cast<size_t>(i)]);
+    }
+    const double dx = std::max(xmax - xmin, 1e-9);
+    const double dy = std::max(ymax - ymin, 1e-9);
+    const double dz = std::max(zmax - zmin, 1e-9);
+    const double mid_x = 0.5 * (xmin + xmax), mid_y = 0.5 * (ymin + ymax),
+                 mid_z = 0.5 * (zmin + zmax);
+    const double span = 30.0 * (dx + dy + dz);
+    xs[static_cast<size_t>(n)] = mid_x - span;
+    ys[static_cast<size_t>(n)] = mid_y - span;
+    zs[static_cast<size_t>(n)] = mid_z - span;
+    xs[static_cast<size_t>(n) + 1] = mid_x + span;
+    ys[static_cast<size_t>(n) + 1] = mid_y - span;
+    zs[static_cast<size_t>(n) + 1] = mid_z - span;
+    xs[static_cast<size_t>(n) + 2] = mid_x;
+    ys[static_cast<size_t>(n) + 2] = mid_y + span;
+    zs[static_cast<size_t>(n) + 2] = mid_z - span;
+    xs[static_cast<size_t>(n) + 3] = mid_x;
+    ys[static_cast<size_t>(n) + 3] = mid_y;
+    zs[static_cast<size_t>(n) + 3] = mid_z + span;
+    auto o3 = [&](int a, int b, int c, int d) {
+        return delaunay_orient3(xs[static_cast<size_t>(a)], ys[static_cast<size_t>(a)], zs[static_cast<size_t>(a)],
+                                xs[static_cast<size_t>(b)], ys[static_cast<size_t>(b)], zs[static_cast<size_t>(b)],
+                                xs[static_cast<size_t>(c)], ys[static_cast<size_t>(c)], zs[static_cast<size_t>(c)],
+                                xs[static_cast<size_t>(d)], ys[static_cast<size_t>(d)], zs[static_cast<size_t>(d)]);
+    };
+    if (o3(n, n + 1, n + 2, n + 3) <= 0.0) std::swap(xs[static_cast<size_t>(n) + 2], xs[static_cast<size_t>(n) + 3]),
+        std::swap(ys[static_cast<size_t>(n) + 2], ys[static_cast<size_t>(n) + 3]),
+        std::swap(zs[static_cast<size_t>(n) + 2], zs[static_cast<size_t>(n) + 3]);
+    if (o3(n, n + 1, n + 2, n + 3) <= 0.0) {
+        std::fprintf(stderr, "I274 fail super\n");
+        return false;
+    }
+
+    struct Tet {
+        int v[4];
+        int nbor[4];
+    };
+    std::vector<Tet> tets;
+    std::vector<int> stamp;
+    tets.push_back({{n, n + 1, n + 2, n + 3}, {-1, -1, -1, -1}});
+    stamp.push_back(0);
+    int gen = 1;
+
+    auto face_opp = [](const int* v, int i, int f[3]) {
+        int k = 0;
+        for (int j = 0; j < 4; ++j)
+            if (j != i) f[k++] = v[j];
+    };
+    auto insphere_t = [&](int t, double px, double py, double pz) {
+        const int* v = tets[static_cast<size_t>(t)].v;
+        return delaunay_insphere(xs[static_cast<size_t>(v[0])], ys[static_cast<size_t>(v[0])],
+                                 zs[static_cast<size_t>(v[0])], xs[static_cast<size_t>(v[1])],
+                                 ys[static_cast<size_t>(v[1])], zs[static_cast<size_t>(v[1])],
+                                 xs[static_cast<size_t>(v[2])], ys[static_cast<size_t>(v[2])],
+                                 zs[static_cast<size_t>(v[2])], xs[static_cast<size_t>(v[3])],
+                                 ys[static_cast<size_t>(v[3])], zs[static_cast<size_t>(v[3])], px, py, pz);
+    };
+    auto walk = [&](int hint, double px, double py, double pz) -> int {
+        int t = hint;
+        const int guard = n * 8 + 64;
+        for (int step = 0; step < guard; ++step) {
+            const Tet& tr = tets[static_cast<size_t>(t)];
+            bool moved = false;
+            for (int i = 0; i < 4; ++i) {
+                int f[3];
+                face_opp(tr.v, i, f);
+                const double ov = delaunay_orient3(
+                    xs[static_cast<size_t>(f[0])], ys[static_cast<size_t>(f[0])], zs[static_cast<size_t>(f[0])],
+                    xs[static_cast<size_t>(f[1])], ys[static_cast<size_t>(f[1])], zs[static_cast<size_t>(f[1])],
+                    xs[static_cast<size_t>(f[2])], ys[static_cast<size_t>(f[2])], zs[static_cast<size_t>(f[2])],
+                    xs[static_cast<size_t>(tr.v[i])], ys[static_cast<size_t>(tr.v[i])],
+                    zs[static_cast<size_t>(tr.v[i])]);
+                double op = delaunay_orient3(
+                    xs[static_cast<size_t>(f[0])], ys[static_cast<size_t>(f[0])], zs[static_cast<size_t>(f[0])],
+                    xs[static_cast<size_t>(f[1])], ys[static_cast<size_t>(f[1])], zs[static_cast<size_t>(f[1])],
+                    xs[static_cast<size_t>(f[2])], ys[static_cast<size_t>(f[2])], zs[static_cast<size_t>(f[2])],
+                    px, py, pz);
+                if (ov < 0.0) op = -op;
+                if (op < 0.0) {
+                    const int nb = tr.nbor[i];
+                    if (nb < 0) return -1;
+                    t = nb;
+                    moved = true;
+                    break;
+                }
+            }
+            if (!moved) return t;
+        }
+        return -1;
+    };
+
+    std::vector<int> order(static_cast<size_t>(n));
+    std::iota(order.begin(), order.end(), 0);
+    {
+        std::vector<uint32_t> code(static_cast<size_t>(n));
+        const double invx = 1023.0 / dx, invy = 1023.0 / dy, invz = 1023.0 / dz;
+        for (int i = 0; i < n; ++i) {
+            const uint32_t qx = static_cast<uint32_t>(
+                std::lround(std::min(1023.0, std::max(0.0, (xs[static_cast<size_t>(i)] - xmin) * invx))));
+            const uint32_t qy = static_cast<uint32_t>(
+                std::lround(std::min(1023.0, std::max(0.0, (ys[static_cast<size_t>(i)] - ymin) * invy))));
+            const uint32_t qz = static_cast<uint32_t>(
+                std::lround(std::min(1023.0, std::max(0.0, (zs[static_cast<size_t>(i)] - zmin) * invz))));
+            code[static_cast<size_t>(i)] = delaunay_morton3(qx, qy, qz);
+        }
+        std::sort(order.begin(), order.end(),
+                  [&](int a, int b) { return code[static_cast<size_t>(a)] < code[static_cast<size_t>(b)]; });
+    }
+
+    std::vector<SpatEdge> extra;
+    int hint = 0;
+    std::vector<int> cavity, q, newids;
+    struct BFace {
+        int a, b, c, outer, oface;
+    };
+    std::vector<BFace> bfaces;
+    std::unordered_map<uint64_t, std::pair<int, int>> pending;
+
+    for (int pi = 0; pi < n; ++pi) {
+        const int p = order[static_cast<size_t>(pi)];
+        const double px = xs[static_cast<size_t>(p)], py = ys[static_cast<size_t>(p)],
+                     pz = zs[static_cast<size_t>(p)];
+        const int t0 = walk(hint, px, py, pz);
+        if (t0 < 0) {
+            std::fprintf(stderr, "I274 fail walk p=%d\n", p);
+            return false;
+        }
+        {
+            const int* v = tets[static_cast<size_t>(t0)].v;
+            int best = -1;
+            double best2 = 1e300;
+            for (int k = 0; k < 4; ++k) {
+                if (v[k] >= n) continue;
+                const double ddx = xs[static_cast<size_t>(v[k])] - px;
+                const double ddy = ys[static_cast<size_t>(v[k])] - py;
+                const double ddz = zs[static_cast<size_t>(v[k])] - pz;
+                const double d2 = ddx * ddx + ddy * ddy + ddz * ddz;
+                if (d2 < best2) {
+                    best2 = d2;
+                    best = v[k];
+                }
+            }
+            if (best >= 0 && best2 < 1e-24) {
+                extra.push_back({point_dist(pts, p, best), std::min(p, best), std::max(p, best)});
+                continue;
+            }
+        }
+        ++gen;
+        if (gen == 0x7fffffff) {
+            std::fill(stamp.begin(), stamp.end(), 0);
+            gen = 1;
+        }
+        cavity.clear();
+        q.clear();
+        q.push_back(t0);
+        stamp[static_cast<size_t>(t0)] = gen;
+        cavity.push_back(t0);
+        for (size_t qi = 0; qi < q.size(); ++qi) {
+            const int t = q[qi];
+            for (int i = 0; i < 4; ++i) {
+                const int nb = tets[static_cast<size_t>(t)].nbor[i];
+                if (nb < 0 || stamp[static_cast<size_t>(nb)] == gen) continue;
+                if (!insphere_t(nb, px, py, pz)) continue;
+                stamp[static_cast<size_t>(nb)] = gen;
+                q.push_back(nb);
+                cavity.push_back(nb);
+            }
+        }
+        bfaces.clear();
+        for (int t : cavity) {
+            for (int i = 0; i < 4; ++i) {
+                const int nb = tets[static_cast<size_t>(t)].nbor[i];
+                if (nb >= 0 && stamp[static_cast<size_t>(nb)] == gen) continue;
+                int oface = -1;
+                if (nb >= 0) {
+                    for (int k = 0; k < 4; ++k)
+                        if (tets[static_cast<size_t>(nb)].nbor[k] == t) {
+                            oface = k;
+                            break;
+                        }
+                    if (oface < 0) {
+                        std::fprintf(stderr, "I274 fail oface\n");
+                        return false;
+                    }
+                }
+                int f[3];
+                face_opp(tets[static_cast<size_t>(t)].v, i, f);
+                bfaces.push_back({f[0], f[1], f[2], nb, oface});
+            }
+        }
+        if (bfaces.size() < 4 || bfaces.size() < cavity.size()) {
+            std::fprintf(stderr, "I274 fail cavity %zu %zu\n", bfaces.size(), cavity.size());
+            return false;
+        }
+
+        newids.clear();
+        for (size_t i = 0; i < bfaces.size(); ++i) {
+            int id;
+            if (i < cavity.size()) {
+                id = cavity[i];
+            } else {
+                id = static_cast<int>(tets.size());
+                tets.push_back({{0, 0, 0, 0}, {-1, -1, -1, -1}});
+                stamp.push_back(0);
+            }
+            newids.push_back(id);
+        }
+        pending.clear();
+        auto link = [&](int t, int eidx, int a, int b, int c) {
+            const uint64_t k = tet_face_key(a, b, c);
+            const auto it = pending.find(k);
+            if (it == pending.end()) {
+                pending.emplace(k, std::pair<int, int>{t, eidx});
+                return true;
+            }
+            const int t2 = it->second.first, e2 = it->second.second;
+            tets[static_cast<size_t>(t)].nbor[eidx] = t2;
+            tets[static_cast<size_t>(t2)].nbor[e2] = t;
+            pending.erase(it);
+            return true;
+        };
+        for (size_t i = 0; i < bfaces.size(); ++i) {
+            int a = bfaces[i].a, b = bfaces[i].b, c = bfaces[i].c;
+            if (o3(a, b, c, p) <= 0.0) std::swap(a, b);
+            if (o3(a, b, c, p) <= 0.0) {
+                std::fprintf(stderr, "I274 fail orient\n");
+                return false;
+            }
+            const int id = newids[i];
+            tets[static_cast<size_t>(id)].v[0] = a;
+            tets[static_cast<size_t>(id)].v[1] = b;
+            tets[static_cast<size_t>(id)].v[2] = c;
+            tets[static_cast<size_t>(id)].v[3] = p;
+            tets[static_cast<size_t>(id)].nbor[0] = -1;
+            tets[static_cast<size_t>(id)].nbor[1] = -1;
+            tets[static_cast<size_t>(id)].nbor[2] = -1;
+            tets[static_cast<size_t>(id)].nbor[3] = bfaces[i].outer;
+            if (bfaces[i].outer >= 0) {
+                int oe = bfaces[i].oface;
+                if (oe < 0) return false;
+                tets[static_cast<size_t>(bfaces[i].outer)].nbor[oe] = id;
+            }
+            if (!link(id, 0, b, c, p) || !link(id, 1, a, c, p) || !link(id, 2, a, b, p)) return false;
+        }
+        if (!pending.empty()) {
+            std::fprintf(stderr, "I274 fail pending %zu\n", pending.size());
+            return false;
+        }
+        hint = newids[0];
+    }
+
+    std::unordered_set<uint64_t> seen;
+    seen.reserve(static_cast<size_t>(n) * 8);
+    out.clear();
+    out.reserve(static_cast<size_t>(n) * 4 + extra.size());
+    for (const Tet& tr : tets) {
+        const int eij[6][2] = {{0, 1}, {0, 2}, {0, 3}, {1, 2}, {1, 3}, {2, 3}};
+        for (const auto& e : eij) {
+            int a = tr.v[e[0]], b = tr.v[e[1]];
+            if (a >= n || b >= n) continue;
+            if (a > b) std::swap(a, b);
+            const uint64_t key = (static_cast<uint64_t>(static_cast<uint32_t>(a)) << 32) |
+                                 static_cast<uint32_t>(b);
+            if (!seen.insert(key).second) continue;
+            out.push_back({point_dist(pts, a, b), a, b});
+        }
+    }
+    for (const SpatEdge& e : extra)
+        if (seen.insert((static_cast<uint64_t>(static_cast<uint32_t>(e.u)) << 32) | static_cast<uint32_t>(e.v))
+                .second)
+            out.push_back(e);
+    if (out.size() < static_cast<size_t>(n - 1)) {
+        std::fprintf(stderr, "I274 fail edges %zu n=%d\n", out.size(), n);
+        return false;
+    }
+    return true;
+}
+
+// I274: 3D Bowyer–Watson scan (I270-style). Walk-locate can fall off the
+// mesh; scan visits live tets. n≤8000. Same MST ⊆ Delaunay identity.
+static bool delaunay_edges_3d_scan(const std::vector<std::vector<value_t>>& pts,
+                                   std::vector<SpatEdge>& out) {
+    const int n = static_cast<int>(pts.size());
+    if (n < 4 || static_cast<int>(pts[0].size()) != 3) return false;
+    std::vector<double> xs(static_cast<size_t>(n) + 4), ys(static_cast<size_t>(n) + 4),
+        zs(static_cast<size_t>(n) + 4);
+    double xmin = static_cast<double>(pts[0][0]), xmax = xmin;
+    double ymin = static_cast<double>(pts[0][1]), ymax = ymin;
+    double zmin = static_cast<double>(pts[0][2]), zmax = zmin;
+    for (int i = 0; i < n; ++i) {
+        xs[static_cast<size_t>(i)] = static_cast<double>(pts[static_cast<size_t>(i)][0]);
+        ys[static_cast<size_t>(i)] = static_cast<double>(pts[static_cast<size_t>(i)][1]);
+        zs[static_cast<size_t>(i)] = static_cast<double>(pts[static_cast<size_t>(i)][2]);
+        xmin = std::min(xmin, xs[static_cast<size_t>(i)]);
+        xmax = std::max(xmax, xs[static_cast<size_t>(i)]);
+        ymin = std::min(ymin, ys[static_cast<size_t>(i)]);
+        ymax = std::max(ymax, ys[static_cast<size_t>(i)]);
+        zmin = std::min(zmin, zs[static_cast<size_t>(i)]);
+        zmax = std::max(zmax, zs[static_cast<size_t>(i)]);
+    }
+    const double dx = std::max(xmax - xmin, 1e-9);
+    const double dy = std::max(ymax - ymin, 1e-9);
+    const double dz = std::max(zmax - zmin, 1e-9);
+    const double mid_x = 0.5 * (xmin + xmax), mid_y = 0.5 * (ymin + ymax),
+                 mid_z = 0.5 * (zmin + zmax);
+    const double span = 30.0 * (dx + dy + dz);
+    xs[static_cast<size_t>(n)] = mid_x - span;
+    ys[static_cast<size_t>(n)] = mid_y - span;
+    zs[static_cast<size_t>(n)] = mid_z - span;
+    xs[static_cast<size_t>(n) + 1] = mid_x + span;
+    ys[static_cast<size_t>(n) + 1] = mid_y - span;
+    zs[static_cast<size_t>(n) + 1] = mid_z - span;
+    xs[static_cast<size_t>(n) + 2] = mid_x;
+    ys[static_cast<size_t>(n) + 2] = mid_y + span;
+    zs[static_cast<size_t>(n) + 2] = mid_z - span;
+    xs[static_cast<size_t>(n) + 3] = mid_x;
+    ys[static_cast<size_t>(n) + 3] = mid_y;
+    zs[static_cast<size_t>(n) + 3] = mid_z + span;
+    if (delaunay_orient3(xs[static_cast<size_t>(n)], ys[static_cast<size_t>(n)], zs[static_cast<size_t>(n)],
+                         xs[static_cast<size_t>(n) + 1], ys[static_cast<size_t>(n) + 1],
+                         zs[static_cast<size_t>(n) + 1], xs[static_cast<size_t>(n) + 2],
+                         ys[static_cast<size_t>(n) + 2], zs[static_cast<size_t>(n) + 2],
+                         xs[static_cast<size_t>(n) + 3], ys[static_cast<size_t>(n) + 3],
+                         zs[static_cast<size_t>(n) + 3]) <= 0.0) {
+        std::swap(xs[static_cast<size_t>(n) + 2], xs[static_cast<size_t>(n) + 3]);
+        std::swap(ys[static_cast<size_t>(n) + 2], ys[static_cast<size_t>(n) + 3]);
+        std::swap(zs[static_cast<size_t>(n) + 2], zs[static_cast<size_t>(n) + 3]);
+    }
+    if (delaunay_orient3(xs[static_cast<size_t>(n)], ys[static_cast<size_t>(n)], zs[static_cast<size_t>(n)],
+                         xs[static_cast<size_t>(n) + 1], ys[static_cast<size_t>(n) + 1],
+                         zs[static_cast<size_t>(n) + 1], xs[static_cast<size_t>(n) + 2],
+                         ys[static_cast<size_t>(n) + 2], zs[static_cast<size_t>(n) + 2],
+                         xs[static_cast<size_t>(n) + 3], ys[static_cast<size_t>(n) + 3],
+                         zs[static_cast<size_t>(n) + 3]) <= 0.0)
+        return false;
+
+    struct Tet {
+        int v[4];
+        bool live;
+    };
+    std::vector<Tet> tets;
+    tets.push_back({{n, n + 1, n + 2, n + 3}, true});
+
+    auto add_face = [](std::unordered_map<uint64_t, int>& cnt,
+                       std::unordered_map<uint64_t, std::array<int, 3>>& dir, int a, int b, int c) {
+        const uint64_t key = tet_face_key(a, b, c);
+        cnt[key] += 1;
+        if (dir.find(key) == dir.end()) dir[key] = {a, b, c};
+    };
+
+    for (int p = 0; p < n; ++p) {
+        const double px = xs[static_cast<size_t>(p)], py = ys[static_cast<size_t>(p)],
+                     pz = zs[static_cast<size_t>(p)];
+        std::vector<int> bad;
+        for (int t = 0; t < static_cast<int>(tets.size()); ++t) {
+            if (!tets[static_cast<size_t>(t)].live) continue;
+            const int* v = tets[static_cast<size_t>(t)].v;
+            if (delaunay_insphere(xs[static_cast<size_t>(v[0])], ys[static_cast<size_t>(v[0])],
+                                  zs[static_cast<size_t>(v[0])], xs[static_cast<size_t>(v[1])],
+                                  ys[static_cast<size_t>(v[1])], zs[static_cast<size_t>(v[1])],
+                                  xs[static_cast<size_t>(v[2])], ys[static_cast<size_t>(v[2])],
+                                  zs[static_cast<size_t>(v[2])], xs[static_cast<size_t>(v[3])],
+                                  ys[static_cast<size_t>(v[3])], zs[static_cast<size_t>(v[3])], px, py, pz))
+                bad.push_back(t);
+        }
+        if (bad.empty()) return false;
+        std::unordered_map<uint64_t, int> fcnt;
+        std::unordered_map<uint64_t, std::array<int, 3>> fdir;
+        fcnt.reserve(bad.size() * 4);
+        for (int t : bad) {
+            tets[static_cast<size_t>(t)].live = false;
+            const int* v = tets[static_cast<size_t>(t)].v;
+            add_face(fcnt, fdir, v[0], v[1], v[2]);
+            add_face(fcnt, fdir, v[0], v[1], v[3]);
+            add_face(fcnt, fdir, v[0], v[2], v[3]);
+            add_face(fcnt, fdir, v[1], v[2], v[3]);
+        }
+        for (const auto& kv : fcnt) {
+            if (kv.second != 1) continue;
+            auto abc = fdir[kv.first];
+            int a = abc[0], b = abc[1], c = abc[2];
+            if (delaunay_orient3(xs[static_cast<size_t>(a)], ys[static_cast<size_t>(a)], zs[static_cast<size_t>(a)],
+                                 xs[static_cast<size_t>(b)], ys[static_cast<size_t>(b)], zs[static_cast<size_t>(b)],
+                                 xs[static_cast<size_t>(c)], ys[static_cast<size_t>(c)], zs[static_cast<size_t>(c)],
+                                 px, py, pz) <= 0.0)
+                std::swap(a, b);
+            tets.push_back({{a, b, c, p}, true});
+        }
+    }
+
+    std::unordered_set<uint64_t> seen;
+    seen.reserve(static_cast<size_t>(n) * 8);
+    out.clear();
+    out.reserve(static_cast<size_t>(n) * 4);
+    for (const Tet& tr : tets) {
+        if (!tr.live) continue;
+        const int eij[6][2] = {{0, 1}, {0, 2}, {0, 3}, {1, 2}, {1, 3}, {2, 3}};
+        for (const auto& e : eij) {
+            int a = tr.v[e[0]], b = tr.v[e[1]];
+            if (a >= n || b >= n) continue;
+            if (a > b) std::swap(a, b);
+            const uint64_t key = (static_cast<uint64_t>(static_cast<uint32_t>(a)) << 32) |
+                                 static_cast<uint32_t>(b);
+            if (!seen.insert(key).second) continue;
+            out.push_back({point_dist(pts, a, b), a, b});
+        }
+    }
+    return out.size() >= static_cast<size_t>(n - 1);
+}
+
 static Result kruskal_h0(int n, std::vector<SpatEdge>&& edges) {
     Result r;
     Counters& c = r.counters;
@@ -1497,9 +1979,14 @@ Result persist_redzed_from_points(const std::vector<std::vector<value_t>>& pts, 
         std::vector<SpatEdge> E;
         bool delaunay = false;
         const int d0 = n ? static_cast<int>(pts[0].size()) : 0;
-        if (d0 == 2 && n >= 256 && n <= 100000 && std::isfinite(threshold)) {
+        if (std::isfinite(threshold) && n >= 256) {
             std::vector<SpatEdge> del;
-            if (delaunay_edges_2d(pts, del)) {
+            if (d0 == 2 && n <= 100000 && delaunay_edges_2d(pts, del)) {
+                E.reserve(del.size());
+                for (const SpatEdge& e : del)
+                    if (e.t <= threshold) E.push_back(e);
+                delaunay = true;
+            } else if (d0 == 3 && n <= 8000 && delaunay_edges_3d_scan(pts, del)) {
                 E.reserve(del.size());
                 for (const SpatEdge& e : del)
                     if (e.t <= threshold) E.push_back(e);
