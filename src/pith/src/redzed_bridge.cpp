@@ -246,8 +246,72 @@ static bool coface_ready_any(int32_t* cand, const int32_t* xverts, int m, int32_
 // I255 unique-diam rbit-AND skip was exact 14/14 but no pith cut
 // (n=5000 reduce 211 vs I252 206 ms). Reverted.
 // I258: coface_ready_any so the spatial path can omit the C(n,2) matrix.
+// I264: H1-only leftover path stores rbits word-major (word * nv +
+// vertex) so AND(u,v) at word w hits adjacent slots when u≈v. Vendor
+// layout is vertex-major (vertex * words + word). maxdim≥2 keeps
+// vendor layout — generate_stream / collect_candidates read rbit().
+static bool g_rbit_wm = false;
+
+static inline uint64_t rbit_word(const State& st, int v, int w) {
+    if (g_rbit_wm) return st.rbits[(size_t)w * st.nv + v];
+    return st.rbits[(size_t)v * st.words + w];
+}
+
+static inline bool rbit_any(const State& st, int a, int b) {
+    return (rbit_word(st, a, b >> 6) >> (b & 63)) & 1ull;
+}
+
+static void advance_rbits_wm(State& st, value_t r) {
+    const EdgeList& lv = st.edges;
+    size_t p = st.rptr;
+    const size_t cnt = lv.count;
+    const int nv = st.nv;
+    while (p <= cnt && lv.diam[p - 1] <= r) {
+        const int i = lv.verts[2 * (p - 1)];
+        const int j = lv.verts[2 * (p - 1) + 1];
+        const int wj = j >> 6, wi = i >> 6;
+        st.rbits[(size_t)wj * nv + i] |= (uint64_t)1 << (j & 63);
+        st.rbits[(size_t)wi * nv + j] |= (uint64_t)1 << (i & 63);
+        if (st.rlo[i] > wj) st.rlo[i] = wj;
+        if (st.rhi[i] < wj) st.rhi[i] = wj;
+        if (st.rlo[j] > wi) st.rlo[j] = wi;
+        if (st.rhi[j] < wi) st.rhi[j] = wi;
+        ++p;
+    }
+    st.rptr = p;
+}
+
+static void collect_candidates_any(State& st, const int32_t* xverts) {
+    for (int32_t w : st.seedverts) {
+        st.seen[w] = 0;
+        st.seedlists[w].clear();
+        st.seenbits[w >> 6] = 0;
+    }
+    st.seedverts.clear();
+    ActiveReg& ar = st.act;
+    const int m = ar.m;
+    for (int omit = 1; omit <= m; ++omit) {
+        const comb_t f = face_index_without(xverts, m, omit, st.binom);
+        const slot_t lsx = ar.face_slot.get(f);
+        if (!lsx) continue;
+        const int xextra = xverts[omit - 1];
+        const auto& lw = ar.lw[lsx - 1];
+        const auto& lsl = ar.ls[lsx - 1];
+        for (size_t t = 0; t < lw.size(); ++t) {
+            const int w = lw[t];
+            if (rbit_any(st, xextra, w)) {
+                if (!st.seen[w]) {
+                    st.seen[w] = 1;
+                    st.seedverts.push_back(w);
+                    st.seenbits[w >> 6] |= (uint64_t)1 << (w & 63);
+                }
+                st.seedlists[w].push_back(lsl[t]);
+            }
+        }
+    }
+}
+
 static bool leftover_coface_h1_noseen(State& st, const int32_t* xv, comb_t xidx, value_t r) {
-    const uint64_t* rb = st.rbits.data();
     const int words = st.words, nv = st.nv;
     const int u = xv[0], v = xv[1];
     int wlo = st.rlo[u], whi = st.rhi[u];
@@ -255,7 +319,7 @@ static bool leftover_coface_h1_noseen(State& st, const int32_t* xv, comb_t xidx,
     if (st.rhi[v] < whi) whi = st.rhi[v];
     int32_t* cbuf = st.coface_buf.data();
     for (int w = wlo; w <= whi; ++w) {
-        uint64_t acc = rb[(size_t)u * words + w] & rb[(size_t)v * words + w];
+        uint64_t acc = rbit_word(st, u, w) & rbit_word(st, v, w);
         while (acc) {
             const int bp = redzed_ctz64(acc);
             acc &= acc - 1;
@@ -272,7 +336,6 @@ static bool leftover_coface_h1_noseen(State& st, const int32_t* xv, comb_t xidx,
 static bool leftover_coface_noseen(State& st, const int32_t* xverts, int m, comb_t xidx,
                                     value_t r) {
     if (m == 2) return leftover_coface_h1_noseen(st, xverts, xidx, r);
-    const uint64_t* rb = st.rbits.data();
     const int words = st.words, nv = st.nv;
     int wlo = 0, whi = words - 1;
     for (int i = 0; i < m; ++i) {
@@ -282,10 +345,10 @@ static bool leftover_coface_noseen(State& st, const int32_t* xverts, int m, comb
     }
     int32_t* cbuf = st.coface_buf.data();
     for (int w = wlo; w <= whi; ++w) {
-        uint64_t acc = rb[(size_t)xverts[0] * words + w];
+        uint64_t acc = rbit_word(st, xverts[0], w);
         if (!acc) continue;
         for (int i = 1; i < m; ++i) {
-            acc &= rb[(size_t)xverts[i] * words + w];
+            acc &= rbit_word(st, xverts[i], w);
             if (!acc) break;
         }
         if (!acc) continue;
@@ -305,8 +368,7 @@ static bool leftover_coface_noseen(State& st, const int32_t* xverts, int m, comb
 // through coface_ready_any so a CSR spatial matrix is enough.
 static bool has_leftover_coface_any(State& st, const int32_t* xverts, int m, comb_t xidx,
                                     value_t r) {
-    if (!g_sparse) return has_leftover_coface(st, xverts, m, xidx, r);
-    const uint64_t* rb = st.rbits.data();
+    if (!g_sparse && !g_rbit_wm) return has_leftover_coface(st, xverts, m, xidx, r);
     const int words = st.words, nv = st.nv;
     int wlo = 0, whi = words - 1;
     for (int i = 0; i < m; ++i) {
@@ -315,10 +377,10 @@ static bool has_leftover_coface_any(State& st, const int32_t* xverts, int m, com
         if (st.rhi[v] < whi) whi = st.rhi[v];
     }
     for (int w = wlo; w <= whi; ++w) {
-        uint64_t acc = rb[(size_t)xverts[0] * words + w];
+        uint64_t acc = rbit_word(st, xverts[0], w);
         if (!acc) continue;
         for (int i = 1; i < m; ++i) {
-            acc &= rb[(size_t)xverts[i] * words + w];
+            acc &= rbit_word(st, xverts[i], w);
             if (!acc) break;
         }
         if (!acc) continue;
@@ -336,8 +398,10 @@ static bool has_leftover_coface_any(State& st, const int32_t* xverts, int m, com
 }
 
 static void ae_prepare(State& st, const int32_t* verts, value_t sdiam) {
-    advance_rbits(st, sdiam);
+    if (g_rbit_wm) advance_rbits_wm(st, sdiam);
+    else advance_rbits(st, sdiam);
     if (st.act.slot_of.count == 0) clear_seeds(st);
+    else if (g_rbit_wm) collect_candidates_any(st, verts);
     else collect_candidates(st, verts);
 }
 
@@ -457,6 +521,11 @@ redzed_vr(DistanceMatrix& distIn, int n, value_t threshold, EdgeList* prebuilt) 
         SetDict* R1 = want_h1 ? &st.R[1] : nullptr;
         SetDict* Ri1 = want_h1 ? &st.Ri[1] : nullptr;
         const EdgeList& ed = st.edges;
+        struct WmGuard {
+            explicit WmGuard(bool on) { g_rbit_wm = on; }
+            ~WmGuard() { g_rbit_wm = false; }
+        };
+        const WmGuard wm(n == 1);
         for (size_t e = 1; e <= ed.count; ++e) {
             int lo = ed.verts[2 * (e - 1)];
             int hi = ed.verts[2 * (e - 1) + 1];
