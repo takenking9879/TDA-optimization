@@ -35,20 +35,40 @@ struct LiveBits {
     int n = 0;
     int W = 0;
     std::vector<std::uint64_t> a;
+    // I269: live word range. clear_edge leaves a conservative span.
+    std::vector<int> rlo, rhi;
     LiveBits() = default;
     explicit LiveBits(int n_)
-        : n(n_), W((n_ + 63) >> 6), a(static_cast<size_t>(std::max(n_, 0)) * std::max(W, 1), 0) {}
+        : n(n_),
+          W((n_ + 63) >> 6),
+          a(static_cast<size_t>(std::max(n_, 0)) * std::max(W, 1), 0),
+          rlo(static_cast<size_t>(std::max(n_, 0)), W),
+          rhi(static_cast<size_t>(std::max(n_, 0)), -1) {}
     std::uint64_t* row(int i) { return a.data() + static_cast<size_t>(i) * W; }
     const std::uint64_t* row(int i) const { return a.data() + static_cast<size_t>(i) * W; }
     void set_edge(int i, int j) {
-        row(i)[static_cast<unsigned>(j) >> 6] |= 1ull << (j & 63);
-        row(j)[static_cast<unsigned>(i) >> 6] |= 1ull << (i & 63);
+        const int wj = static_cast<int>(static_cast<unsigned>(j) >> 6);
+        const int wi = static_cast<int>(static_cast<unsigned>(i) >> 6);
+        row(i)[static_cast<size_t>(wj)] |= 1ull << (j & 63);
+        row(j)[static_cast<size_t>(wi)] |= 1ull << (i & 63);
+        if (rlo[static_cast<size_t>(i)] > wj) rlo[static_cast<size_t>(i)] = wj;
+        if (rhi[static_cast<size_t>(i)] < wj) rhi[static_cast<size_t>(i)] = wj;
+        if (rlo[static_cast<size_t>(j)] > wi) rlo[static_cast<size_t>(j)] = wi;
+        if (rhi[static_cast<size_t>(j)] < wi) rhi[static_cast<size_t>(j)] = wi;
     }
     void clear_edge(int i, int j) {
         row(i)[static_cast<unsigned>(j) >> 6] &= ~(1ull << (j & 63));
         row(j)[static_cast<unsigned>(i) >> 6] &= ~(1ull << (i & 63));
     }
 };
+
+inline bool live_and_range(const LiveBits& bits, int u, int v, int& wlo, int& whi) {
+    wlo = bits.rlo[static_cast<size_t>(u)];
+    whi = bits.rhi[static_cast<size_t>(u)];
+    if (bits.rlo[static_cast<size_t>(v)] > wlo) wlo = bits.rlo[static_cast<size_t>(v)];
+    if (bits.rhi[static_cast<size_t>(v)] < whi) whi = bits.rhi[static_cast<size_t>(v)];
+    return wlo <= whi;
+}
 
 // Live adjacency: (neighbor, current filtration time). Times stay in sync
 // with Tm on shift (I155) so C-build gathers only the other endpoint's row.
@@ -671,15 +691,18 @@ inline bool process_one_backward(const Edge& e_in, value_t t_in, DenseTimes& Tm,
             const std::uint64_t* bu = bits->row(u);
             const std::uint64_t* bv = bits->row(v);
             S.cwords.assign(static_cast<size_t>(W), 0);
+            int wlo = 0, whi = -1;
             std::int64_t nC = 0;
-            for (int w0 = 0; w0 < W; ++w0) {
-                std::uint64_t word = bu[w0] & bv[w0];
-                if (w0 == (u >> 6)) word &= ~(1ull << (u & 63));
-                if (w0 == (v >> 6)) word &= ~(1ull << (v & 63));
-                S.cwords[static_cast<size_t>(w0)] = word;
-                nC += __builtin_popcountll(word);
+            if (live_and_range(*bits, u, v, wlo, whi)) {
+                for (int w0 = wlo; w0 <= whi; ++w0) {
+                    std::uint64_t word = bu[w0] & bv[w0];
+                    if (w0 == (u >> 6)) word &= ~(1ull << (u & 63));
+                    if (w0 == (v >> 6)) word &= ~(1ull << (v & 63));
+                    S.cwords[static_cast<size_t>(w0)] = word;
+                    nC += __builtin_popcountll(word);
+                }
+                c.n_collapse_c_probes += (whi - wlo + 1);
             }
-            c.n_collapse_c_probes += W;
             c.n_collapse_c_size_sum += nC;
             c.n_collapse_last_any_later = 0;
             commons = nC;
@@ -689,7 +712,7 @@ inline bool process_one_backward(const Edge& e_in, value_t t_in, DenseTimes& Tm,
             }
             const size_t need = static_cast<size_t>(nC) - 1;
             S.cover.assign(static_cast<size_t>(W), 0);
-            for (int w0 = 0; w0 < W; ++w0) {
+            for (int w0 = wlo; w0 <= whi; ++w0) {
                 std::uint64_t word = S.cwords[static_cast<size_t>(w0)];
                 while (word) {
                     const int tz = __builtin_ctzll(word);
@@ -703,7 +726,7 @@ inline bool process_one_backward(const Edge& e_in, value_t t_in, DenseTimes& Tm,
                         if (p.second > t) bits_clear_index(S.cover, p.first);
                     }
                     bool covers = true;
-                    for (int k = 0; k < W; ++k) {
+                    for (int k = wlo; k <= whi; ++k) {
                         std::uint64_t mask = S.cwords[static_cast<size_t>(k)];
                         if (k == (cand >> 6)) mask &= ~(1ull << (cand & 63));
                         if ((S.cover[static_cast<size_t>(k)] & mask) != mask) {
@@ -711,7 +734,7 @@ inline bool process_one_backward(const Edge& e_in, value_t t_in, DenseTimes& Tm,
                             break;
                         }
                     }
-                    c.n_collapse_c_probes += W;
+                    c.n_collapse_c_probes += (whi - wlo + 1);
                     if (covers) {
                         drop_uv();
                         ++c.n_collapse_trims;
@@ -732,11 +755,14 @@ inline bool process_one_backward(const Edge& e_in, value_t t_in, DenseTimes& Tm,
             const std::uint64_t* bu = bits->row(u);
             const std::uint64_t* bv = bits->row(v);
             S.cwords.assign(static_cast<size_t>(W), 0);
-            for (int w0 = 0; w0 < W; ++w0) {
-                std::uint64_t word = bu[w0] & bv[w0];
-                if (w0 == (u >> 6)) word &= ~(1ull << (u & 63));
-                if (w0 == (v >> 6)) word &= ~(1ull << (v & 63));
-                S.cwords[static_cast<size_t>(w0)] = word;
+            int wlo = 0, whi = -1;
+            if (live_and_range(*bits, u, v, wlo, whi)) {
+                for (int w0 = wlo; w0 <= whi; ++w0) {
+                    std::uint64_t word = bu[w0] & bv[w0];
+                    if (w0 == (u >> 6)) word &= ~(1ull << (u & 63));
+                    if (w0 == (v >> 6)) word &= ~(1ull << (v & 63));
+                    S.cwords[static_cast<size_t>(w0)] = word;
+                }
             }
             auto take_later = [&](index_t a, index_t b) {
                 for (const LiveNbr& p : (*later)[a]) {
@@ -755,7 +781,7 @@ inline bool process_one_backward(const Edge& e_in, value_t t_in, DenseTimes& Tm,
             take_later(v, u);
             bits_for_each(S.cwords, [&](index_t w) { S.C_now.push_back(w); });
             commons = static_cast<std::int64_t>(S.C_now.size() + S.C_later.size());
-            c.n_collapse_c_probes += W;
+            c.n_collapse_c_probes += (wlo <= whi) ? (whi - wlo + 1) : 0;
             c.n_collapse_c_size_sum += commons;
             c.n_collapse_last_any_later = S.C_later.empty() ? 0 : 1;
             if (S.C_now.empty()) {
@@ -765,7 +791,7 @@ inline bool process_one_backward(const Edge& e_in, value_t t_in, DenseTimes& Tm,
             const size_t need = S.C_now.size() - 1;
             S.cover.assign(static_cast<size_t>(W), 0);
             bool hit = false;
-            for (int w0 = 0; w0 < W && !hit; ++w0) {
+            for (int w0 = wlo; w0 <= whi && !hit; ++w0) {
                 std::uint64_t word = S.cwords[static_cast<size_t>(w0)];
                 while (word) {
                     const int tz = __builtin_ctzll(word);
@@ -779,7 +805,7 @@ inline bool process_one_backward(const Edge& e_in, value_t t_in, DenseTimes& Tm,
                         if (p.second > t) bits_clear_index(S.cover, p.first);
                     }
                     bool covers = true;
-                    for (int k = 0; k < W; ++k) {
+                    for (int k = wlo; k <= whi; ++k) {
                         std::uint64_t mask = S.cwords[static_cast<size_t>(k)];
                         if (k == (cand >> 6)) mask &= ~(1ull << (cand & 63));
                         if ((S.cover[static_cast<size_t>(k)] & mask) != mask) {
@@ -787,7 +813,7 @@ inline bool process_one_backward(const Edge& e_in, value_t t_in, DenseTimes& Tm,
                             break;
                         }
                     }
-                    c.n_collapse_c_probes += W;
+                    c.n_collapse_c_probes += (whi - wlo + 1);
                     if (covers) {
                         hit = true;
                         known_dom = cand;
