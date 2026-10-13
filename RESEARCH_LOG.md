@@ -924,6 +924,13 @@ Do not paste long reasoning here.
 - **Decision:** Reject. Default remains I193+I197. I200: remasure remaining I162 families (uniform2) on the selected stack.
 - **Class:** experiment (reject as clock; exact)
 
+## 2026-10-13 — I200 other-family remasure
+
+- **Question:** Does I193+I197 lift I162 losers besides blobs/sphere/torus n=2000?
+- **Result:** **Exact.** uniform2 n=2000 T=0.35 **2.10×** (was 0.30×). circle T=1.2 **33.8×** (was 4.13×). torus1000 **1.63×**. blobs1000 **1.72×**.
+- **Decision:** Off-peak circle is now a second 10× point. uniform2 joins ~2× losers. Still no general 10×. Torus shift heap remains the thick-graph wall.
+- **Class:** experiment (support)
+
 ## 2026-10-13 — I164 collapse live-degree trace
 
 - **Question:** Does the live 1-skeleton thin early enough to stop the C-walk?

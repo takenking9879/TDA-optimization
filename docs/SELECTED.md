@@ -79,26 +79,28 @@ residual makes collapse *and* reduce slower (circle3000 1.49× vs full 8.11×).
 | circle_noisy | \(H_1\) | 3000 | 1.5 | **119×** I196 I193 (118s/0.99s, collapse 812 ms). I189 was 93.2× |
 | circle_noisy | \(H_1\) | 2000 | 1.5 | **83.5×** I197 (27.3s/0.33s, collapse 249 ms). I193 was 83.5× / 270 ms |
 | torus | \(H_1\) | 1000 | 1.6 | **1.31×** owned implicit (I139); E3 1.25× same run |
-| circle_noisy | \(H_1\) | 2000 | 1.2 | **4.13×** (I162) / 3.8–4.8× earlier |
+| circle_noisy | \(H_1\) | 2000 | 1.2 | **33.8×** I200 I197 (10.6s/0.31s). I162 was 4.13× |
 | blobs | \(H_1\) | 2000 | 1.0 | **1.85×** I197 (was I193 1.78× / I189 0.48×) |
 | sphere | \(H_1\) | 2000 | 1.4 | **2.03×** I197 (was I193 1.96× / I189 0.50×) |
+| uniform2 | \(H_1\) | 2000 | 0.35 | **2.10×** I200 (was I162 0.30×) |
 | torus | \(H_1\) | 2000 | 1.6 | **1.14×** I197 (collapse 1771 ms, 113k shifts); residual 163k |
+| torus | \(H_1\) | 1000 | 1.6 | **1.63×** I200 (was I139 1.31×) |
 | circle_noisy | \(H_1\) | 1000 | 1.5 | **4.1×** (I083) |
 
 **Not claimed:** H1 10× clock in general; high-d; worst-case asymptotics.
-**Honest H1>10× (exact, no oracle, default path):** circle n=4000 T=1.5 **140×** (I196), n=3000 **119×**, n=2000 **83.5×** (I193).
-I193 vs Ripser at n=2000: blobs **1.78×**, sphere **1.96×**, torus **1.18×**. Still not a second-family 10×, but losers now beat Ripser.
+**Honest H1>10× (exact, no oracle, default path):** circle n=4000 T=1.5 **140×** (I196), n=3000 **119×**, n=2000 T=1.5 **83.5×**, n=2000 T=1.2 **33.8×** (I200).
+I197/I200 vs Ripser at n=2000: blobs **1.85×**, sphere **2.03×**, uniform2 **2.10×**, torus **1.14×**. Still not a second-family 10×, but all measured losers now beat Ripser.
 I139: owned implicit **reduce 67 ms** on torus1000 residual 38k (homology was 1.7 s).
 E3 (collapse + Ripser-sparse) is no longer required; we own that residual class.
 
 **Alpha (I136)** is a different complex: GUDHI Alpha circle3000 0.023 s vs Ripser VR 123 s
 (~5400× empirical) with 2745 \(H_1\) bars. Off the exact-VR 10× board.
 
-## Next levers (still open after I199)
+## Next levers (still open after I200)
 
-Circle family: **83.5 / 119 / 140×** at n=2000/3000/4000. Blobs/sphere beat Ripser (1.85× / 2.03×). Torus is shift-heap bound (113k shifts). I198/I199 rejected.
+Circle family: **83.5 / 119 / 140×** at n=2000/3000/4000 T=1.5; **33.8×** at n=2000 T=1.2. Blobs/sphere/uniform2 ~2×. Torus ~1.1–1.6×, shift-heap bound.
 
 1. **Default:** I193 + I197. Flagship **140×**.
-2. Remasure uniform2 / off-peak T (I200).
-3. Reduce-side work on torus residual 163k (H09), not extra Morse (cols_reduced already ~4.6k).
+2. Torus shift heap: incremental Tm is already best of I198/I199; next is a different representation (time-bucket / later-bits), not another AND-eq.
+3. Reduce-side H09 on torus residual 163k (cols_reduced already ~4.6k; extra Morse is capped).
 4. GPU later.

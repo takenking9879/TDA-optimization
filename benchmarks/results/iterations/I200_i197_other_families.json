@@ -1,0 +1,70 @@
+{
+  "id": "i197_other_families",
+  "lever": "H01-multi-apex-and-eq",
+  "class": "experiment",
+  "fidelity": "exact",
+  "status": "partial",
+  "summary": "I200 I193+I197 remasure uniform2 / off-peak circle / smaller torus,blobs",
+  "receipts": [
+    {
+      "name": "uniform2",
+      "n": 2000,
+      "T": 0.35,
+      "match_ripser": true,
+      "unmatched_ripser": 0,
+      "bits_s": 0.21964513700004318,
+      "ripser_s": 0.4605135249985324,
+      "vs_ripser": 2.0966251804538785,
+      "out": 6197,
+      "bits_collapse_ms": 167.03357,
+      "reduce_ms": 3.039482,
+      "trims": 565495,
+      "shifts": 2901
+    },
+    {
+      "name": "circle_noisy",
+      "n": 2000,
+      "T": 1.2,
+      "match_ripser": true,
+      "unmatched_ripser": 0,
+      "bits_s": 0.31227072900219355,
+      "ripser_s": 10.557439526000962,
+      "vs_ripser": 33.80861075175189,
+      "out": 5169,
+      "bits_collapse_ms": 237.25268,
+      "reduce_ms": 2.01594,
+      "trims": 810974,
+      "shifts": 2068
+    },
+    {
+      "name": "torus",
+      "n": 1000,
+      "T": 1.6,
+      "match_ripser": true,
+      "unmatched_ripser": 0,
+      "bits_s": 0.2550756119999278,
+      "ripser_s": 0.4165258519969939,
+      "vs_ripser": 1.632950515069672,
+      "out": 38732,
+      "bits_collapse_ms": 172.03969,
+      "reduce_ms": 70.631986,
+      "trims": 79815,
+      "shifts": 27076
+    },
+    {
+      "name": "blobs",
+      "n": 1000,
+      "T": 1.0,
+      "match_ripser": true,
+      "unmatched_ripser": 0,
+      "bits_s": 0.04805111099994974,
+      "ripser_s": 0.08275248800055124,
+      "vs_ripser": 1.7221763717521077,
+      "out": 2834,
+      "bits_collapse_ms": 33.671947,
+      "reduce_ms": 1.259018,
+      "trims": 160863,
+      "shifts": 1258
+    }
+  ]
+}
