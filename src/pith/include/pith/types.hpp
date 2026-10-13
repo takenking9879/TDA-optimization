@@ -28,6 +28,14 @@ inline void normalize_edge(Edge& e) {
     if (e.u > e.v) std::swap(e.u, e.v);
 }
 
+// Explicit 2-simplex. Used by reduced VR (H07 / I224): not a flag complex.
+struct Triangle {
+    index_t a = 0;
+    index_t b = 0;
+    index_t c = 0;
+    value_t t = 0;
+};
+
 struct PersistencePair {
     int dim = 0;
     value_t birth = 0;

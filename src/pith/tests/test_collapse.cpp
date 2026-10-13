@@ -1,5 +1,6 @@
 #include "pith/edge_collapse.hpp"
 #include "pith/persist.hpp"
+#include "pith/reduced_vr.hpp"
 #include "pith/sparse_rips.hpp"
 
 #include <algorithm>
@@ -359,6 +360,71 @@ int main() {
             if (p.dim == 1 && !std::isfinite(p.death)) ++ess1;
         assert(ess1 >= 1);
         std::cout << "ok gic C4 H1 edges=" << gic.edges.size() << "\n";
+    }
+
+    // I224: reduced VR on the unit square (distilled-VR counterexample).
+    // At T just above the side length, H1 is essential. After the
+    // diagonals enter, that class dies. Same path as any other metric.
+    {
+        const value_t s = 1, d = 1.41421356f, inf = 10;
+        std::vector<std::vector<value_t>> dist(4, std::vector<value_t>(4, 0));
+        dist[0][1] = dist[1][0] = s;
+        dist[1][2] = dist[2][1] = s;
+        dist[2][3] = dist[3][2] = s;
+        dist[3][0] = dist[0][3] = s;
+        dist[0][2] = dist[2][0] = d;
+        dist[1][3] = dist[3][1] = d;
+        Graph g = graph_from_distance(dist, inf);
+        auto tris = build_reduced_triangles(g, inf);
+        Result r = persist_triangles(g, tris, 1, inf, 1);
+        int ess1 = 0, fin1 = 0;
+        value_t birth = 0, death = 0;
+        for (const auto& p : r.pairs) {
+            if (p.dim != 1) continue;
+            if (!std::isfinite(p.death)) ++ess1;
+            else if (p.death - p.birth > 1e-5f) {
+                ++fin1;
+                birth = p.birth;
+                death = p.death;
+            }
+        }
+        if (ess1 != 0) {
+            std::cerr << "reduced-vr unit square: expected 0 essential H1, got " << ess1 << "\n";
+            return 1;
+        }
+        if (fin1 != 1) {
+            std::cerr << "reduced-vr unit square: expected 1 finite H1, got " << fin1
+                      << " tris=" << tris.size() << "\n";
+            return 1;
+        }
+        if (std::fabs(birth - s) > 1e-3f || std::fabs(death - d) > 1e-3f) {
+            std::cerr << "reduced-vr unit square: bar [" << birth << "," << death << ")\n";
+            return 1;
+        }
+        Result full = persist_implicit_coh(g, 1, inf, 1);
+        int full_fin = 0;
+        for (const auto& p : full.pairs)
+            if (p.dim == 1 && std::isfinite(p.death) && p.death - p.birth > 1e-5f) ++full_fin;
+        if (full_fin != 1) {
+            std::cerr << "unit square implicit finite H1=" << full_fin << "\n";
+            return 1;
+        }
+        std::cout << "ok reduced-vr unit square H1 tris=" << tris.size() << "\n";
+    }
+
+    // I224: C4 without diagonals — essential H1, empty lunes, no triangles.
+    {
+        Graph g = from_edges(4, {{0, 1, 1}, {1, 2, 1}, {2, 3, 1}, {0, 3, 1}});
+        auto tris = build_reduced_triangles(g, 10);
+        Result r = persist_triangles(g, tris, 1, 10, 1);
+        int ess1 = 0;
+        for (const auto& p : r.pairs)
+            if (p.dim == 1 && !std::isfinite(p.death)) ++ess1;
+        if (ess1 != 1) {
+            std::cerr << "reduced-vr C4 ess H1=" << ess1 << " tris=" << tris.size() << "\n";
+            return 1;
+        }
+        std::cout << "ok reduced-vr C4 essential H1 tris=" << tris.size() << "\n";
     }
 
     std::cout << "all collapse/persist unit tests passed\n";

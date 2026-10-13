@@ -1,5 +1,6 @@
 #include "pith/edge_collapse.hpp"
 #include "pith/persist.hpp"
+#include "pith/reduced_vr.hpp"
 #include "pith/sparse_rips.hpp"
 
 #include <algorithm>
@@ -40,6 +41,7 @@ static void usage() {
         << "  --knn K             undirected kNN flag 1-skeleton (I220; not exact VR)\n"
         << "  --gic-n M           graph-induced complex on M landmarks (I222)\n"
         << "  --gic-k K           kNN degree for --gic-n (default 16)\n"
+        << "  --reduced-vr        H07 reduced VR 2-complex (exact PH1 claimed; I224)\n"
         << "  --sparse-only       write residual edges and exit\n"
         << "  --probe-only        print ROI probe on G_T and exit (I163)\n"
         << "  --probe-vertex      print dominated-vertex count on G_T and exit (I192)\n"
@@ -297,6 +299,7 @@ int main(int argc, char** argv) {
     int knn_k = 0;
     int gic_n = 0;
     int gic_k = 16;
+    bool reduced_vr = false;
     bool later_b = false;
     int later_escalate = 0;
     int later_esc_until = 0;
@@ -320,6 +323,7 @@ int main(int argc, char** argv) {
         else if (a == "--knn") knn_k = std::stoi(need("--knn"));
         else if (a == "--gic-n") gic_n = std::stoi(need("--gic-n"));
         else if (a == "--gic-k") gic_k = std::stoi(need("--gic-k"));
+        else if (a == "--reduced-vr") reduced_vr = true;
         else if (a == "--sparse-cap") {
             const std::string v = need("--sparse-cap");
             if (v == "min") sparse_cap = SparseCap::Min;
@@ -405,6 +409,7 @@ int main(int argc, char** argv) {
                 g = graph_from_distance(dist, threshold);
             }
         }
+        if (reduced_vr) collapse_iters = 0;  // I224: reduced VR is on G_T, not a residual
         c.n_vertices = g.n;
         c.n_edges_in = static_cast<std::int64_t>(g.edges.size());
         if (probe_only) {
@@ -481,9 +486,20 @@ int main(int argc, char** argv) {
         // I137: Ripser-heap implicit is exact (8/8) and owns thick residuals
         // (torus1000 1.31× vs homology 0.20×). auto → implicit. homology stays
         // available for thin-residual A/B and H2 fallback inside implicit.
+        // I224: --reduced-vr builds the Koyama–Mémoli–Robins–Turner 2-complex
+        // and reduces those triangles (not the flag of G_T).
         const bool use_implicit = (engine == "implicit" || engine == "auto");
-        Result r = use_implicit ? persist_implicit_coh(g, maxdim, threshold, ratio)
-                                : persist_sparse(g, maxdim, threshold, ratio);
+        Result r;
+        if (reduced_vr) {
+            const auto t_build0 = std::chrono::steady_clock::now();
+            const auto rtris = build_reduced_triangles(g, threshold);
+            const auto t_build1 = std::chrono::steady_clock::now();
+            c.collapse_ms = std::chrono::duration<double, std::milli>(t_build1 - t_build0).count();
+            r = persist_triangles(g, rtris, maxdim, threshold, ratio);
+        } else {
+            r = use_implicit ? persist_implicit_coh(g, maxdim, threshold, ratio)
+                             : persist_sparse(g, maxdim, threshold, ratio);
+        }
         r.counters.n_distances = c.n_distances;
         r.counters.n_edges_in = c.n_edges_in;
         r.counters.n_collapse_trims = c.n_collapse_trims;
@@ -511,9 +527,11 @@ int main(int argc, char** argv) {
         r.counters.collapse_ms = c.collapse_ms;
         r.counters.metric_ms = c.metric_ms;
         r.counters.n_vertices = g.n;
-        r.counters.pipeline = std::string("pith:threshold+collapse") +
-                              std::to_string(collapse_iters) +
-                              (use_implicit ? "+implicit_coh" : "+homology");
+        r.counters.pipeline = reduced_vr
+                                  ? std::string("pith:reduced-vr")
+                                  : std::string("pith:threshold+collapse") +
+                                        std::to_string(collapse_iters) +
+                                        (use_implicit ? "+implicit_coh" : "+homology");
         std::sort(r.pairs.begin(), r.pairs.end(), [](const PersistencePair& a, const PersistencePair& b) {
             if (a.dim != b.dim) return a.dim < b.dim;
             if (a.birth != b.birth) return a.birth < b.birth;
