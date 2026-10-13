@@ -1107,6 +1107,15 @@ Do not paste long reasoning here.
 - **Decision:** **Reject as recommended optional** — homology-safer than K=32 but slower and denser than `--sparse-eps 0.6`. Leave `--knn` as an experimental low-loss flag (K≥128). Exact default unchanged.
 - **Class:** experiment (reject as recommended; dominated by I213/I218)
 
+## 2026-10-13 — I222 graph-induced complex (kNN quotient)
+
+- **Question:** Does a Dey–Fan–Wang-style GIC 1-skeleton (farthest-point landmarks + kNN-cell quotient) keep essential H1 on mixed-homology families with a better size class than Ripser?
+- **Hypothesis:** PH on m ≪ n. The full-cloud kNN graph sees loops; the quotient to landmarks should preserve them if L covers. Shape-agnostic. Not exact VR — quantify ess H1 + bottleneck. Witness/kNN already failed; GIC is a different estimator.
+- **Work:** `--gic-n M --gic-k K`. Wave 83.
+- **Result:** *(wave pending)*
+- **Decision:** Optional only if ess H1 + bn≲0.05 and not dominated by `--sparse-eps 0.6`.
+- **Class:** experiment
+
 ## 2026-10-13 — I164 collapse live-degree trace
 
 - **Question:** Does the live 1-skeleton thin early enough to stop the C-walk?

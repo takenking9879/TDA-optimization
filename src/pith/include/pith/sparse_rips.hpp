@@ -197,4 +197,64 @@ inline Graph lazy_witness_graph(const std::vector<std::vector<value_t>>& dist, v
     return g;
 }
 
+// I222: graph-induced 1-skeleton (Dey–Fan–Wang style, flag of the quotient).
+// Farthest-point landmarks L; each point maps to its nearest landmark;
+// a kNN edge that crosses two cells gives a landmark edge at that length.
+// PH is on |L| vertices. Not exact VR — quantify loss.
+inline Graph gic_graph(const std::vector<std::vector<value_t>>& dist, value_t T,
+                       int nland, int K) {
+    const int n = static_cast<int>(dist.size());
+    const auto L = greedy_landmarks(dist, nland);
+    const int m = static_cast<int>(L.size());
+    Graph g;
+    g.n = m;
+    if (m < 2 || K <= 0) return g;
+    std::vector<int> assign(static_cast<size_t>(n), 0);
+    for (int i = 0; i < n; ++i) {
+        int best = 0;
+        value_t bd = dist[static_cast<size_t>(i)][static_cast<size_t>(L[0])];
+        for (int a = 1; a < m; ++a) {
+            const value_t d = dist[static_cast<size_t>(i)][static_cast<size_t>(L[static_cast<size_t>(a)])];
+            if (d < bd) {
+                bd = d;
+                best = a;
+            }
+        }
+        assign[static_cast<size_t>(i)] = best;
+    }
+    std::vector<value_t> tpair(static_cast<size_t>(m) * static_cast<size_t>(m), kInf);
+    std::vector<std::pair<value_t, int>> row;
+    row.reserve(static_cast<size_t>(n));
+    for (int i = 0; i < n; ++i) {
+        row.clear();
+        const value_t* di = dist[static_cast<size_t>(i)].data();
+        for (int j = 0; j < n; ++j) {
+            if (j == i) continue;
+            if (di[j] <= T) row.push_back({di[j], j});
+        }
+        const int k = std::min(K, static_cast<int>(row.size()));
+        if (k > 0 && k < static_cast<int>(row.size()))
+            std::nth_element(row.begin(), row.begin() + k, row.end());
+        const int ai = assign[static_cast<size_t>(i)];
+        for (int t = 0; t < k; ++t) {
+            const int j = row[static_cast<size_t>(t)].second;
+            const int aj = assign[static_cast<size_t>(j)];
+            if (ai == aj) continue;
+            const int a = std::min(ai, aj);
+            const int b = std::max(ai, aj);
+            value_t& slot = tpair[static_cast<size_t>(a) * static_cast<size_t>(m) + static_cast<size_t>(b)];
+            if (di[j] < slot) slot = di[j];
+        }
+    }
+    g.edges.reserve(static_cast<size_t>(m) * 4);
+    for (int a = 0; a < m; ++a) {
+        for (int b = a + 1; b < m; ++b) {
+            const value_t t = tpair[static_cast<size_t>(a) * static_cast<size_t>(m) + static_cast<size_t>(b)];
+            if (t <= T) g.edges.push_back({static_cast<index_t>(a), static_cast<index_t>(b), t});
+        }
+    }
+    rebuild_neighbors(g);
+    return g;
+}
+
 }  // namespace pith

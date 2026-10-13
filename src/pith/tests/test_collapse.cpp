@@ -341,6 +341,26 @@ int main() {
         std::cout << "ok knn-flag C4 H1 edges=" << kn.edges.size() << "\n";
     }
 
+    // I222: GIC on all 4 C4 vertices with k=2 keeps a 1-cycle.
+    {
+        const value_t inf = 10;
+        std::vector<std::vector<value_t>> dist(4, std::vector<value_t>(4, 0));
+        dist[0][1] = dist[1][0] = 1;
+        dist[1][2] = dist[2][1] = 1;
+        dist[2][3] = dist[3][2] = 1;
+        dist[3][0] = dist[0][3] = 1;
+        dist[0][2] = dist[2][0] = 1.5f;
+        dist[1][3] = dist[3][1] = 1.5f;
+        Graph gic = gic_graph(dist, inf, 4, 2);
+        assert(gic.n == 4);
+        Result r = persist_implicit_coh(gic, 1, inf, 1);
+        int ess1 = 0;
+        for (const auto& p : r.pairs)
+            if (p.dim == 1 && !std::isfinite(p.death)) ++ess1;
+        assert(ess1 >= 1);
+        std::cout << "ok gic C4 H1 edges=" << gic.edges.size() << "\n";
+    }
+
     std::cout << "all collapse/persist unit tests passed\n";
     return 0;
 }

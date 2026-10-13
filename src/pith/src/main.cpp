@@ -38,6 +38,8 @@ static void usage() {
         << "  --witness-n M       lazy witness on M farthest-point landmarks (I216)\n"
         << "  --witness-nu K      lazy-witness ν (default 0; I216 ν=1 invents loops)\n"
         << "  --knn K             undirected kNN flag 1-skeleton (I220; not exact VR)\n"
+        << "  --gic-n M           graph-induced complex on M landmarks (I222)\n"
+        << "  --gic-k K           kNN degree for --gic-n (default 16)\n"
         << "  --sparse-only       write residual edges and exit\n"
         << "  --probe-only        print ROI probe on G_T and exit (I163)\n"
         << "  --probe-vertex      print dominated-vertex count on G_T and exit (I192)\n"
@@ -293,6 +295,8 @@ int main(int argc, char** argv) {
     int witness_n = 0;
     int witness_nu = 0;  // I216: ν=1 invents essential H1; I217 tests 0
     int knn_k = 0;
+    int gic_n = 0;
+    int gic_k = 16;
     bool later_b = false;
     int later_escalate = 0;
     int later_esc_until = 0;
@@ -314,6 +318,8 @@ int main(int argc, char** argv) {
         else if (a == "--witness-n") witness_n = std::stoi(need("--witness-n"));
         else if (a == "--witness-nu") witness_nu = std::stoi(need("--witness-nu"));
         else if (a == "--knn") knn_k = std::stoi(need("--knn"));
+        else if (a == "--gic-n") gic_n = std::stoi(need("--gic-n"));
+        else if (a == "--gic-k") gic_k = std::stoi(need("--gic-k"));
         else if (a == "--sparse-cap") {
             const std::string v = need("--sparse-cap");
             if (v == "min") sparse_cap = SparseCap::Min;
@@ -377,7 +383,11 @@ int main(int argc, char** argv) {
                 const value_t R = enclosing_radius(dist);
                 if (R < threshold) threshold = R;
             }
-            if (knn_k > 0) {
+            if (gic_n > 0) {
+                // I222: flag of a kNN-quotient on farthest-point landmarks.
+                g = gic_graph(dist, threshold, gic_n, gic_k);
+                if (collapse_iters < 0) collapse_iters = 0;
+            } else if (knn_k > 0) {
                 // I220: flag of a symmetric kNN graph. Not exact VR.
                 g = knn_flag_graph(dist, threshold, knn_k);
                 if (collapse_iters < 0) collapse_iters = 0;
