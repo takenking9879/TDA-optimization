@@ -80,6 +80,7 @@ suite and I137 8/8 (including dense circle80/200 **collapse=0**, the I045 killer
 | Ungated I201 witness rescan | Exact; torus 1771→1463 ms but blobs 178→235 ms |
 | Shift obstruction resume (I214) | Exact 5/5; torus **1714 vs 1470 ms**. 1.22M skips, mark-every-fail tax |
 | Sticky-only obstruction (I215) | Exact 5/5; torus 1544 ms, blobs **227 vs 190**. Reverted from default |
+| Lazy witness ν=1 (I216) | Invents essential H1 on every family (torus 14 vs 2; bn 0.05–0.48) |
 
 I107 (`--dom-budget 1`) **still rejected** with implicit (I142–I144): thicker
 residual makes collapse *and* reduce slower (circle3000 1.49× vs full 8.11×).

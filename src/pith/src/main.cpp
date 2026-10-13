@@ -36,7 +36,7 @@ static void usage() {
         << "  --sparse-eps EPS    in-process greedy-net sparse Rips 1-skeleton (I210)\n"
         << "  --sparse-cap max|min  λ-cap for --sparse-eps (default max; I212 min)\n"
         << "  --witness-n M       lazy witness on M farthest-point landmarks (I216)\n"
-        << "  --witness-nu K      lazy-witness ν (default 1; 0 = no discount)\n"
+        << "  --witness-nu K      lazy-witness ν (default 0; I216 ν=1 invents loops)\n"
         << "  --sparse-only       write residual edges and exit\n"
         << "  --probe-only        print ROI probe on G_T and exit (I163)\n"
         << "  --probe-vertex      print dominated-vertex count on G_T and exit (I192)\n"
@@ -289,7 +289,7 @@ int main(int argc, char** argv) {
     value_t sparse_eps = -1;
     SparseCap sparse_cap = SparseCap::Max;
     int witness_n = 0;
-    int witness_nu = 1;
+    int witness_nu = 0;  // I216: ν=1 invents essential H1; I217 tests 0
     bool later_b = false;
     int later_escalate = 0;
     int later_esc_until = 0;

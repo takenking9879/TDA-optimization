@@ -1058,8 +1058,17 @@ Do not paste long reasoning here.
 - **Question:** Does a farthest-point lazy-witness 1-skeleton (PH on m ≪ n landmarks) keep essential H1 on mixed-homology families and beat Ripser's size exponent?
 - **Hypothesis:** Construction O(n m²), flag PH on m vertices. Shape-agnostic (same path for any cloud). Not exact VR — quantify essential H1 + bottleneck. If m = o(n) and ess H1 holds, this is a real Big-O class change vs Ripser Θ(n²) edges / ~n³ time, unlike exact collapse (torus residual n^{2.08}).
 - **Work:** `--witness-n M --witness-nu K` (default ν=1). Wave 77 vs Ripser on circle/blobs/sphere/torus/two_circles/figure8.
+- **Result:** **Reject ν=1.** Invents essential H1 on every family (circle 18 vs 2, torus 14 vs 2, two_circles 12 vs 3, blobs 39 vs 3). Bottleneck 0.05–0.48. Faster on some rows (circle1000 24×, torus 6.7×) but **not shape-agnostic in the useful sense** — extra loops. Probe: ν=0 on torus m=200 keeps ess=2; larger m with ν=1 makes it worse (m=400 ess=49, m=800 ess=242).
+- **Decision:** Do not recommend ν=1. I217: ν=0 on the same suite. Exact default unchanged. Owned `--sparse-eps` stays the optional approx.
+- **Class:** experiment (reject ν=1; invents essential loops)
+
+## 2026-10-13 — I217 lazy witness ν=0
+
+- **Question:** Does conservative lazy witness (ν=0, no landmark-distance discount) keep essential H1 on mixed-homology families?
+- **Hypothesis:** Probe torus m=200 ν=0 had ess=2. Same O(n m²) build / PH on m. Quantify bottleneck. Shape-agnostic only if ess H1 holds on two_circles/figure8/torus/blobs/circle.
+- **Work:** Default `--witness-nu` 0. Wave 78.
 - **Result:** *(wave pending)*
-- **Decision:** Optional only if ess H1 holds on mixed loops. Do not replace the exact default.
+- **Decision:** Optional only if ess H1 + bn comparable to owned sparse (≤0.05). Else leave `--witness-n` as an unsafe experimental flag.
 - **Class:** experiment
 
 ## 2026-10-13 — I164 collapse live-degree trace
