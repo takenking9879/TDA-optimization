@@ -127,6 +127,14 @@ Do not paste long reasoning here.
 - **Next:** Better collapse asymptotics, fix owned reducer, Alpha, torus Morse.
 - **Class:** experiment (implementation)
 
+## 2026-10-13 — I009 GUDHI collapse oracle + Alpha
+
+- **Question:** Does our residual 1-skeleton match GUDHI `collapse_edges`?
+- **Result:** Edge counts identical on circle80/200, blobs80, uniform2-200, sphere80. Alpha on circle200 is a *different* complex (long H1 dies; VR essential). GUDHI Alpha 1.9 ms vs GUDHI Rips 81 ms (empirical, not exact-VR).
+- **Decision:** Collapse implementation verified against GUDHI. Alpha stays a separate Euclidean candidate, not a VR replacement.
+- **Next:** Own reducer still rejected (map rewrite unchanged I003 failure). Torus Morse / faster collapse / larger H2.
+- **Class:** reproduced (collapse); empirical (Alpha)
+
 ## 2026-10-13 — selected writeup
 
 - **Question:** What do we keep as the working algorithm?

@@ -13,7 +13,7 @@ Updated 2026-10-13 after iterations I001–I008.
 | Piece | Status |
 | --- | --- |
 | Ripser `01add51` | Pinned parent / residual engine |
-| Backward edge collapse (our MIT code) | Selected preprocessor. Unit tests C4 / C4+diagonal. |
+| Backward edge collapse (our MIT code) | Selected preprocessor. Unit tests C4 / C4+diagonal. Edge counts match GUDHI `collapse_edges` (I009, 5/5). |
 | Our implicit cohomology core | **Not selected.** H02 rejected: diagrams fail on uncollapsed graphs. |
 | Ripser++ | Unmodified GPU reference. No GPU here; not built. |
 | Extra collapse passes | Hold. Circles: 283 → 281 edges. Not worth a default second pass. |

@@ -4,6 +4,7 @@
 
 #include <chrono>
 #include <cstdint>
+#include <map>
 #include <numeric>
 #include <queue>
 #include <tuple>
@@ -235,35 +236,56 @@ inline Result persist_sparse(const Graph& g, int maxdim, value_t threshold, valu
         return r;
     }
 
-    // Reduce leftover edges (H1 cohomology / coboundaries = triangles).
-    std::vector<std::vector<Cofacet>> reduced;
+    // Reduce leftover edges. Column = F2 set of incident triangles, keyed by pack3.
+    // Pivot = youngest triangle (max diameter, then max key).
+    using ColMap = std::map<std::uint64_t, value_t>;  // key -> diam; iterate is not pivot order
+    std::vector<ColMap> reduced;
     reduced.reserve(h1_births.size());
     std::unordered_map<std::uint64_t, int> pivot;  // triangle key -> column
     pivot.reserve(h1_births.size() * 2);
 
-    std::vector<int> h1_unpaired;
-    std::vector<std::tuple<index_t, index_t, index_t, value_t>> h1_deaths;  // triangle + death
+    auto col_pivot = [](const ColMap& col) -> Cofacet {
+        Cofacet best;
+        best.key = ~std::uint64_t{0};
+        best.diam = -1;
+        for (const auto& [k, d] : col) {
+            if (d > best.diam || (d == best.diam && k > best.key && best.diam >= 0)) {
+                best.key = k;
+                best.diam = d;
+            }
+        }
+        if (best.diam < 0) best.key = ~std::uint64_t{0};
+        return best;
+    };
+    auto xor_map = [](ColMap& a, const ColMap& b) {
+        for (const auto& [k, d] : b) {
+            auto it = a.find(k);
+            if (it == a.end()) a.emplace(k, d);
+            else a.erase(it);
+        }
+    };
+
+    std::vector<std::tuple<index_t, index_t, index_t, value_t>> h1_deaths;
 
     for (const Edge& e : h1_births) {
         ++c.n_columns_assembled;
-        auto col = coboundary_edge(g, e.u, e.v, threshold, c);
+        ColMap col;
+        for (const auto& f : coboundary_edge(g, e.u, e.v, threshold, c)) col[f.key] = f.diam;
         ++c.n_columns_reduced;
         int guard = 0;
         while (!col.empty() && guard++ < 100000) {
-            const std::uint64_t pk = col.front().key;
-            auto it = pivot.find(pk);
+            const Cofacet p = col_pivot(col);
+            auto it = pivot.find(p.key);
             if (it == pivot.end()) break;
-            xor_column(col, reduced[it->second]);
+            xor_map(col, reduced[it->second]);
             ++c.n_additions;
         }
         if (col.empty()) {
             r.pairs.push_back({1, e.t, kInf});
-            h1_unpaired.push_back(static_cast<int>(reduced.size()));
             reduced.push_back(std::move(col));
         } else {
-            const Cofacet p = col.front();
+            const Cofacet p = col_pivot(col);
             if (p.diam > e.t * ratio) r.pairs.push_back({1, e.t, p.diam});
-            // unpack triangle vertices from key for dim-2 clearing
             const index_t a = static_cast<index_t>(p.key & ((1u << 21) - 1));
             const index_t b = static_cast<index_t>((p.key >> 21) & ((1u << 21) - 1));
             const index_t cc = static_cast<index_t>(p.key >> 42);
