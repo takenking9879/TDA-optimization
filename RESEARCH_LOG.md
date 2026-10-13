@@ -1134,6 +1134,24 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-13 — I234 owned active H0+H1+H2
+
+- **Question:** Can the owned engine compute exact H0, H1, and H2 on mixed homology and a harder void (sphere), and stay usable at a larger H1 cloud, without a long test?
+- **Hypothesis:** I232 empty-XOR triangles are the H2 births. Tets must be collected and reduced in diameter order (unsorted invents thousands of finite H2). Same path on every flag graph. Topology loss 0 if identity holds.
+- **Work:** Revert I233 generation. Record empty-XOR triangles; sort tets; R2/Ri2 `resolve_bar`. Wave 95 vs Ripser / RedZeD / default. Hard case: sphere n=200 maxdim=2. Scale H1: blobs n=1000.
+- **Result:** **Exact 10/10** H0–H2 (0 unmatched). Sphere void ess H2 1=1 at n=80 and n=200; figure8/two_circles ess H1 2=2; blobs ess H0 3=3 at n=1000. bn ~5e-7. Clock **loses**: sphere n=200 H2 active 3.21 s / **0.039×** vs Ripser 0.13 s / RedZeD **0.040 s** / default **0.005 s**. blobs n=1000 H1 1.41 s / 0.058× vs Ripser (RedZeD 0.019 s). 2.9M simplices on sphere n=200.
+- **Decision:** **Support as owned H0–H2 identity.** **Hold as a clock / scale engine.** Topology loss: **0**. For real data at more points use `--engine redzed` (general exact H0–H2) or the collapse+implicit default (faster on collapse-friendly sphere). Do not switch default. Not a better Big-O (still \(\Theta(|E|\cdot\deg)\) triangles + tets).
+- **Class:** experiment (support identity; hold clock)
+
+## 2026-10-13 — I233 active leftover-star generation
+
+- **Question:** Does generating only MST 1-leftover apparent + live leftover-star triangles keep I232 identity and cut the 36M-visit wall?
+- **Hypothesis:** 1-leftover triangles are leftover + two MST edges. Multi-leftover triangles with a dead partner can be recovered by a leftover-coface existence test. Shape-agnostic.
+- **Work:** Active leftover star + MST apex + leftover-coface `process_leftover`. Smoke vs Ripser on mixed families.
+- **Result:** Unit square / C4 hold. Real clouds **fail**: circle n=80 unmatched 4–211 depending on the leftover-coface variant; figure8/two_circles invent bars; blobs/torus/sphere invent dozens to thousands. Dead-partner and same-diameter geometric cofaces are not a substitute for reducing the actual triangle.
+- **Decision:** **Reject and revert** generation to I232. Topology loss if kept. I234 H2 is built on the restored walk.
+- **Class:** experiment (reject; inexact)
+
 ## 2026-10-13 — I232 annotation skip on owned active H1
 
 - **Question:** Does R/Ri `resolve_bar` (skip empty face-XOR = H₂ birth) keep I231’s mixed-homology identity and cut the reduce wall?

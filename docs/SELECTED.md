@@ -1,6 +1,6 @@
 # Selected algorithm (living)
 
-Updated 2026-10-13 after iterations I001–I232. **CLI default is still
+Updated 2026-10-13 after iterations I001–I234. **CLI default is still
 I193 + I197 + I202 + I203** collapse+implicit (circle n=4000 **140×**).
 **Recommended general exact path:** `--engine redzed` (I228, vendored
 MIT RedZeD). Shape-agnostic, 0 bars lost, first exact **torus n=2000
@@ -320,23 +320,38 @@ drops from every youngest-face triangle to the leftover-column count
 better Big-O than Ripser VR. Hold as an engine; keep the skip on
 `--engine active`.
 
-## Next levers (still open after I232)
+**I233 live-star generation:** **rejected.** MST 1-leftover + live
+leftover-star (and leftover-coface existence) invented H1 bars on
+circle / figure8 / blobs / torus / sphere. Reverted to I232.
+
+**I234 owned H0+H1+H2:** empty-XOR triangles are H2 births; tets sorted
+by diameter; R2/Ri2 `resolve_bar`. **Exact 10/10** vs Ripser including
+sphere void (ess H2 1=1 at n=80 and n=200), figure8 / two_circles
+(ess H1 2=2), blobs (ess H0 3=3 at n=1000). Topology loss: **0**.
+Hard case sphere n=200 maxdim=2: active **3.21 s / 0.039×** vs Ripser
+0.13 s; RedZeD **0.040 s (3.2×)**; default collapse **0.005 s (26×)**.
+blobs n=1000 H1: active 1.41 s / 0.058×; RedZeD 0.019 s. Justification:
+H2 adds a tet pass on the H2-birth 2-skeleton. Size is still the flag
+VR class, not a better Big-O. Usable real-data H0–H2 at more points is
+`--engine redzed` or the collapse default, not owned active (yet).
+
+## Next levers (still open after I234)
 
 Collapse+implicit is shape-agnostic with **0 bars lost** and is **not**
 a general 10×. `--engine redzed` is the first owned exact torus 10×
-and a 5–8× exact win on the other families. Scale and NDEBUG do not
-make blobs/uniform2 10×. I232 made owned active exact and much faster
-than I231; it still loses to Ripser because it visits every
-youngest-face triangle.
+and a 5–8× exact win on the other families; it is also the usable
+exact H0–H2 path at more points. I234 made owned `--engine active`
+exact through H2 but slower than Ripser/RedZeD/default. I233 proved
+that a naive leftover-star cut is not exact.
 
 1. **CLI default:** I193 + I197 + I202 + I203. Faster on collapse-friendly
-   circle.
-2. **Recommended general exact:** `--engine redzed` (I228/I229). Exact,
-   torus 12–14×, blobs/uniform2 ~5×, sphere 8.3× at n=4000. I232 owned
-   active H1 is exact with a 96% H₂-birth skip but still \(O(|E|\cdot\deg)\)
-   generation (circle n=1000 36M visits / 0.52× vs Ripser). Next owned
-   port must skip generating those triangles (active-star / leftover-coface
-   / rbit), not only skip reducing them.
-3. **Owned optional approx:** `--sparse-eps 0.6 --sparse-cap max` (I213/I218).
-4. H07 kd-tree / H08 distilled still open, lower priority.
-5. GPU later.
+   circle and on sphere H2 after collapse (n=200 **26×** vs Ripser).
+2. **Recommended general exact H0–H2:** `--engine redzed` (I228/I229/I234).
+   Exact, torus 12–14× H1, sphere n=200 H2 **3.2×** vs Ripser (0.040 s).
+   Owned active H0–H2 is exact (10/10) but 0.039× on that void.
+3. **Owned optional approx:** `--sparse-eps 0.6 --sparse-cap max` (I213/I218)
+   when n grows past exact VR.
+4. Next owned generation cut must be RedZeD-faithful rbit / active
+   enumeration — I233's star shortcut was inexact.
+5. H07 kd-tree / H08 distilled still open, lower priority.
+6. GPU later.
