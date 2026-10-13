@@ -164,6 +164,7 @@ static void print_text(const Result& r) {
               << " collapse_c_size=" << c.n_collapse_c_size_sum
               << " collapse_shift_lookups=" << c.n_collapse_shift_lookups
               << " collapse_fast_trims=" << c.n_collapse_fast_trims
+              << " collapse_vertex_trims=" << c.n_collapse_vertex_trims
               << " collapse_first_keep=" << c.n_collapse_first_keep
               << " collapse_tau_late=" << c.n_collapse_tau_late
               << " collapse_tau_late_common=" << c.n_collapse_tau_late_common
@@ -388,6 +389,7 @@ int main(int argc, char** argv) {
         r.counters.n_collapse_c_size_sum = c.n_collapse_c_size_sum;
         r.counters.n_collapse_shift_lookups = c.n_collapse_shift_lookups;
         r.counters.n_collapse_fast_trims = c.n_collapse_fast_trims;
+        r.counters.n_collapse_vertex_trims = c.n_collapse_vertex_trims;
         r.counters.n_collapse_first_keep = c.n_collapse_first_keep;
         r.counters.n_collapse_tau_late = c.n_collapse_tau_late;
         r.counters.n_collapse_tau_late_common = c.n_collapse_tau_late_common;

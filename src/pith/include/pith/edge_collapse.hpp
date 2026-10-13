@@ -306,7 +306,8 @@ inline bool process_one_backward(const Edge& e_in, value_t t_in, DenseTimes& Tm,
                                  int dom_budget, Edge& out, Counters& c,
                                  LiveBits* bits = nullptr,
                                  std::vector<int>* deg = nullptr,
-                                 LiveAdj* later = nullptr) {
+                                 LiveAdj* later = nullptr,
+                                 std::vector<index_t>* vdom = nullptr) {
     const index_t u = e_in.u, v = e_in.v;
     value_t t = t_in;
     S.C_now.clear();
@@ -330,6 +331,71 @@ inline bool process_one_backward(const Edge& e_in, value_t t_in, DenseTimes& Tm,
             drop_live_nbr(nbr, v, u);
         }
     };
+
+    // I194: if an endpoint is strongly dominated at grade t
+    // (N_t[a] ⊆ N_t[apex]), then {a,other} is edge-dominated by apex
+    // (unless apex is the other endpoint). Sticky apex per vertex;
+    // discover once, recheck O(W). Valid with or without later-commons.
+    if (bits && later && vdom) {
+        const int W = bits->W;
+        auto nt_subset = [&](index_t a, index_t apex) -> bool {
+            if (apex < 0 || apex == a) return false;
+            S.cwords.assign(static_cast<size_t>(W), 0);
+            std::memcpy(S.cwords.data(), bits->row(a),
+                        static_cast<size_t>(W) * sizeof(std::uint64_t));
+            S.cwords[static_cast<unsigned>(a) >> 6] |= 1ull << (a & 63);
+            for (const LiveNbr& p : (*later)[a]) {
+                if (p.second > t) bits_clear_index(S.cwords, p.first);
+            }
+            S.cover.assign(static_cast<size_t>(W), 0);
+            std::memcpy(S.cover.data(), bits->row(apex),
+                        static_cast<size_t>(W) * sizeof(std::uint64_t));
+            S.cover[static_cast<unsigned>(apex) >> 6] |= 1ull << (apex & 63);
+            for (const LiveNbr& p : (*later)[apex]) {
+                if (p.second > t) bits_clear_index(S.cover, p.first);
+            }
+            for (int k = 0; k < W; ++k) {
+                if ((S.cover[static_cast<size_t>(k)] & S.cwords[static_cast<size_t>(k)]) !=
+                    S.cwords[static_cast<size_t>(k)])
+                    return false;
+            }
+            c.n_collapse_c_probes += 2 * W;
+            return true;
+        };
+        auto try_vertex = [&](index_t a, index_t other) -> bool {
+            index_t apex = (*vdom)[a];
+            if (apex == -1) {
+                const std::uint64_t* ra = bits->row(a);
+                for (int w0 = 0; w0 < W && apex < 0; ++w0) {
+                    std::uint64_t word = ra[w0];
+                    while (word) {
+                        const int tz = __builtin_ctzll(word);
+                        word &= word - 1;
+                        const index_t w = static_cast<index_t>(w0 * 64 + tz);
+                        if (w == a || w == other) continue;
+                        ++c.n_collapse_dom_tests;
+                        if (nt_subset(a, w)) {
+                            apex = w;
+                            break;
+                        }
+                    }
+                }
+                (*vdom)[a] = apex >= 0 ? apex : -2;
+            }
+            if (apex < 0 || apex == other) return false;
+            if (!nt_subset(a, apex)) {
+                (*vdom)[a] = -2;
+                return false;
+            }
+            drop_uv();
+            ++c.n_collapse_trims;
+            ++c.n_collapse_fast_trims;
+            ++c.n_collapse_vertex_trims;
+            ++c.n_collapse_dom_hits;
+            return true;
+        };
+        if (try_vertex(u, v) || try_vertex(v, u)) return false;
+    }
 
     // I193: AND-eq every common when later[] says no later-common.
     // I189 is the first candidate; later apexes use the same cover test
@@ -621,11 +687,13 @@ inline Graph collapse_edges(Graph g, int iterations, Counters& c, int dom_budget
         LiveBits* bits = nullptr;
         std::vector<int> deg;
         LiveAdj later;
+        std::vector<index_t> vdom;
         if (use_bits) {
             bits = &bits_store;
             init_collapse_graph(E, g.n, Tm, nbr, bits, true);
             deg.assign(static_cast<size_t>(g.n), 0);
             later.assign(static_cast<size_t>(g.n), {});
+            vdom.assign(static_cast<size_t>(g.n), -1);
             scratch.cover.resize(static_cast<size_t>(bits->W));
             scratch.cwords.resize(static_cast<size_t>(bits->W));
             for (const Edge& e : E) {
@@ -645,7 +713,8 @@ inline Graph collapse_edges(Graph g, int iterations, Counters& c, int dom_budget
             Edge out;
             if (process_one_backward(E[i], E[i].t, Tm, nbr, scratch, dom_budget, out, c, bits,
                                     use_bits ? &deg : nullptr,
-                                    use_bits ? &later : nullptr)) {
+                                    use_bits ? &later : nullptr,
+                                    use_bits ? &vdom : nullptr)) {
                 if (c.n_collapse_first_keep < 0)
                     c.n_collapse_first_keep = static_cast<std::int64_t>(i);
                 if (mE > 0) {
@@ -745,6 +814,7 @@ inline void add_collapse_counters(Counters& c, const Counters& t) {
     c.n_collapse_c_size_sum += t.n_collapse_c_size_sum;
     c.n_collapse_shift_lookups += t.n_collapse_shift_lookups;
     c.n_collapse_fast_trims += t.n_collapse_fast_trims;
+    c.n_collapse_vertex_trims += t.n_collapse_vertex_trims;
     c.n_collapse_tau_late += t.n_collapse_tau_late;
     c.n_collapse_tau_late_common += t.n_collapse_tau_late_common;
     c.collapse_ms += t.collapse_ms;

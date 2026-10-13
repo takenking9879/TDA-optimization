@@ -54,6 +54,7 @@ struct Counters {
     std::int64_t n_collapse_c_size_sum = 0;
     std::int64_t n_collapse_shift_lookups = 0;
     std::int64_t n_collapse_fast_trims = 0;
+    std::int64_t n_collapse_vertex_trims = 0;
     std::int64_t n_collapse_first_keep = -1;
     std::int64_t n_collapse_tau_late = 0;
     std::int64_t n_collapse_tau_late_common = 0;

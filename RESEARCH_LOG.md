@@ -868,6 +868,20 @@ Do not paste long reasoning here.
 - **Decision:** Reject as default. Revert slow path. I193: AND-eq later apexes (stop at first hit) when !any_later.
 - **Class:** experiment (reject as clock; exact)
 
+## 2026-10-13 — I193 multi-apex AND-eq
+
+- **Question:** When !any_later, does AND-eq over every common (stop at first hit; keep if none) beat I189 first-apex + consider?
+- **Result:** **Exact**, same residuals. circle2000 **83.5×** (29.1s/0.35s, collapse 270 ms, fast-trims 1.070M/1.072M). blobs **1.78×** (192 ms, was 0.48×). sphere **1.96×** (357 ms, was 0.50×). torus **1.18×** (1828 ms). First time blobs/sphere beat Ripser.
+- **Decision:** Select as default. I189 first-apex is the first iteration of this loop.
+- **Class:** experiment (support)
+
+## 2026-10-13 — I192 vertex-dom count
+
+- **Question:** What fraction of G_T vertices are strongly dominated (N[v]⊆N[u])?
+- **Result:** blobs **1.00** (2000/2000, star 1.31M). circle2000 **0.95**. torus **0.64**. sphere **0.01** (20 verts). Probe <80 ms.
+- **Decision:** Implement filtration-safe sticky vertex-dominator (I194) on blobs/torus. Do not batch-trim sphere.
+- **Class:** experiment (support as a count; implement next)
+
 ## 2026-10-13 — I164 collapse live-degree trace
 
 - **Question:** Does the live 1-skeleton thin early enough to stop the C-walk?

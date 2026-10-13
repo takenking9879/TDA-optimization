@@ -1,0 +1,54 @@
+{
+  "id": "vertex_dom_count",
+  "lever": "H01-vertex-collapse",
+  "class": "experiment",
+  "fidelity": "n/a",
+  "status": "support",
+  "summary": "I192 dominated-vertex fraction on G_T (need \u22650.30 on blobs to implement)",
+  "receipts": [
+    {
+      "probe_s": 0.07909033599935356,
+      "raw": "# VERTEX_DOM n=2000 n_dom=1901 frac=0.9505 star_edges=2040371 edges=1077130 T=1.5",
+      "n": 2000,
+      "n_dom": 1901,
+      "frac": 0.9505,
+      "star_edges": 2040371,
+      "edges": 1077130,
+      "T": 1.5,
+      "name": "circle_noisy"
+    },
+    {
+      "probe_s": 0.05887793399961083,
+      "raw": "# VERTEX_DOM n=2000 n_dom=2000 frac=1 star_edges=1310358 edges=655179 T=1",
+      "n": 2000,
+      "n_dom": 2000,
+      "frac": 1,
+      "star_edges": 1310358,
+      "edges": 655179,
+      "T": 1.0,
+      "name": "blobs"
+    },
+    {
+      "probe_s": 0.07104903199797263,
+      "raw": "# VERTEX_DOM n=2000 n_dom=20 frac=0.01 star_edges=19616 edges=979816 T=1.4",
+      "n": 2000,
+      "n_dom": 20,
+      "frac": 0.01,
+      "star_edges": 19616,
+      "edges": 979816,
+      "T": 1.4,
+      "name": "sphere"
+    },
+    {
+      "probe_s": 0.04497570500097936,
+      "raw": "# VERTEX_DOM n=2000 n_dom=1277 frac=0.6385 star_edges=577091 edges=478860 T=1.6",
+      "n": 2000,
+      "n_dom": 1277,
+      "frac": 0.6385,
+      "star_edges": 577091,
+      "edges": 478860,
+      "T": 1.6,
+      "name": "torus"
+    }
+  ]
+}
