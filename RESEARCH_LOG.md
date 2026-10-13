@@ -847,6 +847,12 @@ Do not paste long reasoning here.
 - **Decision:** New flagship. Next: cheaper `dominated_by` (I189) and I162 losers.
 - **Class:** experiment (support)
 
+## 2026-10-13 — I189 AND-equality first-apex
+
+- **Question:** Can bits[first] covering C (minus later[first]) plus later[] any_later replace the Θ(|C|) Tm walk on I156 fast-trims?
+- **Work:** Fast path in `process_one_backward` when bits+later. Wave54.
+- **Class:** experiment (running)
+
 ## 2026-10-13 — I164 collapse live-degree trace
 
 - **Question:** Does the live 1-skeleton thin early enough to stop the C-walk?

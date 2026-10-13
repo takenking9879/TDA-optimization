@@ -206,6 +206,7 @@ inline void set_live_time(LiveAdj& nbr, index_t a, index_t b, value_t t) {
 struct BwScratch {
     std::vector<index_t> C_now;
     std::vector<std::pair<value_t, index_t>> C_later;
+    std::vector<std::uint64_t> cover;  // I189: bits[first] minus later[first]
 };
 
 // One backward edge (Glisse–Pritam). t_in is the start filtration (may be t_*
@@ -214,7 +215,8 @@ inline bool process_one_backward(const Edge& e_in, value_t t_in, DenseTimes& Tm,
                                  LiveAdj& nbr, BwScratch& S,
                                  int dom_budget, Edge& out, Counters& c,
                                  LiveBits* bits = nullptr,
-                                 std::vector<int>* deg = nullptr) {
+                                 std::vector<int>* deg = nullptr,
+                                 LiveAdj* later = nullptr) {
     const index_t u = e_in.u, v = e_in.v;
     value_t t = t_in;
     S.C_now.clear();
@@ -223,6 +225,97 @@ inline bool process_one_backward(const Edge& e_in, value_t t_in, DenseTimes& Tm,
     const auto& src = walk_u ? nbr[u] : nbr[v];
     const value_t* r_other = walk_u ? Tm.row(v) : Tm.row(u);
     const value_t* r_src = walk_u ? Tm.row(u) : Tm.row(v);
+
+    auto drop_uv = [&]() {
+        Tm.erase(u, v);
+        if (bits) bits->clear_edge(u, v);
+        if (deg) {
+            --(*deg)[u];
+            --(*deg)[v];
+        }
+        // I186: bits path does not need LiveAdj for C; skip star scans.
+        if (!bits) {
+            drop_live_nbr(nbr, u, v);
+            drop_live_nbr(nbr, v, u);
+        }
+    };
+
+    // I189: AND-equality first-apex + later[] any_later. Newest-first
+    // bits_now commons all have tau≤t when later-commons are absent, so
+    // bits[first] (minus later[first]) covering C is N_t domination
+    // without per-common Tm loads.
+    if (bits && later) {
+        bool any_later_fast = false;
+        for (const LiveNbr& p : (*later)[u]) {
+            if (p.second > t && Tm(v, p.first) < kInf / 2) {
+                any_later_fast = true;
+                break;
+            }
+        }
+        if (!any_later_fast) {
+            for (const LiveNbr& p : (*later)[v]) {
+                if (p.second > t && Tm(u, p.first) < kInf / 2) {
+                    any_later_fast = true;
+                    break;
+                }
+            }
+        }
+        if (!any_later_fast) {
+            const std::uint64_t* bu = bits->row(u);
+            const std::uint64_t* bv = bits->row(v);
+            const int W = bits->W;
+            c.n_collapse_c_probes += W;
+            index_t first_w = -1;
+            int first_word = -1;
+            for (int w0 = 0; w0 < W && first_w < 0; ++w0) {
+                std::uint64_t word = bu[w0] & bv[w0];
+                while (word) {
+                    const int tz = __builtin_ctzll(word);
+                    word &= word - 1;
+                    const index_t w = static_cast<index_t>(w0 * 64 + tz);
+                    if (w == u || w == v) continue;
+                    first_w = w;
+                    first_word = w0;
+                    break;
+                }
+            }
+            if (first_w >= 0) {
+                S.cover.assign(static_cast<size_t>(W), 0);
+                std::memcpy(S.cover.data(), bits->row(first_w),
+                            static_cast<size_t>(W) * sizeof(std::uint64_t));
+                for (const LiveNbr& p : (*later)[first_w]) {
+                    if (p.second > t) {
+                        S.cover[static_cast<unsigned>(p.first) >> 6] &=
+                            ~(1ull << (p.first & 63));
+                    }
+                }
+                bool covers = true;
+                std::int64_t commons_est = 0;
+                for (int w0 = 0; w0 < W; ++w0) {
+                    std::uint64_t need = bu[w0] & bv[w0];
+                    if (w0 == first_word)
+                        need &= ~(1ull << (first_w & 63));
+                    if (w0 == (u >> 6)) need &= ~(1ull << (u & 63));
+                    if (w0 == (v >> 6)) need &= ~(1ull << (v & 63));
+                    commons_est += __builtin_popcountll(need);
+                    if ((S.cover[static_cast<size_t>(w0)] & need) != need) {
+                        covers = false;
+                        break;
+                    }
+                }
+                c.n_collapse_c_size_sum += commons_est;
+                if (covers) {
+                    drop_uv();
+                    ++c.n_collapse_trims;
+                    ++c.n_collapse_fast_trims;
+                    ++c.n_collapse_dom_hits;
+                    c.n_collapse_last_any_later = 0;
+                    c.n_collapse_last_fail_at = -1;
+                    return false;
+                }
+            }
+        }
+    }
 
     // I156: fuse first-apex verify into the C walk. If the first common
     // dominates and there is no C_later, trim without materializing C
@@ -281,20 +374,6 @@ inline bool process_one_backward(const Edge& e_in, value_t t_in, DenseTimes& Tm,
     c.n_collapse_last_later_a = later_a ? 1 : 0;
     c.n_collapse_last_later_b = later_b ? 1 : 0;
     c.n_collapse_c_size_sum += commons;
-
-    auto drop_uv = [&]() {
-        Tm.erase(u, v);
-        if (bits) bits->clear_edge(u, v);
-        if (deg) {
-            --(*deg)[u];
-            --(*deg)[v];
-        }
-        // I186: bits path does not need LiveAdj for C; skip star scans.
-        if (!bits) {
-            drop_live_nbr(nbr, u, v);
-            drop_live_nbr(nbr, v, u);
-        }
-    };
 
     if (first >= 0 && fused_ok && !any_later) {
         drop_uv();
@@ -443,10 +522,13 @@ inline Graph collapse_edges(Graph g, int iterations, Counters& c, int dom_budget
         LiveBits bits_store;
         LiveBits* bits = nullptr;
         std::vector<int> deg;
+        LiveAdj later;
         if (use_bits) {
             bits = &bits_store;
             init_collapse_graph(E, g.n, Tm, nbr, bits, true);
             deg.assign(static_cast<size_t>(g.n), 0);
+            later.assign(static_cast<size_t>(g.n), {});
+            scratch.cover.resize(static_cast<size_t>(bits->W));
             for (const Edge& e : E) {
                 ++deg[e.u];
                 ++deg[e.v];
@@ -463,7 +545,8 @@ inline Graph collapse_edges(Graph g, int iterations, Counters& c, int dom_budget
         for (size_t i = 0; i < mE; ++i) {
             Edge out;
             if (process_one_backward(E[i], E[i].t, Tm, nbr, scratch, dom_budget, out, c, bits,
-                                    use_bits ? &deg : nullptr)) {
+                                    use_bits ? &deg : nullptr,
+                                    use_bits ? &later : nullptr)) {
                 if (c.n_collapse_first_keep < 0)
                     c.n_collapse_first_keep = static_cast<std::int64_t>(i);
                 if (mE > 0) {
@@ -493,6 +576,10 @@ inline Graph collapse_edges(Graph g, int iterations, Counters& c, int dom_budget
                     }
                 }
                 kept.push_back(out);
+                if (use_bits) {
+                    later[out.u].push_back({out.v, out.t});
+                    later[out.v].push_back({out.u, out.t});
+                }
             }
             if ((i == mE - 1 || (i % step) == 0) && std::getenv("PITH_COLLAPSE_TRACE")) {
                 std::int64_t live = 0;
