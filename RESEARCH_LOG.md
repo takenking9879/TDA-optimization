@@ -1067,9 +1067,9 @@ Do not paste long reasoning here.
 - **Question:** Does conservative lazy witness (ν=0, no landmark-distance discount) keep essential H1 on mixed-homology families?
 - **Hypothesis:** Probe torus m=200 ν=0 had ess=2. Same O(n m²) build / PH on m. Quantify bottleneck. Shape-agnostic only if ess H1 holds on two_circles/figure8/torus/blobs/circle.
 - **Work:** Default `--witness-nu` 0. Wave 78.
-- **Result:** *(wave pending)*
-- **Decision:** Optional only if ess H1 + bn comparable to owned sparse (≤0.05). Else leave `--witness-n` as an unsafe experimental flag.
-- **Class:** experiment
+- **Result:** **Reject.** Only torus kept ess H1 (2=2) and even then bn **0.64** / 2795 unmatched. circle1000 **drops** a loop (1 vs 2). Others invent loops (circle80 13 vs 2, blobs 21 vs 3, two_circles/figure8 6 vs 3). Fast (torus 34×, circle1000 158×) but **not topology-preserving**.
+- **Decision:** `--witness-n` stays experimental/unsafe. Owned `--sparse-eps 0.6` remains the only optional approx with quantified acceptable loss. Exact default unchanged.
+- **Class:** experiment (reject; ess H1 / bottleneck fail)
 
 ## 2026-10-13 — I164 collapse live-degree trace
 
