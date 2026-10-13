@@ -645,9 +645,9 @@ Rips is exact and too slow.
    (not default): ess 8/8, figure8 n=2000 **419× / 6 ms**, n=8000
    **24 ms**. Finite unmatched 3–209. **I277 α=1.5 hold** (blobs 2
    unmatched). **I278 α=1.75 hold** (n=8000 unmatched 2). **I279
-   α=2.25 is the recommended H1 thicken**: exact 9/9 oracles,
-   figure8 n=4000 **156× / 152 ms**, n=8000 **67× / 390 ms / 428k**
-   vs RedZeD, n=16000 **815 ms / ess1=2**.    Do not thicken H2. Do
+   α=2.25 is the measured exact constant**: 9/9 oracles, figure8
+   n=4000 **156× / 152 ms**, n=8000 **67× / 390 ms / 428k**.
+   **I282 auto** is the recommended CLI. Do not thicken H2. Do
    not make it the exact default. **I280 `--delaunay-adapt` is an
    exact alternate at stable α=1.5** (9/9) but ~2× edges / 3× clock
    vs I279 — hold, do not replace. **I281 exact H2 scale:** sphere
