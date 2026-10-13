@@ -71,7 +71,7 @@ residual makes collapse *and* reduce slower (circle3000 1.49× vs full 8.11×).
 | --- | --- | --- | --- | --- |
 | sphere | \(H_2\) | 500 | 1.4 | **59×** (I085) / 46× later |
 | circle_noisy | \(H_1\) | 4000 | 1.5 | **22.8×** default back-bits (I184: 293.8s/12.91s). I157 src-walk was 9.50× |
-| circle_noisy | \(H_1\) | 3000 | 1.5 | **8.89×** src-walk (I156); bits ~2.57× collapse (I182). suffix-* 2 unmatched |
+| circle_noisy | \(H_1\) | 3000 | 1.5 | **21.5×** default bits (I185: 118s/5.50s). suffix-* 2 unmatched |
 | circle_noisy | \(H_1\) | 2000 | 1.5 | **14.9×** default bits (I184) / **41.7×** suffix-stab (I168) / **17.1×** suffix-later K=2 (I181) |
 | torus | \(H_1\) | 1000 | 1.6 | **1.31×** owned implicit (I139); E3 1.25× same run |
 | circle_noisy | \(H_1\) | 2000 | 1.2 | **4.13×** (I162) / 3.8–4.8× earlier |
@@ -81,18 +81,17 @@ residual makes collapse *and* reduce slower (circle3000 1.49× vs full 8.11×).
 
 **Not claimed:** H1 10× clock in general; high-d; worst-case asymptotics.
 **Honest H1>10× (exact, no oracle, default path):** circle n=4000 T=1.5 **22.8×** and n=2000 **14.9×** via I182/I184 bit-AND generate-C. Optional still higher on n=2000 only: suffix-stab **41.7×** (I168), suffix-later K=2 **17.1×** (I181).
-I162: src-walk **loses** on blobs (0.32×), sphere (0.17×), uniform2 (0.30×), torus (0.74×). I182 blobs bits is only 1.25× collapse — I185 remasures losers under the new default.
+I185 bits vs Ripser at n=2000: blobs **0.35×**, sphere **0.40×**, uniform2 **0.49×**, torus **1.01×** (was 0.70×). Still not a second-family 10×.
 I139: owned implicit **reduce 67 ms** on torus1000 residual 38k (homology was 1.7 s).
 E3 (collapse + Ripser-sparse) is no longer required; we own that residual class.
 
 **Alpha (I136)** is a different complex: GUDHI Alpha circle3000 0.023 s vs Ripser VR 123 s
 (~5400× empirical) with 2745 \(H_1\) bars. Off the exact-VR 10× board.
 
-## Next levers (still open after I184)
+## Next levers (still open after I185)
 
-I184 selected bit-AND generate-C as default. Flagship **22.8×**. I162 losers and drop_live_nbr (`~m²/n` star scans) are the remaining collapse wall.
+Circle family under bits: **14.9 / 21.5 / 22.8×** at n=2000/3000/4000. I162 losers persist (0.35–1.01×). Remaining wall is `drop_live_nbr` / LiveAdj scans, not C-misses.
 
-1. **Default:** I182/I184 back-bits. Flagship **22.8×** (circle n=4000 T=1.5).
-2. I185: remasure I162 losers + circle n=3000 under bits default.
-3. I186: O(1) drop_live_nbr (retire the swap-pop star scan).
-4. Optional suffix-* still n=2000-only. GPU later.
+1. **Default:** I182/I184 back-bits. Flagship **22.8×**.
+2. I186: retire LiveAdj on the bits path (deg[] only).
+3. Optional suffix-* still n=2000-only. GPU later.

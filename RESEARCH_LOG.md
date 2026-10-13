@@ -829,6 +829,13 @@ Do not paste long reasoning here.
 ## 2026-10-13 — I185 bits on I162 losers
 
 - **Question:** Does the bits default change the I162 lose-to-Ripser families, and what is circle n=3000 vs Ripser?
+- **Result:** All exact. circle3000 **21.5×** (118s/5.50s). blobs **0.35×** (1.26× collapse). sphere **0.40×** (2.33× collapse). uniform2 **0.49×** (1.89×). torus **1.01×** (was 0.70×).
+- **Decision:** Circle family is 14.9 / 21.5 / 22.8× at n=2000/3000/4000. Losers remain. I186: retire LiveAdj/`drop_live_nbr` on the bits path (remaining wall after miss-skip).
+- **Class:** experiment (support on circle; losers persist)
+
+## 2026-10-13 — I186 retire live-adj scans
+
+- **Question:** On the bits path, can we drop LiveAdj star scans (`drop_live_nbr` is ~m²/n) and keep only Tm+bits+deg?
 - **Class:** experiment (running)
 
 ## 2026-10-13 — I164 collapse live-degree trace

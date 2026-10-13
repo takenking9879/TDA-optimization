@@ -81,7 +81,8 @@ inline index_t first_dominator(const DenseTimes& Tm, const std::vector<index_t>&
 // filtration-safe: fewer trims, same PH as the thicker residual).
 inline index_t first_dominator_deg(const DenseTimes& Tm, const std::vector<index_t>& C_now,
                                   value_t t, const LiveAdj& nbr,
-                                  int budget = -1, Counters* ctr = nullptr) {
+                                  int budget = -1, Counters* ctr = nullptr,
+                                  const std::vector<int>* deg = nullptr) {
     if (C_now.empty()) return -1;
     if (C_now.size() == 1) {
         if (ctr) ++ctr->n_collapse_dom_hits;
@@ -90,7 +91,8 @@ inline index_t first_dominator_deg(const DenseTimes& Tm, const std::vector<index
     const size_t need = C_now.size() - 1;
     int tried = 0;
     for (index_t cand : C_now) {
-        if (nbr[cand].size() < need) continue;
+        const size_t cand_deg = deg ? static_cast<size_t>((*deg)[cand]) : nbr[cand].size();
+        if (cand_deg < need) continue;
         if (ctr) ++ctr->n_collapse_dom_tests;
         if (dominated_by(Tm, C_now, cand, t)) {
             if (ctr) ++ctr->n_collapse_dom_hits;
@@ -211,7 +213,8 @@ struct BwScratch {
 inline bool process_one_backward(const Edge& e_in, value_t t_in, DenseTimes& Tm,
                                  LiveAdj& nbr, BwScratch& S,
                                  int dom_budget, Edge& out, Counters& c,
-                                 LiveBits* bits = nullptr) {
+                                 LiveBits* bits = nullptr,
+                                 std::vector<int>* deg = nullptr) {
     const index_t u = e_in.u, v = e_in.v;
     value_t t = t_in;
     S.C_now.clear();
@@ -281,9 +284,16 @@ inline bool process_one_backward(const Edge& e_in, value_t t_in, DenseTimes& Tm,
 
     auto drop_uv = [&]() {
         Tm.erase(u, v);
-        drop_live_nbr(nbr, u, v);
-        drop_live_nbr(nbr, v, u);
         if (bits) bits->clear_edge(u, v);
+        if (deg) {
+            --(*deg)[u];
+            --(*deg)[v];
+        }
+        // I186: bits path does not need LiveAdj for C; skip star scans.
+        if (!bits) {
+            drop_live_nbr(nbr, u, v);
+            drop_live_nbr(nbr, v, u);
+        }
     };
 
     if (first >= 0 && fused_ok && !any_later) {
@@ -328,7 +338,7 @@ inline bool process_one_backward(const Edge& e_in, value_t t_in, DenseTimes& Tm,
     bool ever_shifted = false;
     bool dead = false;
     while (true) {
-        const index_t dominator = first_dominator_deg(Tm, S.C_now, t, nbr, dom_budget, &c);
+        const index_t dominator = first_dominator_deg(Tm, S.C_now, t, nbr, dom_budget, &c, deg);
         if (dominator < 0) break;
         const value_t* rd = Tm.row(dominator);
         bool still = true;
@@ -364,32 +374,45 @@ inline bool process_one_backward(const Edge& e_in, value_t t_in, DenseTimes& Tm,
     out = e_in;
     out.t = ever_shifted ? t : t_in;
     c.n_collapse_last_commons = commons;
-    c.n_collapse_last_mindeg = static_cast<std::int64_t>(
-        std::min(nbr[u].size(), nbr[v].size()));
+    if (deg) {
+        c.n_collapse_last_mindeg = static_cast<std::int64_t>(
+            std::min((*deg)[u], (*deg)[v]));
+    } else {
+        c.n_collapse_last_mindeg = static_cast<std::int64_t>(
+            std::min(nbr[u].size(), nbr[v].size()));
+    }
     if (ever_shifted) {
         Tm.set(u, v, out.t);
-        set_live_time(nbr, u, v, out.t);
-        set_live_time(nbr, v, u, out.t);
+        if (!bits) {
+            set_live_time(nbr, u, v, out.t);
+            set_live_time(nbr, v, u, out.t);
+        }
         ++c.n_collapse_shifts;
     }
     return true;
 }
 
 inline void init_collapse_graph(const std::vector<Edge>& E, int n, DenseTimes& Tm,
-                                LiveAdj& nbr, LiveBits* bits = nullptr) {
+                                LiveAdj& nbr, LiveBits* bits = nullptr,
+                                bool skip_nbr = false) {
     Tm = DenseTimes(n);
-    nbr.assign(n, {});
+    if (!skip_nbr) nbr.assign(n, {});
+    else nbr.clear();
     if (bits) *bits = LiveBits(n);
     std::vector<int> deg(n, 0);
     for (const Edge& e : E) {
         ++deg[e.u];
         ++deg[e.v];
     }
-    for (int i = 0; i < n; ++i) nbr[i].reserve(static_cast<size_t>(deg[i]));
+    if (!skip_nbr) {
+        for (int i = 0; i < n; ++i) nbr[i].reserve(static_cast<size_t>(deg[i]));
+    }
     for (const Edge& e : E) {
         Tm.set(e.u, e.v, e.t);
-        nbr[e.u].push_back({e.v, e.t});
-        nbr[e.v].push_back({e.u, e.t});
+        if (!skip_nbr) {
+            nbr[e.u].push_back({e.v, e.t});
+            nbr[e.v].push_back({e.u, e.t});
+        }
         if (bits) bits->set_edge(e.u, e.v);
     }
 }
@@ -420,9 +443,15 @@ inline Graph collapse_edges(Graph g, int iterations, Counters& c, int dom_budget
         LiveAdj nbr;
         LiveBits bits_store;
         LiveBits* bits = nullptr;
+        std::vector<int> deg;
         if (use_bits) {
             bits = &bits_store;
-            init_collapse_graph(E, g.n, Tm, nbr, bits);
+            init_collapse_graph(E, g.n, Tm, nbr, bits, true);
+            deg.assign(static_cast<size_t>(g.n), 0);
+            for (const Edge& e : E) {
+                ++deg[e.u];
+                ++deg[e.v];
+            }
         } else {
             init_collapse_graph(E, g.n, Tm, nbr);
         }
@@ -434,7 +463,8 @@ inline Graph collapse_edges(Graph g, int iterations, Counters& c, int dom_budget
         int early_n = 0;
         for (size_t i = 0; i < mE; ++i) {
             Edge out;
-            if (process_one_backward(E[i], E[i].t, Tm, nbr, scratch, dom_budget, out, c, bits)) {
+            if (process_one_backward(E[i], E[i].t, Tm, nbr, scratch, dom_budget, out, c, bits,
+                                    use_bits ? &deg : nullptr)) {
                 if (c.n_collapse_first_keep < 0)
                     c.n_collapse_first_keep = static_cast<std::int64_t>(i);
                 if (mE > 0) {
