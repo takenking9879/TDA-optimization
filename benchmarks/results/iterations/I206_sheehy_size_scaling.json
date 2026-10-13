@@ -1,0 +1,163 @@
+{
+  "id": "sheehy_size_scaling",
+  "lever": "H00-complexity",
+  "class": "experiment",
+  "fidelity": "approx",
+  "status": "support",
+  "summary": "I206 Sheehy sparse=0.5 simplex-count vs n",
+  "receipts": [
+    {
+      "name": "circle_noisy",
+      "n": 500,
+      "T": 1.5,
+      "sparse_simplices": 43937,
+      "sparse_s": 0.009632558001612779
+    },
+    {
+      "name": "circle_noisy",
+      "n": 1000,
+      "T": 1.5,
+      "sparse_simplices": 122343,
+      "sparse_s": 0.029150293001293903
+    },
+    {
+      "name": "circle_noisy",
+      "n": 1500,
+      "T": 1.5,
+      "sparse_simplices": 226052,
+      "sparse_s": 0.055783813000743976
+    },
+    {
+      "name": "blobs",
+      "n": 500,
+      "T": 1.0,
+      "sparse_simplices": 83771,
+      "sparse_s": 0.01965804300198215
+    },
+    {
+      "name": "blobs",
+      "n": 1000,
+      "T": 1.0,
+      "sparse_simplices": 227624,
+      "sparse_s": 0.04876416499973857
+    },
+    {
+      "name": "blobs",
+      "n": 1500,
+      "T": 1.0,
+      "sparse_simplices": 381277,
+      "sparse_s": 0.09588544500002172
+    },
+    {
+      "name": "sphere",
+      "n": 500,
+      "T": 1.4,
+      "sparse_simplices": 108949,
+      "sparse_s": 0.027421339000284206
+    },
+    {
+      "name": "sphere",
+      "n": 1000,
+      "T": 1.4,
+      "sparse_simplices": 287822,
+      "sparse_s": 0.06635365500187618
+    },
+    {
+      "name": "sphere",
+      "n": 1500,
+      "T": 1.4,
+      "sparse_simplices": 431096,
+      "sparse_s": 0.11001911900166306
+    },
+    {
+      "name": "torus",
+      "n": 500,
+      "T": 1.6,
+      "sparse_simplices": 119146,
+      "sparse_s": 0.02638577399920905
+    },
+    {
+      "name": "torus",
+      "n": 1000,
+      "T": 1.6,
+      "sparse_simplices": 334164,
+      "sparse_s": 0.0659270199976163
+    },
+    {
+      "name": "torus",
+      "n": 1500,
+      "T": 1.6,
+      "sparse_simplices": 525027,
+      "sparse_s": 0.11347928100076388
+    },
+    {
+      "name": "uniform2",
+      "n": 500,
+      "T": 0.35,
+      "sparse_simplices": 78102,
+      "sparse_s": 0.02475603300263174
+    },
+    {
+      "name": "uniform2",
+      "n": 1000,
+      "T": 0.35,
+      "sparse_simplices": 197447,
+      "sparse_s": 0.05436038500192808
+    },
+    {
+      "name": "uniform2",
+      "n": 1500,
+      "T": 0.35,
+      "sparse_simplices": 346750,
+      "sparse_s": 0.10346187699906295
+    }
+  ],
+  "slopes": {
+    "circle_noisy": {
+      "slope_simplices": 1.4895196343602457,
+      "slope_time": 1.5985594426382337,
+      "simplices": [
+        43937,
+        122343,
+        226052
+      ]
+    },
+    "blobs": {
+      "slope_simplices": 1.3861658205097815,
+      "slope_time": 1.4282422228772162,
+      "simplices": [
+        83771,
+        227624,
+        381277
+      ]
+    },
+    "sphere": {
+      "slope_simplices": 1.2680915650107374,
+      "slope_time": 1.265729018944288,
+      "simplices": [
+        108949,
+        287822,
+        431096
+      ]
+    },
+    "torus": {
+      "slope_simplices": 1.3648198131248077,
+      "slope_time": 1.3271265686208218,
+      "simplices": [
+        119146,
+        334164,
+        525027
+      ]
+    },
+    "uniform2": {
+      "slope_simplices": 1.3547721302023599,
+      "slope_time": 1.2837823914912598,
+      "simplices": [
+        78102,
+        197447,
+        346750
+      ]
+    }
+  },
+  "all_subquadratic_size": true
+}

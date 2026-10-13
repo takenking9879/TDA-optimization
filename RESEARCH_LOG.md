@@ -977,6 +977,13 @@ Do not paste long reasoning here.
 - **Decision:** Keep exact-VR collapse as default (0 topology loss). **Reject Alpha** as a VR stand-in — it loses loops on two_circles / figure8 / torus. Sparse is the only approx path that keeps essential homology; loss is a **≤0.05 bottleneck** at ε=0.5, not a better exact algorithm. I206: sparse simplex-count vs n (is the O(n) theorem visible at protocol T?).
 - **Class:** experiment (support as quantified-loss table; reject Alpha as default; sparse not selected)
 
+## 2026-10-13 — I206 Sheehy size vs n
+
+- **Question:** Is Sheehy sparse=0.5 simplex count o(n²) on every family at protocol T, including torus?
+- **Result:** **Yes, empirically.** Simplex-count slopes n=500…1500: circle **1.49**, blobs **1.39**, sphere **1.27**, torus **1.36**, uniform2 **1.35**. Time slopes 1.27–1.60. Torus n=1500 is 525k simplices (still large constants). Theoretical O(n) is not fully visible yet (pre-asymptotic / (1/ε)^{O(kδ)}).
+- **Decision:** This is the only measured **better size exponent on torus** (~n^{1.36} vs collapse residual n^{2.08} and Ripser n² edges). It is **approximate** (I205 bottleneck ≤0.05, essential H1 kept). Do not replace the exact default. Next: I207 owned implicit on a Sheehy 1-skeleton (keep cohomology, inherit the size exponent, quantify the same loss).
+- **Class:** experiment (support as approx Big-O evidence; not a default switch)
+
 ## 2026-10-13 — I164 collapse live-degree trace
 
 - **Question:** Does the live 1-skeleton thin early enough to stop the C-walk?

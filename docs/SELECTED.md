@@ -139,21 +139,24 @@ figure8 / torus / blobs / circle. Bottleneck after \(2\sqrt{r^2}\) scale
 is **0.01–1.39**. **Rejected as a VR stand-in** — not shape-agnostic
 enough for mixed homology.
 
-**Sheehy sparse ε=0.5 (I205):** essential \(H_1\) **correct on 7/7**.
+**Sheehy sparse ε=0.5 (I205–I206):** essential \(H_1\) **correct on 7/7**.
 Finite-H1 bottleneck **0.0048–0.049**. Unmatched 64–290 at \(10^{-4}\)
 (features shift, not deleted). Not uniformly faster than Ripser (blobs /
-uniform2 **<1×**). Not selected; documented as the approx path with
-quantified loss.
+uniform2 **<1×**). Simplex-count slopes **1.27–1.49 on all five families
+including torus** (I206) — the only measured better size exponent on the
+thick-graph wall. Not selected as default (inexact); documented as the
+approx path with quantified loss.
 
-## Next levers (still open after I205)
+## Next levers (still open after I206)
 
 Circle family: **84.4 / 119 / 140×**. Other families ~1.3–2.1×. Default is
 shape-agnostic and **exact** (0 bars lost). Worst-case Big-O is **not**
 better than Ripser (torus residual \(\Theta(n^2)\)).
 
 1. **Default:** I193 + I197 + I202 gated witness + I203 cofacet early-stop.
-2. **I206:** sparse simplex-count vs \(n\) — is Sheehy's \(O(n)\) visible
-   at protocol \(T\), or still \(\Theta(n^2)\) in practice?
+2. **I207:** owned implicit cohomology on a Sheehy 1-skeleton — inherit
+   the ~\(n^{1.3}\) size exponent, keep the I205 loss numbers, see if
+   wall-clock beats Ripser on blobs/uniform2 (where GUDHI sparse lost).
 3. Torus shift heap (time-bucket / later-bits) is a constant-factor lever
    on a \(\Theta(n^2)\) residual, not a Big-O change.
 4. GPU later.
