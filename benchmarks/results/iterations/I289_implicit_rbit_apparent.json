@@ -1,0 +1,35 @@
+{
+  "id": "implicit_rbit_apparent",
+  "lever": "H02-implicit-rbit-apparent",
+  "class": "algorithm",
+  "fidelity": "exact-claimed",
+  "status": "reject",
+  "summary": "exact unit tests; figure8 n=4000 collapse0 reduce 24424≈25463 ms. Apparent probes 64M→3.2M; wall is 103M cofacet probes on 892 cols. Reverted.",
+  "fig4_cut": false,
+  "hold": false,
+  "receipts": [
+    {
+      "engine": "implicit0",
+      "name": "figure8",
+      "n": 2000,
+      "reduce_ms_before": 2534.8,
+      "reduce_ms_rbit": 2449.3,
+      "cols_assembled": 348,
+      "cols_apparent": 479410,
+      "cofacet_apparent_probes_rbit": 1738818,
+      "cofacet_probes": 12652103
+    },
+    {
+      "engine": "implicit0",
+      "name": "figure8",
+      "n": 4000,
+      "reduce_ms_before": 25463.279,
+      "reduce_ms_rbit": 24423.526,
+      "cols_assembled": 892,
+      "cols_apparent": 1975880,
+      "cofacet_apparent_probes_rbit": 3228654,
+      "cofacet_probes": 103529332,
+      "additions": 170081
+    }
+  ]
+}

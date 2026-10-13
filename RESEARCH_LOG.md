@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-13 — I289 grade-t rbit apparent (implicit)
+
+- **Question:** Does testing Ripser apparent pairs on G_t (incremental rbit AND) instead of walking G_T common neighbors cut implicit `--collapse 0` on figure8 (25 s / 64M apparent probes)?
+- **Hypothesis:** Same-diameter triangles only use neighbors already born. First hi-order G_t common neighbor is the zero-pivot cofacet. Exact. If collapse=0 becomes faster than RedZeD, auto could skip collapse on hollow+thin.
+- **Work:** `zero_apparent_cofacet_rbit` in the implicit first pass. A/B vs pre-I289 collapse=0. Reverted after no pith cut.
+- **Result:** Unit tests still pass (implicit C4/triangle/C8). figure8 n=2000 reduce **2449 vs 2535 ms**. n=4000 **24424 vs 25463 ms**. Apparent probes **64M → 3.2M**, but `cofacet_probes` stay **103M** on 892 surviving columns (170k additions). Collapse+implicit remains 823+5 ms; RedZeD 850 ms.
+- **Decision:** **Reject and revert.** The no-collapse implicit wall is coboundary assembly of the non-apparent columns, not the first-pass apparent walk. Do not switch hollow auto to collapse=0. Do not retry G_t rbit apparent as a clock lever. Do not mark the goal complete.
+- **Class:** experiment (reject; exact, no faster)
+
 ## 2026-10-13 — I288 equal-set seeded_is_noop
 
 - **Question:** Does skipping `process_seeded` when seed annotations are equal even copies (not only singletons) cut the figure8 n=4000 ae_seeded wall?

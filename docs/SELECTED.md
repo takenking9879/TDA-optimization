@@ -1,6 +1,6 @@
 # Selected algorithm (living)
 
-Updated 2026-10-13 after iterations I001–I288. **CLI default `--engine
+Updated 2026-10-13 after iterations I001–I289. **CLI default `--engine
 auto` (I235+I236+I239+I240+I241+I263+I270+I271+I275):** subsample residual-frac dispatch,
 plus I263 edge-frac so hollow/manifold clouds take RedZeD. Fat →
 RedZeD (torus n=2000 **13.0×**). Thin-circle → collapse+implicit
@@ -134,6 +134,7 @@ suite and I137 8/8 (including dense circle80/200 **collapse=0**, the I045 killer
 | Gabriel leftover skip (I272) | **Not exact.** n=256 H1 invented ess 31 vs 0 and dropped finite 37 vs 68. Non-Gabriel leftovers still reduce in AE (not all leftover_coface). Reverted. Do not retry. |
 | Empty-seed non-Delaunay leftover skip (I273) | **Exact 13/13** but **no clock cut**. figure8 n=4000 reduce **864≈866 ms**. Wall is ae_seeded, not empty-seed leftover_coface. Reverted. Do not retry empty-seed geometric skips. |
 | Equal-set seeded_is_noop (I288) | **Exact 10/10.** figure8 n=4000 reduce **848≈866 ms**. `{A} XOR {A}` skip is valid and rare after mid-loop growth. Reverted. Do not retry seeded XOR/noop constants. |
+| Grade-t rbit apparent (I289) | Implicit collapse=0 exact (unit tests; same 892 cols). figure8 n=4000 **24424≈25463 ms**. Apparent probes 64M→3.2M; wall is 103M cofacet probes on surviving columns. Reverted. Do not retry as a clock lever. |
 
 I107 (`--dom-budget 1`) **still rejected** with implicit (I142–I144): thicker
 residual makes collapse *and* reduce slower (circle3000 1.49× vs full 8.11×).
@@ -676,8 +677,9 @@ Rips is exact and too slow.
    Euclidean H0+H1+H2 path is I286 split (I287: sphere n=8000
    1.42 s). **I288 equal-set seeded_is_noop:** exact 10/10,
    figure8 n=4000 reduce **848≈866 ms** — reverted. Do not retry
-   leftover XOR/noop constants. ae_seeded visits remain the
-   exact-H1 wall.
+   leftover XOR/noop constants. **I289 G_t rbit apparent:** exact,
+   collapse=0 still ~24 s — coboundary assembly of 892 cols is the
+   wall. Reverted. ae_seeded visits remain the exact-H1 wall.
 6. Owned AE leftover-star walk is still Θ(|leftover|·deg★) — rbit cut
    has_leftover_coface, not seeded probes (circle still 875k). I288
    equal-set seeded_is_noop is exact and reverted (848≈866). Packed
