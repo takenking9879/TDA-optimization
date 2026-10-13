@@ -1,0 +1,37 @@
+{
+  "id": "column_work_sticky",
+  "lever": "H01",
+  "class": "structural",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "collapse still cuts 18\u20131964\u00d7 columns after sticky (I058 reuse)",
+  "receipts": [
+    {
+      "dataset": "circle_noisy",
+      "n": 200,
+      "cols0": 166935,
+      "cols1": 85,
+      "ratio": 1963.9411764705883,
+      "edges0": 8197,
+      "edges1": 283
+    },
+    {
+      "dataset": "torus",
+      "n": 200,
+      "cols0": 55843,
+      "cols1": 3098,
+      "ratio": 18.025500322788897,
+      "edges0": 4789,
+      "edges1": 1260
+    },
+    {
+      "dataset": "sphere",
+      "n": 80,
+      "cols0": 82901,
+      "cols1": 345,
+      "ratio": 240.29275362318842,
+      "edges0": 1564,
+      "edges1": 286
+    }
+  ]
+}
