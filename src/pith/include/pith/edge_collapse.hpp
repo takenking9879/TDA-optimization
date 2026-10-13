@@ -397,7 +397,7 @@ inline void init_collapse_graph(const std::vector<Edge>& E, int n, DenseTimes& T
 // Backward filtration-preserving edge collapse (Glisse–Pritam / GUDHI).
 // I044: sticky dominator across C_later shifts + lazy heap (GUDHI L237–264).
 inline Graph collapse_edges(Graph g, int iterations, Counters& c, int dom_budget = -1,
-                            bool use_bits = false) {
+                            bool use_bits = true) {
     const auto t0 = std::chrono::steady_clock::now();
     if (c.n_edges_in == 0) c.n_edges_in = static_cast<std::int64_t>(g.edges.size());
 

@@ -19,7 +19,7 @@ static void usage() {
         << "  --maxdim K          homology dimension (default 1)\n"
         << "  --threshold T       VR diameter threshold (default inf)\n"
         << "  --collapse N        collapse passes (default -1 adaptive+probe; 0 = off)\n"
-        << "  --collapse-alg back|back-bits|dc|forward|suffix|suffix-back|suffix-stab|suffix-rescue|suffix-k|suffix-later\n"
+        << "  --collapse-alg back|back-src|back-bits|dc|forward|suffix|suffix-back|suffix-stab|suffix-rescue|suffix-k|suffix-later\n"
         << "  --suffix-mult X     oldest X·n edges for suffix* (default 6; I165)\n"
         << "  --suffix-keep N     oldest N edges (overrides --suffix-mult; I167)\n"
         << "  --suffix-k K        sample-K first-apex for suffix-k/later (0=full fused)\n"
@@ -314,7 +314,9 @@ int main(int argc, char** argv) {
             return 0;
         }
         auto do_collapse = [&](Graph&& h, int iters) -> Graph {
-            if (collapse_alg == "back-bits")
+            if (collapse_alg == "back-src")
+                return collapse_edges(std::move(h), iters, c, dom_budget, false);
+            if (collapse_alg == "back-bits" || collapse_alg == "back")
                 return collapse_edges(std::move(h), iters, c, dom_budget, true);
             if (collapse_alg == "dc") return collapse_edges_dc(std::move(h), iters, c, dom_budget);
             if (collapse_alg == "forward") return collapse_edges_forward(std::move(h), iters, c);

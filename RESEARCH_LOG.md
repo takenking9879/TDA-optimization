@@ -822,7 +822,13 @@ Do not paste long reasoning here.
 ## 2026-10-13 — I184 bit-AND flagship
 
 - **Question:** Does back-bits clear H1 10× vs Ripser at circle n=4000 T=1.5 (I157 was 9.50×)?
-- **Work:** Wave51 n=2000/4000 back vs back-bits vs Ripser.
+- **Result:** **Yes, exact.** n=4000 **22.8×** (293.8s/12.91s, residual 12562, C-size 2.33B identical, collapse 2.64×, 4.58B→272M probes). n=2000 **14.9×** (26.7s/1.80s). Src-walk on this machine was 8.76× / 6.17×.
+- **Decision:** Select bits as default (`--collapse-alg back`; `back-src` keeps the old walk). I185 remasures I162 losers.
+- **Class:** experiment (support) — flagship H1 10× on circle n=2000/4000
+
+## 2026-10-13 — I185 bits on I162 losers
+
+- **Question:** Does the bits default change the I162 lose-to-Ripser families, and what is circle n=3000 vs Ripser?
 - **Class:** experiment (running)
 
 ## 2026-10-13 — I164 collapse live-degree trace

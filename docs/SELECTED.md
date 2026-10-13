@@ -1,13 +1,14 @@
 # Selected algorithm (living)
 
-Updated 2026-10-13 after iterations I001–I183. Default collapse is still I155 pair-nbr + I156 fused first-apex. **I182 `back-bits` is the candidate default** (exact, 2.47–2.57× collapse on circle; I184 remasuring n=4000 vs Ripser). Optional suffix-* remain exact H1>10× on circle n=2000 T=1.5 only.
+Updated 2026-10-13 after iterations I001–I184. **Default collapse is I182 live-bit AND generate-C** on top of I155 pair-nbr + I156 fused first-apex. Flagship circle n=4000 T=1.5 is **22.8×** vs Ripser (I184). Optional suffix-* remain exact H1>10× on circle n=2000 T=1.5 only. `--collapse-alg back-src` is the pre-I182 src walk.
 
 ## Selected exact-VR CPU pipeline
 
 **Name:** **PITH** — threshold graph \(G_T\) → backward flag **edge collapse**
 (GUDHI sticky-dominator + lazy heap + cheap degree filter + I155 pair-nbr
-times on live adjacency) → **Ripser-heap implicit cohomology** on the residual
-flag graph (I137). I156 fused first-apex is selected on top of this.
+times on live adjacency + **I182 live-bit AND generate-C**) → **Ripser-heap
+implicit cohomology** on the residual flag graph (I137). I156 fused first-apex
+is selected on top of this. `--collapse-alg back` uses bits (I184).
 
 - \(H_0\): Kruskal. `--collapse -1` **skips collapse** when `maxdim=0`.
 - \(H_1\): leftover (non-MST, non-apparent) edges, youngest-first; F₂ heap
@@ -69,9 +70,9 @@ residual makes collapse *and* reduce slower (circle3000 1.49× vs full 8.11×).
 | Dataset | dim | n | T | vs Ripser |
 | --- | --- | --- | --- | --- |
 | sphere | \(H_2\) | 500 | 1.4 | **59×** (I085) / 46× later |
-| circle_noisy | \(H_1\) | 4000 | 1.5 | **9.50×** default back (I157). suffix-* not exact (I168–I172) |
-| circle_noisy | \(H_1\) | 3000 | 1.5 | **8.89×** default back (I156). suffix-* 2 unmatched |
-| circle_noisy | \(H_1\) | 2000 | 1.5 | **41.7×** suffix-stab (I168) / **36.5×** suffix-rescue (I172) / **16.9×** suffix-later K=2 Case A (I180) / 7.20× default |
+| circle_noisy | \(H_1\) | 4000 | 1.5 | **22.8×** default back-bits (I184: 293.8s/12.91s). I157 src-walk was 9.50× |
+| circle_noisy | \(H_1\) | 3000 | 1.5 | **8.89×** src-walk (I156); bits ~2.57× collapse (I182). suffix-* 2 unmatched |
+| circle_noisy | \(H_1\) | 2000 | 1.5 | **14.9×** default bits (I184) / **41.7×** suffix-stab (I168) / **17.1×** suffix-later K=2 (I181) |
 | torus | \(H_1\) | 1000 | 1.6 | **1.31×** owned implicit (I139); E3 1.25× same run |
 | circle_noisy | \(H_1\) | 2000 | 1.2 | **4.13×** (I162) / 3.8–4.8× earlier |
 | blobs / sphere / uniform2 | \(H_1\) | 2000 | default T | **0.17–0.32×** (I162) — collapse loses to Ripser |
@@ -79,21 +80,19 @@ residual makes collapse *and* reduce slower (circle3000 1.49× vs full 8.11×).
 | circle_noisy | \(H_1\) | 1000 | 1.5 | **4.1×** (I083) |
 
 **Not claimed:** H1 10× clock in general; high-d; worst-case asymptotics.
-**Honest H1>10× (exact, no oracle):** circle n=2000 T=1.5 via `--collapse-alg suffix-stab` **41.7×** (I168), `suffix-rescue` **36.5×** (I172), or `suffix-later --suffix-k 2` **16.9×** (I180 Case A `later[]`). All fail or lose their cut at n=3000/4000: ~100 nonempty-C **shift-keeps** (16+ are Case B only). I180 Case-B leave is exact at n=4000 K=2 (9.08×) and n=3000 K=8 (7.78×) but cascades.
-I157 default back: n=4000 T=1.5 is **9.50×** (Ripser 294 s / PITH 30.9 s).
-I162: at n=2000 the same default **loses** on blobs (0.32×), sphere (0.17×), uniform2 (0.30×), torus (0.74×).
+**Honest H1>10× (exact, no oracle, default path):** circle n=4000 T=1.5 **22.8×** and n=2000 **14.9×** via I182/I184 bit-AND generate-C. Optional still higher on n=2000 only: suffix-stab **41.7×** (I168), suffix-later K=2 **17.1×** (I181).
+I162: src-walk **loses** on blobs (0.32×), sphere (0.17×), uniform2 (0.30×), torus (0.74×). I182 blobs bits is only 1.25× collapse — I185 remasures losers under the new default.
 I139: owned implicit **reduce 67 ms** on torus1000 residual 38k (homology was 1.7 s).
 E3 (collapse + Ripser-sparse) is no longer required; we own that residual class.
 
 **Alpha (I136)** is a different complex: GUDHI Alpha circle3000 0.023 s vs Ripser VR 123 s
 (~5400× empirical) with 2745 \(H_1\) bars. Off the exact-VR 10× board.
 
-## Next levers (still open after I183)
+## Next levers (still open after I184)
 
-I182: live-bit AND generate-C is exact and cuts collapse **2.47–2.57×** on circle (C-size identical). I184 remasures n=4000 vs Ripser (I157 9.50×). I162 losers: blobs only 1.25× collapse, still lose to Ripser.
+I184 selected bit-AND generate-C as default. Flagship **22.8×**. I162 losers and drop_live_nbr (`~m²/n` star scans) are the remaining collapse wall.
 
-1. **Default (living):** I155+I156 back. Flagship **9.50×** (I157) until I184 selects bits.
-2. **Candidate default:** `--collapse-alg back-bits` (I182).
-3. **Optional exact H1>10× on circle n=2000:** `suffix-stab` 41.7× / `suffix-rescue` 36.5× / `suffix-later -k 2` **17.1×**. Do not default.
-4. Combine bits into suffix-later tail and drop_live_nbr (I185) after I184.
-5. I162 losers still need an order-of-magnitude C cut; bits is only 1.25× there. GPU later.
+1. **Default:** I182/I184 back-bits. Flagship **22.8×** (circle n=4000 T=1.5).
+2. I185: remasure I162 losers + circle n=3000 under bits default.
+3. I186: O(1) drop_live_nbr (retire the swap-pop star scan).
+4. Optional suffix-* still n=2000-only. GPU later.
