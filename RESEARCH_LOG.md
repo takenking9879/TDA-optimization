@@ -969,6 +969,14 @@ Do not paste long reasoning here.
 - **Decision:** Collapse is **shape-agnostic and exact**, but **not a worst-case Big-O win**. Residual is ~O(n) on collapse-friendly geometry and **Θ(n²) on torus**. Do not claim better asymptotics than Ripser in general. I205: quantify Alpha / Sheehy sparse vs VR (bottleneck, unmatched, size) as the remaining path to a better worst-case bound.
 - **Class:** experiment (partial — exact + honest complexity; torus blocks a general o(n²) claim)
 
+## 2026-10-13 — I205 Alpha / Sheehy quantified loss
+
+- **Question:** On a shape-diverse suite, how much topology does Alpha (Čech/offset) or Sheehy sparse=0.5 lose vs exact VR, and do they beat Ripser's size/time enough to justify a complex change?
+- **Result:** Alpha (2√r² vs VR diameter): **drops essential H1** on 5/7 families (circle 1 vs 2, blobs 1 vs 3, torus 1 vs 2, figure8 1 vs 3, two_circles 1 vs 3). Unmatched 190–751. Bottleneck 0.011–1.39 (torus 1.39, circle 0.83). Fast (5–397×) and ~O(n) simplices (2k–40k) — **wrong features for mixed homology**.
+  Sheehy sparse=0.5: **essential H1 correct on 7/7**. Finite-H1 bottleneck **0.0048–0.049** (figure8 0.0048, two_circles 0.005, circle 0.010, torus 0.049). Unmatched 64–290 at 1e-4 (bars shift by ~bottleneck, not dropped). Size 17k–326k simplices — not a tiny complex. Time: circle 37× vs Ripser, torus 2.2×, **blobs 0.73× / uniform2 0.81× (slower than Ripser)**.
+- **Decision:** Keep exact-VR collapse as default (0 topology loss). **Reject Alpha** as a VR stand-in — it loses loops on two_circles / figure8 / torus. Sparse is the only approx path that keeps essential homology; loss is a **≤0.05 bottleneck** at ε=0.5, not a better exact algorithm. I206: sparse simplex-count vs n (is the O(n) theorem visible at protocol T?).
+- **Class:** experiment (support as quantified-loss table; reject Alpha as default; sparse not selected)
+
 ## 2026-10-13 — I164 collapse live-degree trace
 
 - **Question:** Does the live 1-skeleton thin early enough to stop the C-walk?

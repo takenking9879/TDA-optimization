@@ -133,20 +133,27 @@ stays \(\sim n^{2.2}\) except torus \(\sim n^3\). Circle's 10×–80× is the
 **exponent gap** vs Ripser \(n^{3.25}\), not a better worst-case class.
 Torus residual is \(\Theta(n^2)\) — **no general Big-O win**.
 
-**Alpha (I136)** is a different complex: GUDHI Alpha circle3000 0.023 s vs Ripser VR 123 s
-(~5400× empirical) with 2745 \(H_1\) bars. Candidate for a **better Big-O in
-low-d Euclidean** (Delaunay size) if we quantify barcode distance vs VR
-(I205). Not a drop-in exact-VR replacement.
+**Alpha (I205, n=1000 / extras):** other complex. Fast (5–397× vs Ripser) and
+small (2k–40k simplices) but **drops essential \(H_1\)** on two_circles /
+figure8 / torus / blobs / circle. Bottleneck after \(2\sqrt{r^2}\) scale
+is **0.01–1.39**. **Rejected as a VR stand-in** — not shape-agnostic
+enough for mixed homology.
 
-## Next levers (still open after I204)
+**Sheehy sparse ε=0.5 (I205):** essential \(H_1\) **correct on 7/7**.
+Finite-H1 bottleneck **0.0048–0.049**. Unmatched 64–290 at \(10^{-4}\)
+(features shift, not deleted). Not uniformly faster than Ripser (blobs /
+uniform2 **<1×**). Not selected; documented as the approx path with
+quantified loss.
+
+## Next levers (still open after I205)
 
 Circle family: **84.4 / 119 / 140×**. Other families ~1.3–2.1×. Default is
-shape-agnostic and exact; residual complexity is **not** uniformly better.
+shape-agnostic and **exact** (0 bars lost). Worst-case Big-O is **not**
+better than Ripser (torus residual \(\Theta(n^2)\)).
 
 1. **Default:** I193 + I197 + I202 gated witness + I203 cofacet early-stop.
-2. **I205:** Alpha / Sheehy sparse vs VR — bottleneck, unmatched, simplex
-   count — only remaining path to a better *worst-case* bound. Quantify
-   topology loss; do not call Alpha “exact VR”.
+2. **I206:** sparse simplex-count vs \(n\) — is Sheehy's \(O(n)\) visible
+   at protocol \(T\), or still \(\Theta(n^2)\) in practice?
 3. Torus shift heap (time-bucket / later-bits) is a constant-factor lever
    on a \(\Theta(n^2)\) residual, not a Big-O change.
 4. GPU later.
