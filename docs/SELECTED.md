@@ -2,7 +2,7 @@
 
 Updated 2026-10-13 after iterations I001–I258. **CLI default `--engine
 auto` (I235+I236+I239+I240+I241):** subsample residual-frac dispatch. Fat →
-RedZeD (torus n=2000 **14.2×**). Thin-circle → collapse+implicit
+RedZeD (torus n=2000 **11.5×**). Thin-circle → collapse+implicit
 (n=1000 **28×**; n=4000 still **140×**). Disconnected G_T → spatial UF
 + parallel RedZeD per component (blobs n=4000 **25×**, n=8000 **27×**
 in 0.38 s). **H0** is Kruskal (no RedZeD). **H2:** τ=0.15 so sphere void
