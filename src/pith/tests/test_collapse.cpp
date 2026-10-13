@@ -894,6 +894,65 @@ int main() {
                   << " |E|=" << de.size() << "\n";
     }
 
+    // I286: split H1 thicken / H2 α=1. Circle keeps ess H1; two octahedra
+    // keep ess H2 from the thin flag (thicken must not fill the voids).
+    {
+        const int n = 16;
+        const value_t T = 1.4f;
+        std::vector<std::vector<value_t>> pts(static_cast<size_t>(n), std::vector<value_t>(2));
+        for (int i = 0; i < n; ++i) {
+            const float a = 6.2831853f * static_cast<float>(i) / static_cast<float>(n);
+            pts[static_cast<size_t>(i)][0] = std::cos(a);
+            pts[static_cast<size_t>(i)][1] = std::sin(a);
+        }
+        std::vector<Edge> thin, thick;
+        if (!delaunay_vr_skeleton(pts, T, 1, thin) ||
+            !delaunay_vr_skeleton(pts, T, delaunay_auto_alpha(n), thick)) {
+            std::cerr << "I286 circle split skeletons failed\n";
+            return 1;
+        }
+        Result r1 = persist_implicit_coh(graph_from_edge_list(n, thick, T), 1, T, 1);
+        Result r2 = persist_implicit_coh(graph_from_edge_list(n, thin, T), 2, T, 1);
+        int ess1 = 0, ess2 = 0;
+        for (const auto& p : r1.pairs)
+            if (p.dim == 1 && !std::isfinite(p.death)) ++ess1;
+        for (const auto& p : r2.pairs)
+            if (p.dim == 2 && !std::isfinite(p.death)) ++ess2;
+        if (ess1 != 1 || ess2 != 0) {
+            std::cerr << "I286 circle split ess1/ess2=" << ess1 << "/" << ess2 << "\n";
+            return 1;
+        }
+        std::cout << "ok I286 split circle ess H1 |E_thick|=" << thick.size() << "\n";
+    }
+    {
+        const value_t T = 1.5f;
+        const value_t oct[6][3] = {
+            {1, 0, 0}, {-1, 0, 0}, {0, 1, 0}, {0, -1, 0}, {0, 0, 1}, {0, 0, -1},
+        };
+        std::vector<std::vector<value_t>> pts;
+        pts.reserve(12);
+        for (int i = 0; i < 6; ++i) pts.push_back({oct[i][0], oct[i][1], oct[i][2]});
+        for (int i = 0; i < 6; ++i) pts.push_back({oct[i][0] + 8, oct[i][1], oct[i][2]});
+        std::vector<Edge> thin, thick;
+        if (!delaunay_vr_skeleton(pts, T, 1, thin) ||
+            !delaunay_vr_skeleton(pts, T, delaunay_auto_alpha(12), thick)) {
+            std::cerr << "I286 octahedra split skeletons failed\n";
+            return 1;
+        }
+        Result r1 = persist_implicit_coh(graph_from_edge_list(12, thick, T), 1, T, 1);
+        Result r2 = persist_implicit_coh(graph_from_edge_list(12, thin, T), 2, T, 1);
+        int ess0 = 0, ess2 = 0;
+        for (const auto& p : r1.pairs)
+            if (p.dim == 0 && !std::isfinite(p.death)) ++ess0;
+        for (const auto& p : r2.pairs)
+            if (p.dim == 2 && !std::isfinite(p.death)) ++ess2;
+        if (ess0 != 2 || ess2 != 2) {
+            std::cerr << "I286 octahedra split ess0/ess2=" << ess0 << "/" << ess2 << "\n";
+            return 1;
+        }
+        std::cout << "ok I286 split two-octahedra ess H0/H2 |E_thick|=" << thick.size() << "\n";
+    }
+
     // I239: two octahedra far apart — H0=2 and H2=2 (wedge of voids).
     {
         const value_t T = 1.5f;

@@ -47,7 +47,7 @@ static void usage() {
         << "  --gic-k K           kNN degree for --gic-n (default 16)\n"
         << "  --reduced-vr        H07 reduced VR 2-complex (exact PH1 claimed; I224)\n"
         << "  --delaunay-vr       flag of Euclidean Delaunay 1-skeleton (I276; not exact VR)\n"
-        << "  --delaunay-alpha A  I277–I282 H1 thicken: A or 'auto' (1.75+0.125 log2(n/400), cap 2.75)\n"
+        << "  --delaunay-alpha A  I277–I286 H1 thicken: A or 'auto'. maxdim≥2 splits H2 onto α=1\n"
         << "  --delaunay-adapt    I280: R_v = A·max(r_v, max_nbr r) instead of A·r_v\n"
         << "  --delaunay-floor F  I280: also thicken to F·median(r) (default 0)\n"
         << "  --sparse-only       write residual edges and exit\n"
@@ -391,6 +391,8 @@ int main(int argc, char** argv) {
     try {
         Counters c;
         Graph g;
+        Graph g_h2;
+        bool delaunay_split = false;
         std::vector<std::vector<value_t>> dist;
         std::vector<std::vector<value_t>> pts;
         bool have_pts = false;
@@ -464,23 +466,35 @@ int main(int argc, char** argv) {
                 g = sparse_rips_graph(dist, threshold, sparse_eps, sparse_cap);
                 if (collapse_iters < 0) collapse_iters = 0;
             } else if (delaunay_vr && have_pts) {
-                // I276: Delaunay 1-skeleton. I277–I279: H1-only local-radius
-                // thicken (α>1). I282: α=auto = 1.75+0.125 log2(n/400),
-                // cap 2.75 (blobs floor; n=8000 reaches ≥2.25). H2 stays α=1.
+                // I276: Delaunay 1-skeleton. I277–I282: H1 local-radius
+                // thicken. I286: maxdim≥2 + thicken → H1 on the thick
+                // graph, H2 on the α=1 flag (H2 thicken explodes tets).
                 std::vector<Edge> de;
+                const bool want_thicken = delaunay_alpha_auto || delaunay_alpha > 1 ||
+                                          delaunay_adapt || delaunay_floor > 0;
                 value_t a = delaunay_alpha;
-                if (maxdim >= 2) {
-                    a = 1;
-                } else if (delaunay_alpha_auto) {
+                if (delaunay_alpha_auto)
                     a = delaunay_auto_alpha(static_cast<int>(pts.size()));
-                }
-                const value_t fl = (maxdim <= 1) ? delaunay_floor : value_t{0};
-                const bool ad = (maxdim <= 1) && delaunay_adapt;
-                if (!delaunay_vr_skeleton(pts, threshold, a, de, fl, ad)) {
+                const int npts = static_cast<int>(pts.size());
+                auto fail_dvr = []() {
                     std::cerr << "--delaunay-vr requires Euclidean d=2 or d=3\n";
                     return 2;
+                };
+                if (maxdim >= 2 && want_thicken) {
+                    std::vector<Edge> thin;
+                    if (!delaunay_vr_skeleton(pts, threshold, 1, thin, 0, false)) return fail_dvr();
+                    if (!delaunay_vr_skeleton(pts, threshold, a, de, delaunay_floor, delaunay_adapt))
+                        return fail_dvr();
+                    g = graph_from_edge_list(npts, de, threshold);
+                    g_h2 = graph_from_edge_list(npts, thin, threshold);
+                    delaunay_split = true;
+                } else {
+                    if (maxdim >= 2) a = 1;
+                    const value_t fl = (maxdim <= 1) ? delaunay_floor : value_t{0};
+                    const bool ad = (maxdim <= 1) && delaunay_adapt;
+                    if (!delaunay_vr_skeleton(pts, threshold, a, de, fl, ad)) return fail_dvr();
+                    g = graph_from_edge_list(npts, de, threshold);
                 }
-                g = graph_from_edge_list(static_cast<int>(pts.size()), de, threshold);
                 if (collapse_iters < 0) collapse_iters = 0;
                 c.n_distances = static_cast<std::int64_t>(g.edges.size());
             } else if (engine != "redzed") {
@@ -590,6 +604,17 @@ int main(int argc, char** argv) {
             const auto t_build1 = std::chrono::steady_clock::now();
             c.collapse_ms = std::chrono::duration<double, std::milli>(t_build1 - t_build0).count();
             r = persist_triangles(g, rtris, maxdim, threshold, ratio);
+        } else if (delaunay_split) {
+            // I286: H0/H1 from the thickened 1-skeleton; H2 from the α=1
+            // Delaunay flag. MST ⊆ Delaunay ⊆ thicken ⇒ H0 unchanged.
+            Result r1 = persist_implicit_coh(g, std::min(maxdim, 1), threshold, ratio);
+            Result r2 = persist_implicit_coh(g_h2, maxdim, threshold, ratio);
+            r.pairs.reserve(r1.pairs.size() + r2.pairs.size());
+            for (const auto& p : r1.pairs)
+                if (p.dim <= 1) r.pairs.push_back(p);
+            for (const auto& p : r2.pairs)
+                if (p.dim >= 2) r.pairs.push_back(p);
+            r.counters.n_vertices = g.n;
         } else {
             r = use_implicit ? persist_implicit_coh(g, maxdim, threshold, ratio)
                              : persist_sparse(g, maxdim, threshold, ratio);
@@ -647,13 +672,16 @@ int main(int argc, char** argv) {
         } else {
             r.counters.n_vertices = g.n;
             r.counters.pipeline = delaunay_vr
-                                      ? ((maxdim <= 1 && (delaunay_alpha_auto || delaunay_alpha > 1 ||
-                                                          delaunay_adapt || delaunay_floor > 0))
-                                             ? std::string(delaunay_alpha_auto
-                                                               ? "pith:delaunay-vr-auto"
-                                                               : (delaunay_adapt ? "pith:delaunay-vr-adapt"
-                                                                                 : "pith:delaunay-vr-alpha"))
-                                             : std::string("pith:delaunay-vr"))
+                                      ? (delaunay_split
+                                             ? std::string("pith:delaunay-vr-split")
+                                             : ((maxdim <= 1 && (delaunay_alpha_auto || delaunay_alpha > 1 ||
+                                                                 delaunay_adapt || delaunay_floor > 0))
+                                                    ? std::string(delaunay_alpha_auto
+                                                                      ? "pith:delaunay-vr-auto"
+                                                                      : (delaunay_adapt
+                                                                             ? "pith:delaunay-vr-adapt"
+                                                                             : "pith:delaunay-vr-alpha"))
+                                                    : std::string("pith:delaunay-vr")))
                                       : (reduced_vr
                                              ? std::string("pith:reduced-vr")
                                              : (auto_dispatch
