@@ -1,6 +1,6 @@
 # Selected algorithm (living)
 
-Updated 2026-10-13 after iterations I001–I237. **CLI default `--engine
+Updated 2026-10-13 after iterations I001–I238. **CLI default `--engine
 auto` (I235+I236):** subsample residual-frac dispatch. Fat → RedZeD (torus
 n=2000 **12.5×**). Thin-circle → I193+I197+I202+I203 collapse+implicit
 (n=1000 **28×**; n=4000 still **140×**). **H2:** τ=0.15 so sphere void
@@ -23,7 +23,7 @@ unmatched) and picks the better exact engine from a 250-point collapse
 probe. H1 τ=0.04; H2 τ=0.15. Torus n=2000 H1 **12.5×**; circle n=1000
 **28×**; sphere n=600 H2 **136×**. **Worst-case Big-O is not improved** —
 this is a portfolio, not a new complexity class. Torus residual stays
-\(\Theta(n^2)\) (I204). Blobs n=1000 H1 **3.6×** (still not 10×).
+\(\Theta(n^2)\) (I204). Blobs n=4000 H1 **6.7×** (I238; still not 10×).
 **I228 `--engine redzed`** remains the single-engine general exact path.
 Topology loss: **0**. **I224 reduced VR** is exact with \(O(n^2)\)
 triangles but loses clock. The **optional** `--sparse-eps 0.6` path keeps
@@ -363,6 +363,15 @@ to the I232 walk. Justification: H2 tet work is on the residual, so a
 mid frac that wants RedZeD for H1 wants collapse for H2. Still a
 portfolio, not a better Big-O.
 
+**I238 lazy parallel RedZeD metric:** auto-redzed no longer builds an
+n×n `vector<vector>` before reduce. Probe is O(s²) on 250 points from
+the cloud; fat dispatch fills RedZeD’s lower-tri matrix in parallel.
+**Exact 10/10.** Circle stays collapse **18×**. Sphere n=400 H2 stays
+collapse **62×**. Torus n=2000 **12.7×**. Blobs n=4000 **6.72×**
+(0.32s/2.17s; I229 was 5.3× / 394 ms — metric 59→7 ms, reduce still
+297 ms). Uniform2 n=4000 **6.93×**. Topology loss: **0**. Constant-factor
+cut, not a better Big-O, not a general 10×.
+
 **I237 GUDHI explicit Rips + scale H0–H2:** GUDHI 3.13
 `RipsComplex`+`SimplexTree` is **exact** (7/7 vs Ripser including
 figure8 / sphere void / torus H2) but **not a clock engine**: blobs
@@ -373,11 +382,12 @@ reverted. Selected `--engine auto` at more points: sphere n=600 H2
 n=600 H2 auto-redzed **4.5×** and **88×** vs collapse (13.9 s). Topology
 loss: **0**. Still not a general H1 10×. Not a better Big-O.
 
-## Next levers (still open after I237)
+## Next levers (still open after I238)
 
 `--engine auto` is a shape-agnostic exact H0–H2 portfolio: circle H1
 10×, torus H1 10×, sphere H2 **136×** at n=600 on one CLI path.
-Blobs/uniform2 H1 are still ~5× at n=2000. Owned active H0–H2 is exact
+Blobs/uniform2 H1 are still ~6.7–6.9× at n=4000 (I238 lazy metric).
+Owned active H0–H2 is exact
 but not a scale engine. I233/I236/I237 star / leftover-coface
 generation were inexact. GUDHI explicit Rips is exact and too slow.
 

@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-13 — I238 lazy parallel RedZeD metric
+
+- **Question:** Does skipping the full n×n pairwise `vector<vector>` + copy on auto-redzed (probe from points, parallel fill of RedZeD’s lower-tri matrix) cut the blobs/uniform2 wall toward 10× without losing identity or circle/H2 collapse?
+- **Hypothesis:** I229 blobs n=4000 paid 59 ms metric of 394 ms wall. Probe only needs 250² distances. Parallel fill should drop metric to ~10 ms. Reduce (~313 ms) is unchanged — maybe 6× not 10×. Shape-agnostic. Exact.
+- **Work:** `probe_residual_frac_points` + `persist_redzed_from_points` (threaded row fill). Auto-redzed skips `pairwise`. Collapse path unchanged. Wave 99 vs Ripser.
+- **Result:** **Exact 10/10** (figure8/two_circles 2=2; sphere void 1=1; blobs H0 3=3). Circle auto-collapse **18×**. Sphere n=400 H2 **62×**. Torus n=2000 **12.7×**. Blobs n=2000 **6.3×** (I237 5.4×). Blobs n=4000 **6.72×** / metric 7 ms / reduce 297 ms vs I229 5.3× / 59 ms / 313 ms. Uniform2 n=4000 **6.93×**. No new 10×.
+- **Decision:** **Support as the auto-redzed metric path.** **Hold** for general 10× — reduce is still the wall. Topology loss: **0**. Next: algebraic cut on RedZeD reduce, not another metric tweak.
+- **Class:** experiment (support metric; hold 10×)
+
 ## 2026-10-13 — I237 GUDHI Rips + scale H0–H2
 
 - **Question:** Is GUDHI 3.13 explicit Rips a faster exact engine on the blobs/uniform2 5× wall, and does birth-time leftover-coface AE fix I236 identity? Can `--engine auto` hold H0–H2 at more points without a long test?
