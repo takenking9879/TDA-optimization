@@ -526,6 +526,43 @@ int main() {
         std::cout << "ok active-h1 unit square + C4\n";
     }
 
+    // I234: regular octahedron, T between √2 and 2 — essential H2, no H1.
+    {
+        const value_t T = 1.5f;
+        std::vector<std::vector<value_t>> pts = {
+            {1, 0, 0}, {-1, 0, 0}, {0, 1, 0}, {0, -1, 0}, {0, 0, 1}, {0, 0, -1},
+        };
+        std::vector<std::vector<value_t>> dist(6, std::vector<value_t>(6, 0));
+        for (int i = 0; i < 6; ++i)
+            for (int j = i + 1; j < 6; ++j) {
+                value_t d = 0;
+                for (int k = 0; k < 3; ++k) {
+                    const value_t u = pts[i][k] - pts[j][k];
+                    d += u * u;
+                }
+                d = std::sqrt(d);
+                dist[i][j] = dist[j][i] = d;
+            }
+        Graph g = graph_from_distance(dist, T);
+        Result ra = persist_active_h1(g, 2, T, 1);
+        int ess0 = 0, ess1 = 0, ess2 = 0, fin2 = 0;
+        for (const auto& p : ra.pairs) {
+            if (!std::isfinite(p.death)) {
+                if (p.dim == 0) ++ess0;
+                if (p.dim == 1) ++ess1;
+                if (p.dim == 2) ++ess2;
+            } else if (p.dim == 2 && p.death - p.birth > 1e-5f) {
+                ++fin2;
+            }
+        }
+        if (ess0 != 1 || ess1 != 0 || ess2 != 1 || fin2 != 0) {
+            std::cerr << "active octahedron H0/H1/H2 ess=" << ess0 << "/" << ess1 << "/"
+                      << ess2 << " fin2=" << fin2 << "\n";
+            return 1;
+        }
+        std::cout << "ok active-h012 octahedron\n";
+    }
+
     std::cout << "all collapse/persist unit tests passed\n";
     return 0;
 }

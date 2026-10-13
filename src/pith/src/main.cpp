@@ -542,7 +542,7 @@ int main(int argc, char** argv) {
             r.counters.pipeline = "pith:redzed";
         } else if (engine == "active") {
             r.counters.n_vertices = g.n;
-            r.counters.pipeline = "pith:active-h1";
+            if (r.counters.pipeline.empty()) r.counters.pipeline = "pith:active-h1";
         } else {
             r.counters.n_vertices = g.n;
             r.counters.pipeline = reduced_vr
