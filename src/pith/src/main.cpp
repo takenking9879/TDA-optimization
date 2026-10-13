@@ -549,8 +549,10 @@ int main(int argc, char** argv) {
                              : persist_sparse(g, maxdim, threshold, ratio);
         }
         const std::int64_t redzed_cc = r.counters.n_collapse_trims;
-        r.counters.n_distances = c.n_distances;
-        r.counters.n_edges_in = c.n_edges_in;
+        if (!(engine == "redzed" && r.counters.n_distances > 0))
+            r.counters.n_distances = c.n_distances;
+        if (!(engine == "redzed" && r.counters.n_edges_in > 0))
+            r.counters.n_edges_in = c.n_edges_in;
         r.counters.n_collapse_trims = (engine == "redzed" && redzed_cc > 0)
                                           ? redzed_cc
                                           : c.n_collapse_trims;
@@ -576,7 +578,8 @@ int main(int argc, char** argv) {
         r.counters.n_collapse_early_later_a = c.n_collapse_early_later_a;
         r.counters.n_collapse_early_later_b = c.n_collapse_early_later_b;
         r.counters.collapse_ms = c.collapse_ms;
-        r.counters.metric_ms = c.metric_ms;
+        if (!(engine == "redzed" && r.counters.metric_ms > 0))
+            r.counters.metric_ms = c.metric_ms;
         r.counters.residual_frac = c.residual_frac;
         if (engine == "redzed") {
             if (maxdim < 1) {

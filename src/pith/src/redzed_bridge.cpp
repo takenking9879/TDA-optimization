@@ -16,6 +16,146 @@
 #include <thread>
 #include <unordered_map>
 
+// I244: VR≤T does not need enclosing (cone) or a second n² edge scan.
+// Vendor redzed() always computes both. Finite T → thr=T is exact.
+// Optional prebuilt EdgeList from the fill we already paid.
+static std::vector<std::vector<std::pair<value_t, value_t>>>
+redzed_vr(DistanceMatrix& distIn, int n, value_t threshold, EdgeList* prebuilt) {
+    int nv = distIn.n;
+    value_t thr = threshold;
+    if (!std::isfinite(threshold)) {
+        value_t cone = VINF;
+        for (int j = 0; j < nv; ++j) {
+            value_t mx = -VINF;
+            for (int i = 0; i < nv; ++i) mx = std::max(mx, distIn(i, j));
+            cone = std::min(cone, mx);
+        }
+        thr = cone;
+    }
+
+    State st;
+    st.nv = nv;
+    st.n = n;
+    st.dist = std::move(distIn);
+    st.binom = BinomialTable(nv, n + 2);
+    SortScratch sortsc;
+    if (prebuilt && prebuilt->count) {
+        st.edges = std::move(*prebuilt);
+    } else {
+        build_edges(st.dist, thr, st.binom, sortsc, st.edges);
+    }
+
+    st.words = (nv + 63) / 64;
+    st.R.resize(n + 1);
+    st.Ri.resize(n + 1);
+    st.pairs.assign(n + 1, {});
+    st.sbirth.assign(n + 1, {});
+    st.sdeath.assign(n + 1, {});
+    st.want_spx = false;
+    UnionFind uf(nv);
+    st.uf = &uf;
+    st.act.m = n + 1;
+    {
+        comb_t fu = st.binom(nv, n);
+        st.act.face_slot.init(fu);
+    }
+    st.seen.assign(nv, 0);
+    st.seenbits.assign(st.words, 0);
+    st.seedlists.assign(nv, {});
+    st.rbits.assign((size_t)st.words * nv, 0);
+    st.rlo.assign(nv, st.words);
+    st.rhi.assign(nv, -1);
+    st.coface_buf.assign(n + 2, 0);
+    st.top_buf.assign(n + 1, 0);
+
+    {
+        const bool want_h1 = n >= 1;
+        SetDict* R1 = want_h1 ? &st.R[1] : nullptr;
+        SetDict* Ri1 = want_h1 ? &st.Ri[1] : nullptr;
+        const EdgeList& ed = st.edges;
+        for (size_t e = 1; e <= ed.count; ++e) {
+            int lo = ed.verts[2 * (e - 1)];
+            int hi = ed.verts[2 * (e - 1) + 1];
+            int32_t a = uf.find(lo), b = uf.find(hi);
+            value_t ediam = ed.diam[e - 1];
+            if (a == b) {
+                if (want_h1) {
+                    rank_t er = (rank_t)e;
+                    R1->singleton(er, er);
+                    Ri1->singleton(er, er);
+                    if (n == 1) {
+                        st.top_buf[0] = lo;
+                        st.top_buf[1] = hi;
+                        comb_t xidx = comb_index(&ed.verts[2 * (e - 1)], 2, st.binom);
+                        run_active_enumeration(st, er, xidx, st.top_buf.data(), ediam);
+                    }
+                }
+            } else {
+                int32_t jj = std::max(a, b), oo = std::min(a, b);
+                uf.parent[jj] = oo;
+                if (ediam != 0.0) st.pairs[0].push_back({0.0, ediam});
+            }
+        }
+    }
+
+    if (n >= 2) {
+        for (int d = 2; d <= n; ++d) {
+            comb_t uni = st.binom(nv, d);
+            st.csmap.init(uni);
+            {
+                std::vector<rank_t> live;
+                st.R[d - 1].keys(live);
+                for (rank_t z : live)
+                    st.csmap.set(comb_index(lvl_verts_of(st, d - 1, z), d, st.binom),
+                                 st.R[d - 1].slot(z));
+            }
+            st.cson = true;
+            st.csdim = d - 1;
+
+            int m = d + 1;
+            SetDict& Rd = st.R[d];
+            SetDict& Rid = st.Ri[d];
+            SetDict& Rprev = st.R[d - 1];
+            Rd.side_vpc = m;
+            Rid.side_vpc = m;
+            rank_t next_rank = 0;
+
+            generate_stream(st.edges, st.dist, d, st.binom, [&](value_t sdiam, const int32_t* cv) {
+                rank_t sr = ++next_rank;
+                st.bar.clear();
+                for (int omit = 1; omit <= m; ++omit) {
+                    comb_t f = face_index_without(cv, m, omit, st.binom);
+                    slot_t fs = st.csmap.get(f);
+                    if (fs) sset_xor(st.bar, Rprev.at(fs), st.buf);
+                }
+                if (st.bar.empty()) {
+                    slot_t s1 = Rd.singleton(sr, sr);
+                    slot_t s2 = Rid.singleton(sr, sr);
+                    Rd.set_side(s1, sdiam, cv);
+                    Rid.set_side(s2, sdiam, cv);
+                    if (d == n) {
+                        comb_t xidx = comb_index(cv, m, st.binom);
+                        run_active_enumeration(st, sr, xidx, cv, sdiam);
+                    }
+                } else {
+                    resolve_bar(st, d, st.bar, sdiam);
+                }
+            });
+
+            st.cson = false;
+            st.csmap.init(0);
+            emit_infinite(st, d - 1);
+            st.R[d - 1] = SetDict();
+            st.Ri[d - 1] = SetDict();
+        }
+    }
+
+    for (int v = 0; v < nv; ++v)
+        if (uf.find(v) == v) st.pairs[0].push_back({0.0, VINF});
+    emit_infinite(st, n);
+    return st.pairs;
+}
+
 namespace pith {
 
 static void append_bars(Result& r, const std::vector<std::vector<std::pair<value_t, value_t>>>& bars,
@@ -72,7 +212,7 @@ static void run_blocks_parallel(std::vector<RedzedBlock>& blocks, int dim, value
         if (m <= 1) return;
         DistanceMatrix S;
         fill(S, b.verts);
-        b.bars = redzed(S, dim, threshold);
+        b.bars = redzed_vr(S, dim, threshold, nullptr);
     };
     std::vector<RedzedBlock*> work;
     work.reserve(blocks.size());
@@ -334,7 +474,7 @@ static Result finish_redzed(DistanceMatrix&& D, int maxdim, value_t threshold) {
 
     const auto t0 = std::chrono::steady_clock::now();
     if (comps.size() <= 1) {
-        auto bars = redzed(D, dim, threshold);
+        auto bars = redzed_vr(D, dim, threshold, nullptr);
         append_bars(r, bars, dim);
         c.pipeline = "pith:redzed";
     } else {
@@ -368,10 +508,11 @@ static Result finish_redzed_from_points(const std::vector<std::vector<value_t>>&
         DistanceMatrix D;
         D.resize_lower(n);
         for (int j = 1; j < n; ++j)
-            for (int i = 0; i < j; ++i) D.mat[DistanceMatrix::offset(i, j)] = point_dist(pts, i, j);
-        auto bars = redzed(D, dim, threshold);
+            for (int i = 0; i < j; ++i)
+                D.mat[DistanceMatrix::offset(i, j)] = point_dist(pts, i, j);
+        auto bars = redzed_vr(D, dim, threshold, nullptr);
         append_bars(r, bars, dim);
-        c.pipeline = "pith:redzed";
+        c.pipeline = "pith:redzed-thr";
         c.n_distances = static_cast<std::int64_t>(n) * (n - 1) / 2;
     } else {
         c.pipeline = "pith:redzed-cc";
@@ -467,9 +608,18 @@ Result persist_redzed_from_points(const std::vector<std::vector<value_t>>& pts, 
         for (auto& th : pool) th.join();
     }
     const auto tfill1 = std::chrono::steady_clock::now();
-    Result r = finish_redzed(std::move(D), maxdim, threshold);
+    const int dim = maxdim;
+    const auto t0 = std::chrono::steady_clock::now();
+    auto bars = redzed_vr(D, dim, threshold, nullptr);
+    Result r;
+    append_bars(r, bars, dim);
+    const auto t1 = std::chrono::steady_clock::now();
+    r.counters.n_vertices = n;
+    r.counters.n_collapse_trims = 1;
     r.counters.n_distances = static_cast<std::int64_t>(n) * (n - 1) / 2;
     r.counters.metric_ms = std::chrono::duration<double, std::milli>(tfill1 - tfill0).count();
+    r.counters.reduce_ms = std::chrono::duration<double, std::milli>(t1 - t0).count();
+    r.counters.pipeline = "pith:redzed-thr";
     return r;
 }
 

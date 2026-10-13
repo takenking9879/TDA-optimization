@@ -17,6 +17,8 @@ Result persist_redzed(const std::vector<std::vector<value_t>>& dist, int maxdim,
 // I240: low-d spatial UF finds those components without an n×n matrix;
 // each block allocates only its own m×m metric.
 // I241: maxdim=0 is spatial/matrix Kruskal (no RedZeD).
+// I244: finite T skips vendor enclosing (exact for VR≤T). Collecting
+// G_T during fill + std::sort was slower than vendor build_edges.
 Result persist_redzed_from_points(const std::vector<std::vector<value_t>>& pts, int maxdim,
                                  value_t threshold);
 
