@@ -55,15 +55,66 @@ struct LiveBits {
 using LiveNbr = std::pair<index_t, value_t>;
 using LiveAdj = std::vector<std::vector<LiveNbr>>;
 
-// True iff some c in C_now is adjacent (at time t) to every other vertex in C_now.
+// True iff cand is adjacent (at time t) to every vertex in C_now.
+// Optional: resume from `from` (I214 prefix already verified at a smaller t);
+// on failure write the first obstruction grade and its C_now index.
 inline bool dominated_by(const DenseTimes& Tm, const std::vector<index_t>& C_now,
-                         index_t cand, value_t t) {
+                         index_t cand, value_t t, value_t* fail_t = nullptr,
+                         int* fail_i = nullptr, int from = 0) {
     const value_t* row = Tm.row(cand);
-    for (index_t w : C_now) {
-        if (row[w] > t) return false;
+    const int nC = static_cast<int>(C_now.size());
+    for (int i = from; i < nC; ++i) {
+        const index_t w = C_now[static_cast<size_t>(i)];
+        if (row[w] > t) {
+            if (fail_t) *fail_t = row[w];
+            if (fail_i) *fail_i = i;
+            return false;
+        }
     }
     return true;
 }
+
+// I214: generation-stamped obstruction for the shift loop.
+// C_now only grows by push_back. If cand failed at C_now[i] with
+// Tm(cand, C[i]) = tau, it cannot dominate any later C' ⊇ C while t < tau
+// (larger C is a harder cover; raising t past tau is the only way the
+// known obstruction lifts). Boolean cannot_dom across t increases would
+// be inexact. Stamp resets per process_one_backward.
+struct CannotDom {
+    std::vector<int> gen;
+    std::vector<value_t> until;
+    std::vector<int> idx;
+    int stamp = 0;
+    void ensure(int n) {
+        if (static_cast<int>(gen.size()) == n) return;
+        gen.assign(static_cast<size_t>(std::max(n, 0)), 0);
+        until.assign(static_cast<size_t>(std::max(n, 0)), kNegInf);
+        idx.assign(static_cast<size_t>(std::max(n, 0)), 0);
+    }
+    void next() {
+        ++stamp;
+        if (stamp == 0) {
+            std::fill(gen.begin(), gen.end(), 0);
+            ++stamp;
+        }
+    }
+    bool blocked(index_t v, value_t t) const {
+        const size_t k = static_cast<size_t>(v);
+        return k < gen.size() && gen[k] == stamp && t < until[k];
+    }
+    int resume_at(index_t v) const {
+        const size_t k = static_cast<size_t>(v);
+        if (k < gen.size() && gen[k] == stamp) return idx[k];
+        return 0;
+    }
+    void mark(index_t v, value_t t_need, int i) {
+        const size_t k = static_cast<size_t>(v);
+        if (k >= gen.size()) return;
+        gen[k] = stamp;
+        until[k] = t_need;
+        idx[k] = i;
+    }
+};
 
 inline index_t first_dominator(const DenseTimes& Tm, const std::vector<index_t>& C_now,
                                value_t t) {
@@ -82,7 +133,8 @@ inline index_t first_dominator(const DenseTimes& Tm, const std::vector<index_t>&
 inline index_t first_dominator_deg(const DenseTimes& Tm, const std::vector<index_t>& C_now,
                                   value_t t, const LiveAdj& nbr,
                                   int budget = -1, Counters* ctr = nullptr,
-                                  const std::vector<int>* deg = nullptr) {
+                                  const std::vector<int>* deg = nullptr,
+                                  CannotDom* skip = nullptr) {
     if (C_now.empty()) return -1;
     if (C_now.size() == 1) {
         if (ctr) ++ctr->n_collapse_dom_hits;
@@ -91,13 +143,21 @@ inline index_t first_dominator_deg(const DenseTimes& Tm, const std::vector<index
     const size_t need = C_now.size() - 1;
     int tried = 0;
     for (index_t cand : C_now) {
+        if (skip && skip->blocked(cand, t)) {
+            if (ctr) ++ctr->n_collapse_dom_skips;
+            continue;
+        }
         const size_t cand_deg = deg ? static_cast<size_t>((*deg)[cand]) : nbr[cand].size();
         if (cand_deg < need) continue;
         if (ctr) ++ctr->n_collapse_dom_tests;
-        if (dominated_by(Tm, C_now, cand, t)) {
+        value_t fail_t = kInf;
+        int fail_i = 0;
+        const int from = skip ? skip->resume_at(cand) : 0;
+        if (dominated_by(Tm, C_now, cand, t, &fail_t, &fail_i, from)) {
             if (ctr) ++ctr->n_collapse_dom_hits;
             return cand;
         }
+        if (skip) skip->mark(cand, fail_t, fail_i);
         if (budget > 0 && ++tried >= budget) return -1;
     }
     return -1;
@@ -107,7 +167,8 @@ inline index_t first_dominator_deg(const DenseTimes& Tm, const std::vector<index
 // C_now ∩ N_t[w] (including w). Skip the rest of C_now.
 inline index_t first_dominator_witness(const DenseTimes& Tm, const std::vector<index_t>& C_now,
                                       value_t t, const LiveAdj& nbr, int budget, Counters* ctr,
-                                      const std::vector<int>* deg, index_t witness) {
+                                      const std::vector<int>* deg, index_t witness,
+                                      CannotDom* skip = nullptr) {
     if (C_now.empty()) return -1;
     if (C_now.size() == 1) {
         if (ctr) ++ctr->n_collapse_dom_hits;
@@ -118,13 +179,21 @@ inline index_t first_dominator_witness(const DenseTimes& Tm, const std::vector<i
     int tried = 0;
     for (index_t cand : C_now) {
         if (cand != witness && rw[cand] > t) continue;
+        if (skip && skip->blocked(cand, t)) {
+            if (ctr) ++ctr->n_collapse_dom_skips;
+            continue;
+        }
         const size_t cand_deg = deg ? static_cast<size_t>((*deg)[cand]) : nbr[cand].size();
         if (cand_deg < need) continue;
         if (ctr) ++ctr->n_collapse_dom_tests;
-        if (dominated_by(Tm, C_now, cand, t)) {
+        value_t fail_t = kInf;
+        int fail_i = 0;
+        const int from = skip ? skip->resume_at(cand) : 0;
+        if (dominated_by(Tm, C_now, cand, t, &fail_t, &fail_i, from)) {
             if (ctr) ++ctr->n_collapse_dom_hits;
             return cand;
         }
+        if (skip) skip->mark(cand, fail_t, fail_i);
         if (budget > 0 && ++tried >= budget) return -1;
     }
     return -1;
@@ -297,6 +366,7 @@ struct BwScratch {
     std::vector<std::pair<value_t, index_t>> C_later;
     std::vector<std::uint64_t> cover;   // I189: bits[first] minus later[first]
     std::vector<std::uint64_t> cwords;  // I191: C = bits[u] & bits[v]
+    CannotDom cannot;                   // I214: shift-loop obstruction resume
 };
 
 inline void bits_clear_index(std::vector<std::uint64_t>& words, index_t i) {
@@ -440,6 +510,8 @@ inline bool process_one_backward(const Edge& e_in, value_t t_in, DenseTimes& Tm,
     value_t t = t_in;
     S.C_now.clear();
     S.C_later.clear();
+    S.cannot.ensure(Tm.n);
+    S.cannot.next();
     std::int64_t commons = 0;
     index_t known_dom = -1;
     const bool walk_u = nbr[u].size() <= nbr[v].size();
@@ -676,6 +748,15 @@ inline bool process_one_backward(const Edge& e_in, value_t t_in, DenseTimes& Tm,
                         ++c.n_collapse_dom_hits;
                         break;
                     }
+                    // I214: seed obstruction so the shift rescan can skip this
+                    // apex until t reaches the first Tm miss on C_now.
+                    const value_t* row = Tm.row(cand);
+                    for (int i = 0; i < static_cast<int>(S.C_now.size()); ++i) {
+                        if (row[S.C_now[static_cast<size_t>(i)]] > t) {
+                            S.cannot.mark(cand, row[S.C_now[static_cast<size_t>(i)]], i);
+                            break;
+                        }
+                    }
                 }
             }
             if (!hit) {
@@ -802,9 +883,10 @@ inline bool process_one_backward(const Edge& e_in, value_t t_in, DenseTimes& Tm,
             known_dom = -1;
         } else if (witness >= 0 && S.C_now.size() >= 32) {
             dominator = first_dominator_witness(Tm, S.C_now, t, nbr, dom_budget, &c, deg,
-                                                witness);
+                                                witness, &S.cannot);
         } else {
-            dominator = first_dominator_deg(Tm, S.C_now, t, nbr, dom_budget, &c, deg);
+            dominator = first_dominator_deg(Tm, S.C_now, t, nbr, dom_budget, &c, deg,
+                                           &S.cannot);
         }
         if (dominator < 0) break;
         const value_t* rd = Tm.row(dominator);
@@ -825,11 +907,13 @@ inline bool process_one_backward(const Edge& e_in, value_t t_in, DenseTimes& Tm,
                 const index_t w = S.C_later.front().second;
                 const value_t tw = S.C_later.front().first;
                 ++c.n_collapse_shift_lookups;
+                S.C_now.push_back(w);
                 if (rd[w] > tw) {
                     still = false;
                     witness = w;
+                    // Exact: d fails on this C at tw; skip d until t >= Tm(d,w).
+                    S.cannot.mark(dominator, rd[w], static_cast<int>(S.C_now.size() - 1));
                 }
-                S.C_now.push_back(w);
                 std::pop_heap(S.C_later.begin(), S.C_later.end(), later_cmp);
                 S.C_later.pop_back();
             }
@@ -1037,6 +1121,7 @@ inline void add_collapse_counters(Counters& c, const Counters& t) {
     c.n_collapse_c_probes += t.n_collapse_c_probes;
     c.n_collapse_dom_tests += t.n_collapse_dom_tests;
     c.n_collapse_dom_hits += t.n_collapse_dom_hits;
+    c.n_collapse_dom_skips += t.n_collapse_dom_skips;
     c.n_collapse_c_size_sum += t.n_collapse_c_size_sum;
     c.n_collapse_shift_lookups += t.n_collapse_shift_lookups;
     c.n_collapse_fast_trims += t.n_collapse_fast_trims;

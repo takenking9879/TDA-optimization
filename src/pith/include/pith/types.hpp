@@ -52,6 +52,7 @@ struct Counters {
     std::int64_t n_collapse_c_probes = 0;
     std::int64_t n_collapse_dom_tests = 0;
     std::int64_t n_collapse_dom_hits = 0;
+    std::int64_t n_collapse_dom_skips = 0;  // I214: shift candidates skipped (obstruction still above t)
     std::int64_t n_collapse_c_size_sum = 0;
     std::int64_t n_collapse_shift_lookups = 0;
     std::int64_t n_collapse_fast_trims = 0;

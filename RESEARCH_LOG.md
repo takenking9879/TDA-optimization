@@ -1035,6 +1035,15 @@ Do not paste long reasoning here.
 - **Decision:** Recommend owned **ε=0.6** (torus +27% clock vs 0.5, ess held, bn 0.028 ≈ GUDHI I207). Keep 0.5 as the low-loss setting and 0.7 as the fast setting. Do not default to min(λ). Exact path unchanged.
 - **Class:** experiment (support; ε=0.6 recommended optional)
 
+## 2026-10-13 — I214 shift obstruction resume (exact)
+
+- **Question:** Can the shift loop skip retesting apexes that already failed `dominated_by` on a smaller C, without losing exact VR≤T?
+- **Hypothesis:** Boolean `cannot_dom` across a growing t is **inexact** (raising t can lift an obstruction). Store `cannot_until[cand] =` first failing `Tm(cand, C[i])` and resume index. Skip while `t < until`; when t passes, resume the cover check from `i` (C_now only appends). Same residual as I193+I197+I202+I203. Shape-agnostic; 0 topology loss if exact.
+- **Work:** `CannotDom` in `edge_collapse.hpp`; wired into `first_dominator_deg` / `_witness`, I197 fail seeding, sticky-fail mark. Wave 75 vs src+Ripser.
+- **Result:** *(wave pending)*
+- **Decision:** Select only if exact and torus collapse drops vs I203 (~1470 ms) without blobs <200 ms / circle <280 ms regression. Not a Big-O change — constant-factor on the torus shift heap.
+- **Class:** experiment
+
 ## 2026-10-13 — I164 collapse live-degree trace
 
 - **Question:** Does the live 1-skeleton thin early enough to stop the C-walk?

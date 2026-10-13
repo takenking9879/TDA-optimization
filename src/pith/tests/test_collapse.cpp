@@ -27,6 +27,22 @@ static bool has_edge(const Graph& g, index_t u, index_t v) {
 }
 
 int main() {
+    // I214: obstruction stamp is per-edge; raising t past tau unblocks.
+    {
+        CannotDom cd;
+        cd.ensure(4);
+        cd.next();
+        cd.mark(2, 1.5f, 3);
+        assert(cd.blocked(2, 1.4f));
+        assert(!cd.blocked(2, 1.5f));
+        assert(cd.resume_at(2) == 3);
+        assert(!cd.blocked(1, 0.f));
+        cd.next();
+        assert(!cd.blocked(2, 1.4f));
+        assert(cd.resume_at(2) == 0);
+        std::cout << "ok I214 CannotDom stamp\n";
+    }
+
     // C4: no common neighbors, all four edges remain.
     {
         Graph g = from_edges(4, {{0, 1, 1}, {1, 2, 1}, {2, 3, 1}, {0, 3, 1}});
