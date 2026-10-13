@@ -8,7 +8,7 @@ RedZeD (torus n=2000 **13.0×**). Thin-circle → collapse+implicit
 **27× / 1.07 s** spatial. Disconnected G_T → spatial UF
 + parallel RedZeD per component (blobs n=4000 **24×**). **H0** is Kruskal; **I271** 2D and **I275** 3D
 walk-locate Delaunay (MST ⊆ Delaunay) so H0 does not list G_T — blobs n=12000
-**218× / 0.027 s**, sphere n=16000 **147× / 0.112 s**. **H2:** τ=0.15 so sphere void stays collapse
+**218× / 0.027 s**, n=25000 **515× / 0.055 s** (I284), sphere n=16000 **147× / 0.112 s**. **H2:** τ=0.15 so sphere void stays collapse
 (**58×** at n=400; **527× / 56 ms** at n=800 — I281). Shape-agnostic, 0 bars lost. Circle 140× is a
 collapse-friendly regime, **not** the success criterion.
 
