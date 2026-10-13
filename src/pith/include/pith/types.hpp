@@ -48,6 +48,9 @@ struct Counters {
     std::int64_t n_cofacet_probes = 0;
     std::int64_t n_collapse_shifts = 0;
     std::int64_t n_collapse_trims = 0;
+    std::int64_t n_collapse_c_probes = 0;
+    std::int64_t n_collapse_dom_tests = 0;
+    std::int64_t n_collapse_dom_hits = 0;
     double collapse_ms = 0;
     double reduce_ms = 0;
     double metric_ms = 0;

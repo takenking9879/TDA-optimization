@@ -53,14 +53,21 @@ inline index_t first_dominator(const DenseTimes& Tm, const std::vector<index_t>&
 // filtration-safe: fewer trims, same PH as the thicker residual).
 inline index_t first_dominator_deg(const DenseTimes& Tm, const std::vector<index_t>& C_now,
                                   value_t t, const std::vector<std::vector<index_t>>& nbr,
-                                  int budget = -1) {
+                                  int budget = -1, Counters* ctr = nullptr) {
     if (C_now.empty()) return -1;
-    if (C_now.size() == 1) return C_now[0];
+    if (C_now.size() == 1) {
+        if (ctr) ++ctr->n_collapse_dom_hits;
+        return C_now[0];
+    }
     const size_t need = C_now.size() - 1;
     int tried = 0;
     for (index_t cand : C_now) {
         if (nbr[cand].size() < need) continue;
-        if (dominated_by(Tm, C_now, cand, t)) return cand;
+        if (ctr) ++ctr->n_collapse_dom_tests;
+        if (dominated_by(Tm, C_now, cand, t)) {
+            if (ctr) ++ctr->n_collapse_dom_hits;
+            return cand;
+        }
         if (budget > 0 && ++tried >= budget) return -1;
     }
     return -1;
@@ -174,6 +181,7 @@ inline bool process_one_backward(const Edge& e_in, value_t t_in, DenseTimes& Tm,
     const value_t* ru = Tm.row(u);
     const value_t* rv = Tm.row(v);
     const auto& src = nbr[u].size() <= nbr[v].size() ? nbr[u] : nbr[v];
+    c.n_collapse_c_probes += static_cast<std::int64_t>(src.size());
     for (index_t w : src) {
         if (w == u || w == v) continue;
         const value_t tu = ru[w];
@@ -192,7 +200,7 @@ inline bool process_one_backward(const Edge& e_in, value_t t_in, DenseTimes& Tm,
     bool ever_shifted = false;
     bool dead = false;
     while (true) {
-        const index_t dominator = first_dominator_deg(Tm, S.C_now, t, nbr, dom_budget);
+        const index_t dominator = first_dominator_deg(Tm, S.C_now, t, nbr, dom_budget, &c);
         if (dominator < 0) break;
         const value_t* rd = Tm.row(dominator);
         bool still = true;
@@ -471,7 +479,7 @@ inline Graph collapse_edges_forward(Graph g, int iterations, Counters& c) {
                         drop_live_nbr(nbr, E[j].u, E[j].v);
                         drop_live_nbr(nbr, E[j].v, E[j].u);
                         ++c.n_collapse_trims;
-                    } else if (edge_dominated_in(Tm, nbr, E[j].u, E[j].v, E[j].t)) {
+                    } else if (edge_dominated_in(Tm, nbr, E[j].u, E[j].v, ti)) {
                         Tm.erase(E[j].u, E[j].v);
                         drop_live_nbr(nbr, E[j].u, E[j].v);
                         drop_live_nbr(nbr, E[j].v, E[j].u);
@@ -480,11 +488,10 @@ inline Graph collapse_edges_forward(Graph g, int iterations, Counters& c) {
                         critical[j] = 1;
                         crit_idx[j] = i;
                         const index_t x = E[j].u, y = E[j].v;
-                        const value_t tj = E[j].t;
                         const value_t* rx = Tm.row(x);
                         const value_t* ry = Tm.row(y);
                         for (index_t w : nbr[x]) {
-                            if (w != x && w != y && rx[w] <= tj && ry[w] <= tj) {
+                            if (w != x && w != y && rx[w] <= ti && ry[w] <= ti) {
                                 Enbd.insert(edge_key(x, w));
                                 Enbd.insert(edge_key(y, w));
                             }

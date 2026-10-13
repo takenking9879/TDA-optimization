@@ -149,6 +149,9 @@ static void print_text(const Result& r) {
               << " cofacet_probes=" << c.n_cofacet_probes
               << " collapse_trims=" << c.n_collapse_trims
               << " collapse_shifts=" << c.n_collapse_shifts
+              << " collapse_c_probes=" << c.n_collapse_c_probes
+              << " collapse_dom_tests=" << c.n_collapse_dom_tests
+              << " collapse_dom_hits=" << c.n_collapse_dom_hits
               << " metric_ms=" << c.metric_ms
               << " collapse_ms=" << c.collapse_ms
               << " reduce_ms=" << c.reduce_ms
