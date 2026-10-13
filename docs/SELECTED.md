@@ -456,9 +456,9 @@ Big-O, not a default.
 `--engine auto` is a shape-agnostic exact H0–H2 portfolio: circle H1
 10×, torus H1 10×, sphere H2 **136×** at n=600, **disconnected blobs
 27×** at n=8000 (0.38 s) on one CLI path. Connected uniform2 H1 is
-still **5.5×** at n=5000 (RedZeD reduce on one block). I242 owned AE
-is exact but 3–17× slower than vendor RedZeD. GUDHI explicit Rips is
-exact and too slow.
+still **5.5×** at n=5000 (RedZeD reduce on one block). I242/I243 owned
+AE is exact; rbit is ~1.5× on circle AE and still 12× slower than
+RedZeD. GUDHI explicit Rips is exact and too slow.
 
 1. **CLI default:** `--engine auto` (I235+I236+I239+I240+I241). H1 τ=0.04; H2 τ=0.15.
 2. **Forced engines:** `--engine implicit` = I193+I197+I202+I203 only;
