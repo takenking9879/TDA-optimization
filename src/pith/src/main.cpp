@@ -15,7 +15,7 @@ using namespace pith;
 static void usage() {
     std::cerr
         << "PITH — Preprocessed Implicit Topology Homology\n"
-        << "Usage: pith --points FILE.csv | --distances FILE [options]\n"
+        << "Usage: pith --points FILE.csv | --distances FILE | --edges FILE [options]\n"
         << "  --maxdim K          homology dimension (default 1)\n"
         << "  --threshold T       VR diameter threshold (default inf)\n"
         << "  --collapse N        collapse passes (default -1 adaptive+probe; 0 = off)\n"
@@ -31,6 +31,7 @@ static void usage() {
         << "  --engine auto|homology|implicit   residual PH engine (default auto)\n"
         << "  --ratio R           skip pairs with death <= birth*R (default 1)\n"
         << "  --no-enclosing      do not cap T by enclosing radius\n"
+        << "  --edges FILE        1-skeleton: '# n=N' then 'u v t' lines (I207)\n"
         << "  --sparse-only       write residual edges and exit\n"
         << "  --probe-only        print ROI probe on G_T and exit (I163)\n"
         << "  --probe-vertex      print dominated-vertex count on G_T and exit (I192)\n"
@@ -106,6 +107,46 @@ static std::vector<std::vector<value_t>> read_distance_matrix(const std::string&
         return dist;
     }
     throw std::runtime_error("unrecognized distance matrix shape");
+}
+
+// I207: '# n=N' header plus 'u v t' lines. n is required so isolated vertices
+// stay in the complex.
+static Graph read_edge_list(const std::string& path, value_t threshold) {
+    std::ifstream in(path);
+    if (!in) throw std::runtime_error("cannot open " + path);
+    int n = -1;
+    std::vector<Edge> edges;
+    std::string line;
+    while (std::getline(in, line)) {
+        if (line.empty()) continue;
+        if (line[0] == '#') {
+            const auto pos = line.find("n=");
+            if (pos != std::string::npos) n = std::stoi(line.substr(pos + 2));
+            continue;
+        }
+        std::replace(line.begin(), line.end(), ',', ' ');
+        std::istringstream ss(line);
+        std::string tok;
+        if (!(ss >> tok)) continue;
+        if (tok == "n") {
+            ss >> n;
+            continue;
+        }
+        Edge e;
+        try {
+            e.u = std::stoi(tok);
+        } catch (...) {
+            continue;
+        }
+        if (!(ss >> e.v >> e.t)) continue;
+        edges.push_back(e);
+    }
+    if (n < 0) {
+        n = 0;
+        for (const Edge& e : edges) n = std::max(n, std::max(e.u, e.v) + 1);
+    }
+    if (n <= 0) throw std::runtime_error("edge list missing n");
+    return graph_from_edge_list(n, edges, threshold);
 }
 
 static std::vector<std::vector<value_t>> pairwise(const std::vector<std::vector<value_t>>& pts,
@@ -223,6 +264,7 @@ static void print_json(const Result& r) {
 int main(int argc, char** argv) {
     std::string points_path;
     std::string dist_path;
+    std::string edges_path;
     int maxdim = 1;
     value_t threshold = kInf;
     int collapse_iters = -1;  // adaptive + domination probe
@@ -254,6 +296,7 @@ int main(int argc, char** argv) {
         };
         if (a == "--points") points_path = need("--points");
         else if (a == "--distances") dist_path = need("--distances");
+        else if (a == "--edges") edges_path = need("--edges");
         else if (a == "--maxdim") maxdim = std::stoi(need("--maxdim"));
         else if (a == "--threshold") threshold = std::stof(need("--threshold"));
         else if (a == "--collapse") collapse_iters = std::stoi(need("--collapse"));
@@ -282,26 +325,34 @@ int main(int argc, char** argv) {
             return 2;
         }
     }
-    if (points_path.empty() && dist_path.empty()) {
+    if (points_path.empty() && dist_path.empty() && edges_path.empty()) {
         usage();
         return 2;
     }
 
     try {
         Counters c;
-        std::vector<std::vector<value_t>> dist;
-        if (!dist_path.empty()) {
-            dist = read_distance_matrix(dist_path);
-            c.n_distances = static_cast<std::int64_t>(dist.size()) * (dist.size() - 1) / 2;
+        Graph g;
+        if (!edges_path.empty()) {
+            // I207: 1-skeleton input. Enclosing radius needs a full metric;
+            // do not invent missing distances.
+            g = read_edge_list(edges_path, threshold);
+            c.n_distances = static_cast<std::int64_t>(g.edges.size());
         } else {
-            const auto pts = read_points(points_path);
-            dist = pairwise(pts, c);
+            std::vector<std::vector<value_t>> dist;
+            if (!dist_path.empty()) {
+                dist = read_distance_matrix(dist_path);
+                c.n_distances = static_cast<std::int64_t>(dist.size()) * (dist.size() - 1) / 2;
+            } else {
+                const auto pts = read_points(points_path);
+                dist = pairwise(pts, c);
+            }
+            if (use_enclosing) {
+                const value_t R = enclosing_radius(dist);
+                if (R < threshold) threshold = R;
+            }
+            g = graph_from_distance(dist, threshold);
         }
-        if (use_enclosing) {
-            const value_t R = enclosing_radius(dist);
-            if (R < threshold) threshold = R;
-        }
-        Graph g = graph_from_distance(dist, threshold);
         c.n_vertices = g.n;
         c.n_edges_in = static_cast<std::int64_t>(g.edges.size());
         if (probe_only) {

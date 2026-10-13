@@ -225,6 +225,19 @@ int main() {
         std::cout << "ok back-bits C4+diagonals H1 match backward\n";
     }
 
+    // I207: 1-skeleton constructor keeps isolated vertices and C4 H1.
+    {
+        Graph g = graph_from_edge_list(5, {{0, 1, 1}, {1, 2, 1}, {2, 3, 1}, {0, 3, 1}}, 10);
+        assert(g.n == 5);
+        assert(g.edges.size() == 4);
+        Result r = persist_implicit_coh(g, 1, 10, 1);
+        int ess1 = 0;
+        for (const auto& p : r.pairs)
+            if (p.dim == 1 && !std::isfinite(p.death)) ++ess1;
+        assert(ess1 == 1);
+        std::cout << "ok edge-list C4+isolated H1\n";
+    }
+
     std::cout << "all collapse/persist unit tests passed\n";
     return 0;
 }
