@@ -748,37 +748,39 @@ inline Result persist_implicit_coh(const Graph& g, int maxdim, value_t threshold
 
     std::unordered_map<std::uint64_t, int> pivot;
     pivot.reserve(cols.size() * 2);
-    std::vector<std::vector<LEdge>> red(cols.size());
+    // I290: store reduced coboundary R[j] = D V[j] after pairing. Adding
+    // column j later replays R[j] instead of re-walking V-edges (I137
+    // re-enumerated every addition — 170k adds × ~600 cofacets on figure8).
+    std::vector<std::vector<CohEntry>> rcol(cols.size());
+    std::unordered_map<std::uint64_t, std::vector<CohEntry>> edge_cob;
+    edge_cob.reserve(cols.size() * 4);
 
-    auto add_simplex_coboundary = [&](const LEdge& e, std::vector<LEdge>& vred, CohHeap& cob) {
-        vred.push_back(e);
-        for_cofacets_edge(g, e.u, e.v, e.t, threshold, [&](CohEntry x) {
+    auto cofacets_of = [&](index_t u, index_t v, value_t t) -> const std::vector<CohEntry>& {
+        const std::uint64_t k = pack2(u, v);
+        auto it = edge_cob.find(k);
+        if (it != edge_cob.end()) return it->second;
+        std::vector<CohEntry> xs;
+        xs.reserve(16);
+        for_cofacets_edge(g, u, v, t, threshold, [&](CohEntry x) {
             ++c.n_cofacet_probes;
-            cob.push(x);
+            xs.push_back(x);
         });
+        return edge_cob.emplace(k, std::move(xs)).first->second;
     };
 
-    auto compress_vedges = [](std::vector<LEdge>& v) {
-        if (v.size() < 2) return;
-        std::sort(v.begin(), v.end(), [](const LEdge& a, const LEdge& b) {
-            const auto ka = pack2(a.u, a.v), kb = pack2(b.u, b.v);
-            return ka < kb;
-        });
-        std::vector<LEdge> out;
-        out.reserve(v.size());
-        for (const LEdge& e : v) {
-            if (!out.empty() && pack2(out.back().u, out.back().v) == pack2(e.u, e.v))
-                out.pop_back();
-            else
-                out.push_back(e);
+    auto dump_rcol = [](CohHeap& cob) {
+        std::vector<CohEntry> out;
+        for (;;) {
+            const CohEntry x = pop_pivot_ripser(cob);
+            if (x.t == kNegInf) break;
+            out.push_back(x);
         }
-        v.swap(out);
+        return out;
     };
 
     for (int i = 0; i < static_cast<int>(cols.size()); ++i) {
         ++c.n_columns_assembled;
         CohHeap working_cob;
-        std::vector<LEdge> working_red;
         std::vector<CohEntry> collected;
         collected.reserve(16);
 
@@ -824,9 +826,7 @@ inline Result persist_implicit_coh(const Graph& g, int maxdim, value_t threshold
             }
             auto it = pivot.find(piv.key);
             if (it != pivot.end()) {
-                const int j = it->second;
-                add_simplex_coboundary(cols[j], working_red, working_cob);
-                for (const LEdge& e : red[j]) add_simplex_coboundary(e, working_red, working_cob);
+                for (const CohEntry& x : rcol[static_cast<size_t>(it->second)]) working_cob.push(x);
                 ++c.n_additions;
                 piv = peek_pivot_ripser(working_cob);
                 continue;
@@ -834,15 +834,16 @@ inline Result persist_implicit_coh(const Graph& g, int maxdim, value_t threshold
             index_t au = 0, av = 0;
             value_t at = 0;
             if (zero_apparent_facet(g, piv.key, piv.t, threshold, &au, &av, &at, &c)) {
-                add_simplex_coboundary({au, av, at}, working_red, working_cob);
+                for (const CohEntry& x : cofacets_of(au, av, at)) working_cob.push(x);
                 ++c.n_additions;
                 piv = peek_pivot_ripser(working_cob);
                 continue;
             }
             if (piv.t > cols[i].t * ratio) r.pairs.push_back({1, cols[i].t, piv.t});
             pivot[piv.key] = i;
-            compress_vedges(working_red);
-            red[i] = std::move(working_red);
+            // Emergent pairing never filled the heap; R is the singleton pivot.
+            if (working_cob.empty()) working_cob.push(piv);
+            rcol[static_cast<size_t>(i)] = dump_rcol(working_cob);
             break;
         }
     }
