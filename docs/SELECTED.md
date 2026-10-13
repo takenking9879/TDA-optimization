@@ -1,6 +1,6 @@
 # Selected algorithm (living)
 
-Updated 2026-10-13 after iterations I001–I231. **CLI default is still
+Updated 2026-10-13 after iterations I001–I232. **CLI default is still
 I193 + I197 + I202 + I203** collapse+implicit (circle n=4000 **140×**).
 **Recommended general exact path:** `--engine redzed` (I228, vendored
 MIT RedZeD). Shape-agnostic, 0 bars lost, first exact **torus n=2000
@@ -308,20 +308,35 @@ rbit coface skip that make RedZeD fast. Leave `--engine active`
 experimental. Vendored `--engine redzed` stays the recommended exact
 path.
 
-## Next levers (still open after I231)
+**I232 annotation skip:** R/Ri `resolve_bar` on the same walk. Empty
+face-XOR counted as H₂ birth and not reduced. **Exact 19/19** through
+n=1000 (unit square, figure8, two_circles, circle, blobs, sphere,
+torus, uniform2). Topology loss: **0**. Skip median **0.964**. vs I231
+circle n=500 **7.2×** / blobs **28×** / torus **21×**. vs Ripser still
+loses (circle n=500 0.57×, n=1000 0.52×). Justification: reduce work
+drops from every youngest-face triangle to the leftover-column count
+(~67k vs 4.5M at circle n=500), but generation still visits
+\(\Theta(|E|\cdot\deg)\) triangles (36M at circle n=1000). **Not** a
+better Big-O than Ripser VR. Hold as an engine; keep the skip on
+`--engine active`.
+
+## Next levers (still open after I232)
 
 Collapse+implicit is shape-agnostic with **0 bars lost** and is **not**
 a general 10×. `--engine redzed` is the first owned exact torus 10×
 and a 5–8× exact win on the other families. Scale and NDEBUG do not
-make blobs/uniform2 10×.
+make blobs/uniform2 10×. I232 made owned active exact and much faster
+than I231; it still loses to Ripser because it visits every
+youngest-face triangle.
 
 1. **CLI default:** I193 + I197 + I202 + I203. Faster on collapse-friendly
    circle.
 2. **Recommended general exact:** `--engine redzed` (I228/I229). Exact,
-   torus 12–14×, blobs/uniform2 ~5×, sphere 8.3× at n=4000. I231 owned
-   active H1 is exact but **much slower** (no rbit / annotation skip).
-   Next owned port must copy those data structures, not only the
-   youngest-face filter.
+   torus 12–14×, blobs/uniform2 ~5×, sphere 8.3× at n=4000. I232 owned
+   active H1 is exact with a 96% H₂-birth skip but still \(O(|E|\cdot\deg)\)
+   generation (circle n=1000 36M visits / 0.52× vs Ripser). Next owned
+   port must skip generating those triangles (active-star / leftover-coface
+   / rbit), not only skip reducing them.
 3. **Owned optional approx:** `--sparse-eps 0.6 --sparse-cap max` (I213/I218).
 4. H07 kd-tree / H08 distilled still open, lower priority.
 5. GPU later.

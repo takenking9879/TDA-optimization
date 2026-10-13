@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-13 — I232 annotation skip on owned active H1
+
+- **Question:** Does R/Ri `resolve_bar` (skip empty face-XOR = H₂ birth) keep I231’s mixed-homology identity and cut the reduce wall?
+- **Hypothesis:** I231’s 3.8 s of 3.85 s on circle n=500 is F₂-reducing 4.5M columns. Most are empty XOR. Keep transferred R[j] after pairing (unit square: later coface still kills the older leftover). Shape-agnostic.
+- **Work:** `persist_active.hpp` annotations. Wave 93 vs I231 / Ripser / RedZeD. n≤500 plus n=1000 after skip≥0.5 and ≥3× I231.
+- **Result:** **Exact 19/19** (0 unmatched; ess H1; figure8/two_circles 2=2; bn ~5e-7). Skip median **0.964** (circle n=500 4.45M/4.51M; n=1000 36.2M/36.5M). vs I231: circle n=500 **7.2×** (3.85→0.54 s); blobs **28×** (4.42→0.16); torus **21×**. vs Ripser: still loses (circle n=500 **0.57×**, n=1000 **0.52×**; blobs n=500 0.12×). vs RedZeD 0.03–0.37×. Generation still visits every youngest-face triangle (circle n=1000 36M).
+- **Decision:** **Support as a reduce lever** on experimental `--engine active`. **Hold as an engine** — not a Ripser/RedZeD clock win, not a better Big-O (still \(O(|E|\cdot\deg)\) visits). Topology loss: **0**. Default and recommended `--engine redzed` unchanged. Next: skip generating those 36M triangles (active-star / leftover-coface / rbit), not just skip reducing them.
+- **Class:** experiment (support skip; hold clock)
+
 ## 2026-10-13 — I231 owned active H1
 
 - **Question:** Does an owned leftover-youngest-face H1 (generate a triangle only from its youngest leftover face; same F₂ reduce as persist_sparse) match Ripser on mixed homology and beat RedZeD / Ripser?
