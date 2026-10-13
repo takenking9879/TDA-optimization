@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-13 — I263 edge-frac probe for spatial + auto
+
+- **Question:** Can a 250-point |E|/C(m,2) probe send hollow/manifold clouds (figure8 T=1.1, vol≈0.22) to spatial+hash without pulling dense uniform2/sphere off I238 all-pairs? Does that scale mixed H1 past n=2000? H0/H2 must hold.
+- **Hypothesis:** π(T/L)^d misses elongated/hollow supports. Probe≈0.24 on figure8 vs ≈0.29 uniform2 / ≈0.49 sphere. Same VR≤T. Auto residual probe looks thin on a figure8 subsample (collapse miss); edge-frac < 0.25 should still pick redzed.
+- **Work:** spatial if volume<0.20 OR probe<0.25. Auto: fat residual OR hollow probe → redzed. Wave 124 vs Ripser: H0–H2 + figure8 n=2000/4000 T=1.1 + dense n=5000 + sphere n=2000 + n=20000.
+- **Result:** **Exact 15/15** (figure8 n=200 2=2, n=2000 **2=2 / 16.8×** spatial 482k vs 2.0M; n=4000 **2=2 / 27.1× / 1.07s** vs Ripser 29s, 1.98M vs 8.0M; sphere void 1=1; two_spheres 2=2; blobs H0 3=3). Dense n=5000 **11.2× / 0.33s** all-pairs. Sphere n=2000 all-pairs; wave 9.58×, remesure **10.1×** (0.081s). Torus **13.0×**. Circle collapse **16.5×**. n=20000 **5.6×** spatial. Blobs H1 **24×**. Sphere H2 **58×**.
+- **Decision:** **Support.** Topology loss: **0**. Justified class: when the 250-pt edge frac is <0.25, metric is O(|E|) via I258–I261 hash (figure8 n=4000 1.98M vs 8.0M). Worst-case connected dense G_T still Θ(n²). Next: leftover-visit wall on the spatial path (figure8 n=4000 reduce 866 ms / 1.98M leftovers).
+- **Class:** experiment (support; exact mixed-homology scale)
+
 ## 2026-10-13 — I262 always spatial+hash (drop volume gate)
 
 - **Question:** Can 2D/3D finite-T from-points always use Moore+hash (no n×n), dropping the π(T/L)²<0.2 gate, without losing the dense 10× or inventing bars? Does that make mixed-homology figure8 n=2000 usable?

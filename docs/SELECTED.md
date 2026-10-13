@@ -1,15 +1,15 @@
 # Selected algorithm (living)
 
-Updated 2026-10-13 after iterations I001–I262. **CLI default `--engine
-auto` (I235+I236+I239+I240+I241):** subsample residual-frac dispatch. Fat →
-RedZeD (torus n=2000 **12.7×**). Thin-circle → collapse+implicit
-(n=1000 **28×**; n=4000 still **140×**). Disconnected G_T → spatial UF
-+ parallel RedZeD per component (blobs n=4000 **25×**, n=8000 **27×**
-in 0.38 s). **H0** is Kruskal (no RedZeD). **H2:** τ=0.15 so sphere void
-stays collapse (**60×** at n=400; **136×** at n=600). Shape-agnostic,
-0 bars lost. **I242** owned H1 AE is now exact (figure8 2=2) but not a
-clock engine vs RedZeD. Circle 140× is a collapse-friendly regime, **not**
-the success criterion.
+Updated 2026-10-13 after iterations I001–I263. **CLI default `--engine
+auto` (I235+I236+I239+I240+I241+I263):** subsample residual-frac dispatch,
+plus I263 edge-frac so hollow/manifold clouds take RedZeD. Fat →
+RedZeD (torus n=2000 **13.0×**). Thin-circle → collapse+implicit
+(n=1000 **28×**; n=4000 still **140×**). Mixed figure8 n=4000 T=1.1
+**27× / 1.07 s** spatial. Disconnected G_T → spatial UF
++ parallel RedZeD per component (blobs n=4000 **24×**). **H0** is
+Kruskal (no RedZeD). **H2:** τ=0.15 so sphere void stays collapse
+(**58×** at n=400). Shape-agnostic, 0 bars lost. Circle 140× is a
+collapse-friendly regime, **not** the success criterion.
 
 ## Success criteria (goal amendment)
 
@@ -21,18 +21,17 @@ justification (residual \(|E'(n)|\) slopes, column counts, or a different
 complex with a proven size bound). Any information loss vs exact VR must be
 quantified (unmatched bars / bottleneck / interleaving).
 
-Current honest status: **`--engine auto` (I235+I236+I238+I239+I240+I241)** is
+Current honest status: **`--engine auto` (I235+I236+I238+I239+I240+I241+I263)** is
 shape-agnostic (0 unmatched) and picks the better exact engine from a
-250-point collapse probe. H1 τ=0.04; H2 τ=0.15. Torus n=2000 H1 **14.5×**;
-circle n=1000 **28×**; sphere n=600 H2 **136×**. Disconnected clouds
-(blobs) now **25× / 24× / 27×** at n=4000/6000/8000 via I239 split +
-I240 spatial metric (⅓ of the pairs, no n×n matrix). **Worst-case Big-O
-is not improved** on a connected G_T — this is a portfolio, not a new
-complexity class. Torus residual stays \(\Theta(n^2)\) (I204). Connected
-uniform2 n=5000 H1 is **12.7×** after I244–I252 (0.30s/3.79s;
-pith 0.298 vs I251 0.32s); n=6000 is **11.2×** (0.39s/4.43s);
-n=7000 is **11.8×** (0.51s/5.96s). Sphere n=2000 H1 **10.3×**
-(closes the I227 6.9× holdout). Torus n=2000 **14.5×**.
+250-point collapse probe plus I263 edge-frac. H1 τ=0.04; H2 τ=0.15;
+hollow edge-frac <0.25 → redzed. Torus n=2000 H1 **13.0×**;
+circle n=1000 **28×**; mixed figure8 n=4000 **27× / 1.07 s**.
+Disconnected clouds (blobs) **24×** at n=4000 via I239 split +
+I240 spatial metric. **Worst-case Big-O is not improved** on a
+connected G_T — this is a portfolio, not a new complexity class.
+Torus residual stays \(\Theta(n^2)\) (I204). Connected uniform2
+n=5000 H1 is **11.2×** (0.33 s). Sphere n=2000 H1 **10.1×**.
+Sparse n=20000 **5.6×** (1.11 s, 4.71M vs 200M).
 **I228 `--engine redzed`** (with I239/I240 split) remains the
 single-engine general exact path. **I242 `--engine active`** is exact H1 AE (I236 pairing bug fixed)
 but loses to RedZeD (circle n=500 0.06×; uniform2 n=1000 0.33×).
@@ -554,40 +553,42 @@ Topology loss: **0**. Selected spatial hash.
 2.0M). Dense n=5000 **7.4× / 0.46s** and sphere n=2000 **6.8×**
 lost the 10× — gate restored. Topology loss: **0**.
 
-## Next levers (still open after I262)
+**I263 edge-frac spatial + auto:** spatial if π(T/L)^d<0.20 **or**
+250-pt |E|/C(m,2)<0.25. Auto also prefers RedZeD on that probe
+(figure8 subsample collapse looked thin). Wave 124 **exact 15/15**.
+figure8 n=2000 T=1.1 **16.8×** spatial (482k vs 2.0M, ess H1 2=2).
+Hard mixed case figure8 n=4000 T=1.1 **27.1× / 1.07 s** vs Ripser
+29 s (1.98M vs 8.0M, 2=2). Dense n=5000 **11.2×** all-pairs.
+Sphere n=2000 all-pairs, remesure **10.1×** (wave 9.58× noise).
+Torus **13.0×**. Circle collapse **16.5×**. Sphere H2 **58×**.
+Blobs H0 **1.8×** / H1 **24×**. Topology loss: **0**.
+
+## Next levers (still open after I263)
 
 `--engine auto` is a shape-agnostic exact H0–H2 portfolio: circle H1
-10×, torus H1 **12.7×**, sphere H1 **10.1×** at n=2000, sphere H2
-**62×** at n=400 / **136×** at n=600, **disconnected blobs 21×**
-at n=4000 on one CLI path. Connected uniform2 H1 is **11.2×** at
-n=5000 (0.31 s). Sparse connected n=20000 **6.2×** (1.03 s, 4.71M
-vs 200M, no 800 MB matrix). I242/I243 owned AE is exact; rbit is
+10×, torus H1 **13.0×**, sphere H1 **10.1×** at n=2000, mixed
+figure8 n=4000 **27×**, sphere H2 **58×** at n=400, **disconnected
+blobs 24×** at n=4000 on one CLI path. Connected uniform2 H1 is
+**11.2×** at n=5000 (0.33 s). Sparse connected n=20000 **5.6×**
+(1.11 s, 4.71M vs 200M). I242/I243 owned AE is exact; rbit is
 ~1.5× on circle AE and still 12× slower than RedZeD. GUDHI explicit
 Rips is exact and too slow.
 
-1. **CLI default:** `--engine auto` (I235+I236+I239+I240+I241). H1 τ=0.04; H2 τ=0.15.
+1. **CLI default:** `--engine auto` (I235+I236+I239+I240+I241+I263). H1 τ=0.04; H2 τ=0.15; hollow edge-frac <0.25 → redzed.
 2. **Forced engines:** `--engine implicit` = I193+I197+I202+I203 only;
-   `--engine redzed` = I228+I239+I240+I244+I245+I246+I250+I251+I252+I256+I257+I258+I259+I260+I261; H0 = Kruskal.
+   `--engine redzed` = I228+I239+I240+I244+I245+I246+I250+I251+I252+I256+I257+I258+I259+I260+I261+I263; H0 = Kruskal.
 3. **Owned optional approx:** `--sparse-eps 0.6 --sparse-cap max` (I213/I218)
    when n grows past exact VR.
-4. Connected uniform2 is **11.4×** at n=5000 after I258 (0.30 s).
-   Sphere n=2000 H1 **10.1×**. Torus n=2000 **12.7×**. Sparse
-   n=20000 is **6.2×** (1.03 s, 4.71M vs 200M). Remaining dense
-   wall is visiting leftover edges (UF + `advance_rbits` + first
-   rbit AND), not `coface_ready`. Spatial metric is O(|E|) memory
-   (I258–I261 hash). I253–I255 leftover-coface inner-loop constants
-   are exact and reverted. Fill-collect sort, I247 leftover-coface
-   fast, I248 fuse-fill histogram, and I249 parallel leftover-coface
-   precompute are rejected. Parallel `build_edges`, lazy insert,
-   skip-collect, inline skip, leftover-coface no-seen, spatial
-   prebuild, skip ∞-fill, parallel `spatial_edges`, CSR-no-n², and
-   hash get are in. Dense n=5000 stays I238 all-pairs.
-5. Hash load-factor constants are exhausted (I259–I261). I262
-   always-spatial is exact and reverted (dense 10× lost). Do not
-   retry “always spatial”. A cheap residual/|E| probe that sends
-   figure8-like clouds to spatial (n=2000 **14×**) without moving
-   uniform2 n=5000 / sphere n=2000 off all-pairs is still open.
-   Dense path stays I238 all-pairs when π(T/L)²≥0.2.
+4. Connected uniform2 is **11.2×** at n=5000 (0.33 s).
+   Sphere n=2000 H1 **10.1×**. Torus n=2000 **13.0×**. Mixed
+   figure8 n=4000 is **27× / 1.07 s**. Sparse n=20000 is **5.6×**.
+   Remaining spatial-path wall is leftover visit (figure8 n=4000
+   reduce 866 ms / 1.98M leftovers). Dense wall is the same visit
+   on all-pairs. I253–I255 leftover-coface inner-loop constants
+   are exact and reverted. Do not retry always-spatial (I262).
+5. Hash load-factor constants are exhausted (I259–I261). I263
+   edge-frac probe is the selected spatial gate. Dense path stays
+   I238 all-pairs when volume≥0.2 **and** probe≥0.25.
 6. Owned AE leftover-star walk is still Θ(|leftover|·deg★) — rbit cut
    has_leftover_coface, not seeded probes (circle still 875k). Packed
    annotations / seeded_is_noop are the next owned constants.
