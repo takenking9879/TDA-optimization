@@ -273,7 +273,9 @@ not a proven better worst-case class than Ripser. The torus exponent gap
 (2.30 vs 2.76) is the first **exact** clock that is 10× on the collapse
 wall family. Circle 33× is real but PITH collapse+implicit remains
 faster there (0.35 s vs 0.79 s). Blobs/sphere/uniform2 are 4.5–6.9× at
-n=2000 — 10× there is still a scale question.
+n=2000. **I229:** scale does **not** make those 10× (blobs n=4000 5.3×,
+uniform2 5.1×, sphere 8.3×). High-n exponents match Ripser (~n^{2.3});
+the win is a constant. Torus n=3000 **14.2×**. Topology loss: **0**.
 
 **GUDHI 3.13 flag collapse** on the same n=2000 graphs is **slower**
 than PITH (circle 7.94 s vs 273 ms; torus 4.05 s vs 1.40 s). Residual
@@ -288,22 +290,22 @@ vs default PITH (0.21 s / 2.52 s / 1.72 s). Matches I227 wheel times.
 CLI default **not** switched: collapse+implicit still wins on circle
 (0.34 s vs 0.79 s / 35.8× vs Ripser). Recommended for real mixed data.
 
-## Next levers (still open after I228)
+**I229 scale:** exact 9/9 including figure8/two_circles n=500. Loser
+families stay ~5–8× at n=4000 (sphere 8.3× is closest). blobs n=4000
+reduce_ms=313 of wall 394 (metric 59). Algebra needs ~2× for a 10×
+wall. Not a general exact 10×.
+
+## Next levers (still open after I229)
 
 Collapse+implicit is shape-agnostic with **0 bars lost** and is **not**
-a general 10×. `--engine redzed` is the first owned exact torus 10×.
-Optional approx is a multi-family 10× at sufficient n, with quantified
-loss, and a better size exponent.
+a general 10×. `--engine redzed` is the first owned exact torus 10×
+and a 5–8× exact win on the other families.
 
-1. **CLI default:** I193 + I197 + I202 + I203. Shape-agnostic, 0 bars
-   lost, **not** a worst-case Big-O win (I204). Faster on collapse-friendly
+1. **CLI default:** I193 + I197 + I202 + I203. Faster on collapse-friendly
    circle.
-2. **Recommended general exact:** `--engine redzed` (I228). Exact 13/13,
-   torus 12.3×. Next: from-scratch owned active enumeration (drop the
-   vendor copy) and n=3000 blobs/sphere/uniform2 for a general 10×.
+2. **Recommended general exact:** `--engine redzed` (I228/I229). Exact,
+   torus 12–14×, blobs/uniform2 ~5×, sphere 8.3× at n=4000. Next: `-DNDEBUG`
+   on the vendor TU (I230); from-scratch owned active enumeration.
 3. **Owned optional approx:** `--sparse-eps 0.6 --sparse-cap max` (I213/I218).
-   Better size class \(n^{1.31–1.39}\) vs Ripser \(n^2\); ess H1 held;
-   bottleneck typically ≤0.03.
-4. H07 kd-tree lune deprioritized (Euclidean-only; identity closed).
-   H08 distilled still unverified.
+4. H07 kd-tree / H08 distilled still open, lower priority.
 5. GPU later.

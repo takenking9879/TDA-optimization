@@ -1,0 +1,199 @@
+{
+  "id": "redzed_scale_10x",
+  "lever": "H09-scale",
+  "class": "structural",
+  "fidelity": "exact-claimed",
+  "status": "hold",
+  "summary": "exact 9/9; no new 10\u00d7 on blobs/sphere/uniform2",
+  "all_match": true,
+  "ess_ok": true,
+  "mixed_ok": true,
+  "loser_10x": 0,
+  "slopes": {
+    "blobs": {
+      "redzed_time": 1.7456953132816506,
+      "ripser_time": 2.0809943226356946,
+      "ns": [
+        200,
+        2000,
+        3000,
+        4000
+      ]
+    },
+    "sphere": {
+      "redzed_time": 1.7253108888965043,
+      "ripser_time": 2.035580898736191,
+      "ns": [
+        200,
+        2000,
+        3000,
+        4000
+      ]
+    },
+    "uniform2": {
+      "redzed_time": 1.6976329326685684,
+      "ripser_time": 2.055812622322839,
+      "ns": [
+        200,
+        2000,
+        3000,
+        4000
+      ]
+    },
+    "torus": {
+      "redzed_time": 2.101099800122621,
+      "ripser_time": 2.8444130185984426,
+      "ns": [
+        200,
+        2000,
+        3000
+      ]
+    }
+  },
+  "receipts": [
+    {
+      "name": "two_circles",
+      "n": 500,
+      "T": 1.2,
+      "match_ripser": true,
+      "unmatched": 0,
+      "ess1_redzed": 2,
+      "ess1_ripser": 2,
+      "bottleneck": 5.000000000005e-07,
+      "pipeline": "pith:redzed",
+      "redzed_s": 0.008319231004861649,
+      "ripser_s": 0.03100952300155768,
+      "vs_ripser": 3.727450648195263,
+      "default_s": 0.00818703199911397,
+      "vs_default": 0.9841092276833731
+    },
+    {
+      "name": "figure8",
+      "n": 500,
+      "T": 1.0,
+      "match_ripser": true,
+      "unmatched": 0,
+      "ess1_redzed": 2,
+      "ess1_ripser": 2,
+      "bottleneck": 4.900000000057636e-07,
+      "pipeline": "pith:redzed",
+      "redzed_s": 0.0070982300021569245,
+      "ripser_s": 0.024736243001825642,
+      "vs_ripser": 3.4848466440660686,
+      "default_s": 0.008279256006062496,
+      "vs_default": 1.166383169261449
+    },
+    {
+      "name": "blobs",
+      "n": 3000,
+      "T": 1.0,
+      "match_ripser": true,
+      "unmatched": 0,
+      "ess1_redzed": 0,
+      "ess1_ripser": 0,
+      "bottleneck": 4.900000000057636e-07,
+      "pipeline": "pith:redzed",
+      "redzed_s": 0.20399364000331843,
+      "ripser_s": 1.0949075249955058,
+      "vs_ripser": 5.367361085265671,
+      "default_s": 0.641407650000474,
+      "vs_default": 3.1442531737265926
+    },
+    {
+      "name": "sphere",
+      "n": 3000,
+      "T": 1.4,
+      "match_ripser": true,
+      "unmatched": 0,
+      "ess1_redzed": 0,
+      "ess1_ripser": 0,
+      "bottleneck": 5.000000000143778e-07,
+      "pipeline": "pith:redzed",
+      "redzed_s": 0.2807260170011432,
+      "ripser_s": 2.1190485049955896,
+      "vs_ripser": 7.548457843816308,
+      "default_s": 1.1132065409983625,
+      "vs_default": 3.965455545909837
+    },
+    {
+      "name": "uniform2",
+      "n": 3000,
+      "T": 0.35,
+      "match_ripser": true,
+      "unmatched": 0,
+      "ess1_redzed": 0,
+      "ess1_ripser": 0,
+      "bottleneck": 5.100000000091143e-08,
+      "pipeline": "pith:redzed",
+      "redzed_s": 0.19484278700110735,
+      "ripser_s": 1.0726666699993075,
+      "vs_ripser": 5.505293198219399,
+      "default_s": 0.577386345998093,
+      "vs_default": 2.9633447297939317
+    },
+    {
+      "name": "torus",
+      "n": 3000,
+      "T": 1.6,
+      "match_ripser": true,
+      "unmatched": 0,
+      "ess1_redzed": 1,
+      "ess1_ripser": 1,
+      "bottleneck": 5.000000000143778e-07,
+      "pipeline": "pith:redzed",
+      "redzed_s": 0.984690627999953,
+      "ripser_s": 13.94453351500124,
+      "vs_ripser": 14.161334655255708,
+      "default_s": 6.7479942589998245,
+      "vs_default": 6.852907976494062
+    },
+    {
+      "name": "blobs",
+      "n": 4000,
+      "T": 1.0,
+      "match_ripser": true,
+      "unmatched": 0,
+      "ess1_redzed": 0,
+      "ess1_ripser": 0,
+      "bottleneck": 5.100000000091143e-07,
+      "pipeline": "pith:redzed",
+      "redzed_s": 0.3941324510014965,
+      "ripser_s": 2.0856286859998363,
+      "vs_ripser": 5.291694912967005,
+      "default_s": 1.4040960499987705,
+      "vs_default": 3.5624979532412038
+    },
+    {
+      "name": "sphere",
+      "n": 4000,
+      "T": 1.4,
+      "match_ripser": true,
+      "unmatched": 0,
+      "ess1_redzed": 0,
+      "ess1_ripser": 0,
+      "bottleneck": 5.000000000005e-07,
+      "pipeline": "pith:redzed",
+      "redzed_s": 0.5469762440043269,
+      "ripser_s": 4.540831121994415,
+      "vs_ripser": 8.301697142734584,
+      "default_s": 2.399712669001019,
+      "vs_default": 4.387233806413787
+    },
+    {
+      "name": "uniform2",
+      "n": 4000,
+      "T": 0.35,
+      "match_ripser": true,
+      "unmatched": 0,
+      "ess1_redzed": 0,
+      "ess1_ripser": 0,
+      "bottleneck": 5.100000000091143e-08,
+      "pipeline": "pith:redzed",
+      "redzed_s": 0.405092341999989,
+      "ripser_s": 2.0646501640003407,
+      "vs_ripser": 5.096739557718909,
+      "default_s": 1.2572684670012677,
+      "vs_default": 3.1036589356243667
+    }
+  ]
+}

@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-13 — I229 RedZeD scale (general 10×?)
+
+- **Question:** Does `--engine redzed` become a general exact H1 10× at n=3000/4000 on blobs/sphere/uniform2 (the I228 5–8× families), while staying exact on mixed loops?
+- **Hypothesis:** I228 time slopes looked slightly better than Ripser. Scale should widen the gap if that is an exponent effect. Shape-agnostic: same engine.
+- **Work:** Wave 90 vs Ripser + default PITH. Mixed n=500; losers + torus at 3000/4000.
+- **Result:** **Exact 9/9** (0 unmatched; ess H1; figure8/two_circles 2=2). **No new 10×** on blobs/sphere/uniform2. blobs 5.37× / 5.29× (n=3000/4000); uniform2 5.51× / 5.10×; sphere 7.55× / **8.30×**; torus n=3000 **14.2×**. High-n (2000→4000) exponents ~n^{2.3} for both RedZeD and Ripser on blobs — constant-factor win, not an exponent gap. blobs n=4000: metric 59 ms, reduce **313 ms**, wall 394 ms vs Ripser 2086 ms.
+- **Decision:** **Hold.** Exact at scale. Do not claim general 10×. Sphere is the closest (8.3×). Next: I230 `-DNDEBUG` on the vendor TU (paper’s flags); then owned active enumeration. Topology loss: **0**.
+- **Class:** experiment (hold; exact, not general 10×)
+
 ## 2026-10-13 — I228 in-tree --engine redzed
 
 - **Question:** Does wrapping vendored RedZeD (`22ef1bf`, MIT) as `--engine redzed` keep I227’s exact mixed-homology identity and the torus 10× without the PyPI wheel?
