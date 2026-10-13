@@ -251,9 +251,11 @@ int main() {
         dist[0][2] = dist[2][0] = 1.5f;
         dist[1][3] = dist[3][1] = 1.5f;
         Graph full = graph_from_distance(dist, inf);
-        Graph sp = sparse_rips_graph(dist, inf, 0.5f);
+        Graph sp = sparse_rips_graph(dist, inf, 0.5f, SparseCap::Max);
+        Graph spmin = sparse_rips_graph(dist, inf, 0.5f, SparseCap::Min);
         assert(sp.n == 4);
         assert(sp.edges.size() <= full.edges.size());
+        assert(spmin.edges.size() <= sp.edges.size());
         Result r = persist_implicit_coh(sp, 1, inf, 1);
         int ess1 = 0;
         for (const auto& p : r.pairs)

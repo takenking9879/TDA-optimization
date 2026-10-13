@@ -45,11 +45,15 @@ inline std::vector<value_t> greedy_insertion_radii(const std::vector<std::vector
     return lam;
 }
 
+// How the insertion-radius cap is combined. I210 used Max (looser, denser).
+// I212 tries Min (closer to GUDHI's thinner 1-skeleton).
+enum class SparseCap { Max, Min };
+
 // Cavanna–Jahanseir–Sheehy / GUDHI-style sparse Rips 1-skeleton.
-// Keep (i,j) iff d(i,j) ≤ T and d(i,j) ≤ ((1+ε)/ε) · max(λ_i, λ_j).
+// Keep (i,j) iff d(i,j) ≤ T and d(i,j) ≤ ((1+ε)/ε) · cap(λ_i, λ_j).
 // This is exact PH of the *flag* of that subgraph, not of VR(G_T).
 inline Graph sparse_rips_graph(const std::vector<std::vector<value_t>>& dist, value_t T,
-                               value_t eps) {
+                               value_t eps, SparseCap cap = SparseCap::Max) {
     if (eps <= 0 || eps >= 1) return graph_from_distance(dist, T);
     const int n = static_cast<int>(dist.size());
     Graph g;
@@ -61,8 +65,10 @@ inline Graph sparse_rips_graph(const std::vector<std::vector<value_t>>& dist, va
         for (int j = i + 1; j < n; ++j) {
             const value_t d = dist[static_cast<size_t>(i)][static_cast<size_t>(j)];
             if (d > T) continue;
-            const value_t cap = c * std::max(lam[static_cast<size_t>(i)], lam[static_cast<size_t>(j)]);
-            if (d <= cap) g.edges.push_back({i, j, d});
+            const value_t li = lam[static_cast<size_t>(i)];
+            const value_t lj = lam[static_cast<size_t>(j)];
+            const value_t rad = (cap == SparseCap::Min) ? std::min(li, lj) : std::max(li, lj);
+            if (d <= c * rad) g.edges.push_back({i, j, d});
         }
     }
     rebuild_neighbors(g);
