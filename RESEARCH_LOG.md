@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-13 — I282 Delaunay-VR auto-α
+
+- **Question:** Can `--delaunay-alpha auto` replace a magic 2.25 and stay exact on the I279 families, including figure8 n=8000?
+- **Hypothesis:** Mesh-ratio max/med saturates the 2.75 cap and over-thickens. n-formula α = min(2.75, 1.75 + 0.125 log2(max(n/400,1))) uses the I278 blobs floor and reaches ≥2.25 at n=8000. Empirical, not a VR identity.
+- **Work:** `delaunay_auto_alpha(n)` + CLI `auto`. Unit test α(400)=1.75, α(8000)∈[2.25,2.35], circle ess H1. Wave 143 vs Ripser n≤4000, RedZeD n=8000, clock n=16000. H2 α=1. Exact default hold.
+- **Result:** **Support (optional).** Exact H1 **9/9**. figure8 n=4000 **160× / 148 ms / 186k** (I279 156× / 194k). n=8000 **65× / 408 ms / 438k** vs RedZeD 26.4 s (exact, ess1 2=2). n=16000 **974 ms / 977k / ess1=2**. Circle **26×**. Sphere H2 α=1 ess2 1=1 un=8. Exact default hold: H0 **59×**, uniform2 **10.9×**, sphere H2 **58×**.
+- **Decision:** **Support as recommended H1 thicken CLI** (`--delaunay-vr --delaunay-alpha auto`). Default α=1 stays I276 ess-only. Do not switch the exact default. Do not thicken H2. Topology loss: 0 on measured H1 oracles; H2 finite 8 on sphere α=1; n=16000 unoracle’d. Next: exact ae_seeded leftover wall.
+- **Class:** experiment (support optional auto-α)
+
 ## 2026-10-13 — I281 harder H2 scale
 
 - **Question:** Does exact auto H2 hold past n=400 (sphere n=800 vs Ripser 30 s), and does optional Delaunay-flag H2 keep the void at n=400/800?

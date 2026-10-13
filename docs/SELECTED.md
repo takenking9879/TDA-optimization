@@ -1,6 +1,6 @@
 # Selected algorithm (living)
 
-Updated 2026-10-13 after iterations I001–I281. **CLI default `--engine
+Updated 2026-10-13 after iterations I001–I282. **CLI default `--engine
 auto` (I235+I236+I239+I240+I241+I263+I270+I271+I275):** subsample residual-frac dispatch,
 plus I263 edge-frac so hollow/manifold clouds take RedZeD. Fat →
 RedZeD (torus n=2000 **13.0×**). Thin-circle → collapse+implicit
@@ -591,14 +591,13 @@ Rips is exact and too slow.
    d∈{2,3}: flag of the Delaunay 1-skeleton, Θ(n) edges, **essential
    H0/H1/H2 kept** on mixed families (figure8 n=2000 **419× / 6 ms /
    5.9k edges**, 209 unmatched finite; n=8000 **24 ms / ess1=2**).
-   **`--delaunay-alpha 2.25` (I279)** is the recommended H1 thicken:
-   exact H1 9/9 oracles including figure8 n=8000 vs RedZeD
-   (**67× / 390 ms / 428k**). n=4000 **156× / 152 ms** vs Ripser.
-   Hard n=16000 **815 ms / 878k / ess1=2** (no oracle). I278 α=1.75
-   left 2 unmatched at n=8000; I277 α=1.5 left blobs 2 unmatched.
-   H2 stays α=1 (thicken explodes tets). Not a proven VR identity
-   (α grew with n). Prefer I279 over I276 when the user wants
-   finite H1; prefer I276 for ess-only / H2.
+   **`--delaunay-alpha auto` (I282)** is the recommended H1 thicken:
+   α(n)=min(2.75, 1.75+0.125 log2(n/400)). Exact 9/9 oracles;
+   figure8 n=4000 **160× / 148 ms / 186k**; n=8000 **65× / 408 ms /
+   438k** vs RedZeD; n=16000 **974 ms / ess1=2**. I279 fixed 2.25
+   is the measured constant (67× / 390 ms). Default α=1 stays
+   I276 ess-only. H2 stays α=1. Not a VR identity. Prefer auto
+   over I276 when the user wants finite H1.
 4. Connected uniform2 is **11.2×** at n=5000 (0.33 s).
    Sphere n=2000 H1 **10.1×**. Torus n=2000 **13.0×**. Mixed
    figure8 n=4000 is **27× / 1.07 s**. Sparse n=20000 is **5.6×**.
@@ -654,7 +653,9 @@ Rips is exact and too slow.
    vs I279 — hold, do not replace. **I281 exact H2 scale:** sphere
    n=800 **527× / 56 ms** vs Ripser 29.6 s (auto-collapse, 0 unmatched).
    Optional Delaunay-flag H2 keeps the void at n=800 (17 ms, 86
-   unmatched finite). Next: exact ae_seeded leftover wall.
+   unmatched finite). **I282 `--delaunay-alpha auto` is the
+   recommended H1 thicken CLI** (exact 9/9, n=8000 65×). Next:
+   exact ae_seeded leftover wall.
 6. Owned AE leftover-star walk is still Θ(|leftover|·deg★) — rbit cut
    has_leftover_coface, not seeded probes (circle still 875k). Packed
    annotations / seeded_is_noop are the next owned constants.
