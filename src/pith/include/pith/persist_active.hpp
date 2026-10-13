@@ -151,7 +151,7 @@ inline Result persist_active_h1(const Graph& g, int maxdim, value_t threshold,
         const auto& nu = g.neighbors[static_cast<size_t>(e.u)];
         const auto& nv = g.neighbors[static_cast<size_t>(e.v)];
         size_t i = 0, j = 0;
-        while (i < nu.size() && j < nv.size() && !paired[static_cast<size_t>(e.id)]) {
+        while (i < nu.size() && j < nv.size()) {
             if (nu[i].first < nv[j].first) {
                 ++i;
                 continue;
