@@ -1786,7 +1786,8 @@ inline Graph collapse_edges_forward(Graph g, int iterations, Counters& c) {
 
 // I235: collapse a stride-subsample of the metric; return residual |E'|/|E|.
 // Fat residuals (torus ~0.3) mean collapse will not thin G_T — use RedZeD.
-// Thin residuals (<0.02) mean collapse+implicit is the faster exact path.
+// Circle subsample ~0.02 keeps collapse+implicit. Blobs/sphere sit ~0.05
+// (I235: τ=0.04 sends those to RedZeD, which is faster than collapse).
 inline double probe_residual_frac(const std::vector<std::vector<value_t>>& dist, value_t T,
                                   int sample = 250) {
     const int n = static_cast<int>(dist.size());

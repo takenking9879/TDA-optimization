@@ -113,27 +113,25 @@ def main():
         and r.get("ess2") == r.get("ess2_ripser")
         for r in recs
     )
-    torus = [r for r in recs if r["name"] == "torus" and r["n"] >= 500]
+    torus_rows = [r for r in recs if r["name"] == "torus" and r["n"] >= 500]
     torus_redzed = all(
-        r.get("pipeline") == "pith:auto-redzed" or (r.get("residual_frac") or 0) > 0.08
-        for r in torus
+        r.get("pipeline") == "pith:auto-redzed" or (r.get("residual_frac") or 0) > 0.04
+        for r in torus_rows
         if r["n"] >= 400
     )
-    torus_10x = any((r.get("vs_ripser") or 0) >= 10 and r["n"] >= 2000 for r in torus)
-    thin = [r for r in recs if r["name"] in {"circle_noisy", "blobs", "sphere"} and r["n"] >= 400]
-    thin_collapse = all(
-        r.get("pipeline") != "pith:auto-redzed" for r in thin
-    )
+    torus_10x = any((r.get("vs_ripser") or 0) >= 10 and r["n"] >= 2000 for r in torus_rows)
+    circle_rows = [r for r in recs if r["name"] == "circle_noisy" and r["n"] >= 400]
+    circle_collapse = all(r.get("pipeline") == "pith:auto-collapse" for r in circle_rows)
     x10 = [r for r in recs if (r.get("vs_ripser") or 0) >= 10]
 
-    if ident and ess_ok and torus_10x and torus_redzed and thin_collapse:
+    if ident and ess_ok and torus_10x and torus_redzed and circle_collapse:
         status = "support"
-        summary = f"exact {len(recs)}/{len(recs)}; torus dispatched RedZeD and 10×; thin stayed collapse"
+        summary = f"exact {len(recs)}/{len(recs)}; torus RedZeD 10×; circle stayed collapse"
     elif ident and ess_ok:
         status = "hold"
         summary = (
             f"exact {len(recs)}/{len(recs)}; torus_redzed={torus_redzed} "
-            f"torus_10x={torus_10x} thin_collapse={thin_collapse} 10×={len(x10)}"
+            f"torus_10x={torus_10x} circle_collapse={circle_collapse} 10×={len(x10)}"
         )
     else:
         status = "reject"
@@ -151,7 +149,7 @@ def main():
             "ess_ok": ess_ok,
             "torus_redzed": torus_redzed,
             "torus_10x": torus_10x,
-            "thin_collapse": thin_collapse,
+            "circle_collapse": circle_collapse,
             "n10x": len(x10),
             "receipts": recs,
         },

@@ -400,7 +400,7 @@ int main(int argc, char** argv) {
                 static_cast<int>(dist.size()) >= 400) {
                 auto_dispatch = true;
                 c.residual_frac = probe_residual_frac(dist, threshold, 250);
-                if (c.residual_frac > 0.08) engine = "redzed";
+                if (c.residual_frac > 0.04) engine = "redzed";
             }
             if (gic_n > 0) {
                 // I222: flag of a kNN-quotient on farthest-point landmarks.

@@ -1,11 +1,10 @@
 # Selected algorithm (living)
 
-Updated 2026-10-13 after iterations I001–I234. **CLI default is still
-I193 + I197 + I202 + I203** collapse+implicit (circle n=4000 **140×**).
-**Recommended general exact path:** `--engine redzed` (I228, vendored
-MIT RedZeD). Shape-agnostic, 0 bars lost, first exact **torus n=2000
-12.3×** vs Ripser. Circle 140× is a collapse-friendly regime, **not**
-the success criterion.
+Updated 2026-10-13 after iterations I001–I235. **CLI default `--engine
+auto` (I235):** subsample residual-frac dispatch. Fat → RedZeD (torus
+n=2000 **12.5×**). Thin-circle → I193+I197+I202+I203 collapse+implicit
+(n=1000 **28×**; n=4000 still **140×**). Shape-agnostic, 0 bars lost.
+Circle 140× is a collapse-friendly regime, **not** the success criterion.
 
 ## Success criteria (goal amendment)
 
@@ -17,15 +16,13 @@ justification (residual \(|E'(n)|\) slopes, column counts, or a different
 complex with a proven size bound). Any information loss vs exact VR must be
 quantified (unmatched bars / bottleneck / interleaving).
 
-Current honest status: the **CLI default is shape-agnostic** (0 unmatched
-vs Ripser) but **worst-case Big-O is not improved** — collapse is an extra
-\(O(E\cdot|C|)\) pass; torus residual stays \(\Theta(n^2)\) (I204).
-**I228 `--engine redzed`** is the recommended general exact path: owned,
-shape-agnostic, **0 unmatched** (13/13 + I227 18/18), first exact
-**torus 10×** (12.3× at n=2000). Measured time \(n^{2.03–2.38}\) vs
-Ripser \(n^{2.04–3.03}\) — better exponents on circle/torus, **not** a
-proven worst-case class change. Topology loss: **0**. CLI default stays
-collapse+implicit (faster on circle). **I224 reduced VR** is exact with
+Current honest status: **`--engine auto` (I235)** is shape-agnostic (0
+unmatched) and picks the better exact engine from a 250-point collapse
+probe. Torus n=2000 **12.5×**; circle n=1000 **28×**. **Worst-case Big-O
+is not improved** — this is a portfolio, not a new complexity class.
+Torus residual stays \(\Theta(n^2)\) (I204). Blobs n=1000 **2.6×** (still
+not 10×). **I228 `--engine redzed`** remains the single-engine general
+exact path. Topology loss: **0**. **I224 reduced VR** is exact with
 \(O(n^2)\) triangles but loses clock. The **optional** `--sparse-eps 0.6`
 path keeps essential \(H_1\) and sits in a better size class (I218) at
 quantified bottleneck 0.005–0.034.
@@ -98,6 +95,7 @@ suite and I137 8/8 (including dense circle80/200 **collapse=0**, the I045 killer
 | Reduced VR as default (I224) | **Exact H1** on 19/19 mixed rows (unit square, figure8, two_circles, …). Triangles \(n^{2.04–2.20}\). Construction loses clock (circle n=500 2.65s vs Ripser 0.31s). Keep `--reduced-vr` experimental |
 | Reduced VR lune walk (I224 path) | I225 all-pairs is **2.7×** faster construction, still exact; still slower than Ripser (circle n=500 0.73s / 0.42×) |
 | Witness-shrink first_dominator (I226) | Exact 5/5; torus tests 12.5M→9.0M / 6.1M skips; collapse **1450 vs 1470** ms. Circle 275 vs 263. Reverted |
+| Live leftover-star generation (I233) | **Not exact** on real clouds (invents H1). Unit square held. Reverted |
 
 I107 (`--dom-budget 1`) **still rejected** with implicit (I142–I144): thicker
 residual makes collapse *and* reduce slower (circle3000 1.49× vs full 8.11×).
@@ -335,23 +333,29 @@ H2 adds a tet pass on the H2-birth 2-skeleton. Size is still the flag
 VR class, not a better Big-O. Usable real-data H0–H2 at more points is
 `--engine redzed` or the collapse default, not owned active (yet).
 
-## Next levers (still open after I234)
+**I235 `--engine auto` residual-frac dispatch:** 250-point stride
+subsample collapse; τ=0.04. **Exact 11/11.** Torus frac=0.28 → RedZeD
+**12.5×** at n=2000 (skips 2.86 s collapse). Circle frac=0.021 →
+collapse **28×** at n=1000. Blobs/sphere frac≈0.057 → RedZeD 2.6× /
+3.3× (faster than collapse there). Topology loss: **0**. Justification:
+the probe is \(O(s^2)\) with \(s=250\), not a function of n; full work
+is whichever exact engine is cheaper. **Not** a better Big-O. Not a
+general 10× (blobs stay ~3–5×).
 
-Collapse+implicit is shape-agnostic with **0 bars lost** and is **not**
-a general 10×. `--engine redzed` is the first owned exact torus 10×
-and a 5–8× exact win on the other families; it is also the usable
-exact H0–H2 path at more points. I234 made owned `--engine active`
-exact through H2 but slower than Ripser/RedZeD/default. I233 proved
-that a naive leftover-star cut is not exact.
+## Next levers (still open after I235)
 
-1. **CLI default:** I193 + I197 + I202 + I203. Faster on collapse-friendly
-   circle and on sphere H2 after collapse (n=200 **26×** vs Ripser).
-2. **Recommended general exact H0–H2:** `--engine redzed` (I228/I229/I234).
-   Exact, torus 12–14× H1, sphere n=200 H2 **3.2×** vs Ripser (0.040 s).
-   Owned active H0–H2 is exact (10/10) but 0.039× on that void.
+`--engine auto` is now a shape-agnostic exact portfolio: circle 10× and
+torus 10× on one CLI path. Blobs/uniform2 are still ~3–5×. Owned active
+H0–H2 is exact but not a scale engine. I233 star generation was inexact.
+
+1. **CLI default:** `--engine auto` (I235). Circle collapse; fat/mid
+   residual → RedZeD.
+2. **Forced engines:** `--engine implicit` = I193+I197+I202+I203 only;
+   `--engine redzed` = I228 only.
 3. **Owned optional approx:** `--sparse-eps 0.6 --sparse-cap max` (I213/I218)
    when n grows past exact VR.
 4. Next owned generation cut must be RedZeD-faithful rbit / active
    enumeration — I233's star shortcut was inexact.
-5. H07 kd-tree / H08 distilled still open, lower priority.
-6. GPU later.
+5. Push blobs/uniform2 from ~5× to 10× (RedZeD reduce is the wall).
+6. H07 kd-tree / H08 distilled still open, lower priority.
+7. GPU later.

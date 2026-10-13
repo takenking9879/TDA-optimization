@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-13 — I235 auto residual-frac dispatch
+
+- **Question:** Can `--engine auto` pick RedZeD on fat residuals (torus) and collapse+implicit on thin ones (circle) from a cheap subsample, without losing identity or circle 10×?
+- **Hypothesis:** I204 E'/E is ~0.3 on torus and ~0.01 on circle/blobs. A 250-point stride subsample collapse predicts that. Fat → skip full G_T+collapse. τ=0.04 also sends blobs/sphere (~0.057) to RedZeD (faster than collapse there). Shape-agnostic. Both engines exact. Topology loss 0.
+- **Work:** `probe_residual_frac` + auto dispatch. Wave 96 vs Ripser / forced collapse / forced RedZeD.
+- **Result:** **Exact 11/11** (figure8/two_circles 2=2; sphere H2 1=1; blobs H0 3=3). Torus n=2000 **auto-redzed** frac=0.28, **12.5×** vs Ripser (0.21s/2.63s), **13.6×** vs collapse (2.86s). Circle n=1000 **auto-collapse** frac=0.021, **28.4×**. Blobs n=1000 auto-redzed **2.6×** (was 1.7× on collapse). Sphere n=500 H1 3.3×. Probe tax ~6–12 ms.
+- **Decision:** **Support as `--engine auto`.** Same CLI path for real mixed data. Not a general 10× (blobs 2.6×). Not a better Big-O — a portfolio of two exact engines. Topology loss: **0**. Do not claim the dispatch is an algorithm class change.
+- **Class:** experiment (support; exact portfolio, not general 10×)
+
 ## 2026-10-13 — I234 owned active H0+H1+H2
 
 - **Question:** Can the owned engine compute exact H0, H1, and H2 on mixed homology and a harder void (sphere), and stay usable at a larger H1 cloud, without a long test?
