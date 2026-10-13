@@ -739,6 +739,13 @@ Do not paste long reasoning here.
 - **Decision:** suffix-rescue/stab are the first **honest H1>10×** on circle n=2000. Not default (fail at n≥3000). Cannot cheap-trim nonempty-C shift-keeps. Next: predict shift-to-t* without the full young C-walk, or skip collapse on I162 losers.
 - **Class:** experiment (select as optional; not default)
 
+## 2026-10-13 — I173 shift-keep support / geometry
+
+- **Question:** Are the ~100 shift-keeps supported on a small / geometrically obvious vertex set?
+- **Result:** circle3000: **97 edges on 60 verts**, first 10 are a tight clique on {1762,2217,429,…}. **Not outliers:** top-400 dmax covers **0/60**. Top-1000 longest edges cover 26/60; need top-5000 (~2887 verts) for 58/60. leftover_median/mst_max still cannot skip I162 (sphere 7.5 vs circle T=1.2 6.9).
+- **Decision:** No cheap geometric filter. Shift-keeps are a small algebraic set, not a geometric shell. Next: cost-model skip is still weakly separated; need an algebraic certificate for “will shift-keep”.
+- **Class:** experiment (negative as a skip filter)
+
 ## 2026-10-13 — I164 collapse live-degree trace
 
 - **Question:** Does the live 1-skeleton thin early enough to stop the C-walk?
