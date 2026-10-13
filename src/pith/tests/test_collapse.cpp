@@ -51,9 +51,15 @@ int main() {
         Tm.set(1, 2, 1);
         std::vector<index_t> C = {1, 2};
         index_t fail_w = -1;
-        assert(!dominated_by(Tm, C, 0, 1.5f, nullptr, nullptr, 0, 2, &fail_w));
-        assert(fail_w == 2);
-        assert(dominated_by(Tm, C, 0, 3.5f));
+        const bool rejected = !dominated_by(Tm, C, 0, 1.5f, nullptr, nullptr, 0, 2, &fail_w);
+        if (!rejected || fail_w != 2) {
+            std::cerr << "I219 hint reject failed\n";
+            return 1;
+        }
+        if (!dominated_by(Tm, C, 0, 3.5f)) {
+            std::cerr << "I219 full cover at t=3.5 failed\n";
+            return 1;
+        }
         std::cout << "ok I219 killer-first hint\n";
     }
 
@@ -312,6 +318,27 @@ int main() {
             if (p.dim == 1 && !std::isfinite(p.death)) ++ess1;
         assert(ess1 >= 1);
         std::cout << "ok lazy-witness C4 H1 edges=" << lw.edges.size() << "\n";
+    }
+
+    // I220: kNN K=2 on C4 keeps the 4-cycle (each vertex has two neighbors).
+    {
+        const value_t inf = 10;
+        std::vector<std::vector<value_t>> dist(4, std::vector<value_t>(4, 0));
+        dist[0][1] = dist[1][0] = 1;
+        dist[1][2] = dist[2][1] = 1;
+        dist[2][3] = dist[3][2] = 1;
+        dist[3][0] = dist[0][3] = 1;
+        dist[0][2] = dist[2][0] = 1.5f;
+        dist[1][3] = dist[3][1] = 1.5f;
+        Graph kn = knn_flag_graph(dist, inf, 2);
+        assert(kn.n == 4);
+        assert(kn.edges.size() == 4);
+        Result r = persist_implicit_coh(kn, 1, inf, 1);
+        int ess1 = 0;
+        for (const auto& p : r.pairs)
+            if (p.dim == 1 && !std::isfinite(p.death)) ++ess1;
+        assert(ess1 >= 1);
+        std::cout << "ok knn-flag C4 H1 edges=" << kn.edges.size() << "\n";
     }
 
     std::cout << "all collapse/persist unit tests passed\n";

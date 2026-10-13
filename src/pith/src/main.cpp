@@ -37,6 +37,7 @@ static void usage() {
         << "  --sparse-cap max|min  λ-cap for --sparse-eps (default max; I212 min)\n"
         << "  --witness-n M       lazy witness on M farthest-point landmarks (I216)\n"
         << "  --witness-nu K      lazy-witness ν (default 0; I216 ν=1 invents loops)\n"
+        << "  --knn K             undirected kNN flag 1-skeleton (I220; not exact VR)\n"
         << "  --sparse-only       write residual edges and exit\n"
         << "  --probe-only        print ROI probe on G_T and exit (I163)\n"
         << "  --probe-vertex      print dominated-vertex count on G_T and exit (I192)\n"
@@ -291,6 +292,7 @@ int main(int argc, char** argv) {
     SparseCap sparse_cap = SparseCap::Max;
     int witness_n = 0;
     int witness_nu = 0;  // I216: ν=1 invents essential H1; I217 tests 0
+    int knn_k = 0;
     bool later_b = false;
     int later_escalate = 0;
     int later_esc_until = 0;
@@ -311,6 +313,7 @@ int main(int argc, char** argv) {
         else if (a == "--sparse-eps") sparse_eps = std::stof(need("--sparse-eps"));
         else if (a == "--witness-n") witness_n = std::stoi(need("--witness-n"));
         else if (a == "--witness-nu") witness_nu = std::stoi(need("--witness-nu"));
+        else if (a == "--knn") knn_k = std::stoi(need("--knn"));
         else if (a == "--sparse-cap") {
             const std::string v = need("--sparse-cap");
             if (v == "min") sparse_cap = SparseCap::Min;
@@ -374,7 +377,11 @@ int main(int argc, char** argv) {
                 const value_t R = enclosing_radius(dist);
                 if (R < threshold) threshold = R;
             }
-            if (witness_n > 0) {
+            if (knn_k > 0) {
+                // I220: flag of a symmetric kNN graph. Not exact VR.
+                g = knn_flag_graph(dist, threshold, knn_k);
+                if (collapse_iters < 0) collapse_iters = 0;
+            } else if (witness_n > 0) {
                 // I216: lazy witness on M farthest-point landmarks. PH is
                 // on M vertices. Not exact VR — quantify loss vs Ripser.
                 g = lazy_witness_graph(dist, threshold, witness_n, witness_nu);

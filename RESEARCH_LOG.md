@@ -1085,8 +1085,17 @@ Do not paste long reasoning here.
 - **Question:** Does testing the last failing C-vertex first cut torus Tm walks without changing the residual?
 - **Hypothesis:** Consecutive apexes often fail on the same w. One extra lookup per test; skip the rest of C on a hit. Exact (same exists-dominator decision). Shape-agnostic. Not a Big-O change.
 - **Work:** `dominated_by(..., hint, fail_w)` in first_dominator_deg / _witness. Wave 80 vs src+Ripser.
+- **Result:** **Exact 5/5.** Lever fires (torus 2.14M / 12.5M = 17% killer hits) but collapse **1474 ms vs I203 1470** (1.56×). circle 265 ms / 83×; blobs 192 / 1.81×; sphere **388 vs 365**. Residual 163426 vs 163368 (PH still matched).
+- **Decision:** **Reject as default** — no torus clock win, sphere tax. Reverted from first_dominator. Hint API stays for tests. 17% shorter walks did not show up in wall-clock (shift is memory-bound / I197 still dominates).
+- **Class:** experiment (reject; exact but not faster)
+
+## 2026-10-13 — I220 undirected kNN flag 1-skeleton (approx Big-O)
+
+- **Question:** Does a symmetric kNN 1-skeleton (keep (i,j) if either is among the other's K nearest and d≤T) keep essential H1 on mixed-homology families with a better size class than Ripser?
+- **Hypothesis:** I021 rejected k=16 as exact-VR. As an optional approx, |E|≤kn/2 = O(n) for fixed K. Shape-agnostic. Quantify ess H1 + bottleneck. If it invents/drops loops like I216, reject.
+- **Work:** `--knn K`, collapse=0, implicit. Wave 81 on circle/blobs/torus/two_circles/figure8 at K=16 and 32.
 - **Result:** *(wave pending)*
-- **Decision:** Select only if exact and torus collapse <1400 ms without blobs/circle regression.
+- **Decision:** Optional only if ess H1 holds and bn ≲0.05. Not a default.
 - **Class:** experiment
 
 ## 2026-10-13 — I164 collapse live-degree trace

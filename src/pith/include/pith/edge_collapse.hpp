@@ -151,18 +151,14 @@ inline index_t first_dominator_deg(const DenseTimes& Tm, const std::vector<index
     }
     const size_t need = C_now.size() - 1;
     int tried = 0;
-    index_t killer = -1;
     for (index_t cand : C_now) {
         const size_t cand_deg = deg ? static_cast<size_t>((*deg)[cand]) : nbr[cand].size();
         if (cand_deg < need) continue;
         if (ctr) ++ctr->n_collapse_dom_tests;
-        index_t fail_w = -1;
-        if (dominated_by(Tm, C_now, cand, t, nullptr, nullptr, 0, killer, &fail_w)) {
+        if (dominated_by(Tm, C_now, cand, t)) {
             if (ctr) ++ctr->n_collapse_dom_hits;
             return cand;
         }
-        if (killer >= 0 && fail_w == killer && ctr) ++ctr->n_collapse_killer_hits;
-        killer = fail_w;
         if (budget > 0 && ++tried >= budget) return -1;
     }
     return -1;
@@ -181,19 +177,15 @@ inline index_t first_dominator_witness(const DenseTimes& Tm, const std::vector<i
     const size_t need = C_now.size() - 1;
     const value_t* rw = Tm.row(witness);
     int tried = 0;
-    index_t killer = witness;  // I219: the sticky-break vertex is a strong first reject
     for (index_t cand : C_now) {
         if (cand != witness && rw[cand] > t) continue;
         const size_t cand_deg = deg ? static_cast<size_t>((*deg)[cand]) : nbr[cand].size();
         if (cand_deg < need) continue;
         if (ctr) ++ctr->n_collapse_dom_tests;
-        index_t fail_w = -1;
-        if (dominated_by(Tm, C_now, cand, t, nullptr, nullptr, 0, killer, &fail_w)) {
+        if (dominated_by(Tm, C_now, cand, t)) {
             if (ctr) ++ctr->n_collapse_dom_hits;
             return cand;
         }
-        if (killer >= 0 && fail_w == killer && ctr) ++ctr->n_collapse_killer_hits;
-        killer = fail_w;
         if (budget > 0 && ++tried >= budget) return -1;
     }
     return -1;

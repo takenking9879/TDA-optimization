@@ -75,6 +75,47 @@ inline Graph sparse_rips_graph(const std::vector<std::vector<value_t>>& dist, va
     return g;
 }
 
+// I220: undirected kNN 1-skeleton. Keep (i,j) iff d≤T and i is among j's
+// K nearest (or vice versa). Flag PH of this graph is not exact VR.
+// |E| ≤ nK. Shape-agnostic. I021 rejected k=16 as exact-VR.
+inline Graph knn_flag_graph(const std::vector<std::vector<value_t>>& dist, value_t T, int K) {
+    const int n = static_cast<int>(dist.size());
+    Graph g;
+    g.n = n;
+    if (n < 2 || K <= 0) return g;
+    std::vector<char> keep(static_cast<size_t>(n) * static_cast<size_t>(n), 0);
+    std::vector<std::pair<value_t, int>> row;
+    row.reserve(static_cast<size_t>(n));
+    for (int i = 0; i < n; ++i) {
+        row.clear();
+        const value_t* di = dist[static_cast<size_t>(i)].data();
+        for (int j = 0; j < n; ++j) {
+            if (j == i) continue;
+            const value_t d = di[j];
+            if (d <= T) row.push_back({d, j});
+        }
+        const int k = std::min(K, static_cast<int>(row.size()));
+        if (k > 0 && k < static_cast<int>(row.size()))
+            std::nth_element(row.begin(), row.begin() + k, row.end());
+        for (int t = 0; t < k; ++t) {
+            const int j = row[static_cast<size_t>(t)].second;
+            keep[static_cast<size_t>(i) * static_cast<size_t>(n) + static_cast<size_t>(j)] = 1;
+        }
+    }
+    g.edges.reserve(static_cast<size_t>(n) * static_cast<size_t>(std::max(K, 1)));
+    for (int i = 0; i < n; ++i) {
+        for (int j = i + 1; j < n; ++j) {
+            const size_t ij = static_cast<size_t>(i) * static_cast<size_t>(n) + static_cast<size_t>(j);
+            const size_t ji = static_cast<size_t>(j) * static_cast<size_t>(n) + static_cast<size_t>(i);
+            if (keep[ij] || keep[ji])
+                g.edges.push_back({static_cast<index_t>(i), static_cast<index_t>(j),
+                                   dist[static_cast<size_t>(i)][static_cast<size_t>(j)]});
+        }
+    }
+    rebuild_neighbors(g);
+    return g;
+}
+
 // I216: first `m` vertices of a farthest-point (greedy) permutation.
 inline std::vector<index_t> greedy_landmarks(const std::vector<std::vector<value_t>>& dist, int m) {
     const int n = static_cast<int>(dist.size());
