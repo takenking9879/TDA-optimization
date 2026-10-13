@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-13 — I277 Delaunay-VR α thicken (H1)
+
+- **Question:** Can a linear-size local-radius thicken of the Delaunay 1-skeleton recover the finite H1 bars I276 dropped, at a harder mixed scale (figure8 n=4000), without exploding H2?
+- **Hypothesis:** r_v = longest Delaunay spoke; add d≤min(T, α·max(r_u,r_v)). Probe α=1.5 was exact on figure8/circle/torus/uniform2; H2 thicken timed out (do not thicken H2). Empirical, not a proven VR identity.
+- **Work:** `--delaunay-alpha A` (default 1 = I276). Spatial grid, query both ends. H1-only. Wave 138 vs Ripser; hard figure8 n=4000.
+- **Result:** **Hold.** Ess 9/9 dvr+dvr0. Exact H1 on 8/9 dvr (unit_square, figure8 200/2000/4000, two_circles, circle, torus, uniform2). **blobs n=400 unmatched=2 / bn 0.004**. figure8 n=2000 **54× / 48 ms / 60k** (I276: 419× / 6 ms / 209 unmatched). Hard figure8 n=4000 **272× / 94 ms / 124k** vs Ripser 25.4 s (exact, ess1 2=2). Circle n=500 **30×**. Sphere H2 α=1 ess2 1=1, un=8. Exact default hold: blobs H0 **62×**, uniform2 **11×**, sphere H2 **57×**.
+- **Decision:** **Hold as owned optional H1 thicken** (`--delaunay-vr --delaunay-alpha 1.5`). Do not switch the exact default (blobs 2 unmatched; not a VR identity). Prefer over I276 when the user wants finite H1 at more points. Do not thicken H2. Next: close blobs gap (larger/adaptive α) and push figure8 n=8000. Topology loss: blobs 2 finite H1; H2 finite 8 on sphere α=1.
+- **Class:** experiment (hold optional H1 scale; reject as default)
+
 ## 2026-10-13 — I276 Delaunay-flag VR (optional)
 
 - **Question:** Does the flag of the Euclidean Delaunay 1-skeleton (I271/I275) keep essential H0/H1/H2 on mixed families at Θ(n) edges, and is that a better owned scale path than `--sparse-eps 0.6`?
