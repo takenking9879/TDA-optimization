@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-13 — I228 in-tree --engine redzed
+
+- **Question:** Does wrapping vendored RedZeD (`22ef1bf`, MIT) as `--engine redzed` keep I227’s exact mixed-homology identity and the torus 10× without the PyPI wheel?
+- **Hypothesis:** Same C++ as `redzed-tda` 0.1.1. Collapse skipped (full metric). Shape-agnostic. Topology loss 0 if the bridge copies bars correctly.
+- **Work:** `third_party/redzed/` + `persist_redzed` + wave 89 vs Ripser / default PITH / I227 times.
+- **Result:** **Exact 13/13** (0 unmatched; ess H1 matches; bottleneck ~1e-7). Torus n=2000 **12.3×** vs Ripser (0.21s/2.52s) and **8.3×** vs default PITH (1.72s). Circle n=2000 35.8× vs Ripser, **0.43×** vs PITH. blobs/sphere/uniform2 5.4–7.7× vs Ripser and 2.8–3.9× vs PITH. Times match I227 wheel.
+- **Decision:** **Support as owned exact engine.** Recommend for mixed/real data. Do **not** switch CLI default (circle collapse still faster). Topology loss: **0**. Next: from-scratch reimplementation (drop vendor) and larger-n 10× on blobs/sphere/uniform2. Complexity still a measured exponent gap, not a proven better worst-case class.
+- **Class:** experiment (support; owned exact torus 10×)
+
 ## 2026-10-13 — I227 real RedZeD engine (H09) + GUDHI collapse
 
 - **Question:** Is `redzed-tda` a real unused exact VR engine (not I122’s leftover-triangle fake), and is the torus collapse wall an implementation gap vs GUDHI 3.13?

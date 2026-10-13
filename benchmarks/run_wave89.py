@@ -116,15 +116,15 @@ def main():
 
     ident = all(r.get("match_ripser") for r in recs)
     ess_ok = all(r.get("ess1_redzed") == r.get("ess1_ripser") for r in recs)
-    torus = next((r for r in recs if r["name"] == "torus" and r["n"] == 2000), None)
-    torus_10 = bool(torus and (torus.get("vs_ripser") or 0) >= 10)
+    torus_row = next((r for r in recs if r["name"] == "torus" and r["n"] == 2000), None)
+    torus_10 = bool(torus_row and (torus_row.get("vs_ripser") or 0) >= 10)
 
     if ident and ess_ok and torus_10:
         status = "support"
-        summary = f"exact {len(recs)}/{len(recs)}; torus n=2000 {torus['vs_ripser']:.1f}×"
+        summary = f"exact {len(recs)}/{len(recs)}; torus n=2000 {torus_row['vs_ripser']:.1f}×"
     elif ident and ess_ok:
         status = "hold"
-        summary = f"exact {len(recs)}/{len(recs)}; torus vs Ripser {None if not torus else torus.get('vs_ripser')}"
+        summary = f"exact {len(recs)}/{len(recs)}; torus vs Ripser {None if not torus_row else torus_row.get('vs_ripser')}"
     else:
         status = "reject"
         summary = "in-tree RedZeD identity failed vs Ripser"
