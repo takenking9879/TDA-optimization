@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-13 — I285 harder exact 3D H0 (n=30k/50k)
+
+- **Question:** Does I275 walk-locate 3D Delaunay H0 stay exact and ~linear at n=30000/50000 (past I275’s n=16000 receipt), without breaking H1/H2?
+- **Hypothesis:** Same MST ⊆ Delaunay class. Construction expected O(n log n). Sphere at T=1.4 is one component (ess0=1). Ripser H0 lists G_T and should lose badly; n=50000 is pith-only if Ripser exceeds ~90s.
+- **Work:** Wave 145 vs Ripser. Leftover-constant cuts (I264–I273) were not retried — the wall is ae_seeded, not empty-seed leftover_coface.
+- **Result:** **Support (3D H0 scale receipt).** n=16000 **139× / 116 ms / 81k** exact ess0 1=1. n=30000 **288× / 221 ms / 151k** exact ess0 1=1 vs Ripser 63.6 s. n=50000 **367 ms / 252k / ess0=1**, delaunay pipeline. Metric 88.7 / 176.6 / 293.8 ms ~linear. H1 figure8 **17×**, uniform2 **11.0×**. H2 sphere **57×**. Topology loss: **0** where the oracle finished.
+- **Decision:** **Support as 3D H0 scale receipt.** I275 gate n≤50000 holds at 50k. Do not claim 288× as a new algorithm. Next: usable H0+H1+H2 on one Euclidean path (H1 thicken currently forces α=1 when maxdim≥2). Do not retry leftover empty-seed skips. Do not mark the goal complete.
+- **Class:** experiment (support 3D H0 scale; no new engine)
+
 ## 2026-10-13 — I284 harder exact H0 (n=25k/50k)
 
 - **Question:** Does I271 2D walk-locate H0 stay exact and ~linear at n=25000/50000 (past I271’s n=12000 receipt), without breaking H1/H2?
