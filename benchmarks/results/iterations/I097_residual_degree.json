@@ -1,0 +1,38 @@
+{
+  "id": "residual_degree_reverted",
+  "lever": "H01-diag",
+  "class": "experiment",
+  "fidelity": "exact",
+  "status": "experiment",
+  "summary": "residual mean degree after degree-filter collapse",
+  "receipts": [
+    {
+      "dataset": "circle_noisy",
+      "n": 1000,
+      "mean_deg_in": 409.83,
+      "mean_deg_out": 4.53,
+      "edges_out": 2265
+    },
+    {
+      "dataset": "torus",
+      "n": 500,
+      "mean_deg_in": 117.436,
+      "mean_deg_out": 35.3,
+      "edges_out": 8825
+    },
+    {
+      "dataset": "sphere",
+      "n": 500,
+      "mean_deg_in": 244.9,
+      "mean_deg_out": 7.22,
+      "edges_out": 1805
+    },
+    {
+      "dataset": "uniform10",
+      "n": 200,
+      "mean_deg_in": 196.22,
+      "mean_deg_out": 95.43,
+      "edges_out": 9543
+    }
+  ]
+}

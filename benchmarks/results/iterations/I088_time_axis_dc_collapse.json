@@ -1,0 +1,14 @@
+{
+  "id": "time_axis_dc_collapse",
+  "lever": "H01-dc",
+  "class": "proposal",
+  "fidelity": "exact-claimed",
+  "status": "hold",
+  "summary": "Glisse 2022 Lemma 6 time-axis D&C is a parallel schedule, not less sequential work",
+  "receipts": [
+    {
+      "source": "papers/glisse-2022-edge-collapse-extensions.pdf \u00a75",
+      "decision": "do not implement as a sequential 10\u00d7 lever"
+    }
+  ]
+}

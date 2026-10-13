@@ -1,0 +1,28 @@
+{
+  "id": "bitset_torus",
+  "lever": "H01-bitset",
+  "class": "implementation",
+  "fidelity": "exact",
+  "status": "experiment",
+  "summary": "torus adaptive after bitset collapse",
+  "receipts": [
+    {
+      "n": 200,
+      "match": true,
+      "ripser_s": 0.004950896000082139,
+      "pith_s": 0.005179126999792061,
+      "time_ratio": 0.9559325346300477,
+      "edges_out": 977,
+      "collapse_ms": 2.384822
+    },
+    {
+      "n": 500,
+      "match": true,
+      "ripser_s": 0.047876501999780885,
+      "pith_s": 0.0663466400001198,
+      "time_ratio": 0.7216115540997168,
+      "edges_out": 5735,
+      "collapse_ms": 33.983721
+    }
+  ]
+}

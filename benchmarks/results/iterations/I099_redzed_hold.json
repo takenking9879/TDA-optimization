@@ -1,0 +1,14 @@
+{
+  "id": "redzed_not_ported",
+  "lever": "H09",
+  "class": "proposal",
+  "fidelity": "unverified",
+  "status": "hold",
+  "summary": "RedZeD active enumeration still unimplemented (license/ideas-only); next if implicit stays rejected",
+  "receipts": [
+    {
+      "paper": "papers/kapulkin-2026-redzed.pdf",
+      "decision": "do not vendor; reimplement H1-only if attempted"
+    }
+  ]
+}

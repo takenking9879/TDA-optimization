@@ -361,3 +361,35 @@ Do not paste long reasoning here.
 - **Decision:** Selected stack unchanged: collapse + triangle-boundary homology. Sticky inner loop kept. Implicit coh / reduced-VR-PH / high-d skip / Sheehy rejected. Distance CLI added. See `docs/SELECTED.md`.
 - **Next:** faster collapse (still the only H1 10×-clock path); do not stop at 70 iterations.
 - **Class:** verified (selection, scoped)
+
+## 2026-10-13 — I071–I081 bitset domination
+
+- **Question:** Does live-neighborhood bitset AND cut \(O(|C|^2)\) domination?
+- **Result:** Exact (5/5 + matching I044 counts). **Slower**: circle2000 collapse 5.8 s vs 2.6 s. Existence-AND leaves too many Tm candidates.
+- **Decision:** Revert bitset from the hot path (I081).
+- **Class:** experiment (negative)
+
+## 2026-10-13 — I082 degree filter
+
+- **Question:** Skip apexes with live degree \(< |C|-1\)?
+- **Result:** Exact. circle1000 315 ms (≈ I047 324 ms). Wash.
+- **Decision:** Keep as a sound cheap filter.
+- **Class:** experiment (implementation)
+
+## 2026-10-13 — I083 / I096 large T
+
+- **Result:** circle1000 T=1.5: **4.1×**. circle2000 T=1.5: residual still 5158 edges, Ripser 32.5 s, PITH 4.5 s → **7.2×**. T=1.8 on n=1000 residual grew and ratio fell to 3.2×.
+- **Decision:** Larger T (below fill-in) is where H1 clock approaches 10×. Not yet 10× at n=2000.
+- **Class:** reproduced
+
+## 2026-10-13 — I084–I095 / I097–I100
+
+- **Result:** Geometry/H2/H0/blobs/high-d exact after revert. Sphere500 \(H_2\) **59×**. Torus200 adaptive 0.96×. Alpha ≠ VR (9 ms vs Ripser VR 3.7 s). Time-axis D&C is parallel-only (I088). Implicit still rejected (I094). circle80 columns still **731×**. Residual deg: circle 4.5, sphere 7.2, torus 35, uniform10 95. Two circles: 2 essential \(H_1\). RedZeD still unimplemented (I099).
+- **Decision:** Selected stack unchanged. See `docs/SELECTED.md`.
+- **Class:** reproduced / hold
+
+## 2026-10-13 — I100 named-iteration count
+
+- **Result:** Receipts I001–I100 exist. Algebraic 10× holds. H1 wall-clock 10× is **not** general (best 7.2× at circle2000 T=1.5). Credible directions remain: cheaper collapse, correct implicit/RedZeD, thick-remainder engine.
+- **Decision:** Do not declare the research goal complete.
+- **Class:** verified (count only)

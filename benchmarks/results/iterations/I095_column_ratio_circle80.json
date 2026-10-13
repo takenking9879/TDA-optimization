@@ -1,0 +1,15 @@
+{
+  "id": "column_ratio_circle80",
+  "lever": "H01",
+  "class": "structural",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "circle80 columns 9500\u219213 = 731\u00d7",
+  "receipts": [
+    {
+      "cols0": 9500,
+      "cols1": 13,
+      "ratio": 730.7692307692307
+    }
+  ]
+}

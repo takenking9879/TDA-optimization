@@ -1,0 +1,30 @@
+{
+  "id": "circle2000_T",
+  "lever": "H03",
+  "class": "structural",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "circle2000 T=1.2 vs 1.5 wall-clock",
+  "receipts": [
+    {
+      "T": 1.2,
+      "match": true,
+      "ripser_s": 12.708182026999566,
+      "pith_s": 2.904864137000004,
+      "time_ratio": 4.3747939413524275,
+      "collapse_ms": 2839.7473,
+      "edges_in": 818703,
+      "edges_out": 5158
+    },
+    {
+      "T": 1.5,
+      "match": true,
+      "ripser_s": 32.518327562000195,
+      "pith_s": 4.521312072000001,
+      "time_ratio": 7.192232485650061,
+      "collapse_ms": 4444.6789,
+      "edges_in": 1080748,
+      "edges_out": 5158
+    }
+  ]
+}

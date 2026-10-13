@@ -1,0 +1,15 @@
+{
+  "id": "h0_circle1500",
+  "lever": "H05",
+  "class": "reproduced",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "H0 skip on circle1500",
+  "receipts": [
+    {
+      "match": true,
+      "time_ratio": 1.1753026494596113,
+      "collapse_ms": 0
+    }
+  ]
+}

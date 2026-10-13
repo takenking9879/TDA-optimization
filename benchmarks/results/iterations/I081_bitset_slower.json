@@ -1,0 +1,58 @@
+{
+  "id": "bitset_slower_reverted",
+  "lever": "H01-bitset",
+  "class": "implementation",
+  "fidelity": "exact",
+  "status": "reject",
+  "summary": "bitset domination exact but slower (n=2000 collapse 5.8s vs 2.6s); reverted",
+  "receipts": [
+    {
+      "n": 500,
+      "match": true,
+      "edges_in": 50705,
+      "edges_out": 959,
+      "ratio": 52.87278415015641,
+      "collapse_ms": 52.851318,
+      "reduce_ms": 0.238507,
+      "ripser_s": 0.13147150600070745,
+      "pith_s": 0.05809869700078707,
+      "time_ratio": 2.262899389962677
+    },
+    {
+      "n": 1000,
+      "match": true,
+      "edges_in": 204915,
+      "edges_out": 2265,
+      "ratio": 90.47019867549669,
+      "collapse_ms": 523.10235,
+      "reduce_ms": 0.696892,
+      "ripser_s": 0.9071967309992033,
+      "pith_s": 0.5400487670003713,
+      "time_ratio": 1.67984224098521
+    },
+    {
+      "n": 1500,
+      "match": true,
+      "edges_in": 459662,
+      "edges_out": 3710,
+      "ratio": 123.89811320754717,
+      "collapse_ms": 2097.2147,
+      "reduce_ms": 1.140812,
+      "ripser_s": 3.986343546000171,
+      "pith_s": 2.1331265700000586,
+      "time_ratio": 1.8687796598961597
+    },
+    {
+      "n": 2000,
+      "match": true,
+      "edges_in": 818703,
+      "edges_out": 5158,
+      "ratio": 158.72489336952307,
+      "collapse_ms": 5829.6431,
+      "reduce_ms": 1.652308,
+      "ripser_s": 12.538527187999534,
+      "pith_s": 5.893508412000301,
+      "time_ratio": 2.1275149387194756
+    }
+  ]
+}

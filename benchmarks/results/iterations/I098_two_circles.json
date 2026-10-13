@@ -1,0 +1,15 @@
+{
+  "id": "two_circles_reverted",
+  "lever": "H01",
+  "class": "reproduced",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "two_circles n=400 after revert",
+  "receipts": [
+    {
+      "match": true,
+      "time_ratio": 2.035156649948599,
+      "h1_ess": 2
+    }
+  ]
+}

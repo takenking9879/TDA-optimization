@@ -1,0 +1,15 @@
+{
+  "id": "uniform2_n500_reverted",
+  "lever": "H01",
+  "class": "reproduced",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "uniform2 n=500 after revert",
+  "receipts": [
+    {
+      "match": true,
+      "time_ratio": 0.806835311220758,
+      "edge_ratio": 24.55323590814196
+    }
+  ]
+}

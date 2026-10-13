@@ -1,0 +1,60 @@
+{
+  "id": "bitset_collapse_identity",
+  "lever": "H01-bitset",
+  "class": "implementation",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "bitset collapse identity 5/5",
+  "receipts": [
+    {
+      "dataset": "circle_noisy",
+      "n": 80,
+      "match": true,
+      "unmatched": 0,
+      "edges_out": 93,
+      "collapse_ms": 0.313632,
+      "ripser_s": 0.0018442930004312075,
+      "pith_s": 0.0017126049997386872
+    },
+    {
+      "dataset": "circle_noisy",
+      "n": 200,
+      "match": true,
+      "unmatched": 0,
+      "edges_out": 283,
+      "collapse_ms": 3.683796,
+      "ripser_s": 0.008832767000058084,
+      "pith_s": 0.005587175999608007
+    },
+    {
+      "dataset": "blobs",
+      "n": 80,
+      "match": true,
+      "unmatched": 0,
+      "edges_out": 142,
+      "collapse_ms": 0.258181,
+      "ripser_s": 0.0016794800003481214,
+      "pith_s": 0.0015556340003968216
+    },
+    {
+      "dataset": "sphere",
+      "n": 80,
+      "match": true,
+      "unmatched": 0,
+      "edges_out": 286,
+      "collapse_ms": 0.457576,
+      "ripser_s": 0.008322829000462661,
+      "pith_s": 0.0021573809999608784
+    },
+    {
+      "dataset": "torus",
+      "n": 80,
+      "match": true,
+      "unmatched": 0,
+      "edges_out": 196,
+      "collapse_ms": 0.197156,
+      "ripser_s": 0.0016728020000300603,
+      "pith_s": 0.0016189179996217717
+    }
+  ]
+}

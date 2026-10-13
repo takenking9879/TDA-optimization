@@ -1,0 +1,16 @@
+{
+  "id": "alpha_sphere500_again",
+  "lever": "H16",
+  "class": "empirical",
+  "fidelity": "other-complex",
+  "status": "hold",
+  "summary": "Alpha still \u2260 VR; time-only control",
+  "receipts": [
+    {
+      "match_vs_ripser_vr": false,
+      "unmatched": 1608,
+      "alpha_s": 0.009822785000324075,
+      "ripser_vr_s": 3.651895145999333
+    }
+  ]
+}

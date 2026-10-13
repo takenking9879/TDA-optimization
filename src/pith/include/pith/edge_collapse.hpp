@@ -32,23 +32,6 @@ inline bool dominated_by(const DenseTimes& Tm, const std::vector<index_t>& C_now
     return true;
 }
 
-struct BitNbr {
-    int n = 0;
-    int W = 0;
-    std::vector<std::uint64_t> a;
-    explicit BitNbr(int n_) : n(n_), W((n_ + 63) >> 6), a(static_cast<size_t>(n_) * ((n_ + 63) >> 6), 0) {}
-    std::uint64_t* row(int i) { return a.data() + static_cast<size_t>(i) * W; }
-    const std::uint64_t* row(int i) const { return a.data() + static_cast<size_t>(i) * W; }
-    void set(int i, int j) {
-        row(i)[j >> 6] |= 1ull << (j & 63);
-        row(j)[i >> 6] |= 1ull << (i & 63);
-    }
-    void clear(int i, int j) {
-        row(i)[j >> 6] &= ~(1ull << (j & 63));
-        row(j)[i >> 6] &= ~(1ull << (i & 63));
-    }
-};
-
 inline index_t first_dominator(const DenseTimes& Tm, const std::vector<index_t>& C_now,
                                value_t t) {
     if (C_now.empty()) return -1;
@@ -59,39 +42,15 @@ inline index_t first_dominator(const DenseTimes& Tm, const std::vector<index_t>&
     return -1;
 }
 
-// Live-edge bitsets: progressive AND of closed neighborhoods ∩ C_now.
-// Existence is a superset of time-t adjacency; survivors are Tm-checked.
-inline index_t first_dominator_bits(const DenseTimes& Tm, const BitNbr& B,
-                                    const std::vector<index_t>& C_now, value_t t,
-                                    std::vector<std::uint64_t>& Cbits,
-                                    std::vector<std::uint64_t>& S) {
+// I082: skip apexes whose live degree cannot cover C_now.
+inline index_t first_dominator_deg(const DenseTimes& Tm, const std::vector<index_t>& C_now,
+                                  value_t t, const std::vector<std::vector<index_t>>& nbr) {
     if (C_now.empty()) return -1;
     if (C_now.size() == 1) return C_now[0];
-    const int W = B.W;
-    Cbits.assign(W, 0);
-    for (index_t w : C_now) Cbits[w >> 6] |= 1ull << (w & 63);
-    S = Cbits;
-    for (index_t w : C_now) {
-        const std::uint64_t* r = B.row(w);
-        const int wi = w >> 6;
-        const std::uint64_t self = 1ull << (w & 63);
-        bool any = false;
-        for (int k = 0; k < W; ++k) {
-            std::uint64_t m = r[k];
-            if (k == wi) m |= self;
-            S[k] &= m;
-            if (S[k]) any = true;
-        }
-        if (!any) return -1;
-    }
-    for (int k = 0; k < W; ++k) {
-        std::uint64_t m = S[k];
-        while (m) {
-            const int b = __builtin_ctzll(m);
-            m &= m - 1;
-            const index_t cand = static_cast<index_t>((k << 6) + b);
-            if (dominated_by(Tm, C_now, cand, t)) return cand;
-        }
+    const size_t need = C_now.size() - 1;
+    for (index_t cand : C_now) {
+        if (nbr[cand].size() < need) continue;
+        if (dominated_by(Tm, C_now, cand, t)) return cand;
     }
     return -1;
 }
@@ -150,12 +109,9 @@ inline Graph collapse_edges(Graph g, int iterations, Counters& c) {
 
         const int n = g.n;
         DenseTimes Tm(n);
-        BitNbr B(n);
         std::vector<std::vector<index_t>> nbr(n);
-        std::vector<std::uint64_t> Cbits, Sbits;
         for (const Edge& e : E) {
             Tm.set(e.u, e.v, e.t);
-            B.set(e.u, e.v);
             nbr[e.u].push_back(e.v);
             nbr[e.v].push_back(e.u);
         }
@@ -197,10 +153,7 @@ inline Graph collapse_edges(Graph g, int iterations, Counters& c) {
             bool ever_shifted = false;
             bool dead = false;
             while (true) {
-                const index_t dominator =
-                    (C_now.size() < static_cast<size_t>(B.W) * 2)
-                        ? first_dominator(Tm, C_now, t)
-                        : first_dominator_bits(Tm, B, C_now, t, Cbits, Sbits);
+                const index_t dominator = first_dominator_deg(Tm, C_now, t, nbr);
                 if (dominator < 0) break;
                 // Sticky: keep shifting while this apex still dominates newcomers.
                 bool still = true;
@@ -230,7 +183,6 @@ inline Graph collapse_edges(Graph g, int iterations, Counters& c) {
 
             if (dead) {
                 Tm.erase(u, v);
-                B.clear(u, v);
                 drop_nbr(u, v);
                 drop_nbr(v, u);
                 ++c.n_collapse_trims;

@@ -1,0 +1,37 @@
+{
+  "id": "degree_filter_collapse",
+  "lever": "H01-deg",
+  "class": "implementation",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "degree-filter first_dominator after bitset revert",
+  "receipts": [
+    {
+      "n": 1000,
+      "match": true,
+      "collapse_ms": 314.88648,
+      "pith_s": 0.3310753810001188,
+      "ripser_s": 0.8915133660002539,
+      "time_ratio": 2.6927806087760238,
+      "edges_out": 2265
+    },
+    {
+      "n": 1500,
+      "match": true,
+      "collapse_ms": 1196.2991,
+      "pith_s": 1.2366830920000211,
+      "ripser_s": 3.9793992009999783,
+      "time_ratio": 3.2178002810439574,
+      "edges_out": 3710
+    },
+    {
+      "n": 2000,
+      "match": true,
+      "collapse_ms": 2675.8528,
+      "pith_s": 2.7375855250002132,
+      "ripser_s": 13.13808685999993,
+      "time_ratio": 4.799151200947012,
+      "edges_out": 5158
+    }
+  ]
+}

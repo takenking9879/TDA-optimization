@@ -1,0 +1,14 @@
+{
+  "id": "implicit_still_rejected",
+  "lever": "H02",
+  "class": "experiment",
+  "fidelity": "exact-claimed",
+  "status": "reject",
+  "summary": "implicit collapse=0 still fails after I045 fix attempts",
+  "receipts": [
+    {
+      "match": false,
+      "unmatched": 1147
+    }
+  ]
+}
