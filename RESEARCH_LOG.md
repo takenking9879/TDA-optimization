@@ -987,8 +987,16 @@ Do not paste long reasoning here.
 ## 2026-10-13 — I207 owned implicit on Sheehy 1-skeleton
 
 - **Question:** Does PITH implicit on a Sheehy ε=0.5 1-skeleton inherit the ~n^{1.3} size exponent, keep essential H1, and beat Ripser on blobs/uniform2 (where GUDHI explicit sparse lost)?
-- **Result:** Pending wave69. `--edges` consumes `# n=N` + `u v t`. collapse=0 vs 1. Loss vs Ripser VR + identity vs GUDHI sparse (is Sheehy flag?).
-- **Decision:** Approx path only. Select as an optional engine if essential H1 holds and wall-clock beats Ripser on I205 losers. Exact default stays collapse+implicit on full G_T.
+- **Result:** **Essential H1 correct 11/11** (two_circles/figure8/torus/blobs/circle). Bottleneck vs VR **0.007–0.054**. Sheehy is **not flag** (unmatched vs GUDHI sparse 15–548) — PITH computes the flag of the Sheehy 1-skeleton, a different complex.
+  Wall-clock (skel+pith collapse=0) vs Ripser: circle1000 **89×**, torus2000 **24×**, blobs2000 **6.8×**, uniform22000 **7.1×**, torus1000 **8.0×**, blobs1000 **3.1×**, uniform21000 **2.6×**, sphere1000 **4.7×**. collapse=1 is usually a tax. 1-skeleton edges torus 24k→52k (n=1000→2000) ≈ \(n^{1.1}\).
+- **Decision:** Document as **optional approx pipeline** (`--edges`, collapse=0). Do **not** replace the exact default (0 VR loss). This is the first shape-agnostic path that is **>10× on torus** (the exact-path wall), at ≤0.05 bottleneck. I208: ε∈{0.3,0.5,0.7} loss/speed frontier on torus/blobs/uniform2 n=2000.
+- **Class:** experiment (support as optional approx; not default)
+
+## 2026-10-13 — I208 Sheehy ε loss/speed frontier
+
+- **Question:** Does tighter (0.3) or looser (0.7) Sheehy ε move bottleneck under 0.02 without losing the torus 10×?
+- **Result:** Pending wave70.
+- **Decision:** Keep ε=0.5 unless a neighbor dominates both loss and clock.
 - **Class:** experiment (in progress)
 
 ## 2026-10-13 — I164 collapse live-degree trace

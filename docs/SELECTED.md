@@ -139,13 +139,14 @@ figure8 / torus / blobs / circle. Bottleneck after \(2\sqrt{r^2}\) scale
 is **0.01–1.39**. **Rejected as a VR stand-in** — not shape-agnostic
 enough for mixed homology.
 
-**Sheehy sparse ε=0.5 (I205–I206):** essential \(H_1\) **correct on 7/7**.
-Finite-H1 bottleneck **0.0048–0.049**. Unmatched 64–290 at \(10^{-4}\)
-(features shift, not deleted). Not uniformly faster than Ripser (blobs /
-uniform2 **<1×**). Simplex-count slopes **1.27–1.49 on all five families
-including torus** (I206) — the only measured better size exponent on the
-thick-graph wall. Not selected as default (inexact); documented as the
-approx path with quantified loss.
+**Sheehy sparse ε=0.5 (I205–I207):** essential \(H_1\) **correct on every
+measured family**. Finite-H1 bottleneck **0.007–0.054**. GUDHI explicit
+sparse is not uniformly faster than Ripser. **I207** feeds the Sheehy
+1-skeleton to owned implicit (`--edges`, collapse=0): circle1000 **89×**,
+torus2000 **24×**, blobs2000 **6.8×**, uniform22000 **7.1×**. Sheehy is
+**not flag** (PITH computes the flag of that 1-skeleton). Optional approx
+pipeline; **not** the exact default (0 VR loss). 1-skeleton size
+\(\sim n^{1.1}\) on torus (24k→52k edges, n=1000→2000).
 
 ## Next levers (still open after I206)
 
@@ -153,10 +154,10 @@ Circle family: **84.4 / 119 / 140×**. Other families ~1.3–2.1×. Default is
 shape-agnostic and **exact** (0 bars lost). Worst-case Big-O is **not**
 better than Ripser (torus residual \(\Theta(n^2)\)).
 
-1. **Default:** I193 + I197 + I202 gated witness + I203 cofacet early-stop.
-2. **I207:** owned implicit cohomology on a Sheehy 1-skeleton — inherit
-   the ~\(n^{1.3}\) size exponent, keep the I205 loss numbers, see if
-   wall-clock beats Ripser on blobs/uniform2 (where GUDHI sparse lost).
-3. Torus shift heap (time-bucket / later-bits) is a constant-factor lever
-   on a \(\Theta(n^2)\) residual, not a Big-O change.
+1. **Exact default:** I193 + I197 + I202 gated witness + I203 cofacet
+   early-stop (0 bars lost vs Ripser).
+2. **Optional approx:** Sheehy ε=0.5 1-skeleton → `--edges` → implicit,
+   collapse=0 (I207). Bottleneck ≤0.054; first >10× on torus.
+3. **I208:** ε∈{0.3,0.5,0.7} frontier. Then either port Sheehy into PITH
+   or return to exact torus time-buckets (constant-factor only).
 4. GPU later.
