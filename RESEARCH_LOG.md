@@ -1120,10 +1120,10 @@ Do not paste long reasoning here.
 
 - **Question:** Does testing the 8 highest-degree vertices in C_now first cut torus shift hits without changing PH?
 - **Hypothesis:** I106 full maxdeg sort was slower. A prefix of 8 needs no sort of C. Hit path (most shift iterations) may find an apex sooner. Fail path still scans all. Exact exists-dominator; final keep time is the first t with no dominator. Shape-agnostic.
-- **Work:** first_dominator_deg / _witness prefix. Wave 84 vs src+Ripser.
-- **Result:** *(wave pending)*
-- **Decision:** Select only if exact and torus collapse <1400 ms without blobs/circle regression.
-- **Class:** experiment
+- **Work:** first_dominator_deg prefix. Wave 84 vs src+Ripser.
+- **Result:** **Exact 5/5.** circle 258 ms / 78×; blobs **184 ms** (slightly faster); sphere 346. Torus **1537 vs 1470 ms** (1.47×), more tests (12.55M vs 12.50M) — prefix is extra fail-path work.
+- **Decision:** **Reject and revert.** I106 stands: degree-first does not pay on the torus fail path. Topology loss: **0**.
+- **Class:** experiment (reject; revert hot path)
 
 ## 2026-10-13 — I164 collapse live-degree trace
 
