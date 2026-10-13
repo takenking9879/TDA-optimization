@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-13 — I252 leftover-coface no-seen (H1 unroll + H2 skip)
+
+- **Question:** Does specializing leftover-coface on the 97% no-seed path (H1 m=2 unroll, skip the empty `seenbits` mask; H2 no-seed same skip) cut the connected wall without changing H0–H2? Does sphere n=2000 H1 (I227 6.9×) hold 10×, and does uniform2 n=7000 stay 10× in ~0.5 s?
+- **Hypothesis:** `seedverts` empty ⇒ `seenbits` is zero, so `acc &= ~seenbits[w]` is a no-op memory tax. Same `coface_ready`. Not I247's extra `dist()`. Shape-agnostic. Exact if identity holds.
+- **Work:** `leftover_coface_h1_noseen` / `leftover_coface_noseen`. H1 inline skip + `active_enum_lazy` no-seed. Wave 113 vs Ripser: H0–H2 + sphere n=2000 H1 + uniform2 n=5000/6000/7000.
+- **Result:** **Exact 14/14** (figure8 2=2; sphere void 1=1; two_spheres 2=2; torus ess H1 1=1; blobs H0 3=3). Uniform2 n=5000 **12.7×** (0.30s/3.79s; reduce 206 vs I251 226 ms; pith 0.298 vs 0.32 s). n=6000 **11.2×** (0.39s/4.43s). n=7000 **11.8×** (0.51s/5.96s). Sphere n=2000 H1 **10.3×** (0.079s/0.81s). Torus **14.5×**. Blobs H1 **25×**. H0 **1.9×**. Sphere H2 **59×**.
+- **Decision:** **Support.** Real pith cut on the no-seen path. Connected 10× holds at n=7000 in half a second. Sphere H1 holdout closed. Topology loss: **0**. Not a better Big-O. Next: specialize H1 `coface_ready` (edge diam = one `dist()`).
+- **Class:** experiment (support; exact constant)
+
 ## 2026-10-13 — I251 inline empty-seed leftover-coface skip
 
 - **Question:** Does inlining the 97% no-seed leftover-coface skip (so those leftovers never enter `active_enum_lazy`) cut the connected wall without changing H0–H2? Does torus n=2000 still hold 10×?
