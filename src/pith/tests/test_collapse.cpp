@@ -1,5 +1,6 @@
 #include "pith/edge_collapse.hpp"
 #include "pith/persist.hpp"
+#include "pith/persist_active.hpp"
 #include "pith/reduced_vr.hpp"
 #include "pith/redzed_bridge.hpp"
 #include "pith/sparse_rips.hpp"
@@ -480,6 +481,49 @@ int main() {
             return 1;
         }
         std::cout << "ok redzed unit square H1\n";
+    }
+
+    // I231: owned active H1 on the unit square and C4.
+    {
+        const value_t s = 1, d = 1.41421356f, inf = 10;
+        std::vector<std::vector<value_t>> dist(4, std::vector<value_t>(4, 0));
+        dist[0][1] = dist[1][0] = s;
+        dist[1][2] = dist[2][1] = s;
+        dist[2][3] = dist[3][2] = s;
+        dist[3][0] = dist[0][3] = s;
+        dist[0][2] = dist[2][0] = d;
+        dist[1][3] = dist[3][1] = d;
+        Graph g = graph_from_distance(dist, inf);
+        Result ra = persist_active_h1(g, 1, inf, 1);
+        int ess1 = 0, fin1 = 0;
+        value_t birth = 0, death = 0;
+        for (const auto& p : ra.pairs) {
+            if (p.dim != 1) continue;
+            if (!std::isfinite(p.death)) ++ess1;
+            else if (p.death - p.birth > 1e-5f) {
+                ++fin1;
+                birth = p.birth;
+                death = p.death;
+            }
+        }
+        if (ess1 != 0 || fin1 != 1) {
+            std::cerr << "active unit square ess=" << ess1 << " fin=" << fin1 << "\n";
+            return 1;
+        }
+        if (std::fabs(birth - s) > 1e-3f || std::fabs(death - d) > 1e-3f) {
+            std::cerr << "active unit square bar [" << birth << "," << death << ")\n";
+            return 1;
+        }
+        Graph c4 = from_edges(4, {{0, 1, 1}, {1, 2, 1}, {2, 3, 1}, {0, 3, 1}});
+        Result rc = persist_active_h1(c4, 1, 10, 1);
+        int cess = 0;
+        for (const auto& p : rc.pairs)
+            if (p.dim == 1 && !std::isfinite(p.death)) ++cess;
+        if (cess != 1) {
+            std::cerr << "active C4 ess H1=" << cess << "\n";
+            return 1;
+        }
+        std::cout << "ok active-h1 unit square + C4\n";
     }
 
     std::cout << "all collapse/persist unit tests passed\n";

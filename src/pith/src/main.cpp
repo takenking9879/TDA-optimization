@@ -1,5 +1,6 @@
 #include "pith/edge_collapse.hpp"
 #include "pith/persist.hpp"
+#include "pith/persist_active.hpp"
 #include "pith/reduced_vr.hpp"
 #include "pith/redzed_bridge.hpp"
 #include "pith/sparse_rips.hpp"
@@ -31,7 +32,7 @@ static void usage() {
         << "  --later-esc-until N max young edges to escalate (default 32n)\n"
         << "  --later-b-cap N     Case-B leave cap on |later[other]| (default 4)\n"
         << "  --dom-budget K      max domination candidates per edge (-1 = all; I107)\n"
-        << "  --engine auto|homology|implicit|redzed   residual PH engine (default auto)\n"
+        << "  --engine auto|homology|implicit|redzed|active   residual PH engine (default auto)\n"
         << "  --ratio R           skip pairs with death <= birth*R (default 1)\n"
         << "  --no-enclosing      do not cap T by enclosing radius\n"
         << "  --edges FILE        1-skeleton: '# n=N' then 'u v t' lines (I207)\n"
@@ -412,6 +413,7 @@ int main(int argc, char** argv) {
         }
         if (reduced_vr) collapse_iters = 0;  // I224: reduced VR is on G_T, not a residual
         if (engine == "redzed") collapse_iters = 0;  // I228: RedZeD is on the metric, not a residual
+        if (engine == "active") collapse_iters = 0;  // I231: owned active H1 is on G_T
         c.n_vertices = g.n;
         c.n_edges_in = static_cast<std::int64_t>(g.edges.size());
         if (probe_only) {
@@ -498,6 +500,8 @@ int main(int argc, char** argv) {
                 return 2;
             }
             r = persist_redzed(dist, maxdim, threshold);
+        } else if (engine == "active") {
+            r = persist_active_h1(g, maxdim, threshold, ratio);
         } else if (reduced_vr) {
             const auto t_build0 = std::chrono::steady_clock::now();
             const auto rtris = build_reduced_triangles(g, threshold, dist.empty() ? nullptr : &dist);
@@ -536,6 +540,9 @@ int main(int argc, char** argv) {
         r.counters.metric_ms = c.metric_ms;
         if (engine == "redzed") {
             r.counters.pipeline = "pith:redzed";
+        } else if (engine == "active") {
+            r.counters.n_vertices = g.n;
+            r.counters.pipeline = "pith:active-h1";
         } else {
             r.counters.n_vertices = g.n;
             r.counters.pipeline = reduced_vr
