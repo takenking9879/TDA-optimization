@@ -1,0 +1,28 @@
+{
+  "id": "implicit_vs_owned_homology",
+  "lever": "H02",
+  "class": "experiment",
+  "fidelity": "exact",
+  "status": "reject",
+  "summary": "implicit vs persist_sparse after I111",
+  "receipts": [
+    {
+      "dataset": "circle_noisy",
+      "n": 80,
+      "match": false,
+      "unmatched": 1147
+    },
+    {
+      "dataset": "circle_noisy",
+      "n": 200,
+      "match": false,
+      "unmatched": 7913
+    },
+    {
+      "dataset": "torus",
+      "n": 80,
+      "match": false,
+      "unmatched": 680
+    }
+  ]
+}

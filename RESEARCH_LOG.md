@@ -409,6 +409,25 @@ Do not paste long reasoning here.
 - **Decision:** Revert order to list-order `first_dominator_deg`. Keep `--dom-budget` for incomplete collapse (I107).
 - **Class:** experiment (negative on clock)
 
+## 2026-10-13 — I107 budgeted collapse
+
+- **Question:** Can we skip failed domination searches (`--dom-budget 1`) and still get a thin residual?
+- **Result:** Reject. circle2000 T=1.5 budget=1 still in pith at 142 s (full collapse 4.5 s). A first-candidate miss leaves a thick flag complex; `persist_sparse` then explodes.
+- **Decision:** Do not cap domination search while the residual engine is triangle-boundary homology.
+- **Class:** experiment (negative)
+
+## 2026-10-13 — I108–I110
+
+- **Result:** Held. I107 failed before identity/H2/n=3000 budgeted runs.
+- **Class:** hold
+
+## 2026-10-13 — I111–I113 implicit MST-apparent
+
+- **Question:** Does recording Bauer-apparent pairs on MST facets fix leftover-as-cohomology?
+- **Result:** C8 unit test matches homology. circle80 **collapse=1** matches Ripser (5 H1). Dense collapse=0 still ~1 bar per leftover (circle80 unmatched 1147, circle200 7913). circle200 collapse=1: 2 unmatched. Thick implicit killed (uniform10 65 s).
+- **Decision:** Still reject implicit as engine. Thin-cycle residual is the only passing case.
+- **Class:** experiment (failure archived; partial support on collapsed circle80)
+
 ## 2026-10-13 — I103–I105
 
 - **Result:** Skipped. They required the progressive binary on n=500–3000 after I102 failed.

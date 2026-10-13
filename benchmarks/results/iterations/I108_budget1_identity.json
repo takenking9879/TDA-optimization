@@ -1,0 +1,9 @@
+{
+  "id": "budget1_identity",
+  "lever": "H01-budget",
+  "class": "experiment",
+  "fidelity": "exact",
+  "status": "hold",
+  "summary": "skipped after I107 reject (budget=1 leaves a thick residual)",
+  "receipts": []
+}

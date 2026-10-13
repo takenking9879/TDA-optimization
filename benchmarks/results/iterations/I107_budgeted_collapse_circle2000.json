@@ -1,0 +1,18 @@
+{
+  "id": "budgeted_collapse_circle2000",
+  "lever": "H01-budget",
+  "class": "structural",
+  "fidelity": "exact",
+  "status": "reject",
+  "summary": "dom-budget=1 on circle2000 T=1.5 still in pith at 142s (full collapse is 4.5s). First-candidate miss leaves a thick residual; persist_sparse then enumerates a near-complete flag complex.",
+  "receipts": [
+    {
+      "n": 2000,
+      "T": 1.5,
+      "budget": 1,
+      "killed_after_s": 142,
+      "baseline_full_pith_s": 4.57,
+      "note": "Do not cap domination search while the residual engine is persist_sparse."
+    }
+  ]
+}

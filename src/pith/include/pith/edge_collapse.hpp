@@ -125,6 +125,8 @@ inline Graph collapse_edges(Graph g, int iterations, Counters& c, int dom_budget
 
     std::vector<index_t> C_now;
     std::vector<std::pair<value_t, index_t>> C_later;
+    C_now.reserve(static_cast<size_t>(g.n));
+    C_later.reserve(static_cast<size_t>(g.n));
     const auto later_cmp = [](const std::pair<value_t, index_t>& a,
                               const std::pair<value_t, index_t>& b) {
         return a.first > b.first;  // min-time at front after make_heap
@@ -133,7 +135,7 @@ inline Graph collapse_edges(Graph g, int iterations, Counters& c, int dom_budget
     for (int pass = 0; pass < iterations; ++pass) {
         if (g.edges.empty()) break;
 
-        std::vector<Edge> E = g.edges;
+        std::vector<Edge>& E = g.edges;
         for (Edge& e : E) normalize_edge(e);
         std::sort(E.begin(), E.end(), [](const Edge& a, const Edge& b) {
             if (a.t != b.t) return a.t > b.t;
