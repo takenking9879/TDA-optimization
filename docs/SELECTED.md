@@ -1,6 +1,6 @@
 # Selected algorithm (living)
 
-Updated 2026-10-13 after iterations I001–I148.
+Updated 2026-10-13 after iterations I001–I150.
 
 ## Selected exact-VR CPU pipeline
 
@@ -34,6 +34,8 @@ suite and I137 8/8 (including dense circle80/200 **collapse=0**, the I045 killer
 | Hybrid first-apex + progressive (I145) | Exact; **slower** (circle3000 6.90× vs 8.11×) |
 | Sorted-merge C (I146) | Exact; **slower** (circle2000 4.43× / 6.3 s vs 6.30× / 4.2 s) |
 | AVX-512 `dominated_by` (I147) | Exact; **no collapse_ms win** (gather latency) |
+| Forward 2020 collapse (I149) | **Not exact** (over-collapse; circle80 unmatched 4). Also slower |
+| Time-axis D&C impl (I150) | PH match on n≤200; **fails** n=2000/3000 (19–25 unmatched). No clock win |
 
 I107 (`--dom-budget 1`) **still rejected** with implicit (I142–I144): thicker
 residual makes collapse *and* reduce slower (circle3000 1.49× vs full 8.11×).
@@ -69,9 +71,9 @@ E3 (collapse + Ripser-sparse) is no longer required; we own that residual class.
 **Alpha (I136)** is a different complex: GUDHI Alpha circle3000 0.023 s vs Ripser VR 123 s
 (~5400× empirical) with 2745 \(H_1\) bars. Off the exact-VR 10× board.
 
-## Next levers (still open after I148)
+## Next levers (still open after I150)
 
-1. Forward 2020 collapse (untried; likely worse on dense circle, try small n).
-2. Time-axis parallel collapse (Glisse Lemma 6) — same work, wall-clock only (4 cores).
-3. Real RedZeD active enumeration (H09).
+1. Fix D&C merge (I150 failed at n≥2000) — only worth it if extra left-call work can be cut.
+2. Real RedZeD active enumeration (H09).
+3. A collapse cheaper than sequential \(O(n_e k^2)\) that we have not already rejected.
 4. GPU later (Ripser++ reference only)

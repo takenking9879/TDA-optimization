@@ -565,6 +565,20 @@ Do not paste long reasoning here.
 - **Decision:** I107 rejection stands even with implicit. Do not cap domination search.
 - **Class:** experiment (negative on clock; identity archived)
 
+## 2026-10-13 — I149 forward collapse
+
+- **Question:** Is Boissonnat–Pritam 2020 forward faster and exact vs backward?
+- **Result:** **Reject.** Not exact: circle80 unmatched 4, circle200 39, torus80 62. Residual smaller than backward (88 vs 93; 240 vs 283). Also slower (circle200 4.95 ms vs 2.72 ms).
+- **Decision:** Keep `--collapse-alg forward` as archived experiment. Default stays backward.
+- **Class:** experiment (failure archived)
+
+## 2026-10-13 — I150 time-axis D&C implemented
+
+- **Question:** Does a 2-thread Glisse Lemma 6 schedule beat sequential collapse on wall-clock while staying exact?
+- **Result:** PH match on n=80/200. **Fails** circle2000 (19 unmatched) and circle3000 (25 unmatched). Clock: **no win** (circle2000 4293 vs 4149 ms; circle3000 14120 vs 13943 ms). Extra left-call + merge ≥ sequential.
+- **Decision:** Do not select. I088 stand holds: parallel schedule, not less work, and this merge is not yet Lemma-6-faithful at scale.
+- **Class:** experiment (negative)
+
 ## 2026-10-13 — I148 circle4000 implicit
 
 - **Question:** Does the selected implicit engine move the I117 H1 flagship?
