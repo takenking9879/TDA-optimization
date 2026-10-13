@@ -1,6 +1,6 @@
 # Selected algorithm (living)
 
-Updated 2026-10-13 after iterations I001–I116.
+Updated 2026-10-13 after iterations I001–I120.
 
 ## Selected exact-VR CPU pipeline
 

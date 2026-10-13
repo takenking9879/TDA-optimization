@@ -16,6 +16,8 @@ struct DenseTimes {
         for (int i = 0; i < n; ++i) a[static_cast<size_t>(i) * n + i] = kNegInf;
     }
     value_t operator()(int i, int j) const { return a[static_cast<size_t>(i) * n + j]; }
+    const value_t* row(int i) const { return a.data() + static_cast<size_t>(i) * n; }
+    value_t* row(int i) { return a.data() + static_cast<size_t>(i) * n; }
     void set(int i, int j, value_t t) {
         a[static_cast<size_t>(i) * n + j] = t;
         a[static_cast<size_t>(j) * n + i] = t;
@@ -26,8 +28,9 @@ struct DenseTimes {
 // True iff some c in C_now is adjacent (at time t) to every other vertex in C_now.
 inline bool dominated_by(const DenseTimes& Tm, const std::vector<index_t>& C_now,
                          index_t cand, value_t t) {
+    const value_t* row = Tm.row(cand);
     for (index_t w : C_now) {
-        if (Tm(cand, w) > t) return false;
+        if (row[w] > t) return false;
     }
     return true;
 }
@@ -146,6 +149,12 @@ inline Graph collapse_edges(Graph g, int iterations, Counters& c, int dom_budget
         const int n = g.n;
         DenseTimes Tm(n);
         std::vector<std::vector<index_t>> nbr(n);
+        std::vector<int> deg(n, 0);
+        for (const Edge& e : E) {
+            ++deg[e.u];
+            ++deg[e.v];
+        }
+        for (int i = 0; i < n; ++i) nbr[i].reserve(static_cast<size_t>(deg[i]));
         for (const Edge& e : E) {
             Tm.set(e.u, e.v, e.t);
             nbr[e.u].push_back(e.v);
@@ -174,11 +183,13 @@ inline Graph collapse_edges(Graph g, int iterations, Counters& c, int dom_budget
 
             C_now.clear();
             C_later.clear();
+            const value_t* ru = Tm.row(u);
+            const value_t* rv = Tm.row(v);
             const auto& src = nbr[u].size() <= nbr[v].size() ? nbr[u] : nbr[v];
             for (index_t w : src) {
                 if (w == u || w == v) continue;
-                const value_t tu = Tm(u, w);
-                const value_t tv = Tm(v, w);
+                const value_t tu = ru[w];
+                const value_t tv = rv[w];
                 if (tu >= kInf / 2 || tv >= kInf / 2) continue;
                 const value_t tau = std::max(tu, tv);
                 if (tau <= t) C_now.push_back(w);
@@ -191,6 +202,7 @@ inline Graph collapse_edges(Graph g, int iterations, Counters& c, int dom_budget
             while (true) {
                 const index_t dominator = first_dominator_deg(Tm, C_now, t, nbr, dom_budget);
                 if (dominator < 0) break;
+                const value_t* rd = Tm.row(dominator);
                 // Sticky: keep shifting while this apex still dominates newcomers.
                 bool still = true;
                 while (still) {
@@ -207,7 +219,7 @@ inline Graph collapse_edges(Graph g, int iterations, Counters& c, int dom_budget
                     while (!C_later.empty() && C_later.front().first <= t) {
                         const index_t w = C_later.front().second;
                         const value_t tw = C_later.front().first;
-                        if (Tm(dominator, w) > tw) still = false;
+                        if (rd[w] > tw) still = false;
                         C_now.push_back(w);
                         std::pop_heap(C_later.begin(), C_later.end(), later_cmp);
                         C_later.pop_back();

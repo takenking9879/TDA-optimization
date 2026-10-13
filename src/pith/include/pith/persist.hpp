@@ -405,36 +405,38 @@ inline void f2_normalize(std::vector<int>& a) {
 
 inline bool zero_apparent_edge(const Graph& g, index_t u, index_t v, value_t te, value_t T,
                                CohEntry* out_tau) {
-    // Apparent pair (Bauer): youngest cofacet τ of e, and e is the oldest facet of τ.
-    CohEntry youngest{kNegInf, 0};
+    // Ripser zero-apparent (ripser.cpp get_zero_apparent_cofacet): a SAME-DIAMETER
+    // cofacet τ (diam τ = diam e) whose oldest facet is e. I111 used the globally
+    // youngest cofacet, so old MST edges never paired (their latest triangle is late).
+    CohEntry best{kNegInf, 0};
     bool any = false;
+    const auto ekey = pack2(u, v);
     for_cofacets_edge(g, u, v, te, T, [&](CohEntry tau) {
-        if (!any || tau.t > youngest.t || (tau.t == youngest.t && tau.key > youngest.key)) {
-            youngest = tau;
+        if (tau.t != te) return;
+        const index_t a = static_cast<index_t>(tau.key & ((1ull << 21) - 1));
+        const index_t b = static_cast<index_t>((tau.key >> 21) & ((1ull << 21) - 1));
+        const index_t c = static_cast<index_t>(tau.key >> 42);
+        struct F {
+            index_t x, y;
+            value_t t;
+            std::uint64_t k;
+        };
+        const F f[3] = {{a, b, edge_time(g, a, b), pack2(a, b)},
+                        {a, c, edge_time(g, a, c), pack2(a, c)},
+                        {b, c, edge_time(g, b, c), pack2(b, c)}};
+        F oldest = f[0];
+        for (int k = 1; k < 3; ++k) {
+            if (f[k].t < oldest.t || (f[k].t == oldest.t && f[k].k < oldest.k)) oldest = f[k];
+        }
+        if (oldest.k != ekey) return;
+        if (!any || tau.key > best.key) {
+            best = tau;
             any = true;
         }
     });
-    if (!any || youngest.t != te) return false;
-    const index_t a = static_cast<index_t>(youngest.key & ((1ull << 21) - 1));
-    const index_t b = static_cast<index_t>((youngest.key >> 21) & ((1ull << 21) - 1));
-    const index_t c = static_cast<index_t>(youngest.key >> 42);
-    struct F {
-        index_t x, y;
-        value_t t;
-        std::uint64_t k;
-    };
-    const F f[3] = {{a, b, edge_time(g, a, b), pack2(a, b)},
-                    {a, c, edge_time(g, a, c), pack2(a, c)},
-                    {b, c, edge_time(g, b, c), pack2(b, c)}};
-    F oldest = f[0];
-    for (int k = 1; k < 3; ++k) {
-        if (f[k].t < oldest.t || (f[k].t == oldest.t && f[k].k < oldest.k)) oldest = f[k];
-    }
-    if (oldest.t == te && oldest.k == pack2(u, v)) {
-        if (out_tau) *out_tau = youngest;
-        return true;
-    }
-    return false;
+    if (!any) return false;
+    if (out_tau) *out_tau = best;
+    return true;
 }
 
 // I111: a triangle may be Bauer-apparent with an MST facet. Ripser still
