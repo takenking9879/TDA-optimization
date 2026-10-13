@@ -1,10 +1,12 @@
 # Selected algorithm (living)
 
-Updated 2026-10-13 after iterations I001–I235. **CLI default `--engine
-auto` (I235):** subsample residual-frac dispatch. Fat → RedZeD (torus
+Updated 2026-10-13 after iterations I001–I236. **CLI default `--engine
+auto` (I235+I236):** subsample residual-frac dispatch. Fat → RedZeD (torus
 n=2000 **12.5×**). Thin-circle → I193+I197+I202+I203 collapse+implicit
-(n=1000 **28×**; n=4000 still **140×**). Shape-agnostic, 0 bars lost.
-Circle 140× is a collapse-friendly regime, **not** the success criterion.
+(n=1000 **28×**; n=4000 still **140×**). **H2:** τ=0.15 so sphere n=400
+void stays collapse **61×** (I235’s τ=0.04 would have sent it to RedZeD
+at ~3×). Shape-agnostic, 0 bars lost. Circle 140× is a collapse-friendly
+regime, **not** the success criterion.
 
 ## Success criteria (goal amendment)
 
@@ -16,16 +18,17 @@ justification (residual \(|E'(n)|\) slopes, column counts, or a different
 complex with a proven size bound). Any information loss vs exact VR must be
 quantified (unmatched bars / bottleneck / interleaving).
 
-Current honest status: **`--engine auto` (I235)** is shape-agnostic (0
+Current honest status: **`--engine auto` (I235+I236)** is shape-agnostic (0
 unmatched) and picks the better exact engine from a 250-point collapse
-probe. Torus n=2000 **12.5×**; circle n=1000 **28×**. **Worst-case Big-O
-is not improved** — this is a portfolio, not a new complexity class.
-Torus residual stays \(\Theta(n^2)\) (I204). Blobs n=1000 **2.6×** (still
-not 10×). **I228 `--engine redzed`** remains the single-engine general
-exact path. Topology loss: **0**. **I224 reduced VR** is exact with
-\(O(n^2)\) triangles but loses clock. The **optional** `--sparse-eps 0.6`
-path keeps essential \(H_1\) and sits in a better size class (I218) at
-quantified bottleneck 0.005–0.034.
+probe. H1 τ=0.04; H2 τ=0.15. Torus n=2000 H1 **12.5×**; circle n=1000
+**28×**; sphere n=400 H2 **61×**. **Worst-case Big-O is not improved** —
+this is a portfolio, not a new complexity class. Torus residual stays
+\(\Theta(n^2)\) (I204). Blobs n=1000 H1 **3.6×** (still not 10×).
+**I228 `--engine redzed`** remains the single-engine general exact path.
+Topology loss: **0**. **I224 reduced VR** is exact with \(O(n^2)\)
+triangles but loses clock. The **optional** `--sparse-eps 0.6` path keeps
+essential \(H_1\) and sits in a better size class (I218) at quantified
+bottleneck 0.005–0.034.
 
 ## Selected exact-VR CPU pipeline
 
@@ -115,6 +118,7 @@ residual makes collapse *and* reduce slower (circle3000 1.49× vs full 8.11×).
 | Dataset | dim | n | T | vs Ripser |
 | --- | --- | --- | --- | --- |
 | sphere | \(H_2\) | 500 | 1.4 | **59×** (I085) / 46× later |
+| sphere | \(H_2\) | 400 | 1.4 | **61×** I236 auto-collapse (1.05s/0.017s). I235 τ=0.04 would RedZeD at 3.1× |
 | circle_noisy | \(H_1\) | 4000 | 1.5 | **140×** I196 I193 (301s/2.15s, collapse 1824 ms). I190 first-apex was 113× |
 | circle_noisy | \(H_1\) | 3000 | 1.5 | **119×** I196 I193 (118s/0.99s, collapse 812 ms). I189 was 93.2× |
 | circle_noisy | \(H_1\) | 2000 | 1.5 | **84.4×** I202 (28.6s/0.34s, collapse 263 ms). I197 was 83.5× / 249 ms |
@@ -342,20 +346,33 @@ the probe is \(O(s^2)\) with \(s=250\), not a function of n; full work
 is whichever exact engine is cheaper. **Not** a better Big-O. Not a
 general 10× (blobs stay ~3–5×).
 
-## Next levers (still open after I235)
+**I236 H2-aware τ + leftover-coface AE reject:** maxdim≥2 uses τ=0.15.
+Wave 97 **exact 9/9** H0–H2 (figure8/two_circles ess H1 2=2; sphere void
+ess H2 1=1 at n=80 and n=400; blobs ess H0 3=3). Sphere n=400 H2
+**auto-collapse** frac=0.059, **61×** vs Ripser (0.017s/1.05s) and
+**19.5×** vs RedZeD (0.335s). Torus n=400 H2 **auto-redzed** frac=0.29,
+4.6× vs Ripser / 3.2× vs collapse. H1 dispatch unchanged (circle
+auto-collapse 18×; blobs auto-redzed 3.6×). Topology loss: **0**.
+Owned leftover-coface / first-hit `process_leftover` invented finite H1
+on every mixed cloud (essentials held; figure8 unmatched 12) — reverted
+to the I232 walk. Justification: H2 tet work is on the residual, so a
+mid frac that wants RedZeD for H1 wants collapse for H2. Still a
+portfolio, not a better Big-O.
 
-`--engine auto` is now a shape-agnostic exact portfolio: circle 10× and
-torus 10× on one CLI path. Blobs/uniform2 are still ~3–5×. Owned active
-H0–H2 is exact but not a scale engine. I233 star generation was inexact.
+## Next levers (still open after I236)
 
-1. **CLI default:** `--engine auto` (I235). Circle collapse; fat/mid
-   residual → RedZeD.
+`--engine auto` is a shape-agnostic exact H0–H2 portfolio: circle H1
+10×, torus H1 10×, sphere H2 61× on one CLI path. Blobs/uniform2 H1
+are still ~3–5×. Owned active H0–H2 is exact but not a scale engine.
+I233/I236 star / leftover-coface generation were inexact.
+
+1. **CLI default:** `--engine auto` (I235+I236). H1 τ=0.04; H2 τ=0.15.
 2. **Forced engines:** `--engine implicit` = I193+I197+I202+I203 only;
    `--engine redzed` = I228 only.
 3. **Owned optional approx:** `--sparse-eps 0.6 --sparse-cap max` (I213/I218)
    when n grows past exact VR.
-4. Next owned generation cut must be RedZeD-faithful rbit / active
-   enumeration — I233's star shortcut was inexact.
+4. Next owned generation cut needs RedZeD-faithful rbit / active
+   enumeration — I233/I236 leftovers were inexact.
 5. Push blobs/uniform2 from ~5× to 10× (RedZeD reduce is the wall).
 6. H07 kd-tree / H08 distilled still open, lower priority.
 7. GPU later.

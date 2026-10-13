@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-13 — I236 H2-aware auto dispatch
+
+- **Question:** Does I235’s τ=0.04 mis-route H2 on mid-residual spheres (collapse tets are cheap; RedZeD H2 is on the full metric), and can `--engine auto` stay exact on mixed H0–H2 at more points without a long test? Is a RedZeD-faithful leftover-coface AE exact on real clouds?
+- **Hypothesis:** Sphere frac~0.057 wants RedZeD for H1 and collapse for H2 (I234: 26× vs 3.2× at n=200). τ=0.15 when maxdim≥2 keeps torus (~0.28) on RedZeD. Leftover-coface / first-hit `process_leftover` will match RedZeD if active=R and seeded-then-leftover order is respected. Shape-agnostic. Both engines exact.
+- **Work:** dim-dependent τ in auto dispatch. Owned AE implemented then reverted (figure8 unmatched 12; essentials held). Wave 97 vs Ripser / collapse / RedZeD. Hard case: sphere n=400 H2.
+- **Result:** **Exact 9/9** H0–H2 (0 unmatched; figure8/two_circles 2=2; sphere void 1=1 at n=80 and n=400; blobs H0 3=3). Sphere n=400 H2 **auto-collapse** frac=0.059, **61.3×** vs Ripser (0.017s/1.05s), **19.5×** vs RedZeD (0.335s). Torus n=400 H2 **auto-redzed** 4.6× / 3.2× vs collapse. H1 unchanged: circle n=500 auto-collapse **17.6×**; blobs n=1000 auto-redzed **3.6×**. Owned AE **rejected** (invents finite H1).
+- **Decision:** **Support H2 τ.** CLI default stays `--engine auto` with H1 τ=0.04 and H2 τ=0.15. Topology loss: **0**. Not a better Big-O. Do not retry leftover-coface without rbit + no empty-R abort. Next: blobs/uniform2 10× (reduce wall) or a faithful rbit AE.
+- **Class:** experiment (support dispatch; reject owned AE)
+
 ## 2026-10-13 — I235 auto residual-frac dispatch
 
 - **Question:** Can `--engine auto` pick RedZeD on fat residuals (torus) and collapse+implicit on thin ones (circle) from a cheap subsample, without losing identity or circle 10×?
