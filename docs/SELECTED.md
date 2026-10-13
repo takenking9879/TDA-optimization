@@ -1,6 +1,6 @@
 # Selected algorithm (living)
 
-Updated 2026-10-13 after iterations I001–I259. **CLI default `--engine
+Updated 2026-10-13 after iterations I001–I260. **CLI default `--engine
 auto` (I235+I236+I239+I240+I241):** subsample residual-frac dispatch. Fat →
 RedZeD (torus n=2000 **12.7×**). Thin-circle → collapse+implicit
 (n=1000 **28×**; n=4000 still **140×**). Disconnected G_T → spatial UF
@@ -537,7 +537,13 @@ lookup. Wave 120 **exact 13/13**. Torus reduce **154 vs 174**,
 (1.04s; reduce 456 vs 497, table-zero metric 192 vs 118). Sphere
 H2 **62×**. Topology loss: **0**.
 
-## Next levers (still open after I259)
+**I260 tight hash (no Slot zero):** load ~0.75 + occupancy bitmap +
+malloc. Wave 121 **exact 13/13**. n=20000 metric **113 vs 192**,
+pith 1.02s / **6.0×**. Dense n=5000 **11.4×**. Torus **12.4×**.
+Sphere H2 **52×**. Topology loss: **0**. Reduce a bit longer
+(load 0.75 probes).
+
+## Next levers (still open after I260)
 
 `--engine auto` is a shape-agnostic exact H0–H2 portfolio: circle H1
 10×, torus H1 **12.7×**, sphere H1 **10.1×** at n=2000, sphere H2
@@ -550,7 +556,7 @@ Rips is exact and too slow.
 
 1. **CLI default:** `--engine auto` (I235+I236+I239+I240+I241). H1 τ=0.04; H2 τ=0.15.
 2. **Forced engines:** `--engine implicit` = I193+I197+I202+I203 only;
-   `--engine redzed` = I228+I239+I240+I244+I245+I246+I250+I251+I252+I256+I257+I258+I259; H0 = Kruskal.
+   `--engine redzed` = I228+I239+I240+I244+I245+I246+I250+I251+I252+I256+I257+I258+I259+I260; H0 = Kruskal.
 3. **Owned optional approx:** `--sparse-eps 0.6 --sparse-cap max` (I213/I218)
    when n grows past exact VR.
 4. Connected uniform2 is **11.4×** at n=5000 after I258 (0.30 s).
@@ -565,10 +571,9 @@ Rips is exact and too slow.
    skip-collect, inline skip, leftover-coface no-seen, spatial
    prebuild, skip ∞-fill, parallel `spatial_edges`, CSR-no-n², and
    hash get are in. Dense n=5000 stays I238 all-pairs.
-5. **I260 (open):** tighter hash table (load ~0.75 / 8M slots at
-   n=20000) so `tab.assign` does not zero 256 MB. I259 cut torus
-   reduce 174→154 but n=20000 metric 118→192. Must stay exact
-   (miss = +∞). Dense path stays I238 all-pairs.
+5. **I261 (open):** load 0.5 + malloc/bitmap (I259 probe length
+   without I259’s 256 MB write). I260 cut n=20000 metric 192→113
+   but reduce 456→513. Must stay exact. Dense path stays I238.
 6. Owned AE leftover-star walk is still Θ(|leftover|·deg★) — rbit cut
    has_leftover_coface, not seeded probes (circle still 875k). Packed
    annotations / seeded_is_noop are the next owned constants.
