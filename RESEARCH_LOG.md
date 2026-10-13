@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-13 — I250 skip collect when ActiveReg empty
+
+- **Question:** On a connected dense \(G_T\), how often is ActiveReg empty, and does skipping `collect_candidates` then keep exact H0–H2 and cut the connected wall?
+- **Hypothesis:** collect only reads ActiveReg. Empty registry ⇒ no seeds. Reset leftover seen from a prior seeded leftover. Shape-agnostic. Exact if identity holds.
+- **Work:** Profiled uniform2 n=5000: 3.46M leftovers, 3.45M no-seed skips, **3.37M empty ActiveReg**, 10.9k seeded, 1309 finite H1. `clear_seeds` + skip collect. Wave 111 vs Ripser. Hard cases: n=5000 / n=6000.
+- **Result:** **Exact 11/11** (figure8 2=2; sphere void 1=1; blobs H0 3=3). Uniform2 n=5000 **10.03×** (0.343s/3.44s; I246 0.354s/3.38s; reduce 253 vs 264 ms). n=6000 **10.12×** (0.431s/4.37s; I246 0.470s/4.34s). Blobs n=4000 H1 **24×**. H0 Kruskal **1.9×**. Sphere n=400 H2 collapse **60×**.
+- **Decision:** **Support.** Pith cut is real (n=6000 0.43 vs 0.47 s; same Ripser). Connected 10× on this hard family. Topology loss: **0**. Not a better Big-O. Still a portfolio.
+- **Class:** experiment (support; exact constant; connected 10× on uniform2)
+
 ## 2026-10-13 — I249 parallel leftover-coface precompute
 
 - **Question:** leftover-coface at time t is a function of \(G_{\le t}\) only. Does a parallel rbit-snapshot precompute let sequential AE skip 3.5M leftover-coface walks on the no-seed path?
