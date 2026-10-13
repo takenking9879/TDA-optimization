@@ -193,6 +193,11 @@ int main() {
         Result rs = persist_sparse(hs, 1, 10, 1);
         assert(h1(rb) == h1(rs));
         std::cout << "ok suffix-stab C4+diagonals H1 match backward\n";
+        Counters cr;
+        Graph hr = collapse_edges_suffix_rescue(g, cr, -1);
+        Result rr = persist_sparse(hr, 1, 10, 1);
+        assert(h1(rb) == h1(rr));
+        std::cout << "ok suffix-rescue C4+diagonals H1 match backward\n";
     }
 
     std::cout << "all collapse/persist unit tests passed\n";

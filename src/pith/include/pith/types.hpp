@@ -59,6 +59,10 @@ struct Counters {
     std::int64_t n_collapse_tau_late_common = 0;
     std::int64_t n_collapse_keep_hist[16] = {};
     std::int64_t n_collapse_early_keeps[8] = {-1, -1, -1, -1, -1, -1, -1, -1};
+    std::int64_t n_collapse_last_commons = 0;
+    std::int64_t n_collapse_last_mindeg = 0;
+    std::int64_t n_collapse_early_empty_c = 0;
+    std::int64_t n_collapse_early_keep_n = 0;
     double collapse_ms = 0;
     double reduce_ms = 0;
     double metric_ms = 0;

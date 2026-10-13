@@ -294,6 +294,9 @@ inline bool process_one_backward(const Edge& e_in, value_t t_in, DenseTimes& Tm,
     }
     out = e_in;
     out.t = ever_shifted ? t : t_in;
+    c.n_collapse_last_commons = commons;
+    c.n_collapse_last_mindeg = static_cast<std::int64_t>(
+        std::min(nbr[u].size(), nbr[v].size()));
     if (ever_shifted) {
         Tm.set(u, v, out.t);
         set_live_time(nbr, u, v, out.t);
@@ -360,6 +363,17 @@ inline Graph collapse_edges(Graph g, int iterations, Counters& c, int dom_budget
                     ++c.n_collapse_keep_hist[b];
                 }
                 if (early_n < 8) c.n_collapse_early_keeps[early_n++] = static_cast<std::int64_t>(i);
+                if (mE > 0 && i * 16 < 15 * mE) {
+                    ++c.n_collapse_early_keep_n;
+                    if (c.n_collapse_last_commons == 0) ++c.n_collapse_early_empty_c;
+                    if (std::getenv("PITH_EARLY_KEEP")) {
+                        std::fprintf(stderr, "# EARLY_KEEP i=%zu/%zu commons=%lld mindeg=%lld t=%g\n",
+                                     i, mE,
+                                     static_cast<long long>(c.n_collapse_last_commons),
+                                     static_cast<long long>(c.n_collapse_last_mindeg),
+                                     static_cast<double>(out.t));
+                    }
+                }
                 kept.push_back(out);
             }
             if ((i == mE - 1 || (i % step) == 0) && std::getenv("PITH_COLLAPSE_TRACE")) {
@@ -517,6 +531,74 @@ inline Graph collapse_edges_suffix_stabilize(Graph g, Counters& c, int dom_budge
     const auto t1 = std::chrono::steady_clock::now();
     c.collapse_ms = std::chrono::duration<double, std::milli>(t1 - t0).count();
     return cur;
+}
+
+// I171/I172: newest-first, cheap-trim any young edge with a live common
+// neighbor; leave C-empty edges in the graph; full backward on the leftover
+// (early keeps ∪ oldest suffix). Exact iff every young keep has C_now empty
+// and every young nonempty-C edge eventually dies.
+inline Graph collapse_edges_suffix_rescue(Graph g, Counters& c, int dom_budget) {
+    const auto t0 = std::chrono::steady_clock::now();
+    if (c.n_edges_in == 0) c.n_edges_in = static_cast<std::int64_t>(g.edges.size());
+    std::vector<Edge>& E = g.edges;
+    for (Edge& e : E) normalize_edge(e);
+    std::sort(E.begin(), E.end(), [](const Edge& a, const Edge& b) {
+        if (a.t != b.t) return a.t > b.t;
+        if (a.u != b.u) return a.u < b.u;
+        return a.v < b.v;
+    });
+    const size_t m = E.size();
+    const size_t n = static_cast<size_t>(std::max(g.n, 1));
+    const size_t k_suf = std::min(m, std::max(n * 64, m / 8));
+    const size_t young = m > k_suf ? m - k_suf : 0;
+
+    DenseTimes Tm(g.n);
+    LiveAdj nbr;
+    init_collapse_graph(E, g.n, Tm, nbr);
+
+    for (size_t i = 0; i < young; ++i) {
+        const index_t u = E[i].u, v = E[i].v;
+        const value_t t = E[i].t;
+        const bool walk_u = nbr[u].size() <= nbr[v].size();
+        const auto& src = walk_u ? nbr[u] : nbr[v];
+        const value_t* r_other = walk_u ? Tm.row(v) : Tm.row(u);
+        bool has_common = false;
+        std::int64_t probed = 0;
+        for (const LiveNbr& p : src) {
+            const index_t w = p.first;
+            if (w == u || w == v) continue;
+            ++probed;
+            const value_t t_other = r_other[w];
+            if (t_other >= kInf / 2) continue;
+            const value_t tau = p.second > t_other ? p.second : t_other;
+            if (tau <= t) {
+                has_common = true;
+                break;
+            }
+        }
+        c.n_collapse_c_probes += probed;
+        if (has_common) {
+            Tm.erase(u, v);
+            drop_live_nbr(nbr, u, v);
+            drop_live_nbr(nbr, v, u);
+            ++c.n_collapse_trims;
+            ++c.n_collapse_fast_trims;
+        }
+    }
+
+    std::vector<Edge> leftover;
+    leftover.reserve(k_suf + 64);
+    for (size_t i = 0; i < m; ++i) {
+        if (Tm(E[i].u, E[i].v) < kInf / 2) leftover.push_back(E[i]);
+    }
+    g.edges.swap(leftover);
+    Counters tail;
+    g = collapse_edges(std::move(g), 1, tail, dom_budget);
+    add_collapse_counters(c, tail);
+    c.n_edges_out = static_cast<std::int64_t>(g.edges.size());
+    const auto t1 = std::chrono::steady_clock::now();
+    c.collapse_ms = std::chrono::duration<double, std::milli>(t1 - t0).count();
+    return g;
 }
 
 // I150: Glisse 2022 Lemma 6 — 2-way time-axis D&C. Same output as sequential

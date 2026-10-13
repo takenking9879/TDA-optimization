@@ -725,9 +725,16 @@ Do not paste long reasoning here.
 - **Decision:** Reject suffix-stab as default. n=2000 24–42× is real but not scale-invariant. I170: keep-rank histogram.
 - **Class:** experiment (negative as a general alg)
 
-## 2026-10-13 — I170 keep histogram (in progress)
+## 2026-10-13 — I170 keep histogram
 
 - **Question:** Are n=3000/4000 keeps one early outlier plus an oldest suffix, or scattered?
+- **Result:** Mostly a suffix, with a thin scatter. circle2000: **5169/5169 in last 6.25%**. circle3000: **9093/9190** last bin, **97** earlier (3+0+…+50); first three at 23k/76k/88k. circle4000: **12468/12562** last, **94** earlier. blobs: 5946/6169 last, 223 earlier.
+- **Decision:** Suffix-only cannot be exact at n≥3000. I171: if those ~100 early keeps have empty C, cheap-trim (abort at first common) + suffix-back can rescue them.
+- **Class:** reproduced
+
+## 2026-10-13 — I171/I172 suffix-rescue (in progress)
+
+- **Question:** Are early keeps C-empty, and does cheap-common-trim + suffix-back match Ripser?
 - **Class:** experiment running
 
 ## 2026-10-13 — I164 collapse live-degree trace

@@ -19,7 +19,7 @@ static void usage() {
         << "  --maxdim K          homology dimension (default 1)\n"
         << "  --threshold T       VR diameter threshold (default inf)\n"
         << "  --collapse N        collapse passes (default -1 adaptive+probe; 0 = off)\n"
-        << "  --collapse-alg back|dc|forward|suffix|suffix-back|suffix-stab\n"
+        << "  --collapse-alg back|dc|forward|suffix|suffix-back|suffix-stab|suffix-rescue\n"
         << "  --suffix-mult X     oldest X·n edges for suffix* (default 6; I165)\n"
         << "  --suffix-keep N     oldest N edges (overrides --suffix-mult; I167)\n"
         << "  --dom-budget K      max domination candidates per edge (-1 = all; I107)\n"
@@ -161,6 +161,8 @@ static void print_text(const Result& r) {
               << " collapse_first_keep=" << c.n_collapse_first_keep
               << " collapse_tau_late=" << c.n_collapse_tau_late
               << " collapse_tau_late_common=" << c.n_collapse_tau_late_common
+              << " collapse_early_keep_n=" << c.n_collapse_early_keep_n
+              << " collapse_early_empty_c=" << c.n_collapse_early_empty_c
               << " collapse_keep_hist=" << c.n_collapse_keep_hist[0];
     for (int b = 1; b < 16; ++b) std::cout << "," << c.n_collapse_keep_hist[b];
     std::cout << " collapse_early_keeps=" << c.n_collapse_early_keeps[0];
@@ -301,6 +303,8 @@ int main(int argc, char** argv) {
                 return collapse_edges_oldest_then_back(std::move(h), suffix_mult, c, dom_budget, suffix_keep);
             if (collapse_alg == "suffix-stab")
                 return collapse_edges_suffix_stabilize(std::move(h), c, dom_budget);
+            if (collapse_alg == "suffix-rescue")
+                return collapse_edges_suffix_rescue(std::move(h), c, dom_budget);
             return collapse_edges(std::move(h), iters, c, dom_budget);
         };
         if (collapse_iters < 0) {
@@ -348,6 +352,8 @@ int main(int argc, char** argv) {
         r.counters.n_collapse_tau_late_common = c.n_collapse_tau_late_common;
         for (int b = 0; b < 16; ++b) r.counters.n_collapse_keep_hist[b] = c.n_collapse_keep_hist[b];
         for (int b = 0; b < 8; ++b) r.counters.n_collapse_early_keeps[b] = c.n_collapse_early_keeps[b];
+        r.counters.n_collapse_early_keep_n = c.n_collapse_early_keep_n;
+        r.counters.n_collapse_early_empty_c = c.n_collapse_early_empty_c;
         r.counters.collapse_ms = c.collapse_ms;
         r.counters.metric_ms = c.metric_ms;
         r.counters.n_vertices = g.n;
