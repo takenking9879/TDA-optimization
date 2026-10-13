@@ -670,6 +670,41 @@ int main() {
         std::cout << "ok I239 two-octahedra H012 cc-split\n";
     }
 
+    // I246: single octahedron through redzed_vr H2 lazy-insert AE.
+    {
+        const value_t T = 1.5f;
+        std::vector<std::vector<value_t>> pts = {
+            {1, 0, 0}, {-1, 0, 0}, {0, 1, 0}, {0, -1, 0}, {0, 0, 1}, {0, 0, -1},
+        };
+        std::vector<std::vector<value_t>> dist(6, std::vector<value_t>(6, 0));
+        for (int i = 0; i < 6; ++i)
+            for (int j = i + 1; j < 6; ++j) {
+                value_t d = 0;
+                for (int k = 0; k < 3; ++k) {
+                    const value_t u = pts[i][k] - pts[j][k];
+                    d += u * u;
+                }
+                dist[i][j] = dist[j][i] = std::sqrt(d);
+            }
+        Result rz = persist_redzed(dist, 2, T);
+        int ess0 = 0, ess1 = 0, ess2 = 0, fin2 = 0;
+        for (const auto& p : rz.pairs) {
+            if (!std::isfinite(p.death)) {
+                if (p.dim == 0) ++ess0;
+                if (p.dim == 1) ++ess1;
+                if (p.dim == 2) ++ess2;
+            } else if (p.dim == 2 && p.death - p.birth > 1e-5f) {
+                ++fin2;
+            }
+        }
+        if (ess0 != 1 || ess1 != 0 || ess2 != 1 || fin2 != 0) {
+            std::cerr << "I246 redzed octahedron H0/H1/H2 ess=" << ess0 << "/" << ess1 << "/"
+                      << ess2 << " fin2=" << fin2 << "\n";
+            return 1;
+        }
+        std::cout << "ok I246 redzed octahedron H2 lazy-insert\n";
+    }
+
     std::cout << "all collapse/persist unit tests passed\n";
     return 0;
 }

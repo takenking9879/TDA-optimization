@@ -136,8 +136,59 @@ static void build_edges_parallel(const DistanceMatrix& dist, value_t threshold,
     finish_buckets_parallel(out.diam, out.verts, 2, starts, nb, bt);
 }
 
+// I246: vendor AE inserts R/Ri singleton then often erases it (no seeds +
+// leftover coface = (n+1)-birth / zero bar). Skip that insert. When seeds
+// exist, insert once and finish AE without re-advance / re-collect.
+// set_side is a no-op unless side_vpc is set (H2+).
+static void active_enum_lazy(State& st, rank_t xrank, comb_t xidx, const int32_t* verts,
+                             value_t sdiam) {
+    const int m = st.n + 1;
+    advance_rbits(st, sdiam);
+    collect_candidates(st, verts);
+    SetDict& Rn = st.R[st.n];
+    SetDict& Rin = st.Ri[st.n];
+    if (st.seedverts.empty()) {
+        if (has_leftover_coface(st, verts, m, xidx, sdiam)) return;
+        const slot_t s1 = Rn.singleton(xrank, xrank);
+        const slot_t s2 = Rin.singleton(xrank, xrank);
+        Rn.set_side(s1, sdiam, verts);
+        Rin.set_side(s2, sdiam, verts);
+        register_active(st, xrank, s1, verts);
+        return;
+    }
+    const slot_t s1 = Rn.singleton(xrank, xrank);
+    const slot_t s2 = Rin.singleton(xrank, xrank);
+    Rn.set_side(s1, sdiam, verts);
+    Rin.set_side(s2, sdiam, verts);
+    slot_t xslot = s1;
+    bool dirty = false;
+    for (size_t t = 0; t < st.seedverts.size(); ++t) {
+        const int32_t w = st.seedverts[t];
+        const std::vector<slot_t>& sdw = st.seedlists[w];
+        if (seeded_is_noop(Rn, xslot, sdw)) continue;
+        if (coface_ready(st.coface_buf.data(), verts, m, w, xidx, sdiam, st.dist, st.binom))
+            dirty |= process_seeded(st, xslot, sdw, sdiam);
+    }
+    if (!dirty) {
+        if (has_leftover_coface(st, verts, m, xidx, sdiam)) {
+            Rn.erase(xrank);
+            Rin.erase(xrank);
+            return;
+        }
+        register_active(st, xrank, xslot, verts);
+        return;
+    }
+    xslot = Rn.slot(xrank);
+    if (xslot) {
+        if (has_leftover_coface(st, verts, m, xidx, sdiam)) process_leftover(st, xslot, sdiam);
+        xslot = Rn.slot(xrank);
+    }
+    if (xslot) register_active(st, xrank, xslot, verts);
+}
+
 // I244: VR≤T does not need enclosing (cone). Finite T → thr=T is exact.
 // I245: parallel build_edges when no prebuilt EdgeList.
+// I246: lazy R/Ri insert on top-dimension AE.
 static std::vector<std::vector<std::pair<value_t, value_t>>>
 redzed_vr(DistanceMatrix& distIn, int n, value_t threshold, EdgeList* prebuilt) {
     int nv = distIn.n;
@@ -199,13 +250,14 @@ redzed_vr(DistanceMatrix& distIn, int n, value_t threshold, EdgeList* prebuilt) 
             if (a == b) {
                 if (want_h1) {
                     rank_t er = (rank_t)e;
-                    R1->singleton(er, er);
-                    Ri1->singleton(er, er);
                     if (n == 1) {
                         st.top_buf[0] = lo;
                         st.top_buf[1] = hi;
                         comb_t xidx = comb_index(&ed.verts[2 * (e - 1)], 2, st.binom);
-                        run_active_enumeration(st, er, xidx, st.top_buf.data(), ediam);
+                        active_enum_lazy(st, er, xidx, st.top_buf.data(), ediam);
+                    } else {
+                        R1->singleton(er, er);
+                        Ri1->singleton(er, er);
                     }
                 }
             } else {
@@ -247,13 +299,14 @@ redzed_vr(DistanceMatrix& distIn, int n, value_t threshold, EdgeList* prebuilt) 
                     if (fs) sset_xor(st.bar, Rprev.at(fs), st.buf);
                 }
                 if (st.bar.empty()) {
-                    slot_t s1 = Rd.singleton(sr, sr);
-                    slot_t s2 = Rid.singleton(sr, sr);
-                    Rd.set_side(s1, sdiam, cv);
-                    Rid.set_side(s2, sdiam, cv);
                     if (d == n) {
                         comb_t xidx = comb_index(cv, m, st.binom);
-                        run_active_enumeration(st, sr, xidx, cv, sdiam);
+                        active_enum_lazy(st, sr, xidx, cv, sdiam);
+                    } else {
+                        slot_t s1 = Rd.singleton(sr, sr);
+                        slot_t s2 = Rid.singleton(sr, sr);
+                        Rd.set_side(s1, sdiam, cv);
+                        Rid.set_side(s2, sdiam, cv);
                     }
                 } else {
                     resolve_bar(st, d, st.bar, sdiam);
