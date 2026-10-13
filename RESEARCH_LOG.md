@@ -1125,6 +1125,15 @@ Do not paste long reasoning here.
 - **Decision:** **Reject and revert.** I106 stands: degree-first does not pay on the torus fail path. Topology loss: **0**.
 - **Class:** experiment (reject; revert hot path)
 
+## 2026-10-13 — I225 reduced VR all-pairs lune (H07)
+
+- **Question:** Is I224’s construction wall the \(O(|L|\cdot\deg)\) neighbor walk, and does all-pairs connectivity (same Def 3.3 edges) cut it without changing the 2-complex?
+- **Hypothesis:** Most lunes have \(|L|\ll\deg\) on \(G_T\). With the distance matrix, each pair is \(O(1)\). Singleton lunes skip UF. Same representatives ⇒ same PH₁. Shape-agnostic.
+- **Work:** `build_reduced_triangles(..., dist*)`; wave 86 vs Ripser + I224 receipts.
+- **Result:** **Exact 13/13** (0 unmatched; ess H1 matches including figure8 / two_circles / unit square). Triangle counts **identical** to I224. Construction **2.3–3.7×** vs I224 (median 2.7×). circle n=500: 2617→701 ms build, 0.73s / **0.42×** vs Ripser 0.31s (was 0.12×). Still loses to default PITH (15 ms).
+- **Decision:** **Support as construction** on the experimental `--reduced-vr` path. Do **not** select as default. Topology loss: **0**. Remaining H07 cost is lune membership (neighbor merge), not UF. Default unchanged.
+- **Class:** experiment (support construction; reject as default clock)
+
 ## 2026-10-13 — I224 reduced VR engine (H07)
 
 - **Question:** Does a paper-faithful reduced VR 2-complex (Koyama–Mémoli–Robins–Turner, arXiv:2307.16333) give exact PH₁ vs Ripser on mixed homology, with a better triangle size class than flag VR?

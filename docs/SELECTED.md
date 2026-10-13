@@ -1,6 +1,6 @@
 # Selected algorithm (living)
 
-Updated 2026-10-13 after iterations I001–I224. **Default is I193 + I197 +
+Updated 2026-10-13 after iterations I001–I225. **Default is I193 + I197 +
 I202 gated witness + I203 cofacet early-stop** on I182 live-bit C + I186
 no LiveAdj. Flagship circle n=4000 T=1.5 is **140×** vs Ripser (I196).
 That number is a collapse-friendly regime, **not** the success criterion.
@@ -94,6 +94,7 @@ suite and I137 8/8 (including dense circle80/200 **collapse=0**, the I045 killer
 | GIC kNN quotient (I222) | Invents ess H1 on blobs/sphere/torus (8 vs 1, bn 0.36). Fast, wrong features |
 | High-deg prefix-8 (I223) | Exact 5/5; torus 1537 vs 1470 ms. Fail-path tax. Reverted |
 | Reduced VR as default (I224) | **Exact H1** on 19/19 mixed rows (unit square, figure8, two_circles, …). Triangles \(n^{2.04–2.20}\). Construction loses clock (circle n=500 2.65s vs Ripser 0.31s). Keep `--reduced-vr` experimental |
+| Reduced VR lune walk (I224 path) | I225 all-pairs is **2.7×** faster construction, still exact; still slower than Ripser (circle n=500 0.73s / 0.42×) |
 
 I107 (`--dom-budget 1`) **still rejected** with implicit (I142–I144): thicker
 residual makes collapse *and* reduce slower (circle3000 1.49× vs full 8.11×).
@@ -226,7 +227,14 @@ lunes explicitly, so **time is not** a better class than Ripser’s
 implicit cofacet heap. Do not select as default. `--reduced-vr` stays
 an exact experimental H1 engine.
 
-## Next levers (still open after I224)
+**I225 construction:** all-pairs lune UF (+ singleton skip) when a
+distance matrix is present. Same triangles as I224. Construction
+**2.3–3.7×** vs I224 (median 2.7×; circle n=500 2617→701 ms). Still
+**0.42×** vs Ripser there; default collapse+implicit is 15 ms. The
+remaining build cost is finding the lune (neighbor merge), not
+connectivity. Not selected as default. Topology loss: **0**.
+
+## Next levers (still open after I225)
 
 Exact default is shape-agnostic with **0 bars lost** and is **not** a
 general 10×. Optional approx is a multi-family 10× at sufficient n, with
@@ -240,9 +248,9 @@ quantified loss, and a better size exponent.
    faster.    `--sparse-cap min` **rejected** (I212). `--witness-n`
    **rejected** (I216–I217). `--knn` **rejected** as recommended
    (I220 invents loops at K≤32; I221 K=128 is safer but dominated).
-3. **H07 construction** (kd-tree lune / apparent skip / early stop) —
-   identity is closed (I224); clock is not. H08 distilled still
-   unverified (unit-square empty-complex report). H09 RedZeD still
+3. **H07 lune membership** (kd-tree / range search) — I225 closed the
+   UF walk; identity is closed (I224/I225). Clock is not. H08 distilled
+   still unverified (unit-square empty-complex report). H09 RedZeD still
    unimplemented as a real engine.
 4. Exact torus time-buckets deferred — shift path is Tm, not later[] (I198).
 5. GPU later.
