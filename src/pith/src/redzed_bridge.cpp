@@ -246,6 +246,24 @@ static bool coface_ready_any(int32_t* cand, const int32_t* xverts, int m, int32_
 // I255 unique-diam rbit-AND skip was exact 14/14 but no pith cut
 // (n=5000 reduce 211 vs I252 206 ms). Reverted.
 // I258: coface_ready_any so the spatial path can omit the C(n,2) matrix.
+// I265: unique-diam + rbits ⇒ leftover-coface ≡ nonempty AND.
+// rbits only hold strictly shorter edges when this leftover's diam is
+// unique, so coface_ready's two hash gets are redundant. I255 tried
+// this on the all-pairs path (matrix get is cheap) and saw no pith
+// cut. Spatial hash (g_sparse) is the path that pays those gets.
+static bool leftover_coface_h1_and(State& st, const int32_t* xv) {
+    const uint64_t* rb = st.rbits.data();
+    const int words = st.words;
+    const int u = xv[0], v = xv[1];
+    int wlo = st.rlo[u], whi = st.rhi[u];
+    if (st.rlo[v] > wlo) wlo = st.rlo[v];
+    if (st.rhi[v] < whi) whi = st.rhi[v];
+    for (int w = wlo; w <= whi; ++w) {
+        if (rb[(size_t)u * words + w] & rb[(size_t)v * words + w]) return true;
+    }
+    return false;
+}
+
 static bool leftover_coface_h1_noseen(State& st, const int32_t* xv, comb_t xidx, value_t r) {
     const uint64_t* rb = st.rbits.data();
     const int words = st.words, nv = st.nv;
@@ -474,10 +492,18 @@ redzed_vr(DistanceMatrix& distIn, int n, value_t threshold, EdgeList* prebuilt) 
                         st.top_buf[1] = hi;
                         const int32_t* xv = &ed.verts[2 * (e - 1)];
                         ae_prepare(st, st.top_buf.data(), ediam);
+                        const bool uniq = (e == 1 || ed.diam[e - 2] != ediam) &&
+                                          (e == ed.count || ed.diam[e] != ediam);
                         if (st.seedverts.empty()) {
-                            const comb_t xidx = comb_index(xv, 2, st.binom);
-                            if (leftover_coface_h1_noseen(st, xv, xidx, ediam)) continue;
-                            ae_keep_singleton(st, er, st.top_buf.data(), ediam);
+                            // I265: spatial unique-diam → rbit AND only.
+                            if (g_sparse && uniq) {
+                                if (leftover_coface_h1_and(st, xv)) continue;
+                                ae_keep_singleton(st, er, st.top_buf.data(), ediam);
+                            } else {
+                                const comb_t xidx = comb_index(xv, 2, st.binom);
+                                if (leftover_coface_h1_noseen(st, xv, xidx, ediam)) continue;
+                                ae_keep_singleton(st, er, st.top_buf.data(), ediam);
+                            }
                         } else {
                             const comb_t xidx = comb_index(xv, 2, st.binom);
                             ae_seeded(st, er, xidx, st.top_buf.data(), ediam);
