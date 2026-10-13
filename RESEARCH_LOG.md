@@ -791,6 +791,13 @@ Do not paste long reasoning here.
 - **Work:** `later[v]` records young-loop keeps. Case A walks `later[src]`; `--later-b` walks `later[other]`. No full-star sort (I159 was slower). Wave47 = I180.
 - **Class:** experiment (running)
 
+## 2026-10-13 — I180 kept-later clock
+
+- **Question:** Does I179 Case A keep/beat I176 13.4×, and is cheap Case B exact at n=3000 without the I178 probe blowup?
+- **Result:** Case A `later[]` + K=2: circle2000 **exact 16.9×** (25.7s/1.52s, 144M probes, residual 5169) — beats I176 13.4×. circle3000 **15.9× but 2 unmatched** (8325 vs 9190). Case B leave still cascades: n=2000 7.75× / 461M; n=3000 K=2 still 2 unmatched; K=8+B **exact 7.78× / 1.89B** — same as I178, not cheaper. n=4000 K=2+B **exact 9.08×** (285s/31.4s, 4.43B) — no cut vs default 9.50×. blobs K=2 A-only 2 unmatched; +B exact 0.29×.
+- **Decision:** Keep `--later-b` off. Optional suffix-later K=2 Case A is now **16.9×** on n=2000. I181: escalate-until-first-keep and treat Case B as deeper-K, not leave.
+- **Class:** experiment (partial)
+
 ## 2026-10-13 — I164 collapse live-degree trace
 
 - **Question:** Does the live 1-skeleton thin early enough to stop the C-walk?

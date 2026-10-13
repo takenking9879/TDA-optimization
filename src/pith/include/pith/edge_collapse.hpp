@@ -724,7 +724,8 @@ inline Graph collapse_edges_suffix_sample(Graph g, Counters& c, int dom_budget,
 // O(|kept|) instead of a full other-star scan (I178). Then K-sample
 // first-apex on the p.second ≤ t commons.
 inline Graph collapse_edges_suffix_later(Graph g, Counters& c, int dom_budget,
-                                         int sample_k, bool case_b = false) {
+                                         int sample_k, bool case_b = false,
+                                         int escalate_k = 0) {
     const auto t0 = std::chrono::steady_clock::now();
     if (c.n_edges_in == 0) c.n_edges_in = static_cast<std::int64_t>(g.edges.size());
     std::vector<Edge>& E = g.edges;
@@ -739,6 +740,10 @@ inline Graph collapse_edges_suffix_later(Graph g, Counters& c, int dom_budget,
     const size_t k_suf = std::min(m, std::max(n * 64, m / 8));
     const size_t young = m > k_suf ? m - k_suf : 0;
     const int K = sample_k < 0 ? 0 : sample_k;
+    // I181: until the first keep, use escalate_k (default 0 = off) so the
+    // fused-fail at first_keep is not K=2-trimmed before later[] exists.
+    const int K_esc = escalate_k > K ? escalate_k : K;
+    bool seen_keep = false;
 
     DenseTimes Tm(g.n);
     LiveAdj nbr;
@@ -766,16 +771,18 @@ inline Graph collapse_edges_suffix_later(Graph g, Counters& c, int dom_budget,
                 break;
             }
         }
+        // I181: Case B and pre-first-keep use a deeper K instead of leaving.
+        // Blind Case-B leave cascades shift-then-trim edges into the tail
+        // (I180: n=2000 K=2 later-b 16.9× → 7.75×).
+        bool escalate = !seen_keep && K_esc > K;
         if (!leave && case_b) {
-            // Case B: later kept neighbor of the other endpoint, adjacent
-            // to src at time ≤ t. later[other] is tiny (I171: ~100 keeps).
             const value_t* r_src = walk_u ? Tm.row(u) : Tm.row(v);
             for (const LiveNbr& p : later[other_v]) {
                 ++probed;
                 if (p.second <= t) continue;
                 const value_t t_src = r_src[p.first];
                 if (t_src < kInf / 2 && t_src <= t) {
-                    leave = true;
+                    escalate = true;
                     break;
                 }
             }
@@ -786,6 +793,7 @@ inline Graph collapse_edges_suffix_later(Graph g, Counters& c, int dom_budget,
             bool fused_ok = true;
             int commons = 0;
             bool trim = false;
+            const int K_now = escalate ? (K_esc > K ? K_esc : 8) : K;
             for (const LiveNbr& p : src) {
                 const index_t w = p.first;
                 if (w == u || w == v) continue;
@@ -805,7 +813,7 @@ inline Graph collapse_edges_suffix_later(Graph g, Counters& c, int dom_budget,
                     leave = true;
                     break;
                 }
-                if (K > 0 && fused_ok && commons >= K) {
+                if (K_now > 0 && fused_ok && commons >= K_now) {
                     trim = true;
                     break;
                 }
@@ -825,6 +833,7 @@ inline Graph collapse_edges_suffix_later(Graph g, Counters& c, int dom_budget,
         if (leave) {
             later[u].push_back({v, t});
             later[v].push_back({u, t});
+            seen_keep = true;
         }
         c.n_collapse_c_probes += probed;
     }

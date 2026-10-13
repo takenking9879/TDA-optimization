@@ -23,7 +23,8 @@ static void usage() {
         << "  --suffix-mult X     oldest X·n edges for suffix* (default 6; I165)\n"
         << "  --suffix-keep N     oldest N edges (overrides --suffix-mult; I167)\n"
         << "  --suffix-k K        sample-K first-apex for suffix-k/later (0=full fused)\n"
-        << "  --later-b           also leave Case-B later commons via kept-later (I179)\n"
+        << "  --later-b           Case-B later commons escalate K (I181; was leave in I178)\n"
+        << "  --later-escalate K  use K until first keep, then --suffix-k (I181)\n"
         << "  --dom-budget K      max domination candidates per edge (-1 = all; I107)\n"
         << "  --engine auto|homology|implicit   residual PH engine (default auto)\n"
         << "  --ratio R           skip pairs with death <= birth*R (default 1)\n"
@@ -231,6 +232,7 @@ int main(int argc, char** argv) {
     std::int64_t suffix_keep = -1;
     int suffix_k = 8;
     bool later_b = false;
+    int later_escalate = 0;
 
     for (int i = 1; i < argc; ++i) {
         const std::string a = argv[i];
@@ -251,6 +253,7 @@ int main(int argc, char** argv) {
         else if (a == "--suffix-keep") suffix_keep = std::stoll(need("--suffix-keep"));
         else if (a == "--suffix-k") suffix_k = std::stoi(need("--suffix-k"));
         else if (a == "--later-b") later_b = true;
+        else if (a == "--later-escalate") later_escalate = std::stoi(need("--later-escalate"));
         else if (a == "--dom-budget") dom_budget = std::stoi(need("--dom-budget"));
         else if (a == "--engine") engine = need("--engine");
         else if (a == "--ratio") ratio = std::stof(need("--ratio"));
@@ -318,7 +321,8 @@ int main(int argc, char** argv) {
             if (collapse_alg == "suffix-k")
                 return collapse_edges_suffix_sample(std::move(h), c, dom_budget, suffix_k);
             if (collapse_alg == "suffix-later")
-                return collapse_edges_suffix_later(std::move(h), c, dom_budget, suffix_k, later_b);
+                return collapse_edges_suffix_later(std::move(h), c, dom_budget, suffix_k, later_b,
+                                                  later_escalate);
             return collapse_edges(std::move(h), iters, c, dom_budget);
         };
         if (collapse_iters < 0) {
