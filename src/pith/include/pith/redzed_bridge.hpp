@@ -14,6 +14,8 @@ Result persist_redzed(const std::vector<std::vector<value_t>>& dist, int maxdim,
 // vector<vector> pairwise + copy that auto-redzed paid before reduce.
 // I239: if G_T has >1 component, RedZeD each block (bounded pool) and
 // merge bars. Exact: VR of a disjoint union is the direct sum.
+// I240: low-d spatial UF finds those components without an n×n matrix;
+// each block allocates only its own m×m metric.
 Result persist_redzed_from_points(const std::vector<std::vector<value_t>>& pts, int maxdim,
                                  value_t threshold);
 

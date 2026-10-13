@@ -617,6 +617,11 @@ int main() {
             std::cerr << "I239 from-points two-squares\n";
             return 1;
         }
+        // I240: two 4-point blocks → 2*(4 choose 2)=12, not 8 choose 2=28.
+        if (rzp.counters.n_distances != 12) {
+            std::cerr << "I240 two-squares n_distances=" << rzp.counters.n_distances << "\n";
+            return 1;
+        }
         std::cout << "ok I239 two-squares cc-split\n";
     }
 
