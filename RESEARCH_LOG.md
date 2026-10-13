@@ -1125,6 +1125,15 @@ Do not paste long reasoning here.
 - **Decision:** **Reject and revert.** I106 stands: degree-first does not pay on the torus fail path. Topology loss: **0**.
 - **Class:** experiment (reject; revert hot path)
 
+## 2026-10-13 — I224 reduced VR engine (H07)
+
+- **Question:** Does a paper-faithful reduced VR 2-complex (Koyama–Mémoli–Robins–Turner, arXiv:2307.16333) give exact PH₁ vs Ripser on mixed homology, with a better triangle size class than flag VR?
+- **Hypothesis:** I053/I056 matched essential H1 but over-counted finite bars because every reduced triangle is a same-diameter (zero-persistence) pair unless it kills a later leftover. Filter those like `persist_sparse` (`death > birth`) and identity should hold. Size: \(O(n^2)\) triangles under doubling (Lemma 3.9). Shape-agnostic: same lune function on every metric, including the unit square (distilled-VR counterexample).
+- **Work:** `--reduced-vr` builds Def 3.7 triangles on \(G_T\) and reduces them (`persist_triangles`). Wave 85 vs Ripser on unit square, circle, blobs, sphere, torus, uniform2, two_circles, figure8 (n=80/200 + scale n=500).
+- **Result:** **Exact 19/19** (0 unmatched; bottleneck ~1e-6 float). Essential H1: unit square 0=0 (1 finite bar [1,√2)), circle 1=1, torus 1=1, two_circles/figure8 2=2. Triangle slopes **2.04–2.20** (circle 2.20 / blobs 2.05 / torus 2.04 / uniform2 2.09). Time slopes **2.63–3.53** vs Ripser **1.42–2.56** — construction loses (circle n=500: 67k tris, build 2617 ms, reduce 21 ms, **0.12×** vs Ripser 308 ms). Default collapse+implicit stays far faster.
+- **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
+- **Class:** experiment (support identity + size; reject as default clock)
+
 ## 2026-10-13 — I164 collapse live-degree trace
 
 - **Question:** Does the live 1-skeleton thin early enough to stop the C-walk?

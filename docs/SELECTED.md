@@ -1,6 +1,6 @@
 # Selected algorithm (living)
 
-Updated 2026-10-13 after iterations I001–I218. **Default is I193 + I197 +
+Updated 2026-10-13 after iterations I001–I224. **Default is I193 + I197 +
 I202 gated witness + I203 cofacet early-stop** on I182 live-bit C + I186
 no LiveAdj. Flagship circle n=4000 T=1.5 is **140×** vs Ripser (I196).
 That number is a collapse-friendly regime, **not** the success criterion.
@@ -18,11 +18,15 @@ quantified (unmatched bars / bottleneck / interleaving).
 Current honest status: the **exact default is shape-agnostic** (0 unmatched
 vs Ripser on every measured family, including figure8 / two_circles) but
 **worst-case Big-O is not improved** — collapse is an extra \(O(E\cdot|C|)\)
-pass; torus residual stays \(\Theta(n^2)\) (I204). The **optional**
-`--sparse-eps 0.6` path is also shape-agnostic, keeps essential \(H_1\), and
-**does** sit in a better size/time class (I218: edges \(n^{1.31–1.39}\),
-time \(n^{1.38–1.60}\) vs Ripser \(n^{2.14–3.29}\)). Topology loss on that
-path is quantified (bottleneck typically 0.005–0.034; torus n=2000 0.028).
+pass; torus residual stays \(\Theta(n^2)\) (I204). **I224 reduced VR** is
+also shape-agnostic and **exact** (0 unmatched on 19 mixed-shape rows,
+including the unit square) with **\(O(n^2)\) triangles** (slopes
+\(n^{2.04–2.20}\)), but construction loses wall-clock to Ripser (time
+\(n^{2.6–3.5}\)). The **optional** `--sparse-eps 0.6` path is also
+shape-agnostic, keeps essential \(H_1\), and **does** sit in a better
+size/time class (I218: edges \(n^{1.31–1.39}\), time \(n^{1.38–1.60}\) vs
+Ripser \(n^{2.14–3.29}\)). Topology loss on that path is quantified
+(bottleneck typically 0.005–0.034; torus n=2000 0.028).
 
 ## Selected exact-VR CPU pipeline
 
@@ -51,7 +55,7 @@ suite and I137 8/8 (including dense circle80/200 **collapse=0**, the I045 killer
 | Leftover-as-cohomology (I045–I046, I094, I111, I126) | Wrong pivot (youngest cofacet) + equilateral-only apparent; ~1 bar/leftover on dense \(G_T\) |
 | Time-axis D&C (I088) | Parallel schedule, not less sequential work |
 | High-d skip (I055) | Skip+homology 0.005× vs Ripser |
-| Reduced-VR prototype (I056) | Finite \(H_1\) wrong |
+| Reduced-VR prototype (I056) | Finite \(H_1\) **count** wrong — zero-persistence bars; I224 engine is exact |
 | Sheehy sparse (I057) | Not exact VR |
 | Progressive ∩ / maxdeg / budget+homology (I102–I107) | Exact or thicker residual; all slower **while residual was persist_sparse** |
 | Sequential Tm scan (I131) | Exact; slower |
@@ -89,6 +93,7 @@ suite and I137 8/8 (including dense circle80/200 **collapse=0**, the I045 killer
 | kNN K=128 (I221) | Ess H1 6/6, torus bn 0.003, but 6.6× / 139k vs sparse 17.8× / 91k. Dominated |
 | GIC kNN quotient (I222) | Invents ess H1 on blobs/sphere/torus (8 vs 1, bn 0.36). Fast, wrong features |
 | High-deg prefix-8 (I223) | Exact 5/5; torus 1537 vs 1470 ms. Fail-path tax. Reverted |
+| Reduced VR as default (I224) | **Exact H1** on 19/19 mixed rows (unit square, figure8, two_circles, …). Triangles \(n^{2.04–2.20}\). Construction loses clock (circle n=500 2.65s vs Ripser 0.31s). Keep `--reduced-vr` experimental |
 
 I107 (`--dom-budget 1`) **still rejected** with implicit (I142–I144): thicker
 residual makes collapse *and* reduce slower (circle3000 1.49× vs full 8.11×).
@@ -199,7 +204,29 @@ figure8 / two_circles (mixed loops): ess H1 3=3, bn 0.011 / 0.034.
 This is **not** exact VR. The exact default remains 0 topology loss and
 is **not** a general Big-O win.
 
-## Next levers (still open after I218)
+### Exact reduced VR (I224, `--reduced-vr`, not default)
+
+Paper-faithful Koyama–Mémoli–Robins–Turner 2-complex. Same construction
+for every finite metric (shape-agnostic). **Topology loss: 0** vs Ripser
+on unit square, circle, blobs, sphere, torus, uniform2, two_circles,
+figure8 (n≤500). I056’s “every triangle is a finite bar” was unfiltered
+zero-persistence pairs.
+
+| Family | triangles \(n^{}\) | PITH time \(n^{}\) | Ripser time \(n^{}\) | vs Ripser at n=500 |
+| --- | --- | --- | --- | --- |
+| circle | **2.20** | 3.53 | 2.56 | **0.12×** (67k tris, build 2.6s) |
+| blobs | **2.05** | 3.14 | 1.43 | 0.024× |
+| torus | **2.04** | 2.63 | 1.83 | 0.14× |
+| uniform2 | **2.09** | 2.91 | 1.42 | 0.040× |
+
+Justification: Lemma 3.9 — lune components are \(O(1)\) in fixed
+dimension, so \(|\Delta_2|=O(n^2)\). Measured pre-asymptotic slopes sit
+on that class (flag VR is \(O(n^3)\) triangles). Construction walks
+lunes explicitly, so **time is not** a better class than Ripser’s
+implicit cofacet heap. Do not select as default. `--reduced-vr` stays
+an exact experimental H1 engine.
+
+## Next levers (still open after I224)
 
 Exact default is shape-agnostic with **0 bars lost** and is **not** a
 general 10×. Optional approx is a multi-family 10× at sufficient n, with
@@ -213,5 +240,9 @@ quantified loss, and a better size exponent.
    faster.    `--sparse-cap min` **rejected** (I212). `--witness-n`
    **rejected** (I216–I217). `--knn` **rejected** as recommended
    (I220 invents loops at K≤32; I221 K=128 is safer but dominated).
-3. Exact torus time-buckets deferred — shift path is Tm, not later[] (I198).
-4. GPU later.
+3. **H07 construction** (kd-tree lune / apparent skip / early stop) —
+   identity is closed (I224); clock is not. H08 distilled still
+   unverified (unit-square empty-complex report). H09 RedZeD still
+   unimplemented as a real engine.
+4. Exact torus time-buckets deferred — shift path is Tm, not later[] (I198).
+5. GPU later.
