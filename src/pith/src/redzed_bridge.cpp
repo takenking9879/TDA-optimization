@@ -345,17 +345,31 @@ redzed_vr(DistanceMatrix& distIn, int n, value_t threshold, EdgeList* prebuilt) 
                     if (n == 1) {
                         // I251: inline the 97% empty-seed leftover-coface skip so
                         // those leftovers do not enter active_enum_lazy.
-                        st.top_buf[0] = lo;
-                        st.top_buf[1] = hi;
+                        // I254: empty ActiveReg ⇒ no seeds to collect. The
+                        // no-seen leftover-coface helper ignores stale
+                        // seenbits, so skip ae_prepare / clear_seeds. Still
+                        // advance_rbits. collect_candidates clears stale
+                        // seeds the next time the registry is nonempty.
                         const int32_t* xv = &ed.verts[2 * (e - 1)];
-                        ae_prepare(st, st.top_buf.data(), ediam);
-                        if (st.seedverts.empty()) {
+                        if (st.act.slot_of.count == 0) {
+                            advance_rbits(st, ediam);
                             const comb_t xidx = comb_index(xv, 2, st.binom);
                             if (leftover_coface_h1_noseen(st, xv, xidx, ediam)) continue;
+                            st.top_buf[0] = lo;
+                            st.top_buf[1] = hi;
                             ae_keep_singleton(st, er, st.top_buf.data(), ediam);
                         } else {
-                            const comb_t xidx = comb_index(xv, 2, st.binom);
-                            ae_seeded(st, er, xidx, st.top_buf.data(), ediam);
+                            st.top_buf[0] = lo;
+                            st.top_buf[1] = hi;
+                            ae_prepare(st, st.top_buf.data(), ediam);
+                            if (st.seedverts.empty()) {
+                                const comb_t xidx = comb_index(xv, 2, st.binom);
+                                if (leftover_coface_h1_noseen(st, xv, xidx, ediam)) continue;
+                                ae_keep_singleton(st, er, st.top_buf.data(), ediam);
+                            } else {
+                                const comb_t xidx = comb_index(xv, 2, st.binom);
+                                ae_seeded(st, er, xidx, st.top_buf.data(), ediam);
+                            }
                         }
                     } else {
                         R1->singleton(er, er);
