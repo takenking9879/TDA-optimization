@@ -800,7 +800,7 @@ inline bool process_one_backward(const Edge& e_in, value_t t_in, DenseTimes& Tm,
         if (known_dom >= 0) {
             dominator = known_dom;
             known_dom = -1;
-        } else if (witness >= 0) {
+        } else if (witness >= 0 && S.C_now.size() >= 32) {
             dominator = first_dominator_witness(Tm, S.C_now, t, nbr, dom_budget, &c, deg,
                                                 witness);
         } else {

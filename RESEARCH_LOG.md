@@ -931,6 +931,20 @@ Do not paste long reasoning here.
 - **Decision:** Off-peak circle is now a second 10× point. uniform2 joins ~2× losers. Still no general 10×. Torus shift heap remains the thick-graph wall.
 - **Class:** experiment (support)
 
+## 2026-10-13 — I201 witness-restricted shift rescan
+
+- **Question:** After sticky fails on w, can we only test C_now ∩ N_t[w], and reuse the I197 apex?
+- **Result:** **Exact.** Torus collapse 1771→**1463 ms**, **1.35×** vs Ripser (was 1.14×), dom-tests 18M→12M. Circle 272 vs 249 ms; blobs 235 vs 178 (regression on small C).
+- **Decision:** Gate witness on |C_now|≥32 (I202) so torus keeps the win without blobs/circle tax.
+- **Class:** experiment (support on torus; not default until gated)
+
+## 2026-10-13 — I202 witness gate |C_now|≥32
+
+- **Question:** Does gating I201's witness rescan on `|C_now|>=32` keep the torus win without the blobs/circle tax?
+- **Result:** Pending wave64 (circle80/2000, blobs, sphere, torus vs src + Ripser).
+- **Decision:** Select as default only if torus collapse ≤~1600 ms and blobs/circle stay near I197 (blobs <200 ms, circle <280 ms). Else keep I193+I197 and try time-bucket / later-bits.
+- **Class:** experiment (in progress)
+
 ## 2026-10-13 — I164 collapse live-degree trace
 
 - **Question:** Does the live 1-skeleton thin early enough to stop the C-walk?
