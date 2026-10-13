@@ -6,11 +6,10 @@ namespace pith {
 
 // Owned active PH (RedZeD idea, not the vendor copy). Shape-agnostic.
 // H0: Kruskal. H1: leftover youngest-face triangles + R/Ri resolve_bar
-// (I232). Empty face-XOR is an H2 birth. I233 live-star and I236
-// leftover-coface AE are reverted — both invented finite H1 on real
-// clouds (first-hit process_leftover / empty-R abort skipped later
-// same-diameter deaths). H2: annotation reduce of tets on empty-XOR
-// triangles (I234). Generation stays the I232 full walk.
+// (I232). Empty face-XOR is an H2 birth. I233 live-star and I236/I237
+// leftover-coface AE (batch and birth-time insert) are reverted — both
+// invented the same finite H1 on real clouds. H2: I234 tet reduce.
+// Generation stays the I232 full walk.
 inline Result persist_active_h1(const Graph& g, int maxdim, value_t threshold,
                                 value_t ratio) {
     Result r;
