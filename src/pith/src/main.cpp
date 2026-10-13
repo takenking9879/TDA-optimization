@@ -19,9 +19,10 @@ static void usage() {
         << "  --maxdim K          homology dimension (default 1)\n"
         << "  --threshold T       VR diameter threshold (default inf)\n"
         << "  --collapse N        collapse passes (default -1 adaptive+probe; 0 = off)\n"
-        << "  --collapse-alg back|dc|forward|suffix|suffix-back|suffix-stab|suffix-rescue\n"
+        << "  --collapse-alg back|dc|forward|suffix|suffix-back|suffix-stab|suffix-rescue|suffix-k\n"
         << "  --suffix-mult X     oldest X·n edges for suffix* (default 6; I165)\n"
         << "  --suffix-keep N     oldest N edges (overrides --suffix-mult; I167)\n"
+        << "  --suffix-k K        sample-K first-apex for suffix-k (0=full fused; I174)\n"
         << "  --dom-budget K      max domination candidates per edge (-1 = all; I107)\n"
         << "  --engine auto|homology|implicit   residual PH engine (default auto)\n"
         << "  --ratio R           skip pairs with death <= birth*R (default 1)\n"
@@ -163,6 +164,8 @@ static void print_text(const Result& r) {
               << " collapse_tau_late_common=" << c.n_collapse_tau_late_common
               << " collapse_early_keep_n=" << c.n_collapse_early_keep_n
               << " collapse_early_empty_c=" << c.n_collapse_early_empty_c
+              << " collapse_early_fail_max=" << c.n_collapse_early_fail_max
+              << " collapse_early_any_later=" << c.n_collapse_early_any_later
               << " collapse_keep_hist=" << c.n_collapse_keep_hist[0];
     for (int b = 1; b < 16; ++b) std::cout << "," << c.n_collapse_keep_hist[b];
     std::cout << " collapse_early_keeps=" << c.n_collapse_early_keeps[0];
@@ -223,6 +226,7 @@ int main(int argc, char** argv) {
     std::string collapse_alg = "back";
     double suffix_mult = 6;
     std::int64_t suffix_keep = -1;
+    int suffix_k = 8;
 
     for (int i = 1; i < argc; ++i) {
         const std::string a = argv[i];
@@ -241,6 +245,7 @@ int main(int argc, char** argv) {
         else if (a == "--collapse-alg") collapse_alg = need("--collapse-alg");
         else if (a == "--suffix-mult") suffix_mult = std::stod(need("--suffix-mult"));
         else if (a == "--suffix-keep") suffix_keep = std::stoll(need("--suffix-keep"));
+        else if (a == "--suffix-k") suffix_k = std::stoi(need("--suffix-k"));
         else if (a == "--dom-budget") dom_budget = std::stoi(need("--dom-budget"));
         else if (a == "--engine") engine = need("--engine");
         else if (a == "--ratio") ratio = std::stof(need("--ratio"));
@@ -305,6 +310,8 @@ int main(int argc, char** argv) {
                 return collapse_edges_suffix_stabilize(std::move(h), c, dom_budget);
             if (collapse_alg == "suffix-rescue")
                 return collapse_edges_suffix_rescue(std::move(h), c, dom_budget);
+            if (collapse_alg == "suffix-k")
+                return collapse_edges_suffix_sample(std::move(h), c, dom_budget, suffix_k);
             return collapse_edges(std::move(h), iters, c, dom_budget);
         };
         if (collapse_iters < 0) {
@@ -354,6 +361,8 @@ int main(int argc, char** argv) {
         for (int b = 0; b < 8; ++b) r.counters.n_collapse_early_keeps[b] = c.n_collapse_early_keeps[b];
         r.counters.n_collapse_early_keep_n = c.n_collapse_early_keep_n;
         r.counters.n_collapse_early_empty_c = c.n_collapse_early_empty_c;
+        r.counters.n_collapse_early_fail_max = c.n_collapse_early_fail_max;
+        r.counters.n_collapse_early_any_later = c.n_collapse_early_any_later;
         r.counters.collapse_ms = c.collapse_ms;
         r.counters.metric_ms = c.metric_ms;
         r.counters.n_vertices = g.n;
