@@ -1,15 +1,35 @@
 # Selected algorithm (living)
 
-Updated 2026-10-13 after iterations I001–I197. **Default collapse is I193 multi-apex AND-eq + I197 any_later C_now AND-eq** on I182 live-bit C + I186 no LiveAdj. Flagship circle n=4000 T=1.5 is **140×** vs Ripser (I196). I191/I194 were exact but not faster as default. Optional suffix-* are no longer the clock leaders. `--collapse-alg back-src` is the pre-I182 src walk.
+Updated 2026-10-13 after iterations I001–I202. **Default collapse is I193
+multi-apex AND-eq + I197 any_later C_now AND-eq + I202 witness rescan gated
+on `|C_now|≥32`** on I182 live-bit C + I186 no LiveAdj. Flagship circle
+n=4000 T=1.5 is **140×** vs Ripser (I196). That number is a
+collapse-friendly regime, **not** the success criterion.
+
+## Success criteria (goal amendment)
+
+The final algorithm must be **shape-agnostic**: one path for real data with
+mixed homology, not a circle/sphere/torus special case. It must target
+**better Big-O than Ripser VR**, not only a 10× constant-factor win, and
+**preserve as much topology as possible**. Complexity claims need a
+justification (residual \(|E'(n)|\) slopes, column counts, or a different
+complex with a proven size bound). Any information loss vs exact VR must be
+quantified (unmatched bars / bottleneck / interleaving).
+
+Current honest status: the **code path is shape-agnostic and exact** (0
+unmatched vs Ripser on every measured family). **Worst-case Big-O is not
+yet improved** — collapse is an extra \(O(E\cdot|C|)\) pass; torus residual
+stays \(\Theta(n^2)\). I204 measures residual slopes; I203 cuts reduce work
+on every residual without changing the pairing class.
 
 ## Selected exact-VR CPU pipeline
 
 **Name:** **PITH** — threshold graph \(G_T\) → backward flag **edge collapse**
 (GUDHI sticky-dominator + I182 live-bit AND generate-C + I186 no LiveAdj +
-**I193 multi-apex AND-eq** + **I197 any_later C_now AND-eq**; I189 is the
-first no-later candidate) → **Ripser-heap implicit cohomology** on the
-residual (I137). `--collapse-alg back` is this stack. `back-src` is the
-pre-I182 star walk.
+**I193 multi-apex AND-eq** + **I197 any_later C_now AND-eq** + **I202
+`|C_now|≥32` witness rescan**; I189 is the first no-later candidate) →
+**Ripser-heap implicit cohomology** on the residual (I137).
+`--collapse-alg back` is this stack. `back-src` is the pre-I182 star walk.
 
 - \(H_0\): Kruskal. `--collapse -1` **skips collapse** when `maxdim=0`.
 - \(H_1\): leftover (non-MST, non-apparent) edges, youngest-first; F₂ heap
@@ -56,6 +76,7 @@ suite and I137 8/8 (including dense circle80/200 **collapse=0**, the I045 killer
 | Sticky vertex-dominator (I194) | Exact; **no clock win** (sphere 357→459 ms discovery tax). Static G_T frac ≠ grade-t hits |
 | AND-eq at shift grades (I198) | Exact; torus **1771→2816 ms**. later[] masks dwarf Tm |
 | Adaptive bits/Tm shift (I199) | Exact; **no clock win** (torus 1865 vs 1771) |
+| Ungated I201 witness rescan | Exact; torus 1771→1463 ms but blobs 178→235 ms |
 
 I107 (`--dom-budget 1`) **still rejected** with implicit (I142–I144): thicker
 residual makes collapse *and* reduce slower (circle3000 1.49× vs full 8.11×).
@@ -77,29 +98,42 @@ residual makes collapse *and* reduce slower (circle3000 1.49× vs full 8.11×).
 | sphere | \(H_2\) | 500 | 1.4 | **59×** (I085) / 46× later |
 | circle_noisy | \(H_1\) | 4000 | 1.5 | **140×** I196 I193 (301s/2.15s, collapse 1824 ms). I190 first-apex was 113× |
 | circle_noisy | \(H_1\) | 3000 | 1.5 | **119×** I196 I193 (118s/0.99s, collapse 812 ms). I189 was 93.2× |
-| circle_noisy | \(H_1\) | 2000 | 1.5 | **83.5×** I197 (27.3s/0.33s, collapse 249 ms). I193 was 83.5× / 270 ms |
+| circle_noisy | \(H_1\) | 2000 | 1.5 | **84.4×** I202 (28.6s/0.34s, collapse 263 ms). I197 was 83.5× / 249 ms |
 | circle_noisy | \(H_1\) | 2000 | 1.2 | **33.8×** I200 I197 (10.6s/0.31s). I162 was 4.13× |
-| blobs | \(H_1\) | 2000 | 1.0 | **1.85×** I197 (was I193 1.78× / I189 0.48×) |
-| sphere | \(H_1\) | 2000 | 1.4 | **2.03×** I197 (was I193 1.96× / I189 0.50×) |
+| blobs | \(H_1\) | 2000 | 1.0 | **1.77×** I202 (collapse 190 ms). I197 was 1.85× / 178 ms |
+| sphere | \(H_1\) | 2000 | 1.4 | **1.84×** I202 (collapse 365 ms). I197 was 2.03× / 334 ms |
 | uniform2 | \(H_1\) | 2000 | 0.35 | **2.10×** I200 (was I162 0.30×) |
-| torus | \(H_1\) | 2000 | 1.6 | **1.14×** I197 (collapse 1771 ms, 113k shifts); residual 163k |
+| torus | \(H_1\) | 2000 | 1.6 | **1.31×** I202 (collapse 1512 ms, 113k shifts); residual 163k. I197 was 1.14× / 1771 ms |
 | torus | \(H_1\) | 1000 | 1.6 | **1.63×** I200 (was I139 1.31×) |
 | circle_noisy | \(H_1\) | 1000 | 1.5 | **4.1×** (I083) |
 
-**Not claimed:** H1 10× clock in general; high-d; worst-case asymptotics.
-**Honest H1>10× (exact, no oracle, default path):** circle n=4000 T=1.5 **140×** (I196), n=3000 **119×**, n=2000 T=1.5 **83.5×**, n=2000 T=1.2 **33.8×** (I200).
-I197/I200 vs Ripser at n=2000: blobs **1.85×**, sphere **2.03×**, uniform2 **2.10×**, torus **1.14×**. Still not a second-family 10×, but all measured losers now beat Ripser.
+**Not claimed:** H1 10× clock in general; high-d; **worse-case / all-shape Big-O
+better than Ripser**. Topology loss on the default path is **zero** (exact
+VR≤T vs Ripser).
+**Honest H1>10× (exact, no oracle, default path):** circle n=4000 T=1.5
+**140×** (I196), n=3000 **119×**, n=2000 T=1.5 **84.4×** (I202), n=2000 T=1.2
+**33.8×** (I200). These are **not** a general or asymptotic claim.
+I202 vs Ripser at n=2000: blobs **1.77×**, sphere **1.84×**, torus **1.31×**.
+I200 uniform2 **2.10×**. All measured families still beat Ripser; none but
+circle is 10×.
 I139: owned implicit **reduce 67 ms** on torus1000 residual 38k (homology was 1.7 s).
 E3 (collapse + Ripser-sparse) is no longer required; we own that residual class.
 
 **Alpha (I136)** is a different complex: GUDHI Alpha circle3000 0.023 s vs Ripser VR 123 s
-(~5400× empirical) with 2745 \(H_1\) bars. Off the exact-VR 10× board.
+(~5400× empirical) with 2745 \(H_1\) bars. Candidate for a **better Big-O in
+low-d Euclidean** (Delaunay size) if we quantify barcode distance vs VR.
+Not a drop-in exact-VR replacement.
 
-## Next levers (still open after I200)
+## Next levers (still open after I202)
 
-Circle family: **83.5 / 119 / 140×** at n=2000/3000/4000 T=1.5; **33.8×** at n=2000 T=1.2. Blobs/sphere/uniform2 ~2×. Torus ~1.1–1.6×, shift-heap bound.
+Circle family: **84.4 / 119 / 140×**. Other families ~1.3–2.1×. Default is
+shape-agnostic and exact; residual complexity is not.
 
-1. **Default:** I193 + I197. Flagship **140×**.
-2. Torus shift heap: incremental Tm is already best of I198/I199; next is a different representation (time-bucket / later-bits), not another AND-eq.
-3. Reduce-side H09 on torus residual 163k (cols_reduced already ~4.6k; extra Morse is capped).
-4. GPU later.
+1. **Default:** I193 + I197 + I202 gated witness.
+2. **I203:** cofacet-walk early-stop (shape-agnostic reduce; less work, same PH).
+3. **I204:** residual \(|E'(n)|\) log-log slopes across families — required
+   before any Big-O claim. If torus/sphere stay \(\Theta(n^2)\), next
+   construction is Alpha / sparse Rips with quantified topology loss.
+4. Torus shift heap: time-bucket / later-bits only if I204 says collapse
+   (not reduce) is still the wall after I203.
+5. GPU later.

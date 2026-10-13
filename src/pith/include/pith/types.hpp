@@ -46,6 +46,7 @@ struct Counters {
     std::int64_t n_columns_reduced = 0;
     std::int64_t n_additions = 0;
     std::int64_t n_cofacet_probes = 0;
+    std::int64_t n_cofacet_apparent_probes = 0;  // I203: hi-walk steps in apparent tests
     std::int64_t n_collapse_shifts = 0;
     std::int64_t n_collapse_trims = 0;
     std::int64_t n_collapse_c_probes = 0;

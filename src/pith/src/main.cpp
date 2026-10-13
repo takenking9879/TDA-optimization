@@ -156,6 +156,7 @@ static void print_text(const Result& r) {
               << " cols_cleared=" << c.n_columns_cleared
               << " additions=" << c.n_additions
               << " cofacet_probes=" << c.n_cofacet_probes
+              << " cofacet_apparent_probes=" << c.n_cofacet_apparent_probes
               << " collapse_trims=" << c.n_collapse_trims
               << " collapse_shifts=" << c.n_collapse_shifts
               << " collapse_c_probes=" << c.n_collapse_c_probes
@@ -200,6 +201,7 @@ static void print_json(const Result& r) {
               << "    \"n_columns_cleared\": " << c.n_columns_cleared << ",\n"
               << "    \"n_additions\": " << c.n_additions << ",\n"
               << "    \"n_cofacet_probes\": " << c.n_cofacet_probes << ",\n"
+              << "    \"n_cofacet_apparent_probes\": " << c.n_cofacet_apparent_probes << ",\n"
               << "    \"n_collapse_trims\": " << c.n_collapse_trims << ",\n"
               << "    \"n_collapse_shifts\": " << c.n_collapse_shifts << ",\n"
               << "    \"metric_ms\": " << c.metric_ms << ",\n"

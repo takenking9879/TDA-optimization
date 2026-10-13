@@ -8,6 +8,7 @@
 #include <functional>
 #include <numeric>
 #include <queue>
+#include <type_traits>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
@@ -406,8 +407,10 @@ inline void for_cofacets_edge(const Graph& g, index_t u, index_t v, value_t te, 
 }
 
 // High-vertex-first cofacet walk (Ripser sparse enumerator uses rbegin).
+// I203: callback may return bool; false aborts the remaining merge. Void
+// callbacks still walk the full intersection (used only by legacy callers).
 template <class Fn>
-inline void for_cofacets_edge_hi(const Graph& g, index_t u, index_t v, value_t te, value_t T,
+inline bool for_cofacets_edge_hi(const Graph& g, index_t u, index_t v, value_t te, value_t T,
                                  Fn&& fn) {
     const auto& nu = g.neighbors[u];
     const auto& nv = g.neighbors[v];
@@ -426,11 +429,20 @@ inline void for_cofacets_edge_hi(const Graph& g, index_t u, index_t v, value_t t
         if (w != u && w != v) {
             const value_t td =
                 std::max({te, nu[static_cast<size_t>(i)].second, nv[static_cast<size_t>(j)].second});
-            if (td <= T) fn(CohEntry{td, pack3(u, v, w)});
+            if (td <= T) {
+                CohEntry e{td, pack3(u, v, w)};
+                using R = decltype(fn(e));
+                if constexpr (std::is_same_v<R, bool>) {
+                    if (!fn(e)) return false;
+                } else {
+                    fn(e);
+                }
+            }
         }
         --i;
         --j;
     }
+    return true;
 }
 
 // First same-diameter facet, Ripser boundary order: drop largest vertex first.
@@ -453,22 +465,26 @@ inline bool zero_pivot_facet(const Graph& g, std::uint64_t tri_key, value_t t_tr
 }
 
 inline bool zero_pivot_cofacet(const Graph& g, index_t u, index_t v, value_t te, value_t T,
-                               CohEntry* out) {
+                               CohEntry* out, Counters* ctr = nullptr) {
     bool found = false;
-    for_cofacets_edge_hi(g, u, v, te, T, [&](CohEntry tau) {
-        if (found) return;
+    // I203: first same-diameter cofacet in hi-order is the Ripser zero-pivot.
+    // Stop the merge; the tail cannot change the result.
+    for_cofacets_edge_hi(g, u, v, te, T, [&](CohEntry tau) -> bool {
+        if (ctr) ++ctr->n_cofacet_apparent_probes;
         if (tau.t == te) {
             *out = tau;
             found = true;
+            return false;
         }
+        return true;
     });
     return found;
 }
 
 inline bool zero_apparent_cofacet(const Graph& g, index_t u, index_t v, value_t te, value_t T,
-                                  CohEntry* out) {
+                                  CohEntry* out, Counters* ctr = nullptr) {
     CohEntry tau;
-    if (!zero_pivot_cofacet(g, u, v, te, T, &tau)) return false;
+    if (!zero_pivot_cofacet(g, u, v, te, T, &tau, ctr)) return false;
     index_t fu, fv;
     value_t ft;
     if (!zero_pivot_facet(g, tau.key, tau.t, &fu, &fv, &ft)) return false;
@@ -478,12 +494,12 @@ inline bool zero_apparent_cofacet(const Graph& g, index_t u, index_t v, value_t 
 }
 
 inline bool zero_apparent_facet(const Graph& g, std::uint64_t tri_key, value_t t_tri, value_t T,
-                                index_t* ou, index_t* ov, value_t* ot) {
+                                index_t* ou, index_t* ov, value_t* ot, Counters* ctr = nullptr) {
     index_t u, v;
     value_t t;
     if (!zero_pivot_facet(g, tri_key, t_tri, &u, &v, &t)) return false;
     CohEntry tau;
-    if (!zero_pivot_cofacet(g, u, v, t, T, &tau)) return false;
+    if (!zero_pivot_cofacet(g, u, v, t, T, &tau, ctr)) return false;
     if (tau.key != tri_key) return false;
     *ou = u;
     *ov = v;
@@ -562,7 +578,7 @@ inline Result persist_implicit_coh(const Graph& g, int maxdim, value_t threshold
             --components;
             r.pairs.push_back({0, 0, e.t});
             ++c.n_columns_cleared;
-        } else if (zero_apparent_cofacet(g, e.u, e.v, e.t, threshold, nullptr)) {
+        } else if (zero_apparent_cofacet(g, e.u, e.v, e.t, threshold, nullptr, &c)) {
             ++c.n_columns_apparent;
         } else {
             cols.push_back({e.u, e.v, e.t});
@@ -622,20 +638,27 @@ inline Result persist_implicit_coh(const Graph& g, int maxdim, value_t threshold
         bool check_emergent = true;
         bool have_emergent = false;
         CohEntry emergent{kNegInf, 0};
-        for_cofacets_edge_hi(g, cols[i].u, cols[i].v, cols[i].t, threshold, [&](CohEntry tau) {
+        // I203: if the first same-diameter cofacet is an unpaired non-apparent
+        // (Ripser emergent pair), it is the pivot. Do not walk the rest of
+        // the intersection and do not fill `collected`.
+        for_cofacets_edge_hi(g, cols[i].u, cols[i].v, cols[i].t, threshold, [&](CohEntry tau) -> bool {
             ++c.n_cofacet_probes;
+            if (have_emergent) return false;
             collected.push_back(tau);
             if (check_emergent && tau.t == cols[i].t) {
                 if (pivot.find(tau.key) == pivot.end()) {
                     index_t au, av;
                     value_t at;
-                    if (!zero_apparent_facet(g, tau.key, tau.t, threshold, &au, &av, &at)) {
+                    if (!zero_apparent_facet(g, tau.key, tau.t, threshold, &au, &av, &at, &c)) {
                         have_emergent = true;
                         emergent = tau;
+                        collected.clear();
+                        return false;
                     }
                 }
                 check_emergent = false;
             }
+            return true;
         });
 
         CohEntry piv;
@@ -663,7 +686,7 @@ inline Result persist_implicit_coh(const Graph& g, int maxdim, value_t threshold
             }
             index_t au = 0, av = 0;
             value_t at = 0;
-            if (zero_apparent_facet(g, piv.key, piv.t, threshold, &au, &av, &at)) {
+            if (zero_apparent_facet(g, piv.key, piv.t, threshold, &au, &av, &at, &c)) {
                 add_simplex_coboundary({au, av, at}, working_red, working_cob);
                 ++c.n_additions;
                 piv = peek_pivot_ripser(working_cob);

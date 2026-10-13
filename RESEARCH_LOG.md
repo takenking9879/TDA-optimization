@@ -941,8 +941,23 @@ Do not paste long reasoning here.
 ## 2026-10-13 — I202 witness gate |C_now|≥32
 
 - **Question:** Does gating I201's witness rescan on `|C_now|>=32` keep the torus win without the blobs/circle tax?
-- **Result:** Pending wave64 (circle80/2000, blobs, sphere, torus vs src + Ripser).
-- **Decision:** Select as default only if torus collapse ≤~1600 ms and blobs/circle stay near I197 (blobs <200 ms, circle <280 ms). Else keep I193+I197 and try time-bucket / later-bits.
+- **Result:** **Exact** 5/5 vs src and Ripser. Circle n=2000 collapse **263 ms**, **84.4×** (28.6s/0.34s). blobs **190 ms**, 1.77×. sphere **365 ms**, 1.84×. torus **1512 ms**, **1.31×** (dom-tests 12.5M). Gate recovered blobs (I201 235→190; I197 was 178) and kept most of the torus win (I201 1463 / I197 1771).
+- **Decision:** Select I202 as default (I193+I197+gated witness). Sphere 365 vs I197 334 is a small tax; torus is the thick-graph wall and improved. Next: I203 shape-agnostic reduce early-stop; I204 residual-vs-n scaling (Big-O evidence).
+- **Class:** experiment (support as default)
+
+## 2026-10-13 — Goal amendment: shape-agnostic + better Big-O
+
+- **Requirement (user):** The final algorithm must be **shape-agnostic** (same path for real data with mixed homology; not tuned to circle/sphere/torus). It must target **better asymptotic scalability** than Ripser VR, not only a 10× constant-factor win, while **preserving as much topology as possible**. Complexity claims must be justified; any information loss must be quantified.
+- **What this changes:** Circle 83–140× is a collapse-friendly regime, not the success criterion. A lever that helps only one family is a diagnostic, not a final algorithm. Exact VR collapse is already shape-agnostic in code; its **complexity is instance-dependent** (residual |E'|). Worst-case Big-O vs Ripser is **not** yet improved: collapse is an extra O(E·|C|) pass, and torus residual stays Θ(n²).
+- **Information-loss policy:** Default path stays exact VR≤T (0 unmatched bars vs Ripser). If a different complex (Alpha / sparse Rips / witness) is selected for asymptotics, report bottleneck / bar-count / interleaving vs VR on every family.
+- **Decision:** I203 = cofacet-walk early-stop (shape-agnostic, exact, less work on every residual). I204 = residual |E'(n)| log-log slopes on circle/blobs/sphere/torus/uniform2 plus extra homology shapes (figure8, two_circles, annulus). Do not claim a better Big-O until I204 (or a later construction) shows o(n²) residual or a different complex with quantified loss.
+- **Class:** methodology
+
+## 2026-10-13 — I203 cofacet-walk early-stop
+
+- **Question:** Can we abort the hi-order cofacet merge after the Ripser zero-pivot / emergent pair is certified, cutting apparent-scan work on every family?
+- **Result:** Pending wave65.
+- **Decision:** Exactness: first same-diameter cofacet in hi-order is the zero-pivot; emergent pair is that cofacet when unpaired and non-apparent. Tail of the intersection cannot change either result. Select if barcodes match and reduce_ms / apparent probes drop on torus **and** at least one other family.
 - **Class:** experiment (in progress)
 
 ## 2026-10-13 — I164 collapse live-degree trace
