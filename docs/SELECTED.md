@@ -1,13 +1,14 @@
 # Selected algorithm (living)
 
-Updated 2026-10-13 after iterations I001–I240. **CLI default `--engine
-auto` (I235+I236+I239+I240):** subsample residual-frac dispatch. Fat →
+Updated 2026-10-13 after iterations I001–I241. **CLI default `--engine
+auto` (I235+I236+I239+I240+I241):** subsample residual-frac dispatch. Fat →
 RedZeD (torus n=2000 **12.7×**). Thin-circle → collapse+implicit
 (n=1000 **28×**; n=4000 still **140×**). Disconnected G_T → spatial UF
-+ parallel RedZeD per component (blobs n=4000 **22×**, n=6000 **24×**,
-n=8000 **27×** in 0.38 s). **H2:** τ=0.15 so sphere void stays collapse
-(**61×** at n=400; **136×** at n=600). Shape-agnostic, 0 bars lost.
-Circle 140× is a collapse-friendly regime, **not** the success criterion.
++ parallel RedZeD per component (blobs n=4000 **22×**, n=8000 **27×**
+in 0.38 s). **H0** is Kruskal (no RedZeD). **H2:** τ=0.15 so sphere void
+stays collapse (**61×** at n=400; **136×** at n=600). Shape-agnostic,
+0 bars lost. Circle 140× is a collapse-friendly regime, **not** the
+success criterion.
 
 ## Success criteria (goal amendment)
 
@@ -413,7 +414,18 @@ reverted. Selected `--engine auto` at more points: sphere n=600 H2
 n=600 H2 auto-redzed **4.5×** and **88×** vs collapse (13.9 s). Topology
 loss: **0**. Still not a general H1 10×. Not a better Big-O.
 
-## Next levers (still open after I240)
+**I241 H0 Kruskal:** `maxdim=0` never starts RedZeD. Spatial T-cell
+edges + Kruskal is exact H0 of VR≤T. Wave 102 **exact 11/11** (blobs
+H0 3=3 at n=4000 and n=8000; uniform2 H0 1=1; figure8/two_circles 2=2;
+sphere void 1=1; two_spheres void 2=2). H0 clock vs Ripser dim 0 is
+only **~1.9×** (blobs n=8000 1.27s/2.46s) — Ripser H0 is already
+union-find; the cost is emitting |E(G_T)|. T-capped 1-component fill
+was **reverted** (uniform2 metric 7→80 ms). H1 holds: blobs n=4000
+**23×**, circle **18×**, sphere H2 **61×**, uniform2 **5.6×**. Topology
+loss: **0**. Support as the H0 path. Hold for H0 10× and for general
+H1 10×.
+
+## Next levers (still open after I241)
 
 `--engine auto` is a shape-agnostic exact H0–H2 portfolio: circle H1
 10×, torus H1 10×, sphere H2 **136×** at n=600, **disconnected blobs
@@ -422,9 +434,9 @@ still ~6× at n=4000 (RedZeD reduce on one block). Owned active H0–H2
 is exact but not a scale engine. I233/I236/I237 star / leftover-coface
 generation were inexact. GUDHI explicit Rips is exact and too slow.
 
-1. **CLI default:** `--engine auto` (I235+I236+I239+I240). H1 τ=0.04; H2 τ=0.15.
+1. **CLI default:** `--engine auto` (I235+I236+I239+I240+I241). H1 τ=0.04; H2 τ=0.15.
 2. **Forced engines:** `--engine implicit` = I193+I197+I202+I203 only;
-   `--engine redzed` = I228+I239+I240.
+   `--engine redzed` = I228+I239+I240; H0 = Kruskal.
 3. **Owned optional approx:** `--sparse-eps 0.6 --sparse-cap max` (I213/I218)
    when n grows past exact VR.
 4. Push **connected** uniform2 from ~6× to 10× (RedZeD reduce is the wall).

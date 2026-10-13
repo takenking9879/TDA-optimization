@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-13 — I241 H0 spatial Kruskal (no RedZeD)
+
+- **Question:** Is VR H0 just Kruskal, and does skipping RedZeD on `maxdim=0` keep identity at more points without a long H1 test? Does T-capping a connected metric (fill only d≤T) cut uniform2 toward 10×?
+- **Hypothesis:** H0 barcode is the MST of G_T. Spatial Moore edges are exactly {d≤T}. T-cap is exact for VR≤T (far pairs unused) but metric-bound, not reduce-bound. Shape-agnostic. Exact.
+- **Work:** `spatial_edges` + `kruskal_h0`. Auto `maxdim=0` → redzed-h0 (no pairwise matrix). T-cap smoked then reverted. Wave 102 vs Ripser. Hard case: blobs n=8000 H0.
+- **Result:** **Exact 11/11** (0 unmatched; blobs H0 3=3; two_spheres H2 2=2; circle 1=1). H0 vs Ripser dim 0 **1.8–1.9×** (blobs n=8000 1.27s/2.46s, 10.5M edges). T-cap **rejected** (uniform2 metric 7→80 ms; reduce unchanged ~266 ms). H1 hold: blobs n=4000 **23×**; uniform2 **5.6×**; sphere H2 **61×**.
+- **Decision:** **Support as the H0 path.** **Hold** for H0 10× (Ripser dim 0 is already cheap) and for general H1 10×. Topology loss: **0**. Do not T-cap the connected metric. Connected RedZeD reduce remains the wall.
+- **Class:** experiment (support H0 path; reject T-cap; hold 10×)
+
 ## 2026-10-13 — I240 spatial UF + per-component RedZeD metric
 
 - **Question:** Can we find I239’s G_T components without an n×n matrix, so clustered clouds keep scaling (more points, H0–H2 exact) without the pairwise tax?
