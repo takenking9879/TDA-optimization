@@ -206,6 +206,8 @@ inline bool process_one_backward(const Edge& e_in, value_t t_in, DenseTimes& Tm,
     const value_t* r_first = nullptr;
     bool fused_ok = true;
     bool any_later = false;
+    bool later_a = false;
+    bool later_b = false;
     std::int64_t commons = 0;
     std::int64_t fail_at = -1;
     for (const LiveNbr& p : src) {
@@ -227,10 +229,14 @@ inline bool process_one_backward(const Edge& e_in, value_t t_in, DenseTimes& Tm,
             }
         } else {
             any_later = true;
+            if (p.second > t) later_a = true;
+            else later_b = true;
         }
     }
     c.n_collapse_last_fail_at = fail_at;
     c.n_collapse_last_any_later = any_later ? 1 : 0;
+    c.n_collapse_last_later_a = later_a ? 1 : 0;
+    c.n_collapse_last_later_b = later_b ? 1 : 0;
     c.n_collapse_c_size_sum += commons;
 
     if (first >= 0 && fused_ok && !any_later) {
@@ -373,12 +379,16 @@ inline Graph collapse_edges(Graph g, int iterations, Counters& c, int dom_budget
                     if (c.n_collapse_last_fail_at > c.n_collapse_early_fail_max)
                         c.n_collapse_early_fail_max = c.n_collapse_last_fail_at;
                     if (c.n_collapse_last_any_later) ++c.n_collapse_early_any_later;
+                    if (c.n_collapse_last_later_a) ++c.n_collapse_early_later_a;
+                    if (c.n_collapse_last_later_b) ++c.n_collapse_early_later_b;
                     if (std::getenv("PITH_EARLY_KEEP")) {
-                        std::fprintf(stderr, "# EARLY_KEEP i=%zu/%zu u=%d v=%d commons=%lld fail_at=%lld later=%lld mindeg=%lld t_in=%g t_out=%g\n",
+                        std::fprintf(stderr, "# EARLY_KEEP i=%zu/%zu u=%d v=%d commons=%lld fail_at=%lld later=%lld laterA=%lld laterB=%lld mindeg=%lld t_in=%g t_out=%g\n",
                                      i, mE, (int)out.u, (int)out.v,
                                      static_cast<long long>(c.n_collapse_last_commons),
                                      static_cast<long long>(c.n_collapse_last_fail_at),
                                      static_cast<long long>(c.n_collapse_last_any_later),
+                                     static_cast<long long>(c.n_collapse_last_later_a),
+                                     static_cast<long long>(c.n_collapse_last_later_b),
                                      static_cast<long long>(c.n_collapse_last_mindeg),
                                      static_cast<double>(E[i].t),
                                      static_cast<double>(out.t));
@@ -689,6 +699,111 @@ inline Graph collapse_edges_suffix_sample(Graph g, Counters& c, int dom_budget,
             ++c.n_collapse_trims;
             ++c.n_collapse_fast_trims;
         }
+    }
+
+    std::vector<Edge> leftover;
+    leftover.reserve(k_suf + 256);
+    for (size_t i = 0; i < m; ++i) {
+        if (Tm(E[i].u, E[i].v) < kInf / 2) leftover.push_back(E[i]);
+    }
+    g.edges.swap(leftover);
+    Counters tail;
+    g = collapse_edges(std::move(g), 1, tail, dom_budget);
+    add_collapse_counters(c, tail);
+    c.n_edges_out = static_cast<std::int64_t>(g.edges.size());
+    const auto t1 = std::chrono::steady_clock::now();
+    c.collapse_ms = std::chrono::duration<double, std::milli>(t1 - t0).count();
+    return g;
+}
+
+// I176: leave young edges that have a Case-A later common (p.second > t
+// and other endpoint adjacent) before any K-sample trim. Case A is a
+// suffix of the live star if times are unsorted — still only a p.second
+// filter plus a few r_other loads. Then K-sample first-apex on the rest.
+inline Graph collapse_edges_suffix_later(Graph g, Counters& c, int dom_budget,
+                                         int sample_k) {
+    const auto t0 = std::chrono::steady_clock::now();
+    if (c.n_edges_in == 0) c.n_edges_in = static_cast<std::int64_t>(g.edges.size());
+    std::vector<Edge>& E = g.edges;
+    for (Edge& e : E) normalize_edge(e);
+    std::sort(E.begin(), E.end(), [](const Edge& a, const Edge& b) {
+        if (a.t != b.t) return a.t > b.t;
+        if (a.u != b.u) return a.u < b.u;
+        return a.v < b.v;
+    });
+    const size_t m = E.size();
+    const size_t n = static_cast<size_t>(std::max(g.n, 1));
+    const size_t k_suf = std::min(m, std::max(n * 64, m / 8));
+    const size_t young = m > k_suf ? m - k_suf : 0;
+    const int K = sample_k < 0 ? 0 : sample_k;
+
+    DenseTimes Tm(g.n);
+    LiveAdj nbr;
+    init_collapse_graph(E, g.n, Tm, nbr);
+
+    for (size_t i = 0; i < young; ++i) {
+        const index_t u = E[i].u, v = E[i].v;
+        const value_t t = E[i].t;
+        const bool walk_u = nbr[u].size() <= nbr[v].size();
+        const auto& src = walk_u ? nbr[u] : nbr[v];
+        const value_t* r_other = walk_u ? Tm.row(v) : Tm.row(u);
+
+        bool leave = false;
+        std::int64_t probed = 0;
+        for (const LiveNbr& p : src) {
+            const index_t w = p.first;
+            if (w == u || w == v) continue;
+            if (p.second <= t) continue;
+            ++probed;
+            const value_t t_other = r_other[w];
+            if (t_other < kInf / 2) {
+                leave = true;
+                break;
+            }
+        }
+        if (!leave) {
+            index_t first = -1;
+            const value_t* r_first = nullptr;
+            bool fused_ok = true;
+            int commons = 0;
+            bool trim = false;
+            for (const LiveNbr& p : src) {
+                const index_t w = p.first;
+                if (w == u || w == v) continue;
+                if (p.second > t) continue;
+                ++probed;
+                const value_t t_other = r_other[w];
+                if (t_other >= kInf / 2) continue;
+                if (t_other > t) {
+                    leave = true;
+                    break;
+                }
+                ++commons;
+                if (first < 0) {
+                    first = w;
+                    r_first = Tm.row(w);
+                } else if (fused_ok && r_first[w] > t) {
+                    leave = true;
+                    break;
+                }
+                if (K > 0 && fused_ok && commons >= K) {
+                    trim = true;
+                    break;
+                }
+            }
+            if (!leave && !trim) {
+                if (first >= 0 && fused_ok) trim = true;
+                else leave = true;
+            }
+            if (trim && !leave) {
+                Tm.erase(u, v);
+                drop_live_nbr(nbr, u, v);
+                drop_live_nbr(nbr, v, u);
+                ++c.n_collapse_trims;
+                ++c.n_collapse_fast_trims;
+            }
+        }
+        c.n_collapse_c_probes += probed;
     }
 
     std::vector<Edge> leftover;

@@ -67,6 +67,10 @@ struct Counters {
     std::int64_t n_collapse_early_fail_max = -1;
     std::int64_t n_collapse_last_any_later = 0;
     std::int64_t n_collapse_early_any_later = 0;
+    std::int64_t n_collapse_last_later_a = 0;
+    std::int64_t n_collapse_last_later_b = 0;
+    std::int64_t n_collapse_early_later_a = 0;
+    std::int64_t n_collapse_early_later_b = 0;
     double collapse_ms = 0;
     double reduce_ms = 0;
     double metric_ms = 0;

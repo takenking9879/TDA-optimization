@@ -19,7 +19,7 @@ static void usage() {
         << "  --maxdim K          homology dimension (default 1)\n"
         << "  --threshold T       VR diameter threshold (default inf)\n"
         << "  --collapse N        collapse passes (default -1 adaptive+probe; 0 = off)\n"
-        << "  --collapse-alg back|dc|forward|suffix|suffix-back|suffix-stab|suffix-rescue|suffix-k\n"
+        << "  --collapse-alg back|dc|forward|suffix|suffix-back|suffix-stab|suffix-rescue|suffix-k|suffix-later\n"
         << "  --suffix-mult X     oldest X·n edges for suffix* (default 6; I165)\n"
         << "  --suffix-keep N     oldest N edges (overrides --suffix-mult; I167)\n"
         << "  --suffix-k K        sample-K first-apex for suffix-k (0=full fused; I174)\n"
@@ -166,6 +166,8 @@ static void print_text(const Result& r) {
               << " collapse_early_empty_c=" << c.n_collapse_early_empty_c
               << " collapse_early_fail_max=" << c.n_collapse_early_fail_max
               << " collapse_early_any_later=" << c.n_collapse_early_any_later
+              << " collapse_early_later_a=" << c.n_collapse_early_later_a
+              << " collapse_early_later_b=" << c.n_collapse_early_later_b
               << " collapse_keep_hist=" << c.n_collapse_keep_hist[0];
     for (int b = 1; b < 16; ++b) std::cout << "," << c.n_collapse_keep_hist[b];
     std::cout << " collapse_early_keeps=" << c.n_collapse_early_keeps[0];
@@ -312,6 +314,8 @@ int main(int argc, char** argv) {
                 return collapse_edges_suffix_rescue(std::move(h), c, dom_budget);
             if (collapse_alg == "suffix-k")
                 return collapse_edges_suffix_sample(std::move(h), c, dom_budget, suffix_k);
+            if (collapse_alg == "suffix-later")
+                return collapse_edges_suffix_later(std::move(h), c, dom_budget, suffix_k);
             return collapse_edges(std::move(h), iters, c, dom_budget);
         };
         if (collapse_iters < 0) {
@@ -363,6 +367,8 @@ int main(int argc, char** argv) {
         r.counters.n_collapse_early_empty_c = c.n_collapse_early_empty_c;
         r.counters.n_collapse_early_fail_max = c.n_collapse_early_fail_max;
         r.counters.n_collapse_early_any_later = c.n_collapse_early_any_later;
+        r.counters.n_collapse_early_later_a = c.n_collapse_early_later_a;
+        r.counters.n_collapse_early_later_b = c.n_collapse_early_later_b;
         r.counters.collapse_ms = c.collapse_ms;
         r.counters.metric_ms = c.metric_ms;
         r.counters.n_vertices = g.n;
