@@ -1,6 +1,6 @@
 # Selected algorithm (living)
 
-Updated 2026-10-13 after iterations I001–I180. Default collapse is I155 pair-nbr + I156 fused first-apex. Optional `--collapse-alg suffix-stab` / `suffix-rescue` / `suffix-later` (K=2, Case A via I179 `later[]`) are exact H1>10× on circle n=2000 T=1.5 only.
+Updated 2026-10-13 after iterations I001–I183. Default collapse is still I155 pair-nbr + I156 fused first-apex. **I182 `back-bits` is the candidate default** (exact, 2.47–2.57× collapse on circle; I184 remasuring n=4000 vs Ripser). Optional suffix-* remain exact H1>10× on circle n=2000 T=1.5 only.
 
 ## Selected exact-VR CPU pipeline
 
@@ -49,6 +49,7 @@ suite and I137 8/8 (including dense circle80/200 **collapse=0**, the I045 killer
 | Skip-collapse + implicit (I175) | Exact; **slower** than collapse=1 and than Ripser on every I162 family |
 | suffix-later Case B other-star (I178) | K=8 exact at n=3000; other-star scan kills the I176 13.4× |
 | kept-later Case B leave (I180) | Exact at n=4000 K=2 (9.08×) and n=3000 K=8 (7.78×); leave-cascade kills the 16.9× |
+| escalate-until-keep (I181/I183) | n=3000 still 2 unmatched (8325). Early leave turns escalate off |
 
 I107 (`--dom-budget 1`) **still rejected** with implicit (I142–I144): thicker
 residual makes collapse *and* reduce slower (circle3000 1.49× vs full 8.11×).
@@ -87,13 +88,12 @@ E3 (collapse + Ripser-sparse) is no longer required; we own that residual class.
 **Alpha (I136)** is a different complex: GUDHI Alpha circle3000 0.023 s vs Ripser VR 123 s
 (~5400× empirical) with 2745 \(H_1\) bars. Off the exact-VR 10× board.
 
-## Next levers (still open after I180)
+## Next levers (still open after I183)
 
-I153: C-build is the wall (567M probes / 1.12M dom tests / 96% first-apex hits).
-I164/I170: n=2000 circle residual **is** an oldest suffix. n=3000/4000 add ~100 **shift-keeps** (80 Case A / 16 Case B-only / 1 fused-fail). I180 Case-A `later[]` + K=2 is **16.9×** exact on n=2000. Case-B leave cascades.
+I182: live-bit AND generate-C is exact and cuts collapse **2.47–2.57×** on circle (C-size identical). I184 remasures n=4000 vs Ripser (I157 9.50×). I162 losers: blobs only 1.25× collapse, still lose to Ripser.
 
-1. **Default:** I155 pair-nbr + I156 fused first-apex. Flagship **9.50×** (I157).
-2. **Optional exact H1>10× on circle n=2000:** `suffix-stab` 41.7× / `suffix-rescue` 36.5× / `suffix-later -k 2` **16.9×**. Do not default.
-3. I181: escalate-until-first-keep; Case B as deeper-K, not leave.
-4. I182: live-bit AND generate-C on the default path (miss-skip; I146/I158–I160 closed).
-5. Skip-collapse + our implicit **rejected** (I175). GPU later.
+1. **Default (living):** I155+I156 back. Flagship **9.50×** (I157) until I184 selects bits.
+2. **Candidate default:** `--collapse-alg back-bits` (I182).
+3. **Optional exact H1>10× on circle n=2000:** `suffix-stab` 41.7× / `suffix-rescue` 36.5× / `suffix-later -k 2` **17.1×**. Do not default.
+4. Combine bits into suffix-later tail and drop_live_nbr (I185) after I184.
+5. I162 losers still need an order-of-magnitude C cut; bits is only 1.25× there. GPU later.

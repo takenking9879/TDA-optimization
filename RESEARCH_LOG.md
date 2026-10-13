@@ -805,6 +805,26 @@ Do not paste long reasoning here.
 - **Decision:** Reject escalate-as-coded. I183: fused-fail-only escalate + capped Case-B leave. I182: bit-AND generate-C on the default path (flagship 9.50×).
 - **Class:** experiment (negative on n=3000 exact)
 
+## 2026-10-13 — I182 bit-AND generate-C
+
+- **Question:** Does a live existence-bit row-AND emit C without the 49% miss walk and cut collapse_ms ≥30% on circle2000?
+- **Result:** **Yes, exact.** C-size identical. circle2000 collapse **2.47×** (4241→1715 ms, 568M→34.5M probes, residual 5169). circle3000 **2.57×** (14123→5500 ms). blobs **1.25×** exact (still 0.3× vs Ripser). circle80 1.34×.
+- **Decision:** Candidate default. I184 remasures n=4000 vs Ripser before selecting.
+- **Class:** experiment (support)
+
+## 2026-10-13 — I183 fused-fail escalate + B-cap
+
+- **Question:** Does escalate-until-fused-fail (not first leave) plus Case-B leave capped at |later[other]|≤4 make n=3000 exact and keep ~16× on n=2000?
+- **Result:** n=2000 k2 **17.3×** exact; k2-esc8 **16.5×**; k2-b4 **12.5×** (cap stops the I180 cascade). n=3000 all **2 unmatched / 8325**. esc8 still +12k probes — first fused-leave is not the I170 keep.
+- **Decision:** Reject for n=3000 exactness. Capped B is the better Case-B optional (12.5× vs 7.75×) but still circle-n=2000 only. Prefer I182 default-path cut.
+- **Class:** experiment (negative on n=3000; partial on B-cap)
+
+## 2026-10-13 — I184 bit-AND flagship
+
+- **Question:** Does back-bits clear H1 10× vs Ripser at circle n=4000 T=1.5 (I157 was 9.50×)?
+- **Work:** Wave51 n=2000/4000 back vs back-bits vs Ripser.
+- **Class:** experiment (running)
+
 ## 2026-10-13 — I164 collapse live-degree trace
 
 - **Question:** Does the live 1-skeleton thin early enough to stop the C-walk?
