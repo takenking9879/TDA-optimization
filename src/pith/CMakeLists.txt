@@ -9,8 +9,7 @@ endif()
 
 add_executable(pith src/main.cpp)
 target_include_directories(pith PRIVATE include)
-target_compile_options(pith PRIVATE -O3 -march=native -flto -Wall -Wextra)
-target_link_options(pith PRIVATE -flto)
+target_compile_options(pith PRIVATE -O3 -Wall -Wextra)
 
 add_executable(pith_test tests/test_collapse.cpp)
 target_include_directories(pith_test PRIVATE include)

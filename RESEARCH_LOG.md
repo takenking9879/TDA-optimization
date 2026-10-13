@@ -480,6 +480,18 @@ Do not paste long reasoning here.
 - **Decision:** Implicit remains rejected. MST edges are short; same-diameter pairs are longest-edge triangles, so the I111 MST story was the wrong pairing class.
 - **Class:** experiment (failure archived)
 
+## 2026-10-13 — I128 -march=native -flto
+
+- **Result:** Exact. **Slower**: circle2000 4475 ms / 6.24× vs I121 4137 ms / 6.63×. circle3000 7.68× vs 8.13×.
+- **Decision:** Revert to `-O3` only.
+- **Class:** experiment (negative)
+
+## 2026-10-13 — I129 torus500
+
+- **Result:** Exact. 1-pass **0.41×**, adaptive **0.71×**. Residual 9112 / 6078.
+- **Decision:** Thick torus remains a hold-out.
+- **Class:** reproduced
+
 ## 2026-10-13 — I103–I105
 
 - **Result:** Skipped. They required the progressive binary on n=500–3000 after I102 failed.

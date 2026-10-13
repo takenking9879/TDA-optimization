@@ -1,0 +1,26 @@
+{
+  "id": "torus500_adaptive",
+  "lever": "H01",
+  "class": "reproduced",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "torus500 1-pass vs adaptive",
+  "receipts": [
+    {
+      "collapse": 1,
+      "match": true,
+      "time_ratio": 0.41084600684952055,
+      "edges_out": 9112,
+      "pith_s": 0.1164872950012068,
+      "ripser_s": 0.04785833999994793
+    },
+    {
+      "collapse": -1,
+      "match": true,
+      "time_ratio": 0.7126870695475047,
+      "edges_out": 6078,
+      "pith_s": 0.06715196899858711,
+      "ripser_s": 0.04785833999994793
+    }
+  ]
+}
