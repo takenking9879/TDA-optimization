@@ -1,0 +1,50 @@
+{
+  "id": "prog_collapse_identity",
+  "lever": "H01-prog",
+  "class": "implementation",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "progressive intersection identity 5/5",
+  "receipts": [
+    {
+      "dataset": "circle_noisy",
+      "n": 80,
+      "match": true,
+      "unmatched": 0,
+      "edges_out": 93,
+      "collapse_ms": 0.34579
+    },
+    {
+      "dataset": "circle_noisy",
+      "n": 200,
+      "match": true,
+      "unmatched": 0,
+      "edges_out": 283,
+      "collapse_ms": 5.63221
+    },
+    {
+      "dataset": "blobs",
+      "n": 80,
+      "match": true,
+      "unmatched": 0,
+      "edges_out": 122,
+      "collapse_ms": 0.27935
+    },
+    {
+      "dataset": "sphere",
+      "n": 80,
+      "match": true,
+      "unmatched": 0,
+      "edges_out": 275,
+      "collapse_ms": 0.612832
+    },
+    {
+      "dataset": "torus",
+      "n": 80,
+      "match": true,
+      "unmatched": 0,
+      "edges_out": 232,
+      "collapse_ms": 0.222824
+    }
+  ]
+}
