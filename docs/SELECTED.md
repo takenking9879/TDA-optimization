@@ -66,7 +66,9 @@ residual makes collapse *and* reduce slower (circle3000 1.49× vs full 8.11×).
 | circle_noisy | \(H_1\) | 3000 | 1.5 | **8.89×** (I156) / 8.13× (I121) / 8.0× (I115) |
 | circle_noisy | \(H_1\) | 2000 | 1.5 | **7.20×** (I156) / 6.52× (I155) / 6.30× (I140) |
 | torus | \(H_1\) | 1000 | 1.6 | **1.31×** owned implicit (I139); E3 1.25× same run |
-| circle_noisy | \(H_1\) | 2000 | 1.2 | **3.8–4.8×** |
+| circle_noisy | \(H_1\) | 2000 | 1.2 | **4.13×** (I162) / 3.8–4.8× earlier |
+| blobs / sphere / uniform2 | \(H_1\) | 2000 | default T | **0.17–0.32×** (I162) — collapse loses to Ripser |
+| torus | \(H_1\) | 2000 | 1.6 | **0.74×** (I162); residual 163k |
 | circle_noisy | \(H_1\) | 1000 | 1.5 | **4.1×** (I083) |
 
 **Not claimed:** H1 10× clock in general; high-d; worst-case asymptotics.
@@ -86,7 +88,9 @@ I153: C-build is the wall (567M probes / 1.12M dom tests / 96% first-apex hits).
 
 1. **I155 pair-nbr + I156 fused first-apex — selected.** Flagship **9.50×** (I157).
 2. Layout micro-opts closed (I158–I160). I161 integer grades **reverted** (under-collapse). Matching-batch **unsafe**.
-3. I162: H1 10× is **not** general at n=2000. Next: collapse cost-model / skip when Ripser is cheap; RedZeD on thick torus residuals.
+3. I163 leftover-apparent is **1.0 on every family** — not a skip oracle.
+4. I164: live graph thins 1:1 with the scan; residual is an oldest-edge suffix. Early-stop is dead.
+5. Next: cheaper per-edge C-walk (probe count is Ω(m·k) until the suffix); RedZeD does not move the collapse wall.
 3. Probe count unchanged (4.58B at n=4000). Geometry ceiling still ~2× on C-build.
 4. Fix D&C merge (I150) — parallel schedule only.
 5. GPU later (Ripser++ reference only)

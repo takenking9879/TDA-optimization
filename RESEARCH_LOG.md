@@ -690,6 +690,13 @@ Do not paste long reasoning here.
 - **Decision:** **Revert.** 0-as-missing + rank remap under-collapses. Matching-batch parallel also unsafe (shared commons).
 - **Class:** experiment (negative)
 
+## 2026-10-13 — I164 collapse live-degree trace
+
+- **Question:** Does the live 1-skeleton thin early enough to stop the C-walk?
+- **Result:** **No.** Live edges drop **1:1** with the backward scan (circle2000: at 50% processed, live=538565, kept=0). Residual appears only as a **suffix** of oldest edges (last ~5k). Blobs: a few dozen mid-scan keeps, then the same suffix. Early-stop leaves a thick graph.
+- **Decision:** Do not early-stop. Must visit essentially every edge. Per-edge C-walk remains the wall.
+- **Class:** reproduced
+
 ## 2026-10-13 — I163 ROI probe
 
 - **Question:** Does leftover-apparent rate separate circle T=1.5 from I162 losers?

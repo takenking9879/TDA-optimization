@@ -35,10 +35,14 @@ def I164_trace():
         path = BENCH / f"datasets/generated/{name}_n{n}.csv"
         import subprocess, time
         t0 = time.perf_counter()
+        import os
+        env = os.environ.copy()
+        env["PITH_COLLAPSE_TRACE"] = "1"
         proc = subprocess.run(
             [str(PITH), "--points", str(path), "--maxdim", "1", "--threshold", str(T),
              "--collapse", "1", "--engine", "implicit", "--no-enclosing"],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=timeout,
+            env=env,
         )
         dt = time.perf_counter() - t0
         traces = []

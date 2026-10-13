@@ -6,6 +6,7 @@
 #include <chrono>
 #include <cstdint>
 #include <cstring>
+#include <cstdlib>
 #include <thread>
 #include <unordered_set>
 
@@ -349,7 +350,7 @@ inline Graph collapse_edges(Graph g, int iterations, Counters& c, int dom_budget
             Edge out;
             if (process_one_backward(E[i], E[i].t, Tm, nbr, scratch, dom_budget, out, c))
                 kept.push_back(out);
-            if (i == mE - 1 || (i % step) == 0) {
+            if ((i == mE - 1 || (i % step) == 0) && std::getenv("PITH_COLLAPSE_TRACE")) {
                 std::int64_t live = 0;
                 for (const auto& row : nbr) live += static_cast<std::int64_t>(row.size());
                 std::fprintf(stderr, "# COLLAPSE_TRACE i=%zu/%zu live=%lld kept=%zu trims=%lld\n",
