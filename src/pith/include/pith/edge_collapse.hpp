@@ -6,9 +6,6 @@
 #include <chrono>
 #include <cstdint>
 #include <cstring>
-#if defined(__GNUC__)
-#include <immintrin.h>
-#endif
 
 namespace pith {
 
@@ -28,34 +25,10 @@ struct DenseTimes {
     void erase(int i, int j) { set(i, j, kInf); }
 };
 
-#if defined(__GNUC__)
-__attribute__((target("avx512f"))) inline bool dominated_by_avx512(const value_t* row,
-                                                                   const index_t* C, size_t n,
-                                                                   value_t t) {
-    const __m512 vt = _mm512_set1_ps(t);
-    size_t i = 0;
-    for (; i + 16 <= n; i += 16) {
-        const __m512i ix = _mm512_loadu_si512(C + i);
-        const __m512 vals = _mm512_i32gather_ps(ix, row, 4);
-        if (_mm512_cmp_ps_mask(vals, vt, _CMP_GT_OQ)) return false;
-    }
-    for (; i < n; ++i) {
-        if (row[C[i]] > t) return false;
-    }
-    return true;
-}
-#endif
-
 // True iff some c in C_now is adjacent (at time t) to every other vertex in C_now.
 inline bool dominated_by(const DenseTimes& Tm, const std::vector<index_t>& C_now,
                          index_t cand, value_t t) {
     const value_t* row = Tm.row(cand);
-#if defined(__GNUC__)
-    if (C_now.size() >= 16) {
-        static const bool avx = __builtin_cpu_supports("avx512f");
-        if (avx) return dominated_by_avx512(row, C_now.data(), C_now.size(), t);
-    }
-#endif
     for (index_t w : C_now) {
         if (row[w] > t) return false;
     }

@@ -565,6 +565,13 @@ Do not paste long reasoning here.
 - **Decision:** I107 rejection stands even with implicit. Do not cap domination search.
 - **Class:** experiment (negative on clock; identity archived)
 
+## 2026-10-13 — I147 AVX-512 domination
+
+- **Question:** Do AVX-512 gathers speed the \(O(k)\) `dominated_by` row scan?
+- **Result:** Exact. **No collapse_ms win.** circle2000 4222 ms vs I140 4212 ms; circle3000 14084 ms vs I144 13885 ms. Ratios 6.50× / 8.34× are Ripser variance. Gather latency ≥ scalar on this 4-core VM.
+- **Decision:** Revert. Do not add SIMD to the selected path without a measured collapse_ms cut.
+- **Class:** experiment (negative)
+
 ## 2026-10-13 — I146 sorted-merge C
 
 - **Question:** Is a vertex-sorted merge cheaper than gathering the smaller neighborhood?
