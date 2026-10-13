@@ -748,6 +748,64 @@ int main() {
         std::cout << "ok I275 walk-locate 3D Delaunay H0 n=256\n";
     }
 
+    // I276: Delaunay-flag keeps essential H1 on a circle (not exact VR).
+    {
+        const int n = 16;
+        const value_t T = 1.4f;
+        std::vector<std::vector<value_t>> pts(static_cast<size_t>(n), std::vector<value_t>(2));
+        for (int i = 0; i < n; ++i) {
+            const float a = 6.2831853f * static_cast<float>(i) / static_cast<float>(n);
+            pts[static_cast<size_t>(i)][0] = std::cos(a);
+            pts[static_cast<size_t>(i)][1] = std::sin(a);
+        }
+        std::vector<Edge> de;
+        if (!delaunay_one_skeleton(pts, de)) {
+            std::cerr << "I276 circle Delaunay 1-skeleton failed\n";
+            return 1;
+        }
+        Graph g = graph_from_edge_list(n, de, T);
+        Result r = persist_implicit_coh(g, 1, T, 1);
+        int ess1 = 0;
+        for (const auto& p : r.pairs)
+            if (p.dim == 1 && !std::isfinite(p.death)) ++ess1;
+        if (ess1 != 1) {
+            std::cerr << "I276 circle Delaunay-VR ess1=" << ess1 << "\n";
+            return 1;
+        }
+        std::cout << "ok I276 Delaunay-VR circle ess H1\n";
+    }
+
+    // I276: two octahedra — Delaunay-flag keeps the two voids.
+    {
+        const value_t T = 1.5f;
+        const value_t oct[6][3] = {
+            {1, 0, 0}, {-1, 0, 0}, {0, 1, 0}, {0, -1, 0}, {0, 0, 1}, {0, 0, -1},
+        };
+        std::vector<std::vector<value_t>> pts;
+        pts.reserve(12);
+        for (int i = 0; i < 6; ++i) pts.push_back({oct[i][0], oct[i][1], oct[i][2]});
+        for (int i = 0; i < 6; ++i) pts.push_back({oct[i][0] + 8, oct[i][1], oct[i][2]});
+        std::vector<Edge> de;
+        if (!delaunay_one_skeleton(pts, de)) {
+            std::cerr << "I276 two-octahedra Delaunay 1-skeleton failed\n";
+            return 1;
+        }
+        Graph g = graph_from_edge_list(12, de, T);
+        Result r = persist_implicit_coh(g, 2, T, 1);
+        int ess0 = 0, ess2 = 0;
+        for (const auto& p : r.pairs) {
+            if (!std::isfinite(p.death)) {
+                if (p.dim == 0) ++ess0;
+                if (p.dim == 2) ++ess2;
+            }
+        }
+        if (ess0 != 2 || ess2 != 2) {
+            std::cerr << "I276 two-octahedra Delaunay-VR ess0/ess2=" << ess0 << "/" << ess2 << "\n";
+            return 1;
+        }
+        std::cout << "ok I276 Delaunay-VR two-octahedra ess H2\n";
+    }
+
     // I239: two octahedra far apart — H0=2 and H2=2 (wedge of voids).
     {
         const value_t T = 1.5f;

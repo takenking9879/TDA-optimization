@@ -30,4 +30,8 @@ Result persist_redzed_from_points(const std::vector<std::vector<value_t>>& pts, 
 double probe_edge_frac_points(const std::vector<std::vector<value_t>>& pts, value_t T,
                               int sample = 250);
 
+// I276: Euclidean Delaunay 1-skeleton (I271 2D / I275 3D). Flag of these
+// edges is not exact VR; it is the optional `--delaunay-vr` scale path.
+bool delaunay_one_skeleton(const std::vector<std::vector<value_t>>& pts, std::vector<Edge>& out);
+
 }  // namespace pith

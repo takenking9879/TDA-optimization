@@ -45,6 +45,7 @@ static void usage() {
         << "  --gic-n M           graph-induced complex on M landmarks (I222)\n"
         << "  --gic-k K           kNN degree for --gic-n (default 16)\n"
         << "  --reduced-vr        H07 reduced VR 2-complex (exact PH1 claimed; I224)\n"
+        << "  --delaunay-vr       flag of Euclidean Delaunay 1-skeleton (I276; not exact VR)\n"
         << "  --sparse-only       write residual edges and exit\n"
         << "  --probe-only        print ROI probe on G_T and exit (I163)\n"
         << "  --probe-vertex      print dominated-vertex count on G_T and exit (I192)\n"
@@ -304,6 +305,7 @@ int main(int argc, char** argv) {
     int gic_n = 0;
     int gic_k = 16;
     bool reduced_vr = false;
+    bool delaunay_vr = false;
     bool later_b = false;
     int later_escalate = 0;
     int later_esc_until = 0;
@@ -328,6 +330,7 @@ int main(int argc, char** argv) {
         else if (a == "--gic-n") gic_n = std::stoi(need("--gic-n"));
         else if (a == "--gic-k") gic_k = std::stoi(need("--gic-k"));
         else if (a == "--reduced-vr") reduced_vr = true;
+        else if (a == "--delaunay-vr") delaunay_vr = true;
         else if (a == "--sparse-cap") {
             const std::string v = need("--sparse-cap");
             if (v == "min") sparse_cap = SparseCap::Min;
@@ -397,13 +400,14 @@ int main(int argc, char** argv) {
                                           : static_cast<int>(dist.size());
             // I241: H0 is Kruskal. Skip G_T + RedZeD on point clouds.
             if (engine == "auto" && maxdim < 1 && have_pts && gic_n == 0 && knn_k == 0 &&
-                witness_n == 0 && !(sparse_eps > 0 && sparse_eps < 1) && !reduced_vr) {
+                witness_n == 0 && !(sparse_eps > 0 && sparse_eps < 1) && !reduced_vr &&
+                !delaunay_vr) {
                 auto_dispatch = true;
                 engine = "redzed";
             }
             if (engine == "auto" && maxdim >= 1 && gic_n == 0 && knn_k == 0 &&
                 witness_n == 0 && !(sparse_eps > 0 && sparse_eps < 1) && !reduced_vr &&
-                n_metric >= 400) {
+                !delaunay_vr && n_metric >= 400) {
                 auto_dispatch = true;
                 c.residual_frac = have_pts ? probe_residual_frac_points(pts, threshold, 250)
                                            : probe_residual_frac(dist, threshold, 250);
@@ -416,9 +420,9 @@ int main(int argc, char** argv) {
                 const bool hollow = have_pts && probe_edge_frac_points(pts, threshold) < 0.25;
                 if (fat || hollow) engine = "redzed";
             }
-            const bool skip_full_metric = (engine == "redzed" && have_pts && gic_n == 0 &&
-                                           knn_k == 0 && witness_n == 0 && !reduced_vr &&
-                                           !(sparse_eps > 0 && sparse_eps < 1));
+            const bool skip_full_metric = ((engine == "redzed" || delaunay_vr) && have_pts &&
+                                           gic_n == 0 && knn_k == 0 && witness_n == 0 &&
+                                           !reduced_vr && !(sparse_eps > 0 && sparse_eps < 1));
             if (!skip_full_metric) {
                 if (dist.empty() && have_pts) dist = pairwise(pts, c);
                 if (use_enclosing && !dist.empty()) {
@@ -444,6 +448,17 @@ int main(int argc, char** argv) {
                 // collapse off — I207 found collapse is a tax on sparse graphs.
                 g = sparse_rips_graph(dist, threshold, sparse_eps, sparse_cap);
                 if (collapse_iters < 0) collapse_iters = 0;
+            } else if (delaunay_vr && have_pts) {
+                // I276: flag of the Euclidean Delaunay 1-skeleton. Θ(n)
+                // edges, not exact VR — quantify ess + unmatched vs Ripser.
+                std::vector<Edge> de;
+                if (!delaunay_one_skeleton(pts, de)) {
+                    std::cerr << "--delaunay-vr requires Euclidean d=2 or d=3\n";
+                    return 2;
+                }
+                g = graph_from_edge_list(static_cast<int>(pts.size()), de, threshold);
+                if (collapse_iters < 0) collapse_iters = 0;
+                c.n_distances = static_cast<std::int64_t>(g.edges.size());
             } else if (engine != "redzed") {
                 g = graph_from_distance(dist, threshold);
             }
@@ -451,6 +466,7 @@ int main(int argc, char** argv) {
         if (reduced_vr) collapse_iters = 0;  // I224: reduced VR is on G_T, not a residual
         if (engine == "redzed") collapse_iters = 0;  // I228: RedZeD is on the metric, not a residual
         if (engine == "active") collapse_iters = 0;  // I231: owned active H1 is on G_T
+        if (delaunay_vr) collapse_iters = 0;  // I276: Delaunay 1-skeleton is already O(n)
         c.n_vertices = g.n;
         c.n_edges_in = static_cast<std::int64_t>(g.edges.size());
         if (probe_only) {
@@ -606,13 +622,16 @@ int main(int argc, char** argv) {
             if (r.counters.pipeline.empty()) r.counters.pipeline = "pith:active-h1";
         } else {
             r.counters.n_vertices = g.n;
-            r.counters.pipeline = reduced_vr
-                                      ? std::string("pith:reduced-vr")
-                                      : (auto_dispatch
-                                             ? std::string("pith:auto-collapse")
-                                             : std::string("pith:threshold+collapse") +
-                                                   std::to_string(collapse_iters) +
-                                                   (use_implicit ? "+implicit_coh" : "+homology"));
+            r.counters.pipeline = delaunay_vr
+                                      ? std::string("pith:delaunay-vr")
+                                      : (reduced_vr
+                                             ? std::string("pith:reduced-vr")
+                                             : (auto_dispatch
+                                                    ? std::string("pith:auto-collapse")
+                                                    : std::string("pith:threshold+collapse") +
+                                                          std::to_string(collapse_iters) +
+                                                          (use_implicit ? "+implicit_coh"
+                                                                        : "+homology")));
         }
         std::sort(r.pairs.begin(), r.pairs.end(), [](const PersistencePair& a, const PersistencePair& b) {
             if (a.dim != b.dim) return a.dim < b.dim;

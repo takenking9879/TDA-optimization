@@ -1847,6 +1847,20 @@ static bool delaunay_edges_3d(const std::vector<std::vector<value_t>>& pts,
     return false;
 }
 
+bool delaunay_one_skeleton(const std::vector<std::vector<value_t>>& pts, std::vector<Edge>& out) {
+    if (pts.empty()) return false;
+    std::vector<SpatEdge> del;
+    const int d0 = static_cast<int>(pts[0].size());
+    bool ok = false;
+    if (d0 == 2) ok = delaunay_edges_2d(pts, del);
+    else if (d0 == 3) ok = delaunay_edges_3d(pts, del);
+    if (!ok) return false;
+    out.clear();
+    out.reserve(del.size());
+    for (const SpatEdge& e : del) out.push_back({e.u, e.v, e.t});
+    return true;
+}
+
 static Result kruskal_h0(int n, std::vector<SpatEdge>&& edges) {
     Result r;
     Counters& c = r.counters;
