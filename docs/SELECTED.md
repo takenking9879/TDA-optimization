@@ -1,6 +1,6 @@
 # Selected algorithm (living)
 
-Updated 2026-10-13 after iterations I001–I261. **CLI default `--engine
+Updated 2026-10-13 after iterations I001–I262. **CLI default `--engine
 auto` (I235+I236+I239+I240+I241):** subsample residual-frac dispatch. Fat →
 RedZeD (torus n=2000 **12.7×**). Thin-circle → collapse+implicit
 (n=1000 **28×**; n=4000 still **140×**). Disconnected G_T → spatial UF
@@ -549,7 +549,12 @@ Sphere H2 **52×**. Topology loss: **0**. Reduce a bit longer
 n=5000 **10.9×**. Torus **12.4×** (reduce 155). Sphere H2 **50×**.
 Topology loss: **0**. Selected spatial hash.
 
-## Next levers (still open after I261)
+**I262 always-spatial (reverted):** drop π(T/L)² gate. Wave 123
+**exact 14/14**. figure8 n=2000 **14.1×** (ess H1 2=2, 427k vs
+2.0M). Dense n=5000 **7.4× / 0.46s** and sphere n=2000 **6.8×**
+lost the 10× — gate restored. Topology loss: **0**.
+
+## Next levers (still open after I262)
 
 `--engine auto` is a shape-agnostic exact H0–H2 portfolio: circle H1
 10×, torus H1 **12.7×**, sphere H1 **10.1×** at n=2000, sphere H2
@@ -577,10 +582,12 @@ Rips is exact and too slow.
    skip-collect, inline skip, leftover-coface no-seen, spatial
    prebuild, skip ∞-fill, parallel `spatial_edges`, CSR-no-n², and
    hash get are in. Dense n=5000 stays I238 all-pairs.
-5. Hash load-factor constants are exhausted (I259–I261). Do not
-   retry another table size for a pith cut. Next scale lever is
-   elsewhere: leftover-visit wall on dense G_T, or a larger sparse
-   n with the current hash. Dense path stays I238 all-pairs.
+5. Hash load-factor constants are exhausted (I259–I261). I262
+   always-spatial is exact and reverted (dense 10× lost). Do not
+   retry “always spatial”. A cheap residual/|E| probe that sends
+   figure8-like clouds to spatial (n=2000 **14×**) without moving
+   uniform2 n=5000 / sphere n=2000 off all-pairs is still open.
+   Dense path stays I238 all-pairs when π(T/L)²≥0.2.
 6. Owned AE leftover-star walk is still Θ(|leftover|·deg★) — rbit cut
    has_leftover_coface, not seeded probes (circle still 875k). Packed
    annotations / seeded_is_noop are the next owned constants.

@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-13 — I262 always spatial+hash (drop volume gate)
+
+- **Question:** Can 2D/3D finite-T from-points always use Moore+hash (no n×n), dropping the π(T/L)²<0.2 gate, without losing the dense 10× or inventing bars? Does that make mixed-homology figure8 n=2000 usable?
+- **Hypothesis:** Moore is exact at any T. Dense all-pairs only exists to win the clock. Same VR≤T. Shape-agnostic. Exact if identity holds.
+- **Work:** drop the volume gate. Wave 123 vs Ripser: H0–H2 + figure8 n=2000 + dense n=5000 + sphere n=2000 + n=20000.
+- **Result:** **Exact 14/14** (figure8 n=200 2=2 and n=2000 **2=2 / 14.1×** / 0.12s; sphere void 1=1; torus 1=1; blobs H0 3=3). **Clock rejects:** uniform2 n=5000 **7.4× / 0.46s** (was 10.9× / 0.31s; 3.47M vs 12.5M pairs). Sphere n=2000 **6.8× / 0.12s** (was 10.1× / 0.08s). n=20000 held 6.2× / 1.00s. Torus 12.1×. Blobs H1 24×. Sphere H2 60×.
+- **Decision:** **Revert the gate.** Identity holds; dense 10× does not. Figure8 n=2000 14× is a real mixed-homology scale receipt on the spatial path (427k vs 2.0M) — a better *predictor* than π(T/L)² could keep that win without dragging uniform2/sphere off all-pairs. Topology loss: **0**. Next: residual-frac-style probe for the spatial gate, not “always”.
+- **Class:** experiment (reject clock; exact; reverted)
+
 ## 2026-10-13 — I261 load-0.5 malloc/bitmap hash
 
 - **Question:** I260 load 0.75 cut n=20000 metric 192→113 but lengthened probes (reduce 456→513). Does load 0.5 on the same malloc/bitmap restore I259 probe length without bringing back the 256 MB write?
