@@ -1,6 +1,6 @@
 # Selected algorithm (living)
 
-Updated 2026-10-13 after iterations I001–I129.
+Updated 2026-10-13 after iterations I001–I136.
 
 ## Selected exact-VR CPU pipeline
 
@@ -54,9 +54,15 @@ after the I081 bitset revert.
 I117: n=4000 T=1.5 is **8.38×** (Ripser 287 s / PITH 34 s). Gains vs n=3000 are diminishing; 10× H1 is not a pure-n play.
 I119: on n=3000 the peak is still **T≈1.5**. T=1.55 residual grows (11542) and the ratio drops to 7.68×; T=1.65 is 6.59× (fill-in).
 
-## Next levers (still open after I129)
+## Next levers (still open after I136)
 
-1. A collapse cheaper than \(O(n^3)\) sequential (progressive/bitset/budget/maxdeg/native-LTO all failed; row pointers ~2%)
-2. A correct Ripser-class residual engine (implicit still rejected on dense \(G_T\); RedZeD unimplemented)
-3. Thick torus / high-d remainder (torus500 adaptive 0.71×; uniform10 0.05–0.12×)
-4. GPU later (Ripser++ reference only)
+1. A collapse cheaper than \(O(n^3)\) sequential (progressive/bitset/budget/maxdeg/seqscan/native-LTO failed; row pointers ~2%)
+2. Own a Ripser-class residual (E3 target; implicit still rejected on dense \(G_T\); RedZeD unimplemented)
+3. GPU later (Ripser++ reference only)
+
+**Thick remainder (E3, I132/I135).** Collapse then Ripser `--format sparse` is exact VR≤T.
+torus500 **1.14×**, torus1000 1-pass **1.31×** (owned homology was 0.21–0.34×). Not selected as the
+default binary (would shell out to Ripser); it is the measured residual-engine target.
+
+**Alpha (I136)** is a different complex: GUDHI Alpha circle3000 0.023 s vs Ripser VR 123 s
+(~5400× empirical) with 2745 \(H_1\) bars. Off the exact-VR 10× board.

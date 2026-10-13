@@ -1,0 +1,17 @@
+{
+  "id": "gudhi_alpha_circle3000",
+  "lever": "H-alpha",
+  "class": "experiment",
+  "fidelity": "empirical",
+  "status": "support",
+  "summary": "GUDHI Alpha n=3000 0.023s vs Ripser VR 123.319s (other complex)",
+  "receipts": [
+    {
+      "alpha_s": 0.02272375199936505,
+      "ripser_vr_s": 123.31855867000013,
+      "time_ratio_empirical": 5426.8572669445575,
+      "alpha_h1_bars": 2745,
+      "gudhi": "3.13.0"
+    }
+  ]
+}

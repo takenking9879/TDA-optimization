@@ -509,6 +509,18 @@ Do not paste long reasoning here.
 - **Result:** sphere500 H2 **46.5×** after seqscan (still exact). torus1000 homology **0.21×** / adaptive **0.34×**, residual 27k–38k. Collapse already > Ripser (1.2 s vs 0.40 s).
 - **Class:** reproduced
 
+## 2026-10-13 — I135 E3 torus1000
+
+- **Result:** Exact. 1-pass collapse 0.25 s + Ripser-sparse 0.056 s = **1.31×** vs Ripser 0.41 s. Adaptive extra collapse 0.97×. Owned homology was 0.21× because persist_sparse spent ~1.7 s on 38k residual edges.
+- **Decision:** E3 is the correct thick-residual engine. persist_sparse stays for thin residuals only.
+- **Class:** reproduced
+
+## 2026-10-13 — I136 GUDHI Alpha circle3000
+
+- **Result:** Alpha 0.023 s vs Ripser VR 123 s (~5400×) but 2745 \(H_1\) bars — **other complex**, not exact VR.
+- **Decision:** Document only. Off the 10×-exact board.
+- **Class:** experiment (empirical)
+
 ## 2026-10-13 — I103–I105
 
 - **Result:** Skipped. They required the progressive binary on n=500–3000 after I102 failed.
