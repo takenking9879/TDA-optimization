@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-13 — I275 3D walk-locate Delaunay H0
+
+- **Question:** Does a no-reuse 3D Bowyer–Watson walk (containment fallback) cut I274’s O(n²) scan so 3D H0 reaches the I271 construction class, at a harder n=16000, without breaking H1/H2?
+- **Hypothesis:** I274 walk fell off the mesh for two reasons: cavity-slot reuse left stale neighbors, and `F_b >= T` is false for a 3-ball once the cavity grows (sphere n=512: 20 faces / 21 tets). Mark dead, walk live neighbors, scan live tets if locate fails. Expected O(n log n) insphere vs O(n²) scan. Same MST ⊆ Delaunay identity. n∈[256,50000].
+- **Work:** `delaunay_edges_3d_walk` (no reuse + containment scan) then I274 scan fallback n≤8000. Unit test n=256 vs all-pairs. Wave 136 vs Ripser: sphere H0 n=4000/8000/16000 + 2D H0 and H1/H2 hold.
+- **Result:** **Exact 13/13** (sphere H0 1=1; blobs H0 3=3; figure8 2=2; sphere void 1=1; two_spheres 2=2). sphere n=4000 **29.3× / 0.029 s / 20122 edges** (metric 21.7 ms vs I274 578). n=8000 **65.1× / 0.056 s / 40327** (metric 44 ms vs I274 2376). Hard case n=16000 **146.6× / 0.112 s / 80641** (metric 88 ms) vs Ripser 16.4 s. Construction ~linear (21.7 / 43.9 / 88.0 ms). Dense H1 **11.4×**. figure8 **17.2×**. Sphere H2 **58×**. Topology loss: **0**.
+- **Decision:** **Support / select** as the 3D H0 path (maxdim=0, d=3, n∈[256,50000]). Justified: MST ⊆ Delaunay, expected O(n log n) walk vs O(n²) I274 scan vs Θ(|E_T|) listing. I274 scan stays fallback. I271 2D stays. Next: H1 ae_seeded leftover wall (do not retry empty-seed geometric skips). Do not mark the goal complete — worst-case H1 Big-O is still a portfolio.
+- **Class:** experiment (support; construction-class 3D H0)
+
 ## 2026-10-13 — I274 3D Delaunay H0
 
 - **Question:** Euclidean MST ⊆ Delaunay in R³, so is H0 of VR≤T exactly Kruskal on 3D Delaunay edges with d≤T (sphere n=4000/8000), skipping G_T listing?

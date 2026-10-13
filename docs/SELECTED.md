@@ -1,15 +1,15 @@
 # Selected algorithm (living)
 
-Updated 2026-10-13 after iterations I001–I271. **CLI default `--engine
-auto` (I235+I236+I239+I240+I241+I263+I270+I271):** subsample residual-frac dispatch,
+Updated 2026-10-13 after iterations I001–I275. **CLI default `--engine
+auto` (I235+I236+I239+I240+I241+I263+I270+I271+I275):** subsample residual-frac dispatch,
 plus I263 edge-frac so hollow/manifold clouds take RedZeD. Fat →
 RedZeD (torus n=2000 **13.0×**). Thin-circle → collapse+implicit
 (n=1000 **28×**; n=4000 still **140×**). Mixed figure8 n=4000 T=1.1
 **27× / 1.07 s** spatial. Disconnected G_T → spatial UF
-+ parallel RedZeD per component (blobs n=4000 **24×**). **H0** is Kruskal; **I271** walk-locate 2D Delaunay
-(MST ⊆ Delaunay, n∈[256,100000]) so H0 does not list G_T — blobs n=12000
-**218× / 0.027 s**. **H2:** τ=0.15 so sphere void stays collapse
-(**57×** at n=400). Shape-agnostic, 0 bars lost. Circle 140× is a
++ parallel RedZeD per component (blobs n=4000 **24×**). **H0** is Kruskal; **I271** 2D and **I275** 3D
+walk-locate Delaunay (MST ⊆ Delaunay) so H0 does not list G_T — blobs n=12000
+**218× / 0.027 s**, sphere n=16000 **147× / 0.112 s**. **H2:** τ=0.15 so sphere void stays collapse
+(**58×** at n=400). Shape-agnostic, 0 bars lost. Circle 140× is a
 collapse-friendly regime, **not** the success criterion.
 
 ## Success criteria (goal amendment)
@@ -22,14 +22,15 @@ justification (residual \(|E'(n)|\) slopes, column counts, or a different
 complex with a proven size bound). Any information loss vs exact VR must be
 quantified (unmatched bars / bottleneck / interleaving).
 
-Current honest status: **`--engine auto` (I235+I236+I238+I239+I240+I241+I263+I270+I271)** is
+Current honest status: **`--engine auto` (I235+I236+I238+I239+I240+I241+I263+I270+I271+I275)** is
 shape-agnostic (0 unmatched) and picks the better exact engine from a
 250-point collapse probe plus I263 edge-frac. H1 τ=0.04; H2 τ=0.15;
 hollow edge-frac <0.25 → redzed. Torus n=2000 H1 **13.0×**;
 circle n=1000 **28×**; mixed figure8 n=4000 **27× / 1.07 s**.
 Disconnected clouds (blobs) **24×** at n=4000 via I239 split +
-I240 spatial metric. **H0 is a better size class:** Θ(n) Delaunay
-edges, walk-locate construction (blobs n=12000 **218× / 0.027 s**).
+I240 spatial metric. **H0 is a better size+construction class** in
+d=2,3: Θ(n) Delaunay edges, expected O(n log n) walk (blobs n=12000
+**218× / 0.027 s**; sphere n=16000 **147× / 0.112 s**).
 **Worst-case H1 Big-O is not improved** on a connected G_T — that
 part is still a portfolio, not a new complexity class.
 Torus residual stays \(\Theta(n^2)\) (I204). Connected uniform2
@@ -53,8 +54,9 @@ bottleneck 0.005–0.034.
 hi-walk early-stop** after the zero-pivot / emergent pair.
 `--collapse-alg back` is this stack. `back-src` is the pre-I182 star walk.
 
-- \(H_0\): Kruskal. **I271** walk-locate 2D Delaunay when n∈[256,100000]
-  (MST ⊆ Delaunay; Θ(n) edges, expected O(n log n) construction).
+- \(H_0\): Kruskal. **I271** walk-locate 2D Delaunay when n∈[256,100000];
+  **I275** walk-locate 3D Delaunay when n∈[256,50000] (MST ⊆ Delaunay;
+  Θ(n) edges, expected O(n log n) construction; I274 scan is fallback).
   `--collapse -1` **skips collapse** when `maxdim=0`.
 - \(H_1\): leftover (non-MST, non-apparent) edges, youngest-first; F₂ heap
   coboundary; oldest remaining pivot; same-diameter apparent/emergent;
@@ -583,7 +585,7 @@ Rips is exact and too slow.
 
 1. **CLI default:** `--engine auto` (I235+I236+I239+I240+I241+I263). H1 τ=0.04; H2 τ=0.15; hollow edge-frac <0.25 → redzed.
 2. **Forced engines:** `--engine implicit` = I193+I197+I202+I203 only;
-   `--engine redzed` = I228+I239+I240+I244+I245+I246+I250+I251+I252+I256+I257+I258+I259+I260+I261+I263+I270+I271; H0 = Kruskal / I271 walk-locate Delaunay.
+   `--engine redzed` = I228+I239+I240+I244+I245+I246+I250+I251+I252+I256+I257+I258+I259+I260+I261+I263+I270+I271+I275; H0 = Kruskal / I271 2D / I275 3D walk-locate Delaunay.
 3. **Owned optional approx:** `--sparse-eps 0.6 --sparse-cap max` (I213/I218)
    when n grows past exact VR.
 4. Connected uniform2 is **11.2×** at n=5000 (0.33 s).
@@ -621,11 +623,14 @@ Rips is exact and too slow.
    (n=256 ess H1 31 vs 0). I273 empty-seed-only non-Delaunay skip
    is exact 13/13 but figure8 n=4000 reduce **864≈866 ms** — the
    wall is ae_seeded, not empty-seed leftover_coface. Do not retry
-   empty-seed geometric leftover skips. **I274 3D Delaunay H0 is
-   held** for maxdim=0, d=3, n∈[256,8000]: exact 13/13, Θ(n) edges
-   (sphere n=4000 20k / n=8000 40k) but scan construction is
-   **1.44× / 0.59 s** and **1.53× / 2.39 s** vs Ripser H0. Next 3D
-   H0 is a working walk-locate, not another leftover skip.
+   empty-seed geometric leftover skips. **I274 3D scan is fallback
+   only** (n≤8000). **I275 walk-locate 3D Delaunay H0 is selected**
+   for maxdim=0, d=3, n∈[256,50000]: exact 13/13, Θ(n) edges,
+   expected O(n log n) construction. sphere n=4000 **29× / 22 ms /
+   20k** (I274 scan 578 ms), n=8000 **65× / 0.056 s / 40k** (I274
+   2.39 s), hard n=16000 **147× / 0.112 s / 81k**. I274 walk failed
+   on `F_b >= T` (false for a 3-ball) and cavity-slot reuse. Do not
+   retry leftover empty-seed skips. H1 leftover visits remain Θ(|E|).
 6. Owned AE leftover-star walk is still Θ(|leftover|·deg★) — rbit cut
    has_leftover_coface, not seeded probes (circle still 875k). Packed
    annotations / seeded_is_noop are the next owned constants.
