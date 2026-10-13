@@ -164,8 +164,8 @@ static void clear_seeds(State& st) {
 // invent a diameter-0 edge. Dense keeps the DistanceMatrix.
 // I259: open-address hash. I258's lower-tri CSR binary search taxed
 // leftover-coface: low-id rows held every higher neighbor.
-// I260: load ~0.75 + occupancy bitmap + malloc (no eager Slot zero).
-// I259's tab.assign(16M) wrote 256 MB at n=20000.
+// I260: occupancy bitmap + malloc (no eager Slot zero).
+// I261: load 0.5 again (I259 probe length) without tab.assign(16M).
 struct SparseDist {
     struct Slot {
         uint64_t k;
@@ -870,14 +870,14 @@ static void edgelist_from_spat(const std::vector<SpatEdge>& se, value_t threshol
     finish_buckets_parallel(out.diam, out.verts, 2, starts, nb, bt);
 }
 
-// I260: load ~0.75, occupancy bitmap, malloc (untouched empty slots).
+// I261: load 0.5, occupancy bitmap, malloc (untouched empty slots).
 // Same pairs as SE. Occupied bit = present; miss → VINF.
 static void spat_to_hash(const std::vector<SpatEdge>& se, int n, SparseDist& S) {
     S.n = n;
     std::free(S.tab);
     S.tab = nullptr;
     size_t cap = 1024;
-    const size_t need = se.size() + se.size() / 3 + 1;
+    const size_t need = se.size() * 2 + 1;
     while (cap < need) cap <<= 1;
     S.tab = static_cast<SparseDist::Slot*>(std::malloc(cap * sizeof(SparseDist::Slot)));
     if (!S.tab) throw std::bad_alloc();
@@ -1087,8 +1087,8 @@ Result persist_redzed_from_points(const std::vector<std::vector<value_t>>& pts, 
     // distances and pass a prebuilt EdgeList. Dense clouds (π(T/L)²≥0.2)
     // keep I238 parallel all-pairs.
     // I257: do not ∞-fill C(n,2).
-    // I258: do not allocate C(n,2). I259/I260: hash of d≤T pairs
-    // (load ~0.75, occupancy bitmap, no eager Slot zero). D.n is set
+    // I258: do not allocate C(n,2). I259–I261: hash of d≤T pairs
+    // (load 0.5, occupancy bitmap, no eager Slot zero). D.n is set
     // so generate_stream can read the vertex count. Miss → VINF.
     std::vector<SpatEdge> SE;
     bool spatial = false;
