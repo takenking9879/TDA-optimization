@@ -480,6 +480,7 @@ int main(int argc, char** argv) {
                     std::cerr << "--delaunay-vr requires Euclidean d=2 or d=3\n";
                     return 2;
                 };
+                const auto t_dvr0 = std::chrono::steady_clock::now();
                 if (maxdim >= 2 && want_thicken) {
                     std::vector<Edge> thin;
                     if (!delaunay_vr_skeleton(pts, threshold, 1, thin, 0, false)) return fail_dvr();
@@ -497,6 +498,8 @@ int main(int argc, char** argv) {
                 }
                 if (collapse_iters < 0) collapse_iters = 0;
                 c.n_distances = static_cast<std::int64_t>(g.edges.size());
+                const auto t_dvr1 = std::chrono::steady_clock::now();
+                c.metric_ms = std::chrono::duration<double, std::milli>(t_dvr1 - t_dvr0).count();
             } else if (engine != "redzed") {
                 g = graph_from_distance(dist, threshold);
             }
@@ -614,6 +617,13 @@ int main(int argc, char** argv) {
                 if (p.dim <= 1) r.pairs.push_back(p);
             for (const auto& p : r2.pairs)
                 if (p.dim >= 2) r.pairs.push_back(p);
+            r.counters = r1.counters;
+            r.counters.n_simplices_enumerated += r2.counters.n_simplices_enumerated;
+            r.counters.n_columns_assembled += r2.counters.n_columns_assembled;
+            r.counters.n_columns_reduced += r2.counters.n_columns_reduced;
+            r.counters.n_additions += r2.counters.n_additions;
+            r.counters.n_cofacet_probes += r2.counters.n_cofacet_probes;
+            r.counters.reduce_ms += r2.counters.reduce_ms;
             r.counters.n_vertices = g.n;
         } else {
             r = use_implicit ? persist_implicit_coh(g, maxdim, threshold, ratio)

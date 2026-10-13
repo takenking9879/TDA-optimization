@@ -1920,9 +1920,19 @@ bool delaunay_vr_skeleton(const std::vector<std::vector<value_t>>& pts, value_t 
         int c0[3] = {0, 0, 0};
         cell_of(i, c0);
         int c[3] = {0, 0, 0};
+        const double R2 = R * R;
         for (int dx = -reach; dx <= reach; ++dx)
             for (int dy = -reach; dy <= reach; ++dy)
                 for (int dz = (d == 3 ? -reach : 0); dz <= (d == 3 ? reach : 0); ++dz) {
+                    // I292: skip cells whose nearest corner is farther than R.
+                    // Cell size is med; axis gap is max(|d|-1, 0)·med.
+                    if (dx || dy || dz) {
+                        const double ax = (dx > 0 ? dx - 1 : (dx < 0 ? -dx - 1 : 0)) * med;
+                        const double ay = (dy > 0 ? dy - 1 : (dy < 0 ? -dy - 1 : 0)) * med;
+                        const double az =
+                            (d == 3) ? (dz > 0 ? dz - 1 : (dz < 0 ? -dz - 1 : 0)) * med : 0.0;
+                        if (ax * ax + ay * ay + az * az > R2) continue;
+                    }
                     c[0] = c0[0] + dx;
                     c[1] = c0[1] + dy;
                     c[2] = (d == 3) ? c0[2] + dz : 0;
