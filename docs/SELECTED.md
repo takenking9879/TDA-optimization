@@ -1,6 +1,6 @@
 # Selected algorithm (living)
 
-Updated 2026-10-13 after iterations I001–I245. **CLI default `--engine
+Updated 2026-10-13 after iterations I001–I246. **CLI default `--engine
 auto` (I235+I236+I239+I240+I241):** subsample residual-frac dispatch. Fat →
 RedZeD (torus n=2000 **12.7×**). Thin-circle → collapse+implicit
 (n=1000 **28×**; n=4000 still **140×**). Disconnected G_T → spatial UF
@@ -29,7 +29,7 @@ circle n=1000 **28×**; sphere n=600 H2 **136×**. Disconnected clouds
 I240 spatial metric (⅓ of the pairs, no n×n matrix). **Worst-case Big-O
 is not improved** on a connected G_T — this is a portfolio, not a new
 complexity class. Torus residual stays \(\Theta(n^2)\) (I204). Connected
-uniform2 n=5000 H1 is **8.3×** after I244+I245 (0.42s/3.46s).
+uniform2 n=5000 H1 is **9.56×** after I244–I246 (0.35s/3.38s).
 **I228 `--engine redzed`** (with I239/I240 split) remains the
 single-engine general exact path. **I242 `--engine active`** is exact H1 AE (I236 pairing bug fixed)
 but loses to RedZeD (circle n=500 0.06×; uniform2 n=1000 0.33×).
@@ -467,23 +467,33 @@ I244 6.8× / 0.50s). Reduce 325 vs 411 ms. Blobs n=4000 H1 **21×**.
 Sphere n=400 H2 **60×**. Circle **18×**. Topology loss: **0**. Still
 not 10×, not a better Big-O.
 
-## Next levers (still open after I245)
+**I246 lazy R/Ri insert:** skip the singleton when top-dimension AE has
+no seeds and leftover-coface would erase (zero bar / (n+1)-birth). Same
+path for H1 leftovers and H2 empty-XOR births. Wave 107 **exact 11/11**
+H0–H2. Connected uniform2 n=5000 **9.56×** (0.35s/3.38s; reduce 264 vs
+I245 325 ms). n=6000 **9.25×** (0.47s/4.34s). Blobs n=4000 H1 **24×**.
+H0 Kruskal **1.9×**. Sphere n=400 H2 collapse void 1=1. Topology loss:
+**0**. Constant-factor AE cut, not 10×, not a better Big-O.
+
+## Next levers (still open after I246)
 
 `--engine auto` is a shape-agnostic exact H0–H2 portfolio: circle H1
 10×, torus H1 10×, sphere H2 **136×** at n=600, **disconnected blobs
 27×** at n=8000 (0.38 s) on one CLI path. Connected uniform2 H1 is
-still **8.3×** at n=5000 after I245 (reduce 325 ms). I242/I243 owned
-AE is exact; rbit is ~1.5× on circle AE and still 12× slower than
-RedZeD. GUDHI explicit Rips is exact and too slow.
+still **9.56×** at n=5000 after I246 (reduce 264 ms) and **9.25×** at
+n=6000 (0.47 s). I242/I243 owned AE is exact; rbit is ~1.5× on circle
+AE and still 12× slower than RedZeD. GUDHI explicit Rips is exact and
+too slow.
 
 1. **CLI default:** `--engine auto` (I235+I236+I239+I240+I241). H1 τ=0.04; H2 τ=0.15.
 2. **Forced engines:** `--engine implicit` = I193+I197+I202+I203 only;
-   `--engine redzed` = I228+I239+I240; H0 = Kruskal.
+   `--engine redzed` = I228+I239+I240+I244+I245+I246; H0 = Kruskal.
 3. **Owned optional approx:** `--sparse-eps 0.6 --sparse-cap max` (I213/I218)
    when n grows past exact VR.
-4. Push **connected** uniform2 from **8.3×** to 10×. Need ~1.2× more
-   (0.42s → 0.35s). Remaining wall is sequential RedZeD AE. Fill-collect
-   sort is rejected. Parallel `build_edges` is in.
+4. Push **connected** uniform2 from **9.56×** to 10×. Need ~1.05× more
+   (0.35s → 0.34s). Remaining wall is sequential leftover-coface on
+   ~3.5M zero-persistence edges. Fill-collect sort is rejected.
+   Parallel `build_edges` and lazy insert are in.
 5. Owned AE leftover-star walk is still Θ(|leftover|·deg★) — rbit cut
    has_leftover_coface, not seeded probes (circle still 875k). Packed
    annotations / seeded_is_noop are the next owned constants.

@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-13 — I246 lazy R/Ri insert on leftover-coface
+
+- **Question:** Most leftover edges on a dense connected G_T are zero-persistence (n+1)-births. Does skipping the vendor R/Ri singleton insert when AE has no seeds and leftover-coface would erase keep exact H0–H2 and cut the connected wall?
+- **Hypothesis:** Insert+erase is equivalent to never inserting. collect_candidates uses ActiveReg, not R. Same skip on H2 empty-XOR births. Shape-agnostic. Exact if identity holds.
+- **Work:** `active_enum_lazy` in `redzed_vr`. Wave 107 vs Ripser. Hard cases: uniform2 n=5000 (I245 8.3× / 0.42s) and n=6000 (more points, still seconds).
+- **Result:** **Exact 11/11** (figure8 2=2; sphere void 1=1; two_spheres 2=2; blobs H0 3=3). Uniform2 n=5000 **9.56×** (0.35s/3.38s; reduce 264 vs I245 325 ms). n=6000 **9.25×** (0.47s/4.34s). Blobs n=4000 H1 **24×**. H0 Kruskal **1.9×**. Sphere n=400 H2 collapse **42×** (void 1=1; clock variance vs I245 60×).
+- **Decision:** **Hold.** Support as the RedZeD AE insert path. Topology loss: **0**. Connected 10× still open (need ~1.05× / 16 ms). Not a better Big-O.
+- **Class:** experiment (hold; exact constant; closer to 10×)
+
 ## 2026-10-13 — I245 parallel build_edges
 
 - **Question:** Is vendor `build_edges` (191 ms of the connected wall) parallelizable without changing filtration order?
