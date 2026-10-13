@@ -860,6 +860,40 @@ int main() {
         std::cout << "ok I280 Delaunay-VR adapt circle ess H1 |E|=" << de.size() << "\n";
     }
 
+    // I282: auto α formula + 16-pt circle at auto α keeps ess H1.
+    {
+        if (std::fabs(delaunay_auto_alpha(400) - 1.75f) > 1e-5f ||
+            delaunay_auto_alpha(8000) < 2.25f || delaunay_auto_alpha(8000) > 2.35f) {
+            std::cerr << "I282 auto α(400)=" << delaunay_auto_alpha(400)
+                      << " α(8000)=" << delaunay_auto_alpha(8000) << "\n";
+            return 1;
+        }
+        const int n = 16;
+        const value_t T = 1.4f;
+        std::vector<std::vector<value_t>> pts(static_cast<size_t>(n), std::vector<value_t>(2));
+        for (int i = 0; i < n; ++i) {
+            const float a = 6.2831853f * static_cast<float>(i) / static_cast<float>(n);
+            pts[static_cast<size_t>(i)][0] = std::cos(a);
+            pts[static_cast<size_t>(i)][1] = std::sin(a);
+        }
+        std::vector<Edge> de;
+        if (!delaunay_vr_skeleton(pts, T, delaunay_auto_alpha(n), de) || de.size() < 16) {
+            std::cerr << "I282 auto thicken failed |E|=" << de.size() << "\n";
+            return 1;
+        }
+        Graph g = graph_from_edge_list(n, de, T);
+        Result r = persist_implicit_coh(g, 1, T, 1);
+        int ess1 = 0;
+        for (const auto& p : r.pairs)
+            if (p.dim == 1 && !std::isfinite(p.death)) ++ess1;
+        if (ess1 != 1) {
+            std::cerr << "I282 circle auto ess1=" << ess1 << "\n";
+            return 1;
+        }
+        std::cout << "ok I282 Delaunay-VR auto-α circle ess H1 α=" << delaunay_auto_alpha(n)
+                  << " |E|=" << de.size() << "\n";
+    }
+
     // I239: two octahedra far apart — H0=2 and H2=2 (wedge of voids).
     {
         const value_t T = 1.5f;

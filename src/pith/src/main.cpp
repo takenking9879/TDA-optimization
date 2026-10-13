@@ -7,6 +7,7 @@
 
 #include <algorithm>
 #include <chrono>
+#include <cmath>
 #include <cstdlib>
 #include <fstream>
 #include <iomanip>
@@ -46,7 +47,7 @@ static void usage() {
         << "  --gic-k K           kNN degree for --gic-n (default 16)\n"
         << "  --reduced-vr        H07 reduced VR 2-complex (exact PH1 claimed; I224)\n"
         << "  --delaunay-vr       flag of Euclidean Delaunay 1-skeleton (I276; not exact VR)\n"
-        << "  --delaunay-alpha A  I277–I279 H1 thicken: add d≤A·r_local (default 1; 2.25 exact at n=8000)\n"
+        << "  --delaunay-alpha A  I277–I282 H1 thicken: A or 'auto' (1.75+0.125 log2(n/400), cap 2.75)\n"
         << "  --delaunay-adapt    I280: R_v = A·max(r_v, max_nbr r) instead of A·r_v\n"
         << "  --delaunay-floor F  I280: also thicken to F·median(r) (default 0)\n"
         << "  --sparse-only       write residual edges and exit\n"
@@ -312,6 +313,7 @@ int main(int argc, char** argv) {
     value_t delaunay_alpha = 1;
     value_t delaunay_floor = 0;
     bool delaunay_adapt = false;
+    bool delaunay_alpha_auto = false;
     bool later_b = false;
     int later_escalate = 0;
     int later_esc_until = 0;
@@ -337,7 +339,11 @@ int main(int argc, char** argv) {
         else if (a == "--gic-k") gic_k = std::stoi(need("--gic-k"));
         else if (a == "--reduced-vr") reduced_vr = true;
         else if (a == "--delaunay-vr") delaunay_vr = true;
-        else if (a == "--delaunay-alpha") delaunay_alpha = std::stof(need("--delaunay-alpha"));
+        else if (a == "--delaunay-alpha") {
+            const std::string v = need("--delaunay-alpha");
+            if (v == "auto") delaunay_alpha_auto = true;
+            else delaunay_alpha = std::stof(v);
+        }
         else if (a == "--delaunay-adapt") delaunay_adapt = true;
         else if (a == "--delaunay-floor") delaunay_floor = std::stof(need("--delaunay-floor"));
         else if (a == "--sparse-cap") {
@@ -458,10 +464,16 @@ int main(int argc, char** argv) {
                 g = sparse_rips_graph(dist, threshold, sparse_eps, sparse_cap);
                 if (collapse_iters < 0) collapse_iters = 0;
             } else if (delaunay_vr && have_pts) {
-                // I276: Delaunay 1-skeleton. I277: H1-only local-radius
-                // thicken (α>1). H2 stays α=1 — extra edges explode tets.
+                // I276: Delaunay 1-skeleton. I277–I279: H1-only local-radius
+                // thicken (α>1). I282: α=auto = 1.75+0.125 log2(n/400),
+                // cap 2.75 (blobs floor; n=8000 reaches ≥2.25). H2 stays α=1.
                 std::vector<Edge> de;
-                const value_t a = (maxdim <= 1) ? delaunay_alpha : value_t{1};
+                value_t a = delaunay_alpha;
+                if (maxdim >= 2) {
+                    a = 1;
+                } else if (delaunay_alpha_auto) {
+                    a = delaunay_auto_alpha(static_cast<int>(pts.size()));
+                }
                 const value_t fl = (maxdim <= 1) ? delaunay_floor : value_t{0};
                 const bool ad = (maxdim <= 1) && delaunay_adapt;
                 if (!delaunay_vr_skeleton(pts, threshold, a, de, fl, ad)) {
@@ -635,8 +647,12 @@ int main(int argc, char** argv) {
         } else {
             r.counters.n_vertices = g.n;
             r.counters.pipeline = delaunay_vr
-                                      ? ((maxdim <= 1 && (delaunay_alpha > 1 || delaunay_adapt || delaunay_floor > 0))
-                                             ? std::string(delaunay_adapt ? "pith:delaunay-vr-adapt" : "pith:delaunay-vr-alpha")
+                                      ? ((maxdim <= 1 && (delaunay_alpha_auto || delaunay_alpha > 1 ||
+                                                          delaunay_adapt || delaunay_floor > 0))
+                                             ? std::string(delaunay_alpha_auto
+                                                               ? "pith:delaunay-vr-auto"
+                                                               : (delaunay_adapt ? "pith:delaunay-vr-adapt"
+                                                                                 : "pith:delaunay-vr-alpha"))
                                              : std::string("pith:delaunay-vr"))
                                       : (reduced_vr
                                              ? std::string("pith:reduced-vr")
