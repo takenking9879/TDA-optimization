@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-13 — I270 2D Delaunay H0
+
+- **Question:** Euclidean MST ⊆ Delaunay, so is H0 of VR≤T exactly Kruskal on Delaunay edges with d≤T, skipping the G_T listing (blobs n=4000: 2.6M spatial pairs / 1.85×)?
+- **Hypothesis:** Same merge times as MST. Bowyer–Watson O(n²) incircle, n∈[256,12000], d=2. H1/H2 unchanged. Shape-agnostic in the plane. Justified size: Θ(n) edges vs Θ(|E_T|).
+- **Work:** `delaunay_edges_2d` + Kruskal d≤T in `persist_redzed_from_points` maxdim=0. Wave 131 vs Ripser: H0 blobs n=4000/8000 + H1/H2 hold.
+- **Result:** **Exact 14/14** (blobs H0 3=3 at n=4000 and n=8000; figure8 2=2; sphere void 1=1; two_spheres 2=2). blobs n=4000 **3.17× / 0.186 s / 11946 edges** (I241 1.85× / 0.30 s / 2.6M). n=8000 **4.53× / 0.57 s / 23949**. Dense H1 **11.2×**. figure8 n=2000 **16.6×**. Sphere H2 **55×**. Delaunay construction is the new H0 cost (metric 176 ms at n=4000, 557 ms at n=8000) — O(n²) BW, not G_T.
+- **Decision:** **Support for H0.** Topology loss: **0**. I263 H1/H2 unchanged. Next H0: walk-locate Delaunay so construction is O(n log n). Do not claim a connected-G_T H1 Big-O win. Leftover visits stay Θ(|E|).
+- **Class:** experiment (support H0 identity + size class)
+
 ## 2026-10-13 — I269 collapse live AND-eq + Morton
 
 - **Question:** I268 A/B: collapse on figure8 n=4000 is 845 ms / 1.97M fast trims. Does restricting AND-eq to LiveBits [rlo,rhi] plus Morton order cut that walk (AND-eq still scanned all n/64 words)?

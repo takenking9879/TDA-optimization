@@ -6,8 +6,8 @@ plus I263 edge-frac so hollow/manifold clouds take RedZeD. Fat →
 RedZeD (torus n=2000 **13.0×**). Thin-circle → collapse+implicit
 (n=1000 **28×**; n=4000 still **140×**). Mixed figure8 n=4000 T=1.1
 **27× / 1.07 s** spatial. Disconnected G_T → spatial UF
-+ parallel RedZeD per component (blobs n=4000 **24×**). **H0** is
-Kruskal (no RedZeD). **H2:** τ=0.15 so sphere void stays collapse
++ parallel RedZeD per component (blobs n=4000 **24×**). **H0** is Kruskal; **I270** uses 2D Delaunay edges (MST ⊆ Delaunay)
+when n∈[256,12000] so H0 does not list G_T. **H2:** τ=0.15 so sphere void stays collapse
 (**58×** at n=400). Shape-agnostic, 0 bars lost. Circle 140× is a
 collapse-friendly regime, **not** the success criterion.
 
@@ -604,7 +604,12 @@ Rips is exact and too slow.
    cloud is 845 ms / 1.97M fast trims — same Θ(|E|) wall. I269
    collapse live AND-eq + Morton is exact 15/15 and reverted
    (figure8 n=4000 collapse 768 vs 845 ms). Do not retry collapse
-   word-range + Morton.
+   word-range + Morton. **I270 2D Delaunay H0 is selected** for
+   maxdim=0, d=2, n∈[256,12000]: exact 14/14, blobs n=4000 **3.17× /
+   0.186 s / 12k edges** vs I241 spatial 1.85× / 0.30 s / 2.6M.
+   Construction is still O(n²) Bowyer–Watson (n=8000 metric 557 ms).
+   Next H0 construction is walk-locate O(n log n), not another G_T
+   listing. H1 leftover visits remain Θ(|E|).
 6. Owned AE leftover-star walk is still Θ(|leftover|·deg★) — rbit cut
    has_leftover_coface, not seeded probes (circle still 875k). Packed
    annotations / seeded_is_noop are the next owned constants.
