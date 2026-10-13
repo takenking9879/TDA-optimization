@@ -165,6 +165,31 @@ int main() {
         std::cout << "ok implicit K6 vs homology H1 bars=" << ba.size() << "\n";
     }
 
+    // I149/I150: DC and forward keep PH of C4+diagonals (later diagonal trimmed
+    // or barcode-equivalent). Compare H1 of collapsed graphs.
+    {
+        Graph g = from_edges(4, {{0, 1, 1}, {1, 2, 1}, {2, 3, 1}, {0, 3, 1}, {0, 2, 2}, {1, 3, 2.1f}});
+        Counters cb, cd, cf;
+        Graph hb = collapse_edges(g, 1, cb);
+        Graph hd = collapse_edges_dc(g, 1, cd);
+        Graph hf = collapse_edges_forward(g, 1, cf);
+        Result rb = persist_sparse(hb, 1, 10, 1);
+        Result rd = persist_sparse(hd, 1, 10, 1);
+        Result rf = persist_sparse(hf, 1, 10, 1);
+        auto h1 = [](const Result& r) {
+            int ess = 0, fin = 0;
+            for (const auto& p : r.pairs) {
+                if (p.dim != 1) continue;
+                if (std::isfinite(p.death)) ++fin;
+                else ++ess;
+            }
+            return std::pair<int, int>{ess, fin};
+        };
+        assert(h1(rb) == h1(rd));
+        assert(h1(rb) == h1(rf));
+        std::cout << "ok dc/forward C4+diagonals H1 match backward\n";
+    }
+
     std::cout << "all collapse/persist unit tests passed\n";
     return 0;
 }

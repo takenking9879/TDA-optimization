@@ -19,6 +19,7 @@ static void usage() {
         << "  --maxdim K          homology dimension (default 1)\n"
         << "  --threshold T       VR diameter threshold (default inf)\n"
         << "  --collapse N        collapse passes (default -1 adaptive+probe; 0 = off)\n"
+        << "  --collapse-alg back|dc|forward   collapse algorithm (default back)\n"
         << "  --dom-budget K      max domination candidates per edge (-1 = all; I107)\n"
         << "  --engine auto|homology|implicit   residual PH engine (default auto)\n"
         << "  --ratio R           skip pairs with death <= birth*R (default 1)\n"
@@ -200,6 +201,7 @@ int main(int argc, char** argv) {
     bool sparse_only = false;
     std::string format = "text";
     std::string engine = "auto";
+    std::string collapse_alg = "back";
 
     for (int i = 1; i < argc; ++i) {
         const std::string a = argv[i];
@@ -215,6 +217,7 @@ int main(int argc, char** argv) {
         else if (a == "--maxdim") maxdim = std::stoi(need("--maxdim"));
         else if (a == "--threshold") threshold = std::stof(need("--threshold"));
         else if (a == "--collapse") collapse_iters = std::stoi(need("--collapse"));
+        else if (a == "--collapse-alg") collapse_alg = need("--collapse-alg");
         else if (a == "--dom-budget") dom_budget = std::stoi(need("--dom-budget"));
         else if (a == "--engine") engine = need("--engine");
         else if (a == "--ratio") ratio = std::stof(need("--ratio"));
@@ -252,18 +255,21 @@ int main(int argc, char** argv) {
         Graph g = graph_from_distance(dist, threshold);
         c.n_vertices = g.n;
         c.n_edges_in = static_cast<std::int64_t>(g.edges.size());
+        auto do_collapse = [&](Graph&& h, int iters) -> Graph {
+            if (collapse_alg == "dc") return collapse_edges_dc(std::move(h), iters, c, dom_budget);
+            if (collapse_alg == "forward") return collapse_edges_forward(std::move(h), iters, c);
+            return collapse_edges(std::move(h), iters, c, dom_budget);
+        };
         if (collapse_iters < 0) {
             if (maxdim < 1) {
                 c.n_edges_out = c.n_edges_in;
             } else {
-                // I055: do not skip collapse on high-d. persist_sparse on G_T
-                // is much slower than collapse+homology (uniform10 n=200: 3.5s vs 0.23s).
-                g = collapse_edges(std::move(g), 1, c, dom_budget);
+                g = do_collapse(std::move(g), 1);
                 const double mean_deg = g.n ? (2.0 * static_cast<double>(g.edges.size()) / g.n) : 0;
-                if (mean_deg > 6.0) g = collapse_edges(std::move(g), 2, c, dom_budget);
+                if (mean_deg > 6.0) g = do_collapse(std::move(g), 2);
             }
         } else if (collapse_iters > 0) {
-            g = collapse_edges(std::move(g), collapse_iters, c, dom_budget);
+            g = do_collapse(std::move(g), collapse_iters);
         } else {
             c.n_edges_out = c.n_edges_in;
         }
