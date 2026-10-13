@@ -1094,8 +1094,17 @@ Do not paste long reasoning here.
 - **Question:** Does a symmetric kNN 1-skeleton (keep (i,j) if either is among the other's K nearest and d≤T) keep essential H1 on mixed-homology families with a better size class than Ripser?
 - **Hypothesis:** I021 rejected k=16 as exact-VR. As an optional approx, |E|≤kn/2 = O(n) for fixed K. Shape-agnostic. Quantify ess H1 + bottleneck. If it invents/drops loops like I216, reject.
 - **Work:** `--knn K`, collapse=0, implicit. Wave 81 on circle/blobs/torus/two_circles/figure8 at K=16 and 32.
+- **Result:** **Reject K=16/32 as optional.** K=16 invents many essential H1 (blobs 22, sphere 26, torus 32). K=32 is near-exact on circle/sphere/figure8 (bn≈0) but **invents a torus H1** (2 vs VR's 1 essential at T=1.6; bn 0.36) and an extra H0 on two_circles. Fast (torus 40–60×) and small (35k edges) — wrong features. Probe: torus H1ess matches VR only at **K≥128** (139k edges, denser than owned sparse-eps 91k).
+- **Decision:** Do not recommend `--knn`. Owned `--sparse-eps 0.6` stays the optional approx. I221: measure K=128 (first K that matches torus H1ess) vs sparse-eps on mixed families.
+- **Class:** experiment (reject K=16/32; invents loops)
+
+## 2026-10-13 — I221 kNN K=128 (homology-safe K)
+
+- **Question:** At the first K where torus H1ess matches VR (128), is kNN still a better size/clock class than `--sparse-eps 0.6` with ess H1 on mixed families?
+- **Hypothesis:** K=128 is O(n) but constants exceed greedy-net (139k vs 91k on torus n=2000). May keep ess H1; bottleneck unknown. Dominated if slower or lossier than I213/I218.
+- **Work:** Wave 82, dim-1 essential only.
 - **Result:** *(wave pending)*
-- **Decision:** Optional only if ess H1 holds and bn ≲0.05. Not a default.
+- **Decision:** Select only if ess H1 + bn≲0.05 and not dominated by sparse-eps 0.6.
 - **Class:** experiment
 
 ## 2026-10-13 — I164 collapse live-degree trace

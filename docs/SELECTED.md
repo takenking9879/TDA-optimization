@@ -85,6 +85,7 @@ suite and I137 8/8 (including dense circle80/200 **collapse=0**, the I045 killer
 | Lazy witness ν=1 (I216) | Invents essential H1 on every family (torus 14 vs 2; bn 0.05–0.48) |
 | Lazy witness ν=0 (I217) | torus ess OK but bn 0.64; circle1000 drops a loop; others invent |
 | Killer-first dominated_by (I219) | Exact 5/5; 17% torus hits; collapse 1474≈1470; sphere 388 vs 365. Reverted |
+| kNN flag K=16/32 (I220) | Invents torus H1 at K=32 (bn 0.36); K=16 invents many loops. Fast but unsafe |
 
 I107 (`--dom-budget 1`) **still rejected** with implicit (I142–I144): thicker
 residual makes collapse *and* reduce slower (circle3000 1.49× vs full 8.11×).
