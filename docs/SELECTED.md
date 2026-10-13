@@ -82,7 +82,8 @@ I153: C-build is the wall (567M probes / 1.12M dom tests / 96% first-apex hits).
 ~49% of probes miss and still paid two gathers. Domination levers are closed.
 
 1. **I155 pair-nbr + I156 fused first-apex — selected.** Flagship **9.50×** (I157).
-2. Layout micro-opts closed (I158–I160 all slower). Next work-reducing cuts: integer grade IDs, hub-batch, membership filter, RedZeD (H09).
+2. Layout micro-opts closed (I158–I160 all slower). Matching-batch parallel is **unsafe** (shared commons). **I161 integer grades** in flight.
+3. Closed: prefetch, sorted stars, SoA, exact forward, D&C, progressive/hybrid/budget, merge C, AVX.
 3. Probe count unchanged (4.58B at n=4000). Geometry ceiling still ~2× on C-build.
 4. Fix D&C merge (I150) — parallel schedule only.
 5. GPU later (Ripser++ reference only)

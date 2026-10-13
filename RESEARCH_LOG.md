@@ -683,8 +683,8 @@ Do not paste long reasoning here.
 - **Decision:** Revert to I155 AoS pair. Layout micro-opts after I156 are closed (I158–I160 all slower).
 - **Class:** experiment (negative on clock)
 
-## 2026-10-13 — next after I160
+## 2026-10-13 — I161 integer grades (in progress)
 
-- **Open:** integer grade IDs; hub-batch; live-neighbor membership filter; real RedZeD (H09). Probe count still 4.58B at n=4000. Flagship **9.50×** needs ~5% more collapse cut for 10× on circle4000.
-- **Closed this wave:** prefetch, sorted stars, SoA, exact forward, D&C, progressive/hybrid/budget, merge C, AVX dominate.
-- **Class:** proposal
+- **Question:** Do order-preserving integer grades + 0-as-missing beat float times on the C-walk?
+- **Hypothesis:** Zero-test misses and integer-valued compares cut collapse_ms ~5% (enough for circle4000 10×). Matching-batch parallel is **unsafe** (shared common neighbors change deg + Tm).
+- **Class:** proposal / experiment running

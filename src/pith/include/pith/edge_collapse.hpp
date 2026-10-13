@@ -14,8 +14,10 @@ namespace pith {
 struct DenseTimes {
     int n = 0;
     std::vector<value_t> a;
-    explicit DenseTimes(int n_) : n(n_), a(static_cast<size_t>(n_) * n_, kInf) {
-        for (int i = 0; i < n; ++i) a[static_cast<size_t>(i) * n + i] = kNegInf;
+    explicit DenseTimes(int n_, value_t fill = kInf)
+        : n(n_), a(static_cast<size_t>(n_) * n_, fill) {
+        const value_t diag = (fill >= kInf / 2) ? kNegInf : value_t(0);
+        for (int i = 0; i < n; ++i) a[static_cast<size_t>(i) * n + i] = diag;
     }
     value_t operator()(int i, int j) const { return a[static_cast<size_t>(i) * n + j]; }
     const value_t* row(int i) const { return a.data() + static_cast<size_t>(i) * n; }
@@ -37,7 +39,8 @@ inline bool dominated_by(const DenseTimes& Tm, const std::vector<index_t>& C_now
                          index_t cand, value_t t) {
     const value_t* row = Tm.row(cand);
     for (index_t w : C_now) {
-        if (row[w] > t) return false;
+        const value_t tw = row[w];
+        if (tw == 0 || tw > t) return false;
     }
     return true;
 }
@@ -98,7 +101,8 @@ inline index_t first_dominator_prog(const DenseTimes& Tm, const std::vector<inde
     for (index_t w : C_now) {
         size_t k = 0;
         for (index_t s : S) {
-            if (Tm(s, w) <= t) S[k++] = s;
+            const value_t tsw = Tm(s, w);
+            if (tsw != 0 && tsw <= t) S[k++] = s;
         }
         S.resize(k);
         if (S.empty()) return -1;
@@ -209,14 +213,14 @@ inline bool process_one_backward(const Edge& e_in, value_t t_in, DenseTimes& Tm,
         const index_t w = p.first;
         if (w == u || w == v) continue;
         const value_t t_other = r_other[w];
-        if (t_other >= kInf / 2) continue;
+        if (t_other == 0 || t_other >= kInf / 2) continue;
         ++commons;
         const value_t tau = p.second > t_other ? p.second : t_other;
         if (tau <= t) {
             if (first < 0) {
                 first = w;
                 r_first = Tm.row(w);
-            } else if (fused_ok && r_first[w] > t) {
+            } else if (fused_ok && (r_first[w] == 0 || r_first[w] > t)) {
                 fused_ok = false;
             }
         } else {
@@ -239,7 +243,7 @@ inline bool process_one_backward(const Edge& e_in, value_t t_in, DenseTimes& Tm,
         const index_t w = p.first;
         if (w == u || w == v) continue;
         const value_t t_other = r_other[w];
-        if (t_other >= kInf / 2) continue;
+        if (t_other == 0 || t_other >= kInf / 2) continue;
         const value_t tau = p.second > t_other ? p.second : t_other;
         if (tau <= t) S.C_now.push_back(w);
         else S.C_later.push_back({tau, w});
@@ -272,7 +276,7 @@ inline bool process_one_backward(const Edge& e_in, value_t t_in, DenseTimes& Tm,
                 const index_t w = S.C_later.front().second;
                 const value_t tw = S.C_later.front().first;
                 ++c.n_collapse_shift_lookups;
-                if (rd[w] > tw) still = false;
+                if (rd[w] == 0 || rd[w] > tw) still = false;
                 S.C_now.push_back(w);
                 std::pop_heap(S.C_later.begin(), S.C_later.end(), later_cmp);
                 S.C_later.pop_back();
@@ -300,8 +304,8 @@ inline bool process_one_backward(const Edge& e_in, value_t t_in, DenseTimes& Tm,
 }
 
 inline void init_collapse_graph(const std::vector<Edge>& E, int n, DenseTimes& Tm,
-                                LiveAdj& nbr) {
-    Tm = DenseTimes(n);
+                                LiveAdj& nbr, value_t fill = kInf) {
+    Tm = DenseTimes(n, fill);
     nbr.assign(n, {});
     std::vector<int> deg(n, 0);
     for (const Edge& e : E) {
@@ -337,9 +341,21 @@ inline Graph collapse_edges(Graph g, int iterations, Counters& c, int dom_budget
             return a.v < b.v;
         });
 
+        // I161: order-preserving integer grades. Missing entries stay 0
+        // so the C-walk miss check is an integer zero-test.
+        std::vector<value_t> grades;
+        grades.reserve(E.size());
+        for (const Edge& e : E) grades.push_back(e.t);
+        std::sort(grades.begin(), grades.end());
+        grades.erase(std::unique(grades.begin(), grades.end()), grades.end());
+        for (Edge& e : E) {
+            const auto it = std::lower_bound(grades.begin(), grades.end(), e.t);
+            e.t = static_cast<value_t>(static_cast<int>(it - grades.begin()) + 1);
+        }
+
         DenseTimes Tm(g.n);
         LiveAdj nbr;
-        init_collapse_graph(E, g.n, Tm, nbr);
+        init_collapse_graph(E, g.n, Tm, nbr, value_t(0));
 
         std::vector<Edge> kept;
         kept.reserve(E.size() / 4 + 8);
@@ -349,6 +365,10 @@ inline Graph collapse_edges(Graph g, int iterations, Counters& c, int dom_budget
                 kept.push_back(out);
         }
         g.edges.swap(kept);
+        for (Edge& e : g.edges) {
+            const int r = static_cast<int>(e.t);
+            e.t = grades[static_cast<size_t>(r - 1)];
+        }
     }
 
     rebuild_neighbors(g);
@@ -470,7 +490,7 @@ inline bool edge_dominated_in(const DenseTimes& Tm, const LiveAdj& nbr,
         const index_t w = p.first;
         if (w == u || w == v) continue;
         const value_t t_other = r_other[w];
-        if (p.second <= t && t_other <= t) C.push_back(w);
+        if (p.second != 0 && t_other != 0 && p.second <= t && t_other <= t) C.push_back(w);
     }
     return first_dominator_deg(Tm, C, t, nbr, -1) >= 0;
 }
