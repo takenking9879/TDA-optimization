@@ -1,10 +1,9 @@
 # Selected algorithm (living)
 
-Updated 2026-10-13 after iterations I001–I202. **Default collapse is I193
-multi-apex AND-eq + I197 any_later C_now AND-eq + I202 witness rescan gated
-on `|C_now|≥32`** on I182 live-bit C + I186 no LiveAdj. Flagship circle
-n=4000 T=1.5 is **140×** vs Ripser (I196). That number is a
-collapse-friendly regime, **not** the success criterion.
+Updated 2026-10-13 after iterations I001–I203. **Default is I193 + I197 +
+I202 gated witness + I203 cofacet early-stop** on I182 live-bit C + I186
+no LiveAdj. Flagship circle n=4000 T=1.5 is **140×** vs Ripser (I196).
+That number is a collapse-friendly regime, **not** the success criterion.
 
 ## Success criteria (goal amendment)
 
@@ -17,10 +16,11 @@ complex with a proven size bound). Any information loss vs exact VR must be
 quantified (unmatched bars / bottleneck / interleaving).
 
 Current honest status: the **code path is shape-agnostic and exact** (0
-unmatched vs Ripser on every measured family). **Worst-case Big-O is not
-yet improved** — collapse is an extra \(O(E\cdot|C|)\) pass; torus residual
-stays \(\Theta(n^2)\). I204 measures residual slopes; I203 cuts reduce work
-on every residual without changing the pairing class.
+unmatched vs Ripser on every measured family, including figure8 /
+two_circles). **Worst-case Big-O is not yet improved** — collapse is an
+extra \(O(E\cdot|C|)\) pass; torus residual stays \(\Theta(n^2)\). I203
+cuts the apparent cofacet walk (torus reduce 450→172 ms) without changing
+the pairing class. I204 measures residual slopes.
 
 ## Selected exact-VR CPU pipeline
 
@@ -28,7 +28,8 @@ on every residual without changing the pairing class.
 (GUDHI sticky-dominator + I182 live-bit AND generate-C + I186 no LiveAdj +
 **I193 multi-apex AND-eq** + **I197 any_later C_now AND-eq** + **I202
 `|C_now|≥32` witness rescan**; I189 is the first no-later candidate) →
-**Ripser-heap implicit cohomology** on the residual (I137).
+**Ripser-heap implicit cohomology** on the residual (I137) with **I203
+hi-walk early-stop** after the zero-pivot / emergent pair.
 `--collapse-alg back` is this stack. `back-src` is the pre-I182 star walk.
 
 - \(H_0\): Kruskal. `--collapse -1` **skips collapse** when `maxdim=0`.
@@ -103,7 +104,7 @@ residual makes collapse *and* reduce slower (circle3000 1.49× vs full 8.11×).
 | blobs | \(H_1\) | 2000 | 1.0 | **1.77×** I202 (collapse 190 ms). I197 was 1.85× / 178 ms |
 | sphere | \(H_1\) | 2000 | 1.4 | **1.84×** I202 (collapse 365 ms). I197 was 2.03× / 334 ms |
 | uniform2 | \(H_1\) | 2000 | 0.35 | **2.10×** I200 (was I162 0.30×) |
-| torus | \(H_1\) | 2000 | 1.6 | **1.31×** I202 (collapse 1512 ms, 113k shifts); residual 163k. I197 was 1.14× / 1771 ms |
+| torus | \(H_1\) | 2000 | 1.6 | **1.52×** I203 (1.68s/2.55s, collapse 1470 ms, reduce 172 ms). I202 was 1.31× / 1512 ms collapse / ~450 ms reduce |
 | torus | \(H_1\) | 1000 | 1.6 | **1.63×** I200 (was I139 1.31×) |
 | circle_noisy | \(H_1\) | 1000 | 1.5 | **4.1×** (I083) |
 
@@ -129,11 +130,10 @@ Not a drop-in exact-VR replacement.
 Circle family: **84.4 / 119 / 140×**. Other families ~1.3–2.1×. Default is
 shape-agnostic and exact; residual complexity is not.
 
-1. **Default:** I193 + I197 + I202 gated witness.
-2. **I203:** cofacet-walk early-stop (shape-agnostic reduce; less work, same PH).
-3. **I204:** residual \(|E'(n)|\) log-log slopes across families — required
+1. **Default:** I193 + I197 + I202 gated witness + I203 cofacet early-stop.
+2. **I204:** residual \(|E'(n)|\) log-log slopes across families — required
    before any Big-O claim. If torus/sphere stay \(\Theta(n^2)\), next
-   construction is Alpha / sparse Rips with quantified topology loss.
-4. Torus shift heap: time-bucket / later-bits only if I204 says collapse
-   (not reduce) is still the wall after I203.
-5. GPU later.
+   construction is Alpha / sparse Rips with quantified topology loss (I205).
+3. Torus shift heap: time-bucket / later-bits only if I204 says collapse
+   (not reduce) is still the wall.
+4. GPU later.

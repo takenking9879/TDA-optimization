@@ -956,9 +956,9 @@ Do not paste long reasoning here.
 ## 2026-10-13 — I203 cofacet-walk early-stop
 
 - **Question:** Can we abort the hi-order cofacet merge after the Ripser zero-pivot / emergent pair is certified, cutting apparent-scan work on every family?
-- **Result:** Pending wave65.
-- **Decision:** Exactness: first same-diameter cofacet in hi-order is the zero-pivot; emergent pair is that cofacet when unpaired and non-apparent. Tail of the intersection cannot change either result. Select if barcodes match and reduce_ms / apparent probes drop on torus **and** at least one other family.
-- **Class:** experiment (in progress)
+- **Result:** **Exact** 7/7 including figure8 and two_circles (0 unmatched vs Ripser). Torus reduce **450→172 ms**, counted probes 2.41M→2.31M, new apparent-probe counter **1.42M** (previously a full uncounted merge per leftover edge). Torus wall **1.52×** (1.68s / 2.55s; I202 was 1.31×). blobs 1.78×, sphere 1.91×, figure8 3.13×, two_circles 3.43×. Circle reduce already ~2 ms; collapse jitter 263→313 ms is unrelated.
+- **Decision:** Select (shape-agnostic, exact, less algebraic work on every residual). Topology loss: **0 bars**. Complexity: same Big-O class (still Θ(|E'| · deg) worst case) but a smaller leading constant on the apparent pass. I204 measures whether |E'(n)| is o(n²) across shapes.
+- **Class:** experiment (support as default)
 
 ## 2026-10-13 — I164 collapse live-degree trace
 
