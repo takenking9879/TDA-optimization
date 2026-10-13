@@ -1,6 +1,6 @@
 # Selected algorithm (living)
 
-Updated 2026-10-13 after iterations I001–I260. **CLI default `--engine
+Updated 2026-10-13 after iterations I001–I261. **CLI default `--engine
 auto` (I235+I236+I239+I240+I241):** subsample residual-frac dispatch. Fat →
 RedZeD (torus n=2000 **12.7×**). Thin-circle → collapse+implicit
 (n=1000 **28×**; n=4000 still **140×**). Disconnected G_T → spatial UF
@@ -543,37 +543,44 @@ pith 1.02s / **6.0×**. Dense n=5000 **11.4×**. Torus **12.4×**.
 Sphere H2 **52×**. Topology loss: **0**. Reduce a bit longer
 (load 0.75 probes).
 
-## Next levers (still open after I260)
+**I261 load-0.5 malloc/bitmap:** I259 probe length without
+`tab.assign(16M)`. Wave 122 **exact 13/13**. n=20000 reduce
+**468 vs I260 513**, metric 153, pith 1.03s / **6.2×**. Dense
+n=5000 **10.9×**. Torus **12.4×** (reduce 155). Sphere H2 **50×**.
+Topology loss: **0**. Selected spatial hash.
+
+## Next levers (still open after I261)
 
 `--engine auto` is a shape-agnostic exact H0–H2 portfolio: circle H1
 10×, torus H1 **12.7×**, sphere H1 **10.1×** at n=2000, sphere H2
 **62×** at n=400 / **136×** at n=600, **disconnected blobs 21×**
 at n=4000 on one CLI path. Connected uniform2 H1 is **11.2×** at
-n=5000 (0.31 s). Sparse connected n=20000 **6.0×** (1.02 s, 4.71M
+n=5000 (0.31 s). Sparse connected n=20000 **6.2×** (1.03 s, 4.71M
 vs 200M, no 800 MB matrix). I242/I243 owned AE is exact; rbit is
 ~1.5× on circle AE and still 12× slower than RedZeD. GUDHI explicit
 Rips is exact and too slow.
 
 1. **CLI default:** `--engine auto` (I235+I236+I239+I240+I241). H1 τ=0.04; H2 τ=0.15.
 2. **Forced engines:** `--engine implicit` = I193+I197+I202+I203 only;
-   `--engine redzed` = I228+I239+I240+I244+I245+I246+I250+I251+I252+I256+I257+I258+I259+I260; H0 = Kruskal.
+   `--engine redzed` = I228+I239+I240+I244+I245+I246+I250+I251+I252+I256+I257+I258+I259+I260+I261; H0 = Kruskal.
 3. **Owned optional approx:** `--sparse-eps 0.6 --sparse-cap max` (I213/I218)
    when n grows past exact VR.
 4. Connected uniform2 is **11.4×** at n=5000 after I258 (0.30 s).
    Sphere n=2000 H1 **10.1×**. Torus n=2000 **12.7×**. Sparse
-   n=20000 is **6.0×** (1.02 s, 4.71M vs 200M). Remaining dense
+   n=20000 is **6.2×** (1.03 s, 4.71M vs 200M). Remaining dense
    wall is visiting leftover edges (UF + `advance_rbits` + first
    rbit AND), not `coface_ready`. Spatial metric is O(|E|) memory
-   (I258–I260 hash). I253–I255 leftover-coface inner-loop constants
+   (I258–I261 hash). I253–I255 leftover-coface inner-loop constants
    are exact and reverted. Fill-collect sort, I247 leftover-coface
    fast, I248 fuse-fill histogram, and I249 parallel leftover-coface
    precompute are rejected. Parallel `build_edges`, lazy insert,
    skip-collect, inline skip, leftover-coface no-seen, spatial
    prebuild, skip ∞-fill, parallel `spatial_edges`, CSR-no-n², and
    hash get are in. Dense n=5000 stays I238 all-pairs.
-5. **I261 (open):** load 0.5 + malloc/bitmap (I259 probe length
-   without I259’s 256 MB write). I260 cut n=20000 metric 192→113
-   but reduce 456→513. Must stay exact. Dense path stays I238.
+5. Hash load-factor constants are exhausted (I259–I261). Do not
+   retry another table size for a pith cut. Next scale lever is
+   elsewhere: leftover-visit wall on dense G_T, or a larger sparse
+   n with the current hash. Dense path stays I238 all-pairs.
 6. Owned AE leftover-star walk is still Θ(|leftover|·deg★) — rbit cut
    has_leftover_coface, not seeded probes (circle still 875k). Packed
    annotations / seeded_is_noop are the next owned constants.

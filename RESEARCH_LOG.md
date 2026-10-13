@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-13 — I261 load-0.5 malloc/bitmap hash
+
+- **Question:** I260 load 0.75 cut n=20000 metric 192→113 but lengthened probes (reduce 456→513). Does load 0.5 on the same malloc/bitmap restore I259 probe length without bringing back the 256 MB write?
+- **Hypothesis:** Untouched empty slots stay cheap; shorter probes cut leftover-coface. Same pairs, miss = +∞. Dense stays I238. Shape-agnostic. Exact if identity holds.
+- **Work:** `need = 2|E|+1`. Wave 122 vs Ripser: H0–H2 + torus + dense n=5000 + n=20000.
+- **Result:** **Exact 13/13** (figure8 2=2; sphere void 1=1; two_spheres 2=2; torus ess H1 1=1; blobs H0 3=3). n=20000 reduce **468 vs I260 513** (I259 456); metric **153 vs 113** (I259 192); pith **1.03s / 6.2×** (I260 1.02s). Dense n=5000 **10.9×** (0.31s). Torus **12.4×** (reduce 155=I259). Sphere H1 **10.1×**. Blobs H1 **21×**. Sphere H2 **50×**.
+- **Decision:** **Support as the selected hash** (short probes + no eager zero). Topology loss: **0**. Wall-clock even with I260; reduce is the real cut. Hash load-factor constants are exhausted. Next: a different scale lever (not another table size). Worst-case connected G_T is still Θ(n²).
+- **Class:** experiment (support; exact reduce cut, pith even)
+
 ## 2026-10-13 — I260 tight hash (load 0.75, no Slot zero)
 
 - **Question:** I259’s `tab.assign(16M)` wrote 256 MB at n=20000 (metric 192 vs I258 118). Does a load-~0.75 table with an occupancy bitmap and malloc (empty slots untouched) cut that metric without inventing bars?
