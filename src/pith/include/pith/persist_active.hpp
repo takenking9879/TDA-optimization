@@ -4,11 +4,12 @@
 
 namespace pith {
 
-// I231/I232: owned H1 active enumeration (RedZeD idea, not the vendor copy).
-// Process leftover edges in filtration order. A triangle is generated only
-// when the leftover being processed is a youngest face. I232: F₂ annotations
-// R / Ri (Kapulkin–Kershaw resolve_bar) skip empty-XOR (H₂-birth) columns
-// instead of running persist_sparse reduce on every triangle. Shape-agnostic.
+// I231–I233: owned H1 active enumeration (RedZeD idea, not the vendor copy).
+// I232: F₂ annotations R / Ri skip empty-XOR (H₂-birth) reduce.
+// I233: do not walk every common neighbor. Apparent 1-leftover triangles
+// are the leftover + two MST edges (tree-star intersection, O(deg_T)).
+// Multi-leftover triangles come from the *active* leftover star (R nonempty).
+// Same path on every flag graph — shape-agnostic.
 inline Result persist_active_h1(const Graph& g, int maxdim, value_t threshold,
                                 value_t ratio) {
     Result r;
@@ -33,6 +34,8 @@ inline Result persist_active_h1(const Graph& g, int maxdim, value_t threshold,
     };
     std::vector<BirthEdge> leftover;
     leftover.reserve(edges.size());
+    std::vector<std::vector<std::pair<index_t, value_t>>> tree_nbr(
+        static_cast<size_t>(g.n));
     int components = g.n;
     for (const Edge& e : edges) {
         if (e.t > threshold) continue;
@@ -40,6 +43,8 @@ inline Result persist_active_h1(const Graph& g, int maxdim, value_t threshold,
             --components;
             r.pairs.push_back({0, 0, e.t});
             ++c.n_columns_cleared;
+            tree_nbr[static_cast<size_t>(e.u)].push_back({e.v, e.t});
+            tree_nbr[static_cast<size_t>(e.v)].push_back({e.u, e.t});
         } else {
             leftover.push_back({e.u, e.v, e.t, static_cast<int>(leftover.size())});
         }
@@ -64,9 +69,37 @@ inline Result persist_active_h1(const Graph& g, int maxdim, value_t threshold,
     // annotation — clearing R[j] on pair missed the unit-square death
     // (I231: 023 after 012 dead still reduces onto the older leftover).
     std::vector<std::vector<int>> R(static_cast<size_t>(m)), Ri(static_cast<size_t>(m));
+    // I233: leftover ids with nonempty R, incident to each vertex.
+    std::vector<std::vector<int>> star(static_cast<size_t>(g.n));
+    std::vector<int> star_pos(static_cast<size_t>(m) * 2, -1);
+    auto star_add = [&](int id) {
+        const BirthEdge& e = leftover[static_cast<size_t>(id)];
+        star_pos[static_cast<size_t>(id) * 2] = static_cast<int>(star[static_cast<size_t>(e.u)].size());
+        star[static_cast<size_t>(e.u)].push_back(id);
+        star_pos[static_cast<size_t>(id) * 2 + 1] = static_cast<int>(star[static_cast<size_t>(e.v)].size());
+        star[static_cast<size_t>(e.v)].push_back(id);
+    };
+    auto star_del_at = [&](index_t v, int id, int which) {
+        const int p = star_pos[static_cast<size_t>(id) * 2 + static_cast<size_t>(which)];
+        if (p < 0) return;
+        auto& row = star[static_cast<size_t>(v)];
+        const int last = row.back();
+        row[static_cast<size_t>(p)] = last;
+        const BirthEdge& le = leftover[static_cast<size_t>(last)];
+        const int last_which = (le.u == v) ? 0 : 1;
+        star_pos[static_cast<size_t>(last) * 2 + static_cast<size_t>(last_which)] = p;
+        row.pop_back();
+        star_pos[static_cast<size_t>(id) * 2 + static_cast<size_t>(which)] = -1;
+    };
+    auto star_del = [&](int id) {
+        const BirthEdge& e = leftover[static_cast<size_t>(id)];
+        star_del_at(e.u, id, 0);
+        star_del_at(e.v, id, 1);
+    };
     for (int i = 0; i < m; ++i) {
         R[static_cast<size_t>(i)] = {i};
         Ri[static_cast<size_t>(i)] = {i};
+        star_add(i);
     }
 
     auto xor_sorted = [](std::vector<int>& a, const std::vector<int>& b) {
@@ -104,7 +137,10 @@ inline Result persist_active_h1(const Graph& g, int maxdim, value_t threshold,
             Ri[static_cast<size_t>(j)].clear();
             for (int z : touched) {
                 remove_elem(R[static_cast<size_t>(z)], j);
-                if (R[static_cast<size_t>(z)].empty()) Ri[static_cast<size_t>(z)].clear();
+                if (R[static_cast<size_t>(z)].empty()) {
+                    Ri[static_cast<size_t>(z)].clear();
+                    star_del(z);
+                }
             }
             return;
         }
@@ -115,7 +151,10 @@ inline Result persist_active_h1(const Graph& g, int maxdim, value_t threshold,
         for (int z : touched) {
             xor_sorted(R[static_cast<size_t>(z)], bar);
             ++c.n_additions;
-            if (R[static_cast<size_t>(z)].empty()) Ri[static_cast<size_t>(z)].clear();
+            if (R[static_cast<size_t>(z)].empty()) {
+                Ri[static_cast<size_t>(z)].clear();
+                star_del(z);
+            }
         }
         for (int y : others) xor_sorted(Ri[static_cast<size_t>(y)], touched);
         Ri[static_cast<size_t>(j)].clear();
@@ -164,31 +203,64 @@ inline Result persist_active_h1(const Graph& g, int maxdim, value_t threshold,
         return true;
     };
 
-    for (const BirthEdge& e : leftover) {
-        const auto& nu = g.neighbors[static_cast<size_t>(e.u)];
-        const auto& nv = g.neighbors[static_cast<size_t>(e.v)];
-        size_t i = 0, j = 0;
-        while (i < nu.size() && j < nv.size()) {
-            if (nu[i].first < nv[j].first) {
-                ++i;
-                continue;
-            }
-            if (nv[j].first < nu[i].first) {
-                ++j;
-                continue;
-            }
-            const index_t w = nu[i].first;
+    auto tree_time = [&](index_t a, index_t b) -> value_t {
+        for (const auto& p : tree_nbr[static_cast<size_t>(a)])
+            if (p.first == b) return p.second;
+        return kInf;
+    };
+
+    // 1-leftover apparent: leftover + two MST edges (unique tree path of
+    // length 2). Full G_T common-neighbor scan would be Θ(|E|·deg).
+    auto apparent_apex = [&](const BirthEdge& e) -> bool {
+        for (const auto& pu : tree_nbr[static_cast<size_t>(e.u)]) {
+            const index_t w = pu.first;
+            if (w == e.v) continue;
             ++c.n_cofacet_probes;
-            if (w != e.u && w != e.v) {
-                const value_t twu = nu[i].second;
-                const value_t twv = nv[j].second;
-                if (twu <= threshold && twv <= threshold && e_youngest(e, w, twu, twv)) {
-                    const value_t td = e.t;
-                    reduce_tri(e.id, leftover_of(e.u, w), leftover_of(e.v, w), td);
-                }
-            }
-            ++i;
-            ++j;
+            const value_t twv = tree_time(e.v, w);
+            if (twv > threshold) continue;
+            if (e_youngest(e, w, pu.second, twv)) return true;
+        }
+        return false;
+    };
+
+    auto consider_w = [&](const BirthEdge& e, index_t w, int id_uw, int id_vw) {
+        if (w == e.u || w == e.v) return;
+        if (id_uw < 0 && id_vw < 0) return;
+        const value_t twu = (id_uw >= 0) ? leftover[static_cast<size_t>(id_uw)].t
+                                         : edge_time(g, e.u, w);
+        const value_t twv = (id_vw >= 0) ? leftover[static_cast<size_t>(id_vw)].t
+                                         : edge_time(g, e.v, w);
+        if (twu > threshold || twv > threshold) return;
+        if (!e_youngest(e, w, twu, twv)) return;
+        reduce_tri(e.id, id_uw, id_vw, e.t);
+    };
+
+    for (const BirthEdge& e : leftover) {
+        // Pair e as apparent before multi-leftover triangles so a later
+        // coface can XOR onto an older leftover (unit square).
+        if (!Ri[static_cast<size_t>(e.id)].empty() && apparent_apex(e) &&
+            !R[static_cast<size_t>(e.id)].empty()) {
+            std::vector<int> bar = R[static_cast<size_t>(e.id)];
+            resolve_bar(bar, e.t);
+        }
+        // Snapshot: resolve_bar mutates star.
+        const std::vector<int> su = star[static_cast<size_t>(e.u)];
+        const std::vector<int> sv = star[static_cast<size_t>(e.v)];
+        for (int fid : su) {
+            if (fid == e.id) continue;
+            ++c.n_cofacet_probes;
+            const BirthEdge& f = leftover[static_cast<size_t>(fid)];
+            const index_t w = (f.u == e.u || f.u == e.v) ? f.v : f.u;
+            consider_w(e, w, leftover_of(e.u, w), leftover_of(e.v, w));
+        }
+        for (int fid : sv) {
+            if (fid == e.id) continue;
+            ++c.n_cofacet_probes;
+            const BirthEdge& f = leftover[static_cast<size_t>(fid)];
+            const index_t w = (f.u == e.u || f.u == e.v) ? f.v : f.u;
+            const int id_uw = leftover_of(e.u, w);
+            if (id_uw >= 0) continue;  // already seen from u's star
+            consider_w(e, w, id_uw, leftover_of(e.v, w));
         }
     }
 
