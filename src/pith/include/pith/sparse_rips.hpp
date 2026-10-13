@@ -75,4 +75,85 @@ inline Graph sparse_rips_graph(const std::vector<std::vector<value_t>>& dist, va
     return g;
 }
 
+// I216: first `m` vertices of a farthest-point (greedy) permutation.
+inline std::vector<index_t> greedy_landmarks(const std::vector<std::vector<value_t>>& dist, int m) {
+    const int n = static_cast<int>(dist.size());
+    if (m > n) m = n;
+    std::vector<index_t> L;
+    if (n <= 0 || m <= 0) return L;
+    L.reserve(static_cast<size_t>(m));
+    std::vector<char> used(static_cast<size_t>(n), 0);
+    std::vector<value_t> mind(static_cast<size_t>(n), kInf);
+    L.push_back(0);
+    used[0] = 1;
+    for (int j = 1; j < n; ++j) mind[static_cast<size_t>(j)] = dist[0][static_cast<size_t>(j)];
+    for (int k = 1; k < m; ++k) {
+        int best = -1;
+        value_t best_d = -1;
+        for (int j = 0; j < n; ++j) {
+            if (used[static_cast<size_t>(j)]) continue;
+            if (mind[static_cast<size_t>(j)] > best_d) {
+                best_d = mind[static_cast<size_t>(j)];
+                best = j;
+            }
+        }
+        if (best < 0) break;
+        used[static_cast<size_t>(best)] = 1;
+        L.push_back(static_cast<index_t>(best));
+        for (int j = 0; j < n; ++j) {
+            if (used[static_cast<size_t>(j)]) continue;
+            mind[static_cast<size_t>(j)] =
+                std::min(mind[static_cast<size_t>(j)],
+                         dist[static_cast<size_t>(best)][static_cast<size_t>(j)]);
+        }
+    }
+    return L;
+}
+
+// de Silva–Carlsson lazy witness 1-skeleton on farthest-point landmarks.
+// Edge {a,b} ⊂ L enters at t = min_w max(0, max(d(w,a), d(w,b)) − m_ν(w)),
+// where m_0 = 0 and m_ν (ν≥1) is the distance from w to its ν-th nearest
+// landmark. Flag PH of this graph is a different complex than VR≤T.
+// Construction O(n m²); PH is on m vertices (not n). Shape-agnostic.
+inline Graph lazy_witness_graph(const std::vector<std::vector<value_t>>& dist, value_t T,
+                                int nland, int nu) {
+    const int n = static_cast<int>(dist.size());
+    const auto L = greedy_landmarks(dist, nland);
+    const int m = static_cast<int>(L.size());
+    Graph g;
+    g.n = m;
+    if (m < 2) return g;
+    std::vector<value_t> tpair(static_cast<size_t>(m) * static_cast<size_t>(m), kInf);
+    std::vector<value_t> dw(static_cast<size_t>(m));
+    std::vector<value_t> tmp(static_cast<size_t>(m));
+    for (int w = 0; w < n; ++w) {
+        for (int i = 0; i < m; ++i)
+            dw[static_cast<size_t>(i)] = dist[static_cast<size_t>(w)][static_cast<size_t>(L[static_cast<size_t>(i)])];
+        value_t mnu = 0;
+        if (nu > 0 && m > 0) {
+            tmp = dw;
+            const int kth = std::min(nu, m);
+            std::nth_element(tmp.begin(), tmp.begin() + (kth - 1), tmp.end());
+            mnu = tmp[static_cast<size_t>(kth - 1)];
+        }
+        for (int i = 0; i < m; ++i) {
+            for (int j = i + 1; j < m; ++j) {
+                value_t t = std::max(dw[static_cast<size_t>(i)], dw[static_cast<size_t>(j)]) - mnu;
+                if (t < 0) t = 0;
+                value_t& slot = tpair[static_cast<size_t>(i) * static_cast<size_t>(m) + static_cast<size_t>(j)];
+                if (t < slot) slot = t;
+            }
+        }
+    }
+    g.edges.reserve(static_cast<size_t>(m) * 4);
+    for (int i = 0; i < m; ++i) {
+        for (int j = i + 1; j < m; ++j) {
+            const value_t t = tpair[static_cast<size_t>(i) * static_cast<size_t>(m) + static_cast<size_t>(j)];
+            if (t <= T) g.edges.push_back({static_cast<index_t>(i), static_cast<index_t>(j), t});
+        }
+    }
+    rebuild_neighbors(g);
+    return g;
+}
+
 }  // namespace pith

@@ -280,6 +280,26 @@ int main() {
         std::cout << "ok sparse-rips C4 H1 edges=" << sp.edges.size() << "\n";
     }
 
+    // I216: lazy witness on all 4 square vertices keeps essential H1.
+    {
+        const value_t inf = 10;
+        std::vector<std::vector<value_t>> dist(4, std::vector<value_t>(4, 0));
+        dist[0][1] = dist[1][0] = 1;
+        dist[1][2] = dist[2][1] = 1;
+        dist[2][3] = dist[3][2] = 1;
+        dist[3][0] = dist[0][3] = 1;
+        dist[0][2] = dist[2][0] = 1.5f;
+        dist[1][3] = dist[3][1] = 1.5f;
+        Graph lw = lazy_witness_graph(dist, inf, 4, 0);
+        assert(lw.n == 4);
+        Result r = persist_implicit_coh(lw, 1, inf, 1);
+        int ess1 = 0;
+        for (const auto& p : r.pairs)
+            if (p.dim == 1 && !std::isfinite(p.death)) ++ess1;
+        assert(ess1 >= 1);
+        std::cout << "ok lazy-witness C4 H1 edges=" << lw.edges.size() << "\n";
+    }
+
     std::cout << "all collapse/persist unit tests passed\n";
     return 0;
 }

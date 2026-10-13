@@ -1053,6 +1053,15 @@ Do not paste long reasoning here.
 - **Decision:** **Reject and revert** CannotDom from the default path. Exact shift-skip is not a clock win. Topology loss: **0**. Default stays I193+I197+I202+I203.
 - **Class:** experiment (reject; revert hot path)
 
+## 2026-10-13 — I216 owned lazy witness (Big-O / shape-agnostic)
+
+- **Question:** Does a farthest-point lazy-witness 1-skeleton (PH on m ≪ n landmarks) keep essential H1 on mixed-homology families and beat Ripser's size exponent?
+- **Hypothesis:** Construction O(n m²), flag PH on m vertices. Shape-agnostic (same path for any cloud). Not exact VR — quantify essential H1 + bottleneck. If m = o(n) and ess H1 holds, this is a real Big-O class change vs Ripser Θ(n²) edges / ~n³ time, unlike exact collapse (torus residual n^{2.08}).
+- **Work:** `--witness-n M --witness-nu K` (default ν=1). Wave 77 vs Ripser on circle/blobs/sphere/torus/two_circles/figure8.
+- **Result:** *(wave pending)*
+- **Decision:** Optional only if ess H1 holds on mixed loops. Do not replace the exact default.
+- **Class:** experiment
+
 ## 2026-10-13 — I164 collapse live-degree trace
 
 - **Question:** Does the live 1-skeleton thin early enough to stop the C-walk?
