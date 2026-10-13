@@ -1,13 +1,13 @@
 # Selected algorithm (living)
 
-Updated 2026-10-13 after iterations I001–I155. I156 fused first-apex is the live collapse cut.
+Updated 2026-10-13 after iterations I001–I157. I158 prefetch is the live collapse cut.
 
 ## Selected exact-VR CPU pipeline
 
 **Name:** **PITH** — threshold graph \(G_T\) → backward flag **edge collapse**
 (GUDHI sticky-dominator + lazy heap + cheap degree filter + I155 pair-nbr
 times on live adjacency) → **Ripser-heap implicit cohomology** on the residual
-flag graph (I137). I156 fused first-apex is the live cut on top of this.
+flag graph (I137). I156 fused first-apex is selected on top of this.
 
 - \(H_0\): Kruskal. `--collapse -1` **skips collapse** when `maxdim=0`.
 - \(H_1\): leftover (non-MST, non-apparent) edges, youngest-first; F₂ heap
@@ -57,16 +57,16 @@ residual makes collapse *and* reduce slower (circle3000 1.49× vs full 8.11×).
 | Dataset | dim | n | T | vs Ripser |
 | --- | --- | --- | --- | --- |
 | sphere | \(H_2\) | 500 | 1.4 | **59×** (I085) / 46× later |
-| circle_noisy | \(H_1\) | 4000 | 1.5 | **8.74×** (I148 implicit) / 8.38× (I117) |
-| circle_noisy | \(H_1\) | 3000 | 1.5 | **8.13×** (I121) / 8.0× (I115) |
-| circle_noisy | \(H_1\) | 2000 | 1.5 | **7.2×** (I096) / 6.63× (I121) / 6.30× (I140 implicit) |
+| circle_noisy | \(H_1\) | 4000 | 1.5 | **9.50×** (I157 pair-nbr+fused) / 8.74× (I148) / 8.38× (I117) |
+| circle_noisy | \(H_1\) | 3000 | 1.5 | **8.89×** (I156) / 8.13× (I121) / 8.0× (I115) |
+| circle_noisy | \(H_1\) | 2000 | 1.5 | **7.20×** (I156) / 6.52× (I155) / 6.30× (I140) |
 | torus | \(H_1\) | 1000 | 1.6 | **1.31×** owned implicit (I139); E3 1.25× same run |
 | circle_noisy | \(H_1\) | 2000 | 1.2 | **3.8–4.8×** |
 | circle_noisy | \(H_1\) | 1000 | 1.5 | **4.1×** (I083) |
 
 **Not claimed:** H1 10× clock in general; high-d; worst-case asymptotics.
-I148: n=4000 T=1.5 is **8.74×** (Ripser 293 s / PITH 33.5 s, collapse 33.2 s, reduce 6.6 ms).
-Still collapse-bound. I117 was 8.38× on homology.
+I157: n=4000 T=1.5 is **9.50×** (Ripser 294 s / PITH 30.9 s, collapse 30.6 s, reduce 7.0 ms).
+I148 was 8.74× / 33.5 s. Still collapse-bound; ~5% more collapse cut would hit 10× here.
 I139: owned implicit **reduce 67 ms** on torus1000 residual 38k (homology was 1.7 s).
 E3 (collapse + Ripser-sparse) is no longer required; we own that residual class.
 
@@ -78,9 +78,8 @@ E3 (collapse + Ripser-sparse) is no longer required; we own that residual class.
 I153: C-build is the wall (567M probes / 1.12M dom tests / 96% first-apex hits).
 ~49% of probes miss and still paid two gathers. Domination levers are closed.
 
-1. **I155 pair-nbr — selected.** One gather per probe. circle2000 4068 vs 4253 ms; circle3000 8.18×. Shift lookups negligible.
-2. **I156 fused first-apex** — trim without materializing C when first common dominates and no `C_later` (in flight).
-3. I157 remasure circle4000 (I148 was 8.74×). Need ~14% more collapse cut for 10× on that flagship.
-4. After I156: integer grade IDs; hub-batch; live-neighbor membership filter. Geometry ceiling still ~2×.
-5. Fix D&C merge (I150) — parallel schedule only.
-6. GPU later (Ripser++ reference only)
+1. **I155 pair-nbr + I156 fused first-apex — selected.** Flagship **9.50×** (I157).
+2. **I158 prefetch** C-walk (in flight). Then integer grade IDs / hub-batch if still short of 10×.
+3. Probe count is unchanged (4.58B at n=4000). Geometry ceiling still ~2× on C-build.
+4. Fix D&C merge (I150) — parallel schedule only.
+5. GPU later (Ripser++ reference only)

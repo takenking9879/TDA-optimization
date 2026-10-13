@@ -648,9 +648,22 @@ Do not paste long reasoning here.
 - **Decision:** **Select** (small exact win). Next: skip the separate domination pass (I156).
 - **Class:** reproduced
 
-## 2026-10-13 — I156 fused first-apex (in progress)
+## 2026-10-13 — I156 fused first-apex
 
-- **Question:** Can we trim when the first common dominates and `C_later` is empty, without materializing `C` or calling `first_dominator_deg`?
-- **Hypothesis:** I155: 1.07M trims / 2k shifts / 96% first-apex hits. Fast trim drops ~290M `C_now` stores and the O(|C|) verify pass on that class.
-- **Work:** Two-phase `process_one_backward`. Wave29 + circle4000 (I157) pending.
+- **Question:** Trim when the first common dominates and `C_later` is empty, without materializing `C`?
+- **Result:** Exact 4/4. Residuals unchanged. Fast-trims 1.04M / 1.07M on circle2000. collapse **3746 vs I155 4068 ms**. Ratios **7.20×** (n=2000), **8.89×** (n=3000).
+- **Decision:** **Select.** Stack is pair-nbr + fused first-apex.
+- **Class:** reproduced
+
+## 2026-10-13 — I157 circle4000 after I155+I156
+
+- **Question:** Does the new stack move the I148 H1 flagship (8.74×)?
+- **Result:** Exact, residual 12562. Ripser 294 s / PITH 30.9 s, collapse 30.6 s, reduce 7.0 ms. **9.50×**. Need ~5% more collapse cut for 10× on this flagship.
+- **Decision:** New best H1 clock. Still collapse-bound. Not 10×.
+- **Class:** reproduced
+
+## 2026-10-13 — I158 prefetch C-walk (in progress)
+
+- **Question:** Do software prefetches of `r_other[w]` / `r_first[w]` cut collapse_ms without changing residuals?
+- **Hypothesis:** 4.58B probes at n=4000 are gather-bound enough that +8 lookahead helps; identity-safe.
 - **Class:** proposal / experiment running

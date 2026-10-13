@@ -205,7 +205,13 @@ inline bool process_one_backward(const Edge& e_in, value_t t_in, DenseTimes& Tm,
     bool fused_ok = true;
     bool any_later = false;
     std::int64_t commons = 0;
-    for (const LiveNbr& p : src) {
+    const size_t nsrc = src.size();
+    for (size_t i = 0; i < nsrc; ++i) {
+        if (i + 8 < nsrc) {
+            __builtin_prefetch(r_other + src[i + 8].first, 0, 1);
+            if (r_first) __builtin_prefetch(r_first + src[i + 8].first, 0, 1);
+        }
+        const LiveNbr& p = src[i];
         const index_t w = p.first;
         if (w == u || w == v) continue;
         const value_t t_other = r_other[w];

@@ -1,0 +1,36 @@
+{
+  "id": "circle4000_fused",
+  "lever": "H01-flagship",
+  "class": "experiment",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "circle4000 T=1.5 after I155+I156 vs I148 8.74\u00d7",
+  "baseline": {
+    "I148_ratio": 8.74,
+    "I148_ripser_s": 293,
+    "I148_pith_s": 33.5,
+    "I148_collapse_ms": 33200,
+    "I148_out": 12562
+  },
+  "receipts": [
+    {
+      "n": 4000,
+      "T": 1.5,
+      "match": true,
+      "unmatched": 0,
+      "ripser_s": 293.97046315400075,
+      "pith_s": 30.929271125000014,
+      "time_ratio": 9.50460364765549,
+      "collapse_ms": 30624.282,
+      "reduce_ms": 6.952954,
+      "edges_in": 4320193,
+      "edges_out": 12562,
+      "c_probes": 4580584653,
+      "c_size": 2331508887,
+      "fast_trims": 4136542,
+      "trims": 4307631,
+      "shifts": 6241,
+      "dom_hits": 4322107
+    }
+  ]
+}
