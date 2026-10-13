@@ -1031,9 +1031,9 @@ Do not paste long reasoning here.
 ## 2026-10-13 — I213 owned sparse-eps 0.6/0.7 (max cap)
 
 - **Question:** Can a larger ε thin max(λ) enough to beat I210's 14.5× on torus without inventing essential loops?
-- **Result:** Pending wave74.
-- **Decision:** Select a new default ε only if ess H1 holds on circle/torus/two_circles and torus clock improves.
-- **Class:** experiment (in progress)
+- **Result:** **Essential H1 correct on 6/6 at ε=0.5, 0.6, and 0.7.** Torus n=2000: 0.5 **14.1× / bn 0.016 / 108k**; 0.6 **17.9× / 0.028 / 91k**; 0.7 **21.3× / 0.038 / 80k**. blobs 6.4/7.2/7.7× (bn 0.024 all). uniform2 6.2/6.6/7.3× (bn 0.0047 all). two_circles/figure8 ess=3.
+- **Decision:** Recommend owned **ε=0.6** (torus +27% clock vs 0.5, ess held, bn 0.028 ≈ GUDHI I207). Keep 0.5 as the low-loss setting and 0.7 as the fast setting. Do not default to min(λ). Exact path unchanged.
+- **Class:** experiment (support; ε=0.6 recommended optional)
 
 ## 2026-10-13 — I164 collapse live-degree trace
 

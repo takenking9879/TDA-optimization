@@ -145,9 +145,10 @@ typically **0.005–0.04**. 1-skeleton size \(\sim n^{1.1}\). This is **not
 exact VR**. Two constructions:
 
 - GUDHI Sheehy ε=0.5 → `--edges` (I207).
-- Owned `--sparse-eps 0.5` greedy-net flag graph (I210). Denser than
-  GUDHI (~2× edges), often **lower** bottleneck (torus 0.016 vs 0.050).
-  Torus n=2000 **14.5×**. No GUDHI dependency.
+- Owned `--sparse-eps` greedy-net flag graph, **cap = max(λ)** (I210/I213).
+  Recommended **ε=0.6** (torus n=2000 **17.9×**, bn 0.028). ε=0.5 is
+  low-loss (14× / 0.016); ε=0.7 is fast (21× / 0.038). `--sparse-cap min`
+  rejected (I212): extra essential \(H_1\) on circle/torus. No GUDHI.
 
 **Approx 10× vs Ripser (essential \(H_1\) kept)**
 
@@ -172,6 +173,8 @@ general 10×. Optional approx is a multi-family 10× at sufficient n, with
 quantified loss, and a better size exponent.
 
 1. **Exact default:** I193 + I197 + I202 + I203.
-2. **Owned optional approx:** `--sparse-eps 0.5` (I210).
-3. Exact torus time-buckets (constant-factor only).
+2. **Owned optional approx:** `--sparse-eps 0.6 --sparse-cap max` (I213).
+   ε=0.5 is the low-loss setting; ε=0.7 is faster (torus 21×, bn 0.038).
+   `--sparse-cap min` **rejected** (I212): invents essential loops.
+3. Exact torus time-buckets deferred — shift path is Tm, not later[] (I198).
 4. GPU later.
