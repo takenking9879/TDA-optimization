@@ -427,6 +427,27 @@ int main() {
         std::cout << "ok reduced-vr C4 essential H1 tris=" << tris.size() << "\n";
     }
 
+    // I225: all-pairs-with-dist and neighbor-walk (no dist) emit the same
+    // unit-square triangles (same lune components).
+    {
+        const value_t s = 1, d = 1.41421356f, inf = 10;
+        std::vector<std::vector<value_t>> dist(4, std::vector<value_t>(4, 0));
+        dist[0][1] = dist[1][0] = s;
+        dist[1][2] = dist[2][1] = s;
+        dist[2][3] = dist[3][2] = s;
+        dist[3][0] = dist[0][3] = s;
+        dist[0][2] = dist[2][0] = d;
+        dist[1][3] = dist[3][1] = d;
+        Graph g = graph_from_distance(dist, inf);
+        auto a = build_reduced_triangles(g, inf, &dist);
+        auto b = build_reduced_triangles(g, inf, nullptr);
+        if (a.size() != b.size() || a.size() != 3) {
+            std::cerr << "I225 triangle mismatch dist=" << a.size() << " nodist=" << b.size() << "\n";
+            return 1;
+        }
+        std::cout << "ok reduced-vr I225 dist vs walk tris=" << a.size() << "\n";
+    }
+
     std::cout << "all collapse/persist unit tests passed\n";
     return 0;
 }
