@@ -1,0 +1,9 @@
+{
+  "id": "prog_vs_sticky_counts",
+  "lever": "H01-prog",
+  "class": "reproduced",
+  "fidelity": "exact",
+  "status": "hold",
+  "summary": "skipped after I102 reject; I101 small residuals already matched I044 (circle80=93, circle200=283)",
+  "receipts": []
+}

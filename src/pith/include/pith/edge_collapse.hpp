@@ -43,13 +43,26 @@ inline index_t first_dominator(const DenseTimes& Tm, const std::vector<index_t>&
 }
 
 // I082: skip apexes whose live degree cannot cover C_now.
+// I106: try the max-degree eligible apex first (same predicate, better order).
 inline index_t first_dominator_deg(const DenseTimes& Tm, const std::vector<index_t>& C_now,
                                   value_t t, const std::vector<std::vector<index_t>>& nbr) {
     if (C_now.empty()) return -1;
     if (C_now.size() == 1) return C_now[0];
     const size_t need = C_now.size() - 1;
+    index_t best = -1;
+    size_t best_d = 0;
     for (index_t cand : C_now) {
-        if (nbr[cand].size() < need) continue;
+        const size_t d = nbr[cand].size();
+        if (d < need) continue;
+        if (d > best_d) {
+            best_d = d;
+            best = cand;
+        }
+    }
+    if (best < 0) return -1;
+    if (dominated_by(Tm, C_now, best, t)) return best;
+    for (index_t cand : C_now) {
+        if (cand == best || nbr[cand].size() < need) continue;
         if (dominated_by(Tm, C_now, cand, t)) return cand;
     }
     return -1;
@@ -118,7 +131,6 @@ inline Graph collapse_edges(Graph g, int iterations, Counters& c) {
     if (c.n_edges_in == 0) c.n_edges_in = static_cast<std::int64_t>(g.edges.size());
 
     std::vector<index_t> C_now;
-    std::vector<index_t> S_dom;
     std::vector<std::pair<value_t, index_t>> C_later;
     const auto later_cmp = [](const std::pair<value_t, index_t>& a,
                               const std::pair<value_t, index_t>& b) {
@@ -182,7 +194,7 @@ inline Graph collapse_edges(Graph g, int iterations, Counters& c) {
             bool ever_shifted = false;
             bool dead = false;
             while (true) {
-                const index_t dominator = first_dominator_prog(Tm, C_now, t, nbr, S_dom);
+                const index_t dominator = first_dominator_deg(Tm, C_now, t, nbr);
                 if (dominator < 0) break;
                 // Sticky: keep shifting while this apex still dominates newcomers.
                 bool still = true;

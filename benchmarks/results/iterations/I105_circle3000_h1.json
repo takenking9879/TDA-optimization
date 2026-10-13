@@ -1,0 +1,9 @@
+{
+  "id": "circle3000_h1",
+  "lever": "H01",
+  "class": "structural",
+  "fidelity": "exact",
+  "status": "hold",
+  "summary": "deferred: do not scale a rejected progressive collapse to n=3000; rerun on the next selected collapse",
+  "receipts": []
+}

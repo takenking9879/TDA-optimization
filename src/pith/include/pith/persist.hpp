@@ -437,6 +437,35 @@ inline bool zero_apparent_edge(const Graph& g, index_t u, index_t v, value_t te,
     return false;
 }
 
+// I111: a triangle may be Bauer-apparent with an MST facet. Ripser still
+// uses that facet as a reduction partner (get_zero_apparent_facet).
+inline bool apparent_facet_of_tri(const Graph& g, std::uint64_t tri_key, value_t t_tri,
+                                  value_t T, index_t* ou, index_t* ov, value_t* ot) {
+    const index_t a = static_cast<index_t>(tri_key & ((1ull << 21) - 1));
+    const index_t b = static_cast<index_t>((tri_key >> 21) & ((1ull << 21) - 1));
+    const index_t c = static_cast<index_t>(tri_key >> 42);
+    struct F {
+        index_t x, y;
+        value_t t;
+        std::uint64_t k;
+    };
+    const F f[3] = {{a, b, edge_time(g, a, b), pack2(a, b)},
+                    {a, c, edge_time(g, a, c), pack2(a, c)},
+                    {b, c, edge_time(g, b, c), pack2(b, c)}};
+    F oldest = f[0];
+    for (int k = 1; k < 3; ++k) {
+        if (f[k].t < oldest.t || (f[k].t == oldest.t && f[k].k < oldest.k)) oldest = f[k];
+    }
+    if (oldest.t != t_tri) return false;
+    CohEntry tau;
+    if (!zero_apparent_edge(g, oldest.x, oldest.y, oldest.t, T, &tau)) return false;
+    if (tau.key != tri_key) return false;
+    *ou = oldest.x;
+    *ov = oldest.y;
+    *ot = oldest.t;
+    return true;
+}
+
 inline Result persist_implicit_coh(const Graph& g, int maxdim, value_t threshold, value_t ratio) {
     Result r;
     Counters& c = r.counters;
@@ -484,10 +513,23 @@ inline Result persist_implicit_coh(const Graph& g, int maxdim, value_t threshold
         return pack2(a.u, a.v) > pack2(b.u, b.v);
     });
 
+    struct AEdge {
+        index_t u, v;
+        value_t t;
+    };
     std::unordered_map<std::uint64_t, int> pivot;
     pivot.reserve(leftover.size() * 2);
-    std::unordered_map<std::uint64_t, int> apparent;
-    apparent.reserve(leftover.size() * 2);
+    // Apparent pairs on EVERY edge, including MST facets (I111 / Ripser L769).
+    std::unordered_map<std::uint64_t, AEdge> apparent;
+    apparent.reserve(edges.size() * 2);
+    for (const Edge& e : edges) {
+        if (e.t > threshold) continue;
+        CohEntry tau;
+        if (zero_apparent_edge(g, e.u, e.v, e.t, threshold, &tau)) {
+            apparent.emplace(tau.key, AEdge{e.u, e.v, e.t});
+        }
+    }
+
     std::vector<std::vector<CohEntry>> reduced(leftover.size());
 
     auto xor_entry = [](std::unordered_map<std::uint64_t, value_t>& cob, CohEntry x) {
@@ -509,11 +551,18 @@ inline Result persist_implicit_coh(const Graph& g, int maxdim, value_t threshold
         }
         return best;
     };
+    auto xor_edge_cob = [&](std::unordered_map<std::uint64_t, value_t>& cob, index_t u, index_t v,
+                            value_t te) {
+        for_cofacets_edge(g, u, v, te, threshold, [&](CohEntry x) {
+            ++c.n_cofacet_probes;
+            xor_entry(cob, x);
+        });
+        ++c.n_additions;
+    };
 
     for (int i = 0; i < static_cast<int>(leftover.size()); ++i) {
         CohEntry tau;
         if (zero_apparent_edge(g, leftover[i].u, leftover[i].v, leftover[i].t, threshold, &tau)) {
-            apparent[tau.key] = i;
             ++c.n_columns_apparent;
             continue;
         }
@@ -525,7 +574,8 @@ inline Result persist_implicit_coh(const Graph& g, int maxdim, value_t threshold
             xor_entry(cob, x);
         });
         ++c.n_columns_reduced;
-        while (!cob.empty()) {
+        int guard = 0;
+        while (!cob.empty() && guard++ < 200000) {
             const CohEntry piv = youngest_in(cob);
             auto it = pivot.find(piv.key);
             if (it != pivot.end()) {
@@ -535,12 +585,15 @@ inline Result persist_implicit_coh(const Graph& g, int maxdim, value_t threshold
             }
             auto ap = apparent.find(piv.key);
             if (ap != apparent.end()) {
-                for_cofacets_edge(g, leftover[ap->second].u, leftover[ap->second].v,
-                                  leftover[ap->second].t, threshold, [&](CohEntry x) {
-                                      ++c.n_cofacet_probes;
-                                      xor_entry(cob, x);
-                                  });
-                ++c.n_additions;
+                xor_edge_cob(cob, ap->second.u, ap->second.v, ap->second.t);
+                continue;
+            }
+            index_t au = 0, av = 0;
+            value_t at = 0;
+            if (apparent_facet_of_tri(g, piv.key, piv.t, threshold, &au, &av, &at) &&
+                pack2(au, av) != pack2(leftover[i].u, leftover[i].v)) {
+                apparent.emplace(piv.key, AEdge{au, av, at});
+                xor_edge_cob(cob, au, av, at);
                 continue;
             }
             pivot[piv.key] = i;

@@ -1,9 +1,12 @@
 #include "pith/edge_collapse.hpp"
 #include "pith/persist.hpp"
 
+#include <algorithm>
 #include <cassert>
 #include <cmath>
 #include <iostream>
+#include <utility>
+#include <vector>
 
 using namespace pith;
 
@@ -95,6 +98,40 @@ int main() {
             if (p.dim == 1 && !std::isfinite(p.death)) ++eb;
         assert(ea == 1 && eb == 1);
         std::cout << "ok implicit C4 essential H1\n";
+    }
+
+    // I111: dense enough that MST-apparent triangles appear. Homology vs implicit
+    // H1 barcodes must match (the I045 leftover-only apparent map failed here).
+    {
+        const int n = 8;
+        Graph g;
+        g.n = n;
+        for (int i = 0; i < n; ++i) {
+            for (int j = i + 1; j < n; ++j) {
+                const int steps = std::min(j - i, n - (j - i));
+                const float ang = static_cast<float>(2 * 3.14159265 * steps / n);
+                g.edges.push_back({i, j, 2.f * std::sin(ang / 2.f)});
+            }
+        }
+        rebuild_neighbors(g);
+        Result a = persist_sparse(g, 1, 10, 1);
+        Result b = persist_implicit_coh(g, 1, 10, 1);
+        auto bars = [](const Result& r) {
+            std::vector<std::pair<float, float>> out;
+            for (const auto& p : r.pairs) {
+                if (p.dim != 1) continue;
+                out.push_back({p.birth, std::isfinite(p.death) ? p.death : 1e9f});
+            }
+            std::sort(out.begin(), out.end());
+            return out;
+        };
+        auto ba = bars(a), bb = bars(b);
+        assert(ba.size() == bb.size());
+        for (size_t i = 0; i < ba.size(); ++i) {
+            assert(std::fabs(ba[i].first - bb[i].first) < 1e-5);
+            assert(std::fabs(ba[i].second - bb[i].second) < 1e-5);
+        }
+        std::cout << "ok implicit C8 vs homology H1 bars=" << ba.size() << "\n";
     }
 
     std::cout << "all collapse/persist unit tests passed\n";

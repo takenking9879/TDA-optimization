@@ -393,3 +393,16 @@ Do not paste long reasoning here.
 - **Result:** Receipts I001–I100 exist. Algebraic 10× holds. H1 wall-clock 10× is **not** general (best 7.2× at circle2000 T=1.5). Credible directions remain: cheaper collapse, correct implicit/RedZeD, thick-remainder engine.
 - **Decision:** Do not declare the research goal complete.
 - **Class:** verified (count only)
+
+## 2026-10-13 — I101–I102 progressive intersection
+
+- **Question:** Does ∧_w N_t[w] ∩ C with early empty abort beat first-candidate domination?
+- **Result:** Exact (I101 5/5). **Reject on clock:** circle2000 T=1.5 still in collapse at 136 s vs I096 4.5 s. Same trap as bitset (I071): the common path is “first apex works”; a full intersection always pays O(|C|²).
+- **Decision:** Revert hot path to `first_dominator_deg`. Keep `first_dominator_prog` archived in the header.
+- **Next:** max-degree-first (I106); MST-apparent implicit fix (I111); incomplete collapse if residual PH stays cheap.
+- **Class:** experiment (negative on time; identity archived)
+
+## 2026-10-13 — I103–I105
+
+- **Result:** Skipped. They required the progressive binary on n=500–3000 after I102 failed.
+- **Class:** hold
