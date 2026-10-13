@@ -209,6 +209,7 @@ static void print_text(const Result& r) {
               << " collapse_dom_tests=" << c.n_collapse_dom_tests
               << " collapse_dom_hits=" << c.n_collapse_dom_hits
               << " collapse_dom_skips=" << c.n_collapse_dom_skips
+              << " collapse_killer_hits=" << c.n_collapse_killer_hits
               << " collapse_c_size=" << c.n_collapse_c_size_sum
               << " collapse_shift_lookups=" << c.n_collapse_shift_lookups
               << " collapse_fast_trims=" << c.n_collapse_fast_trims
@@ -474,6 +475,7 @@ int main(int argc, char** argv) {
         r.counters.n_collapse_dom_tests = c.n_collapse_dom_tests;
         r.counters.n_collapse_dom_hits = c.n_collapse_dom_hits;
         r.counters.n_collapse_dom_skips = c.n_collapse_dom_skips;
+        r.counters.n_collapse_killer_hits = c.n_collapse_killer_hits;
         r.counters.n_collapse_c_size_sum = c.n_collapse_c_size_sum;
         r.counters.n_collapse_shift_lookups = c.n_collapse_shift_lookups;
         r.counters.n_collapse_fast_trims = c.n_collapse_fast_trims;

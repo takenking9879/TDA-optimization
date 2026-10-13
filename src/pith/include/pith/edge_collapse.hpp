@@ -58,16 +58,26 @@ using LiveAdj = std::vector<std::vector<LiveNbr>>;
 // True iff cand is adjacent (at time t) to every vertex in C_now.
 // Optional: resume from `from` (I214 prefix already verified at a smaller t);
 // on failure write the first obstruction grade and its C_now index.
+// I219: `hint` is the last failing vertex (still in C — C only grows). If
+// Tm(cand, hint) > t the cover already fails; skip the rest of C.
 inline bool dominated_by(const DenseTimes& Tm, const std::vector<index_t>& C_now,
                          index_t cand, value_t t, value_t* fail_t = nullptr,
-                         int* fail_i = nullptr, int from = 0) {
+                         int* fail_i = nullptr, int from = 0,
+                         index_t hint = -1, index_t* fail_w = nullptr) {
     const value_t* row = Tm.row(cand);
+    if (hint >= 0 && row[hint] > t) {
+        if (fail_t) *fail_t = row[hint];
+        if (fail_w) *fail_w = hint;
+        return false;
+    }
     const int nC = static_cast<int>(C_now.size());
     for (int i = from; i < nC; ++i) {
         const index_t w = C_now[static_cast<size_t>(i)];
+        if (w == hint) continue;
         if (row[w] > t) {
             if (fail_t) *fail_t = row[w];
             if (fail_i) *fail_i = i;
+            if (fail_w) *fail_w = w;
             return false;
         }
     }
@@ -141,14 +151,18 @@ inline index_t first_dominator_deg(const DenseTimes& Tm, const std::vector<index
     }
     const size_t need = C_now.size() - 1;
     int tried = 0;
+    index_t killer = -1;
     for (index_t cand : C_now) {
         const size_t cand_deg = deg ? static_cast<size_t>((*deg)[cand]) : nbr[cand].size();
         if (cand_deg < need) continue;
         if (ctr) ++ctr->n_collapse_dom_tests;
-        if (dominated_by(Tm, C_now, cand, t)) {
+        index_t fail_w = -1;
+        if (dominated_by(Tm, C_now, cand, t, nullptr, nullptr, 0, killer, &fail_w)) {
             if (ctr) ++ctr->n_collapse_dom_hits;
             return cand;
         }
+        if (killer >= 0 && fail_w == killer && ctr) ++ctr->n_collapse_killer_hits;
+        killer = fail_w;
         if (budget > 0 && ++tried >= budget) return -1;
     }
     return -1;
@@ -167,15 +181,19 @@ inline index_t first_dominator_witness(const DenseTimes& Tm, const std::vector<i
     const size_t need = C_now.size() - 1;
     const value_t* rw = Tm.row(witness);
     int tried = 0;
+    index_t killer = witness;  // I219: the sticky-break vertex is a strong first reject
     for (index_t cand : C_now) {
         if (cand != witness && rw[cand] > t) continue;
         const size_t cand_deg = deg ? static_cast<size_t>((*deg)[cand]) : nbr[cand].size();
         if (cand_deg < need) continue;
         if (ctr) ++ctr->n_collapse_dom_tests;
-        if (dominated_by(Tm, C_now, cand, t)) {
+        index_t fail_w = -1;
+        if (dominated_by(Tm, C_now, cand, t, nullptr, nullptr, 0, killer, &fail_w)) {
             if (ctr) ++ctr->n_collapse_dom_hits;
             return cand;
         }
+        if (killer >= 0 && fail_w == killer && ctr) ++ctr->n_collapse_killer_hits;
+        killer = fail_w;
         if (budget > 0 && ++tried >= budget) return -1;
     }
     return -1;
@@ -1089,6 +1107,7 @@ inline void add_collapse_counters(Counters& c, const Counters& t) {
     c.n_collapse_dom_tests += t.n_collapse_dom_tests;
     c.n_collapse_dom_hits += t.n_collapse_dom_hits;
     c.n_collapse_dom_skips += t.n_collapse_dom_skips;
+    c.n_collapse_killer_hits += t.n_collapse_killer_hits;
     c.n_collapse_c_size_sum += t.n_collapse_c_size_sum;
     c.n_collapse_shift_lookups += t.n_collapse_shift_lookups;
     c.n_collapse_fast_trims += t.n_collapse_fast_trims;

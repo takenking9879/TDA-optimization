@@ -43,6 +43,20 @@ int main() {
         std::cout << "ok I214 CannotDom stamp\n";
     }
 
+    // I219: a hint vertex with Tm > t rejects without needing the rest of C.
+    {
+        DenseTimes Tm(3);
+        Tm.set(0, 1, 1);
+        Tm.set(0, 2, 3);
+        Tm.set(1, 2, 1);
+        std::vector<index_t> C = {1, 2};
+        index_t fail_w = -1;
+        assert(!dominated_by(Tm, C, 0, 1.5f, nullptr, nullptr, 0, 2, &fail_w));
+        assert(fail_w == 2);
+        assert(dominated_by(Tm, C, 0, 3.5f));
+        std::cout << "ok I219 killer-first hint\n";
+    }
+
     // C4: no common neighbors, all four edges remain.
     {
         Graph g = from_edges(4, {{0, 1, 1}, {1, 2, 1}, {2, 3, 1}, {0, 3, 1}});

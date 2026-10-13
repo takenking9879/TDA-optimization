@@ -1080,6 +1080,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as the complexity justification** for the optional path. Same construction on every cloud (shape-agnostic). Better size/time class than Ripser VR; not exact (quantified). Exact default still has 0 loss and no general Big-O win (I204 torus residual n^{2.08}).
 - **Class:** experiment (support; optional-path Big-O evidence)
 
+## 2026-10-13 — I219 killer-first dominated_by (exact)
+
+- **Question:** Does testing the last failing C-vertex first cut torus Tm walks without changing the residual?
+- **Hypothesis:** Consecutive apexes often fail on the same w. One extra lookup per test; skip the rest of C on a hit. Exact (same exists-dominator decision). Shape-agnostic. Not a Big-O change.
+- **Work:** `dominated_by(..., hint, fail_w)` in first_dominator_deg / _witness. Wave 80 vs src+Ripser.
+- **Result:** *(wave pending)*
+- **Decision:** Select only if exact and torus collapse <1400 ms without blobs/circle regression.
+- **Class:** experiment
+
 ## 2026-10-13 — I164 collapse live-degree trace
 
 - **Question:** Does the live 1-skeleton thin early enough to stop the C-walk?
