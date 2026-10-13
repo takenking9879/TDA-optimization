@@ -1,6 +1,6 @@
 # Selected algorithm (living)
 
-Updated 2026-10-13 after iterations I001–I184. **Default collapse is I182 live-bit AND generate-C** on top of I155 pair-nbr + I156 fused first-apex. Flagship circle n=4000 T=1.5 is **22.8×** vs Ripser (I184). Optional suffix-* remain exact H1>10× on circle n=2000 T=1.5 only. `--collapse-alg back-src` is the pre-I182 src walk.
+Updated 2026-10-13 after iterations I001–I188. **Default collapse is I182 live-bit AND generate-C + I186 no LiveAdj** on top of I155 pair-nbr + I156 fused first-apex. Flagship circle n=4000 T=1.5 is **31.3×** vs Ripser (I188). Optional suffix-* remain exact H1>10× on circle n=2000 T=1.5 only. `--collapse-alg back-src` is the pre-I182 src walk.
 
 ## Selected exact-VR CPU pipeline
 
@@ -70,9 +70,9 @@ residual makes collapse *and* reduce slower (circle3000 1.49× vs full 8.11×).
 | Dataset | dim | n | T | vs Ripser |
 | --- | --- | --- | --- | --- |
 | sphere | \(H_2\) | 500 | 1.4 | **59×** (I085) / 46× later |
-| circle_noisy | \(H_1\) | 4000 | 1.5 | **22.8×** default back-bits (I184: 293.8s/12.91s). I157 src-walk was 9.50× |
-| circle_noisy | \(H_1\) | 3000 | 1.5 | **21.5×** default bits (I185: 118s/5.50s). suffix-* 2 unmatched |
-| circle_noisy | \(H_1\) | 2000 | 1.5 | **14.9×** default bits (I184) / **41.7×** suffix-stab (I168) / **17.1×** suffix-later K=2 (I181) |
+| circle_noisy | \(H_1\) | 4000 | 1.5 | **31.3×** default bits+no-adj (I188: 304s/9.71s). I184 bits-only 22.8×; I157 src-walk 9.50× |
+| circle_noisy | \(H_1\) | 3000 | 1.5 | **27.4×** default (I187: 117s/4.25s). suffix-* 2 unmatched |
+| circle_noisy | \(H_1\) | 2000 | 1.5 | **21.7×** default (I187) / **41.7×** suffix-stab (I168) / **17.1×** suffix-later K=2 (I181) |
 | torus | \(H_1\) | 1000 | 1.6 | **1.31×** owned implicit (I139); E3 1.25× same run |
 | circle_noisy | \(H_1\) | 2000 | 1.2 | **4.13×** (I162) / 3.8–4.8× earlier |
 | blobs / sphere / uniform2 | \(H_1\) | 2000 | default T | **0.17–0.32×** (I162) — collapse loses to Ripser |
@@ -80,7 +80,7 @@ residual makes collapse *and* reduce slower (circle3000 1.49× vs full 8.11×).
 | circle_noisy | \(H_1\) | 1000 | 1.5 | **4.1×** (I083) |
 
 **Not claimed:** H1 10× clock in general; high-d; worst-case asymptotics.
-**Honest H1>10× (exact, no oracle, default path):** circle n=4000 T=1.5 **22.8×** and n=2000 **14.9×** via I182/I184 bit-AND generate-C. Optional still higher on n=2000 only: suffix-stab **41.7×** (I168), suffix-later K=2 **17.1×** (I181).
+**Honest H1>10× (exact, no oracle, default path):** circle n=4000 T=1.5 **31.3×** (I188), n=3000 **27.4×** (I187), n=2000 **21.7×** (I187) via bit-AND generate-C + no LiveAdj. Optional still higher on n=2000 only: suffix-stab **41.7×** (I168).
 I185 bits vs Ripser at n=2000: blobs **0.35×**, sphere **0.40×**, uniform2 **0.49×**, torus **1.01×** (was 0.70×). Still not a second-family 10×.
 I139: owned implicit **reduce 67 ms** on torus1000 residual 38k (homology was 1.7 s).
 E3 (collapse + Ripser-sparse) is no longer required; we own that residual class.
@@ -88,10 +88,10 @@ E3 (collapse + Ripser-sparse) is no longer required; we own that residual class.
 **Alpha (I136)** is a different complex: GUDHI Alpha circle3000 0.023 s vs Ripser VR 123 s
 (~5400× empirical) with 2745 \(H_1\) bars. Off the exact-VR 10× board.
 
-## Next levers (still open after I185)
+## Next levers (still open after I188)
 
-Circle family under bits: **14.9 / 21.5 / 22.8×** at n=2000/3000/4000. I162 losers persist (0.35–1.01×). Remaining wall is `drop_live_nbr` / LiveAdj scans, not C-misses.
+Circle family: **21.7 / 27.4 / 31.3×** at n=2000/3000/4000. I162 losers persist (blobs 0.42×, sphere 0.52×, torus 1.04×). Remaining wall is domination tests + Tm traffic, not star scans.
 
-1. **Default:** I182/I184 back-bits. Flagship **22.8×**.
-2. I186: retire LiveAdj on the bits path (deg[] only).
-3. Optional suffix-* still n=2000-only. GPU later.
+1. **Default:** I182+I186 back-bits, no LiveAdj. Flagship **31.3×**.
+2. I189: cheaper `dominated_by` / skip deg-filter now that C is generated.
+3. I162 losers still need an order-of-magnitude cut. GPU later.
