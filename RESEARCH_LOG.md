@@ -746,6 +746,12 @@ Do not paste long reasoning here.
 - **Decision:** No cheap geometric filter. Shift-keeps are a small algebraic set, not a geometric shell. Next: cost-model skip is still weakly separated; need an algebraic certificate for “will shift-keep”.
 - **Class:** experiment (negative as a skip filter)
 
+## 2026-10-13 — I174 suffix-k (in progress)
+
+- **Question:** Do young shift-keeps fail first-apex early enough that a K-sample cheap-trim + tail collapse is exact?
+- **Hypothesis:** Fail→leave is always safe. Pass→trim is unsafe only if a sequential keep passes the sample. Measure `fail_at` / `any_later` on the 97, then sweep K=0,2,8,32.
+- **Class:** experiment running
+
 ## 2026-10-13 — I164 collapse live-degree trace
 
 - **Question:** Does the live 1-skeleton thin early enough to stop the C-walk?
