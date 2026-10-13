@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-13 — I245 parallel build_edges
+
+- **Question:** Is vendor `build_edges` (191 ms of the connected wall) parallelizable without changing filtration order?
+- **Hypothesis:** Diameter histogram + place + `finish_buckets` are exact if the final order is still (diam, comb_index). Independent j-stripes and per-bucket sorts can run on a pool. I244 skip-enclosing stays. Shape-agnostic. Exact.
+- **Work:** `build_edges_parallel` + `finish_buckets_parallel` in `redzed_vr`. Wave 106 vs Ripser. Hard case: uniform2 n=5000 H1.
+- **Result:** **Exact 10/10** (figure8 2=2; sphere void 1=1; two_spheres 2=2; blobs H0 3=3). Uniform2 n=5000 **8.3×** (0.42s/3.46s; I244 6.8× / 0.50s). Reduce 325 vs 411 ms. Blobs n=4000 H1 **21×**. Sphere n=400 H2 **60×**. Circle **18×**.
+- **Decision:** **Hold.** Support as the RedZeD edge builder. Topology loss: **0**. Connected 10× still open (need ~1.2× on sequential AE). Not a better Big-O.
+- **Class:** experiment (hold; exact constant; closer to 10×)
+
 ## 2026-10-13 — I244 skip vendor enclosing on VR≤T
 
 - **Question:** How much of the connected RedZeD reduce is enclosing / `build_edges` / AE, and can we drop the wasted n² cone when T is finite without changing the barcode?
