@@ -1,5 +1,6 @@
 #include "pith/edge_collapse.hpp"
 #include "pith/persist.hpp"
+#include "pith/sparse_rips.hpp"
 
 #include <algorithm>
 #include <cassert>
@@ -236,6 +237,29 @@ int main() {
             if (p.dim == 1 && !std::isfinite(p.death)) ++ess1;
         assert(ess1 == 1);
         std::cout << "ok edge-list C4+isolated H1\n";
+    }
+
+    // I210: sparse Rips on C4 keeps the essential loop and drops nothing
+    // needed for H1; on a complete K4 it is a subgraph of G_T.
+    {
+        const value_t inf = 10;
+        std::vector<std::vector<value_t>> dist(4, std::vector<value_t>(4, 0));
+        dist[0][1] = dist[1][0] = 1;
+        dist[1][2] = dist[2][1] = 1;
+        dist[2][3] = dist[3][2] = 1;
+        dist[3][0] = dist[0][3] = 1;
+        dist[0][2] = dist[2][0] = 1.5f;
+        dist[1][3] = dist[3][1] = 1.5f;
+        Graph full = graph_from_distance(dist, inf);
+        Graph sp = sparse_rips_graph(dist, inf, 0.5f);
+        assert(sp.n == 4);
+        assert(sp.edges.size() <= full.edges.size());
+        Result r = persist_implicit_coh(sp, 1, inf, 1);
+        int ess1 = 0;
+        for (const auto& p : r.pairs)
+            if (p.dim == 1 && !std::isfinite(p.death)) ++ess1;
+        assert(ess1 >= 1);
+        std::cout << "ok sparse-rips C4 H1 edges=" << sp.edges.size() << "\n";
     }
 
     std::cout << "all collapse/persist unit tests passed\n";

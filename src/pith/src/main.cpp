@@ -1,5 +1,6 @@
 #include "pith/edge_collapse.hpp"
 #include "pith/persist.hpp"
+#include "pith/sparse_rips.hpp"
 
 #include <algorithm>
 #include <chrono>
@@ -32,6 +33,7 @@ static void usage() {
         << "  --ratio R           skip pairs with death <= birth*R (default 1)\n"
         << "  --no-enclosing      do not cap T by enclosing radius\n"
         << "  --edges FILE        1-skeleton: '# n=N' then 'u v t' lines (I207)\n"
+        << "  --sparse-eps EPS    in-process greedy-net sparse Rips 1-skeleton (I210)\n"
         << "  --sparse-only       write residual edges and exit\n"
         << "  --probe-only        print ROI probe on G_T and exit (I163)\n"
         << "  --probe-vertex      print dominated-vertex count on G_T and exit (I192)\n"
@@ -280,6 +282,7 @@ int main(int argc, char** argv) {
     double suffix_mult = 6;
     std::int64_t suffix_keep = -1;
     int suffix_k = 8;
+    value_t sparse_eps = -1;
     bool later_b = false;
     int later_escalate = 0;
     int later_esc_until = 0;
@@ -297,6 +300,7 @@ int main(int argc, char** argv) {
         if (a == "--points") points_path = need("--points");
         else if (a == "--distances") dist_path = need("--distances");
         else if (a == "--edges") edges_path = need("--edges");
+        else if (a == "--sparse-eps") sparse_eps = std::stof(need("--sparse-eps"));
         else if (a == "--maxdim") maxdim = std::stoi(need("--maxdim"));
         else if (a == "--threshold") threshold = std::stof(need("--threshold"));
         else if (a == "--collapse") collapse_iters = std::stoi(need("--collapse"));
@@ -351,7 +355,14 @@ int main(int argc, char** argv) {
                 const value_t R = enclosing_radius(dist);
                 if (R < threshold) threshold = R;
             }
-            g = graph_from_distance(dist, threshold);
+            if (sparse_eps > 0 && sparse_eps < 1) {
+                // I210: flag of a greedy-net sparse 1-skeleton. Default
+                // collapse off — I207 found collapse is a tax on sparse graphs.
+                g = sparse_rips_graph(dist, threshold, sparse_eps);
+                if (collapse_iters < 0) collapse_iters = 0;
+            } else {
+                g = graph_from_distance(dist, threshold);
+            }
         }
         c.n_vertices = g.n;
         c.n_edges_in = static_cast<std::int64_t>(g.edges.size());
