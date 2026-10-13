@@ -593,13 +593,11 @@ int main(int argc, char** argv) {
             } else {
                 const bool cc = r.counters.n_collapse_trims > 1;
                 const bool spatial = r.counters.pipeline.find("spatial") != std::string::npos;
-                const bool morton = r.counters.pipeline.find("morton") != std::string::npos;
                 r.counters.pipeline = auto_dispatch
                                           ? (cc ? "pith:auto-redzed-cc"
                                                 : (spatial ? "pith:auto-redzed-spatial" : "pith:auto-redzed"))
                                           : (cc ? "pith:redzed-cc"
                                                 : (spatial ? "pith:redzed-spatial" : "pith:redzed"));
-                if (morton) r.counters.pipeline += "-morton";
             }
         } else if (engine == "active") {
             r.counters.n_vertices = g.n;

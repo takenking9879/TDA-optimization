@@ -820,85 +820,6 @@ static bool spatial_edges(const std::vector<std::vector<value_t>>& pts, value_t 
     return true;
 }
 
-// I268: Morton-order vertices so leftover rbit rows/words are local.
-// leftover_coface already ANDs [rlo,rhi]; random IDs make that the
-// full n/64 words. Spatial order is an isometry of VR (same distances).
-// n<256 stays put so unit tests keep their labels.
-static uint64_t morton_split1(uint32_t v) {
-    uint64_t x = v;
-    x = (x | (x << 16)) & 0x0000FFFF0000FFFFULL;
-    x = (x | (x << 8)) & 0x00FF00FF00FF00FFULL;
-    x = (x | (x << 4)) & 0x0F0F0F0F0F0F0F0FULL;
-    x = (x | (x << 2)) & 0x3333333333333333ULL;
-    x = (x | (x << 1)) & 0x5555555555555555ULL;
-    return x;
-}
-
-static uint32_t morton_part1by2(uint32_t n) {
-    n &= 0x000003FFu;
-    n = (n | (n << 16)) & 0x030000FFu;
-    n = (n | (n << 8)) & 0x0300F00Fu;
-    n = (n | (n << 4)) & 0x030C30C3u;
-    n = (n | (n << 2)) & 0x09249249u;
-    return n;
-}
-
-static void morton_permute_points(std::vector<std::vector<value_t>>& pts) {
-    const int n = static_cast<int>(pts.size());
-    if (n < 256) return;
-    const int d = static_cast<int>(pts[0].size());
-    if (d < 2 || d > 3) return;
-    std::vector<double> lo(static_cast<size_t>(d)), hi(static_cast<size_t>(d));
-    for (int k = 0; k < d; ++k) {
-        lo[static_cast<size_t>(k)] = static_cast<double>(pts[0][static_cast<size_t>(k)]);
-        hi[static_cast<size_t>(k)] = lo[static_cast<size_t>(k)];
-    }
-    for (int i = 1; i < n; ++i) {
-        for (int k = 0; k < d; ++k) {
-            const double x = static_cast<double>(pts[static_cast<size_t>(i)][static_cast<size_t>(k)]);
-            if (x < lo[static_cast<size_t>(k)]) lo[static_cast<size_t>(k)] = x;
-            if (x > hi[static_cast<size_t>(k)]) hi[static_cast<size_t>(k)] = x;
-        }
-    }
-    const double qmax = (d == 2) ? 65535.0 : 1023.0;
-    std::vector<std::pair<uint64_t, int>> keys(static_cast<size_t>(n));
-    for (int i = 0; i < n; ++i) {
-        uint32_t q0 = 0, q1 = 0, q2 = 0;
-        for (int k = 0; k < d; ++k) {
-            const double span = hi[static_cast<size_t>(k)] - lo[static_cast<size_t>(k)];
-            double t = (span > 0.0)
-                           ? (static_cast<double>(pts[static_cast<size_t>(i)][static_cast<size_t>(k)]) -
-                              lo[static_cast<size_t>(k)]) /
-                                 span
-                           : 0.0;
-            if (t < 0.0) t = 0.0;
-            if (t > 1.0) t = 1.0;
-            const uint32_t q = static_cast<uint32_t>(t * qmax + 0.5);
-            if (k == 0) q0 = q;
-            else if (k == 1) q1 = q;
-            else q2 = q;
-        }
-        const uint64_t code = (d == 2) ? (morton_split1(q0) | (morton_split1(q1) << 1))
-                                       : (static_cast<uint64_t>(morton_part1by2(q0)) |
-                                          (static_cast<uint64_t>(morton_part1by2(q1)) << 1) |
-                                          (static_cast<uint64_t>(morton_part1by2(q2)) << 2));
-        keys[static_cast<size_t>(i)] = {code, i};
-    }
-    std::sort(keys.begin(), keys.end());
-    bool ident = true;
-    for (int i = 0; i < n; ++i) {
-        if (keys[static_cast<size_t>(i)].second != i) {
-            ident = false;
-            break;
-        }
-    }
-    if (ident) return;
-    std::vector<std::vector<value_t>> nxt(static_cast<size_t>(n));
-    for (int i = 0; i < n; ++i)
-        nxt[static_cast<size_t>(i)] = std::move(pts[static_cast<size_t>(keys[static_cast<size_t>(i)].second)]);
-    pts.swap(nxt);
-}
-
 static double bbox_max_extent(const std::vector<std::vector<value_t>>& pts) {
     const int n = static_cast<int>(pts.size());
     const int d = n ? static_cast<int>(pts[0].size()) : 0;
@@ -1153,29 +1074,14 @@ Result persist_redzed(const std::vector<std::vector<value_t>>& dist, int maxdim,
     return finish_redzed(std::move(D), maxdim, threshold);
 }
 
-Result persist_redzed_from_points(const std::vector<std::vector<value_t>>& pts_in, int maxdim,
+Result persist_redzed_from_points(const std::vector<std::vector<value_t>>& pts, int maxdim,
                                  value_t threshold) {
-    const int n = static_cast<int>(pts_in.size());
+    const int n = static_cast<int>(pts.size());
     if (n <= 0 || maxdim < 0) {
         Result r;
         r.counters.n_vertices = n;
         return r;
     }
-    // I268: Morton-order a local copy so leftover rbit words stay local.
-    // Same VR (isometry). H0 Kruskal does not use rbits — skip.
-    std::vector<std::vector<value_t>> owned;
-    const std::vector<std::vector<value_t>>* ppt = &pts_in;
-    bool morton = false;
-    if (maxdim >= 1 && n >= 256 && !pts_in.empty()) {
-        const int din = static_cast<int>(pts_in[0].size());
-        if (din >= 2 && din <= 3) {
-            owned = pts_in;
-            morton_permute_points(owned);
-            ppt = &owned;
-            morton = true;
-        }
-    }
-    const std::vector<std::vector<value_t>>& pts = *ppt;
     // I241: H0 is Kruskal. Spatial edges when d∈{2,3}; no RedZeD.
     if (maxdim < 1) {
         const auto tm0 = std::chrono::steady_clock::now();
@@ -1201,7 +1107,6 @@ Result persist_redzed_from_points(const std::vector<std::vector<value_t>>& pts_i
         const auto tm1 = std::chrono::steady_clock::now();
         Result r = finish_redzed_from_points(pts, std::move(comps), maxdim, threshold);
         r.counters.metric_ms = std::chrono::duration<double, std::milli>(tm1 - tm0).count();
-        if (morton) r.counters.pipeline += "-morton";
         return r;
     }
 
@@ -1285,7 +1190,6 @@ Result persist_redzed_from_points(const std::vector<std::vector<value_t>>& pts_i
     r.counters.metric_ms = std::chrono::duration<double, std::milli>(tfill1 - tfill0).count();
     r.counters.reduce_ms = std::chrono::duration<double, std::milli>(t1 - t0).count();
     r.counters.pipeline = spatial ? "pith:redzed-spatial" : "pith:redzed-thr";
-    if (morton) r.counters.pipeline += "-morton";
     return r;
 }
 

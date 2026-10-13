@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-13 — I268 Morton vertex order
+
+- **Question:** Does Morton-ordering vertices before RedZeD shrink leftover [rlo,rhi] enough to cut figure8 n=4000 reduce (866 ms)? Random IDs make the live range all 63 words.
+- **Hypothesis:** Spatial IDs are an isometry of VR. leftover_coface AND and rbit writes become local. H0/H2 unchanged. Dense 10× must hold. Shape-agnostic.
+- **Work:** Morton permute for n≥256, d∈{2,3} in `persist_redzed_from_points`. Wave 129 vs Ripser: H0–H2 + figure8 n=2000/4000 + dense n=5000. Also A/B collapse vs redzed on figure8.
+- **Result:** **Exact 14/14** (figure8 2=2; sphere void 1=1; two_spheres 2=2; blobs H0 3=3). figure8 n=4000 reduce **821 vs 866 ms** (~5%); n=2000 105 vs 98. Dense **11.7×**. Sphere H1 11.2×. Torus 13.3×. Sphere H2 60×. **A/B:** implicit collapse on figure8 n=4000 is **845 ms / 1.97M fast trims / residual 10k** — same Θ(|E|) as RedZeD leftover visits (862 ms).
+- **Decision:** **Revert.** 5% is not a leftover-visit skip. Do not retry space-filling vertex orders. Topology loss: **0**. I263 stays. Next: the shared wall is visiting ~2M G_T edges (collapse trims or leftover AE); need a skip, not a layout.
+- **Class:** experiment (hold identity; reject clock; reverted)
+
 ## 2026-10-13 — I267 tight H2 generate_stream
 
 - **Question:** Vendor H2 `generate_stream` ANDs all n/64 neighborhood words per edge. Does restricting the AND to the live rlo/rhi intersection cut forced-redzed H2 (sphere n=200/400) without losing the void?
