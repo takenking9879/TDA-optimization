@@ -141,11 +141,24 @@ static void build_edges_parallel(const DistanceMatrix& dist, value_t threshold,
 // exist, insert once and finish AE without re-advance / re-collect.
 // set_side is a no-op unless side_vpc is set (H2+).
 // I247 leftover_coface_fast was exact but slower (9.24× vs I246 9.56×) — reverted.
+// I250: collect_candidates only reads ActiveReg. If no actives, reset any
+// leftover seen from a prior seeded leftover and skip the face-slot walk.
+// Uniform2 n=5000: 3.37M / 3.46M leftovers have empty ActiveReg.
+static void clear_seeds(State& st) {
+    for (int32_t w : st.seedverts) {
+        st.seen[w] = 0;
+        st.seedlists[w].clear();
+        st.seenbits[w >> 6] = 0;
+    }
+    st.seedverts.clear();
+}
+
 static void active_enum_lazy(State& st, rank_t xrank, comb_t xidx, const int32_t* verts,
                              value_t sdiam) {
     const int m = st.n + 1;
     advance_rbits(st, sdiam);
-    collect_candidates(st, verts);
+    if (st.act.slot_of.count == 0) clear_seeds(st);
+    else collect_candidates(st, verts);
     SetDict& Rn = st.R[st.n];
     SetDict& Rin = st.Ri[st.n];
     if (st.seedverts.empty()) {
