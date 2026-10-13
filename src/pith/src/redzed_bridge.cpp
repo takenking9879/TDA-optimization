@@ -12,8 +12,10 @@
 #include <chrono>
 #include <cmath>
 #include <cstdint>
+#include <cstdlib>
 #include <functional>
 #include <iterator>
+#include <new>
 #include <numeric>
 #include <thread>
 #include <unordered_map>
@@ -160,16 +162,27 @@ static void clear_seeds(State& st) {
 
 // I258: sparse d≤T lookup. Miss → VINF so a leaked far-read cannot
 // invent a diameter-0 edge. Dense keeps the DistanceMatrix.
-// I259: open-address hash (load ≤ 1/2). I258's lower-tri CSR binary
-// search taxed leftover-coface: low-id rows held every higher neighbor.
+// I259: open-address hash. I258's lower-tri CSR binary search taxed
+// leftover-coface: low-id rows held every higher neighbor.
+// I260: load ~0.75 + occupancy bitmap + malloc (no eager Slot zero).
+// I259's tab.assign(16M) wrote 256 MB at n=20000.
 struct SparseDist {
     struct Slot {
-        uint64_t k = 0;
-        value_t v = 0;
+        uint64_t k;
+        value_t v;
     };
     int n = 0;
     uint64_t mask = 0;
-    std::vector<Slot> tab;
+    Slot* tab = nullptr;
+    std::vector<uint64_t> occ;
+
+    SparseDist() = default;
+    SparseDist(const SparseDist&) = delete;
+    SparseDist& operator=(const SparseDist&) = delete;
+    ~SparseDist() { std::free(tab); }
+
+    bool taken(uint64_t h) const { return (occ[h >> 6] >> (h & 63)) & 1ull; }
+    void mark(uint64_t h) { occ[h >> 6] |= 1ull << (h & 63); }
 
     static uint64_t pack(int i, int j) {
         if (i > j) std::swap(i, j);
@@ -188,11 +201,10 @@ struct SparseDist {
         if (i == j) return 0;
         const uint64_t k = pack(i, j);
         uint64_t h = mix(k) & mask;
-        const Slot* t = tab.data();
+        const Slot* t = tab;
         for (;;) {
-            const uint64_t s = t[h].k;
-            if (s == 0) return VINF;
-            if (s == k) return t[h].v;
+            if (!taken(h)) return VINF;
+            if (t[h].k == k) return t[h].v;
             h = (h + 1) & mask;
         }
     }
@@ -858,21 +870,26 @@ static void edgelist_from_spat(const std::vector<SpatEdge>& se, value_t threshol
     finish_buckets_parallel(out.diam, out.verts, 2, starts, nb, bt);
 }
 
-// I259: open-address hash of spatial d≤T pairs. O(|E|) memory, O(1)
-// expected get. Same pairs as SE. Empty key is 0 (i<j so pack ≠ 0).
+// I260: load ~0.75, occupancy bitmap, malloc (untouched empty slots).
+// Same pairs as SE. Occupied bit = present; miss → VINF.
 static void spat_to_hash(const std::vector<SpatEdge>& se, int n, SparseDist& S) {
     S.n = n;
+    std::free(S.tab);
+    S.tab = nullptr;
     size_t cap = 1024;
-    const size_t need = se.size() * 2 + 1;
+    const size_t need = se.size() + se.size() / 3 + 1;
     while (cap < need) cap <<= 1;
-    S.tab.assign(cap, SparseDist::Slot{});
+    S.tab = static_cast<SparseDist::Slot*>(std::malloc(cap * sizeof(SparseDist::Slot)));
+    if (!S.tab) throw std::bad_alloc();
+    S.occ.assign(cap / 64, 0);
     S.mask = cap - 1;
     for (const SpatEdge& e : se) {
         const uint64_t k = SparseDist::pack(e.u, e.v);
         uint64_t h = SparseDist::mix(k) & S.mask;
-        while (S.tab[h].k) h = (h + 1) & S.mask;
+        while (S.taken(h)) h = (h + 1) & S.mask;
         S.tab[h].k = k;
         S.tab[h].v = e.t;
+        S.mark(h);
     }
 }
 
@@ -1070,9 +1087,9 @@ Result persist_redzed_from_points(const std::vector<std::vector<value_t>>& pts, 
     // distances and pass a prebuilt EdgeList. Dense clouds (π(T/L)²≥0.2)
     // keep I238 parallel all-pairs.
     // I257: do not ∞-fill C(n,2).
-    // I258: do not allocate C(n,2) at all. I259: open-address hash of
-    // d≤T pairs. D.n is set so generate_stream can read the vertex
-    // count. coface_ready_any uses g_sparse. Miss → VINF.
+    // I258: do not allocate C(n,2). I259/I260: hash of d≤T pairs
+    // (load ~0.75, occupancy bitmap, no eager Slot zero). D.n is set
+    // so generate_stream can read the vertex count. Miss → VINF.
     std::vector<SpatEdge> SE;
     bool spatial = false;
     if (std::isfinite(threshold) && threshold > 0 && d >= 2 && d <= 3 && n >= 256) {
