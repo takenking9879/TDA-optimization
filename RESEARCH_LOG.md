@@ -662,8 +662,15 @@ Do not paste long reasoning here.
 - **Decision:** New best H1 clock. Still collapse-bound. Not 10×.
 - **Class:** reproduced
 
-## 2026-10-13 — I158 prefetch C-walk (in progress)
+## 2026-10-13 — I158 prefetch C-walk
 
-- **Question:** Do software prefetches of `r_other[w]` / `r_first[w]` cut collapse_ms without changing residuals?
-- **Hypothesis:** 4.58B probes at n=4000 are gather-bound enough that +8 lookahead helps; identity-safe.
+- **Question:** Do +8 software prefetches of `r_other[w]` / `r_first[w]` cut collapse_ms?
+- **Result:** Exact, same residuals. **Reject on clock.** circle2000 3912 vs I156 3746 ms; circle3000 13027 vs 12606 ms.
+- **Decision:** Revert prefetch. Rows already L1-resident.
+- **Class:** experiment (negative on clock)
+
+## 2026-10-13 — I159 vertex-sorted live stars (in progress)
+
+- **Question:** Does sorting each live star by vertex id make C-walk gathers sequential and faster?
+- **Hypothesis:** High-t edges (largest stars) see sorted access; swap-drop later randomizes the thinned graph. First apex may change; PH must stay exact.
 - **Class:** proposal / experiment running

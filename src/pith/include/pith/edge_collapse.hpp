@@ -205,13 +205,7 @@ inline bool process_one_backward(const Edge& e_in, value_t t_in, DenseTimes& Tm,
     bool fused_ok = true;
     bool any_later = false;
     std::int64_t commons = 0;
-    const size_t nsrc = src.size();
-    for (size_t i = 0; i < nsrc; ++i) {
-        if (i + 8 < nsrc) {
-            __builtin_prefetch(r_other + src[i + 8].first, 0, 1);
-            if (r_first) __builtin_prefetch(r_first + src[i + 8].first, 0, 1);
-        }
-        const LiveNbr& p = src[i];
+    for (const LiveNbr& p : src) {
         const index_t w = p.first;
         if (w == u || w == v) continue;
         const value_t t_other = r_other[w];
@@ -319,6 +313,12 @@ inline void init_collapse_graph(const std::vector<Edge>& E, int n, DenseTimes& T
         Tm.set(e.u, e.v, e.t);
         nbr[e.u].push_back({e.v, e.t});
         nbr[e.v].push_back({e.u, e.t});
+    }
+    // I159: vertex-sorted stars make r_other[w] / r_first[w] sequential.
+    // First-apex identity may change; PH must still match Ripser.
+    for (int i = 0; i < n; ++i) {
+        std::sort(nbr[i].begin(), nbr[i].end(),
+                  [](const LiveNbr& a, const LiveNbr& b) { return a.first < b.first; });
     }
 }
 
