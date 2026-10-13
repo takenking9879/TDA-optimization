@@ -622,7 +622,19 @@ int main() {
             std::cerr << "I240 two-squares n_distances=" << rzp.counters.n_distances << "\n";
             return 1;
         }
+        Result h0 = persist_redzed_from_points(pts, 0, T);
+        int h0ess = 0, h0fin = 0;
+        for (const auto& p : h0.pairs) {
+            if (p.dim != 0) continue;
+            if (!std::isfinite(p.death)) ++h0ess;
+            else if (p.death - p.birth > 1e-5f) ++h0fin;
+        }
+        if (h0ess != 2 || h0fin != 6) {
+            std::cerr << "I241 H0 two-squares ess/fin=" << h0ess << "/" << h0fin << "\n";
+            return 1;
+        }
         std::cout << "ok I239 two-squares cc-split\n";
+        std::cout << "ok I241 two-squares H0 Kruskal\n";
     }
 
     // I239: two octahedra far apart — H0=2 and H2=2 (wedge of voids).

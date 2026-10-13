@@ -7,6 +7,7 @@
 
 #include "pith/redzed_bridge.hpp"
 
+#include <algorithm>
 #include <atomic>
 #include <chrono>
 #include <cmath>
@@ -204,6 +205,91 @@ static bool spatial_components(const std::vector<std::vector<value_t>>& pts, val
     return true;
 }
 
+struct SpatEdge {
+    value_t t;
+    int u, v;
+};
+
+// I241: Moore neighborhood emits every Euclidean pair with d≤T.
+static bool spatial_edges(const std::vector<std::vector<value_t>>& pts, value_t T,
+                          std::vector<SpatEdge>& out) {
+    const int n = static_cast<int>(pts.size());
+    const int d = n ? static_cast<int>(pts[0].size()) : 0;
+    if (n <= 0 || d < 2 || d > 3 || !(T > 0) || !std::isfinite(T)) return false;
+    const double inv = 1.0 / static_cast<double>(T);
+    auto cell_of = [&](int i, int* c) {
+        for (int k = 0; k < d; ++k)
+            c[k] = static_cast<int>(
+                std::floor(static_cast<double>(pts[static_cast<size_t>(i)][static_cast<size_t>(k)]) * inv));
+    };
+    std::unordered_map<uint64_t, std::vector<int>> grid;
+    grid.reserve(static_cast<size_t>(n) * 2);
+    for (int i = 0; i < n; ++i) {
+        int c[3] = {0, 0, 0};
+        cell_of(i, c);
+        grid[pack_cell(c, d)].push_back(i);
+    }
+    out.clear();
+    out.reserve(static_cast<size_t>(n) * 8);
+    const int z1 = (d == 3) ? 1 : 0;
+    for (int i = 0; i < n; ++i) {
+        int c0[3] = {0, 0, 0};
+        cell_of(i, c0);
+        int c[3] = {0, 0, 0};
+        for (int dx = -1; dx <= 1; ++dx)
+            for (int dy = -1; dy <= 1; ++dy)
+                for (int dz = -z1; dz <= z1; ++dz) {
+                    c[0] = c0[0] + dx;
+                    c[1] = c0[1] + dy;
+                    c[2] = (d == 3) ? c0[2] + dz : 0;
+                    const auto it = grid.find(pack_cell(c, d));
+                    if (it == grid.end()) continue;
+                    for (int j : it->second) {
+                        if (j <= i) continue;
+                        const value_t dist = point_dist(pts, i, j);
+                        if (dist <= T) out.push_back({dist, i, j});
+                    }
+                }
+    }
+    return true;
+}
+
+static Result kruskal_h0(int n, std::vector<SpatEdge>&& edges) {
+    Result r;
+    Counters& c = r.counters;
+    c.n_vertices = n;
+    c.n_distances = static_cast<std::int64_t>(edges.size());
+    c.pipeline = "pith:redzed-h0";
+    std::sort(edges.begin(), edges.end(), [](const SpatEdge& a, const SpatEdge& b) {
+        if (a.t != b.t) return a.t < b.t;
+        if (a.u != b.u) return a.u < b.u;
+        return a.v < b.v;
+    });
+    std::vector<int> parent(static_cast<size_t>(n));
+    std::iota(parent.begin(), parent.end(), 0);
+    auto find = [&](int x) {
+        while (parent[static_cast<size_t>(x)] != x) {
+            parent[static_cast<size_t>(x)] = parent[static_cast<size_t>(parent[static_cast<size_t>(x)])];
+            x = parent[static_cast<size_t>(x)];
+        }
+        return x;
+    };
+    int live = n;
+    const auto t0 = std::chrono::steady_clock::now();
+    for (const SpatEdge& e : edges) {
+        const int a = find(e.u), b = find(e.v);
+        if (a == b) continue;
+        parent[static_cast<size_t>(b)] = a;
+        --live;
+        r.pairs.push_back({0, 0, e.t});
+    }
+    for (int i = 0; i < live; ++i) r.pairs.push_back({0, 0, kInf});
+    const auto t1 = std::chrono::steady_clock::now();
+    c.reduce_ms = std::chrono::duration<double, std::milli>(t1 - t0).count();
+    c.n_collapse_trims = live;
+    return r;
+}
+
 // I239: VR≤T of a disconnected G_T is the wedge of the components.
 // Split, run RedZeD on each block, merge bars. Exact. Superadditive
 // reduce (blobs = 3 clusters at T=1). One component → same as I228.
@@ -213,7 +299,17 @@ static Result finish_redzed(DistanceMatrix&& D, int maxdim, value_t threshold) {
     const int n = D.n;
     c.n_vertices = n;
     if (n <= 0 || maxdim < 0) return r;
-    const int dim = maxdim < 1 ? 0 : maxdim;
+    if (maxdim < 1) {
+        std::vector<SpatEdge> E;
+        E.reserve(static_cast<size_t>(n));
+        for (int j = 1; j < n; ++j)
+            for (int i = 0; i < j; ++i) {
+                const value_t d = D(i, j);
+                if (d <= threshold) E.push_back({d, i, j});
+            }
+        return kruskal_h0(n, std::move(E));
+    }
+    const int dim = maxdim;
 
     std::vector<int> parent(static_cast<size_t>(n));
     std::iota(parent.begin(), parent.end(), 0);
@@ -315,6 +411,23 @@ Result persist_redzed_from_points(const std::vector<std::vector<value_t>>& pts, 
     if (n <= 0 || maxdim < 0) {
         Result r;
         r.counters.n_vertices = n;
+        return r;
+    }
+    // I241: H0 is Kruskal. Spatial edges when d∈{2,3}; no RedZeD.
+    if (maxdim < 1) {
+        const auto tm0 = std::chrono::steady_clock::now();
+        std::vector<SpatEdge> E;
+        if (!spatial_edges(pts, threshold, E)) {
+            E.reserve(static_cast<size_t>(n) * 4);
+            for (int j = 1; j < n; ++j)
+                for (int i = 0; i < j; ++i) {
+                    const value_t dist = point_dist(pts, i, j);
+                    if (dist <= threshold) E.push_back({dist, i, j});
+                }
+        }
+        const auto tm1 = std::chrono::steady_clock::now();
+        Result r = kruskal_h0(n, std::move(E));
+        r.counters.metric_ms = std::chrono::duration<double, std::milli>(tm1 - tm0).count();
         return r;
     }
     // I240: spatial UF then per-component matrices. Never allocate n×n

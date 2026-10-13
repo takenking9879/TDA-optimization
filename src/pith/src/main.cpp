@@ -395,6 +395,12 @@ int main(int argc, char** argv) {
             // → pairwise + collapse+implicit. H2 τ=0.15 (I236).
             const int n_metric = have_pts ? static_cast<int>(pts.size())
                                           : static_cast<int>(dist.size());
+            // I241: H0 is Kruskal. Skip G_T + RedZeD on point clouds.
+            if (engine == "auto" && maxdim < 1 && have_pts && gic_n == 0 && knn_k == 0 &&
+                witness_n == 0 && !(sparse_eps > 0 && sparse_eps < 1) && !reduced_vr) {
+                auto_dispatch = true;
+                engine = "redzed";
+            }
             if (engine == "auto" && maxdim >= 1 && gic_n == 0 && knn_k == 0 &&
                 witness_n == 0 && !(sparse_eps > 0 && sparse_eps < 1) && !reduced_vr &&
                 n_metric >= 400) {
@@ -573,10 +579,14 @@ int main(int argc, char** argv) {
         r.counters.metric_ms = c.metric_ms;
         r.counters.residual_frac = c.residual_frac;
         if (engine == "redzed") {
-            const bool cc = r.counters.n_collapse_trims > 1;
-            r.counters.pipeline = auto_dispatch
-                                      ? (cc ? "pith:auto-redzed-cc" : "pith:auto-redzed")
-                                      : (cc ? "pith:redzed-cc" : "pith:redzed");
+            if (maxdim < 1) {
+                r.counters.pipeline = auto_dispatch ? "pith:auto-redzed-h0" : "pith:redzed-h0";
+            } else {
+                const bool cc = r.counters.n_collapse_trims > 1;
+                r.counters.pipeline = auto_dispatch
+                                          ? (cc ? "pith:auto-redzed-cc" : "pith:auto-redzed")
+                                          : (cc ? "pith:redzed-cc" : "pith:redzed");
+            }
         } else if (engine == "active") {
             r.counters.n_vertices = g.n;
             if (r.counters.pipeline.empty()) r.counters.pipeline = "pith:active-h1";
