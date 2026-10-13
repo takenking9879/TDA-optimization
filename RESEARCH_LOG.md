@@ -746,10 +746,16 @@ Do not paste long reasoning here.
 - **Decision:** No cheap geometric filter. Shift-keeps are a small algebraic set, not a geometric shell. Next: cost-model skip is still weakly separated; need an algebraic certificate for “will shift-keep”.
 - **Class:** experiment (negative as a skip filter)
 
-## 2026-10-13 — I174 suffix-k (in progress)
+## 2026-10-13 — I174 suffix-k
 
 - **Question:** Do young shift-keeps fail first-apex early enough that a K-sample cheap-trim + tail collapse is exact?
-- **Hypothesis:** Fail→leave is always safe. Pass→trim is unsafe only if a sequential keep passes the sample. Measure `fail_at` / `any_later` on the 97, then sweep K=0,2,8,32.
+- **Result:** circle3000: 96/97 have `any_later`, `fail_max=135`. circle4000 `fail_max=189`. **K=0** exact everywhere, **no clock win** (still a full young walk). **K=2** fast (n=2000 34× vs Ripser) but **20–28 unmatched**. **K=8** exact on n=2000 (6.55×, worse than default 7.2×), **2 unmatched** on n=3000. **K=32** exact on n=3000 (8.48×, residual 9133 vs 9190) but 1.84B vs 1.92B probes — not a 10× cut. Detecting `any_later` needs a long walk on high-t edges.
+- **Decision:** Reject as a 10× lever. Safe trim still requires a near-full star walk.
+- **Class:** experiment (negative on clock)
+
+## 2026-10-13 — I175 skip-collapse implicit (in progress)
+
+- **Question:** Does `--collapse 0 --engine implicit` beat Ripser on I162 losers (blobs/sphere/uniform2/torus) without touching the circle flagship?
 - **Class:** experiment running
 
 ## 2026-10-13 — I164 collapse live-degree trace
