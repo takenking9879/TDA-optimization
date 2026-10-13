@@ -67,8 +67,23 @@ static std::vector<std::vector<value_t>> read_distance_matrix(const std::string&
         }
         return rows;
     }
-    // Ripser lower-distance: row i has i entries (no diagonal).
-    if (static_cast<int>(rows[0].size()) == 1 || rows[0].size() < rows.back().size()) {
+    // Ripser lower-distance: line i has i entries (no diagonal). The i=0
+    // line is empty and already skipped, so we see rows of length 1..n-1.
+    if (static_cast<int>(rows[0].size()) == 1 &&
+        static_cast<int>(rows.back().size()) == n) {
+        const int N = n + 1;
+        std::vector<std::vector<value_t>> dist(N, std::vector<value_t>(N, 0));
+        for (int i = 0; i < n; ++i) {
+            const int r = i + 1;
+            if (static_cast<int>(rows[i].size()) != r)
+                throw std::runtime_error("lower-distance row length != i");
+            for (int j = 0; j < r; ++j) {
+                dist[r][j] = dist[j][r] = rows[i][j];
+            }
+        }
+        return dist;
+    }
+    if (static_cast<int>(rows[0].size()) == 0 || rows[0].size() < rows.back().size()) {
         std::vector<std::vector<value_t>> dist(n, std::vector<value_t>(n, 0));
         for (int i = 0; i < n; ++i) {
             if (static_cast<int>(rows[i].size()) != i)
@@ -232,27 +247,19 @@ int main(int argc, char** argv) {
         Graph g = graph_from_distance(dist, threshold);
         c.n_vertices = g.n;
         c.n_edges_in = static_cast<std::int64_t>(g.edges.size());
-        bool skipped_collapse = false;
         if (collapse_iters < 0) {
             if (maxdim < 1) {
-                skipped_collapse = true;
                 c.n_edges_out = c.n_edges_in;
             } else {
-                const double p = probe_domination(g, 64);
-                const double mean_in = g.n ? (2.0 * static_cast<double>(g.edges.size()) / g.n) : 0;
-                if (p < 0.25 && mean_in > 40.0 && maxdim <= 1) {
-                    skipped_collapse = true;
-                    c.n_edges_out = c.n_edges_in;
-                } else {
-                    g = collapse_edges(std::move(g), 1, c);
-                    const double mean_deg = g.n ? (2.0 * static_cast<double>(g.edges.size()) / g.n) : 0;
-                    if (mean_deg > 6.0) g = collapse_edges(std::move(g), 2, c);
-                }
+                // I055: do not skip collapse on high-d. persist_sparse on G_T
+                // is much slower than collapse+homology (uniform10 n=200: 3.5s vs 0.23s).
+                g = collapse_edges(std::move(g), 1, c);
+                const double mean_deg = g.n ? (2.0 * static_cast<double>(g.edges.size()) / g.n) : 0;
+                if (mean_deg > 6.0) g = collapse_edges(std::move(g), 2, c);
             }
         } else if (collapse_iters > 0) {
             g = collapse_edges(std::move(g), collapse_iters, c);
         } else {
-            skipped_collapse = true;
             c.n_edges_out = c.n_edges_in;
         }
 
@@ -261,13 +268,9 @@ int main(int argc, char** argv) {
             return 0;
         }
 
-        const double mean_res = g.n ? (2.0 * static_cast<double>(g.edges.size()) / g.n) : 0;
-        bool use_implicit = false;
-        if (engine == "implicit") use_implicit = true;
-        else if (engine == "homology") use_implicit = false;
-        else {
-            use_implicit = (maxdim <= 1) && (skipped_collapse || mean_res > 8.0);
-        }
+        bool use_implicit = (engine == "implicit");
+        // auto/homology: triangle-boundary homology. Implicit coh is I045-rejected
+        // on dense G_T and on thick residuals; keep as an explicit experiment flag.
         Result r = use_implicit ? persist_implicit_coh(g, maxdim, threshold, ratio)
                                 : persist_sparse(g, maxdim, threshold, ratio);
         r.counters.n_distances = c.n_distances;

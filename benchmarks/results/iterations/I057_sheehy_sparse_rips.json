@@ -1,0 +1,70 @@
+{
+  "id": "sheehy_sparse_rips",
+  "lever": "H14",
+  "class": "approx-guaranteed",
+  "fidelity": "approx",
+  "status": "reject-as-exact",
+  "summary": "GUDHI sparse Rips is not exact VR; logged as approx control",
+  "receipts": [
+    {
+      "dataset": "circle_noisy",
+      "n": 200,
+      "sparse": 0.3,
+      "n_simplices": 15139,
+      "match_exact": false,
+      "unmatched": 13,
+      "gudhi_s": 0.006445901000006415,
+      "ripser_s": 0.008690355999533494
+    },
+    {
+      "dataset": "circle_noisy",
+      "n": 200,
+      "sparse": 0.5,
+      "n_simplices": 7657,
+      "match_exact": false,
+      "unmatched": 36,
+      "gudhi_s": 0.0032562960004725028,
+      "ripser_s": 0.008690355999533494
+    },
+    {
+      "dataset": "uniform10",
+      "n": 80,
+      "sparse": 0.3,
+      "n_simplices": 83237,
+      "match_exact": true,
+      "unmatched": 0,
+      "gudhi_s": 0.025375958000040555,
+      "ripser_s": 0.00254712500009191
+    },
+    {
+      "dataset": "uniform10",
+      "n": 80,
+      "sparse": 0.5,
+      "n_simplices": 83237,
+      "match_exact": true,
+      "unmatched": 0,
+      "gudhi_s": 0.024874723999346315,
+      "ripser_s": 0.00254712500009191
+    },
+    {
+      "dataset": "sphere",
+      "n": 80,
+      "sparse": 0.3,
+      "n_simplices": 8205,
+      "match_exact": false,
+      "unmatched": 16,
+      "gudhi_s": 0.0031237619996318244,
+      "ripser_s": 0.001989403000152379
+    },
+    {
+      "dataset": "sphere",
+      "n": 80,
+      "sparse": 0.5,
+      "n_simplices": 5066,
+      "match_exact": false,
+      "unmatched": 30,
+      "gudhi_s": 0.001996193999730167,
+      "ripser_s": 0.001989403000152379
+    }
+  ]
+}

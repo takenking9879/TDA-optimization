@@ -1,0 +1,23 @@
+{
+  "id": "circle2000_scale",
+  "lever": "H01",
+  "class": "structural",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "circle n=2000 time_ratio=4.599667662017376 edges=158.72489336952307",
+  "receipts": [
+    {
+      "n": 2000,
+      "match": true,
+      "unmatched": 0,
+      "edges_in": 818703,
+      "edges_out": 5158,
+      "ratio": 158.72489336952307,
+      "collapse_ms": 2630.4614,
+      "reduce_ms": 1.684343,
+      "ripser_s": 12.362324720999823,
+      "pith_s": 2.6876560719992995,
+      "time_ratio": 4.599667662017376
+    }
+  ]
+}

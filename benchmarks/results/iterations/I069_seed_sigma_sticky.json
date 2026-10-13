@@ -1,0 +1,28 @@
+{
+  "id": "seed_sigma_sticky",
+  "lever": "H01",
+  "class": "reproduced",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "seed/sigma recheck after sticky",
+  "receipts": [
+    {
+      "name": "circle_seed1_n200",
+      "match": true,
+      "time_ratio": 1.9016813618890867,
+      "edge_ratio": 31.118773946360154
+    },
+    {
+      "name": "circle_sig0.01_n200",
+      "match": true,
+      "time_ratio": 1.5259411907169456,
+      "edge_ratio": 40.18536585365854
+    },
+    {
+      "name": "circle_sig0.2_n200",
+      "match": true,
+      "time_ratio": 1.3148879483982088,
+      "edge_ratio": 16.677865612648223
+    }
+  ]
+}

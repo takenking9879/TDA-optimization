@@ -1,0 +1,37 @@
+{
+  "id": "n500_families_sticky",
+  "lever": "H01",
+  "class": "reproduced",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "blobs/uniform2/sphere n=500 H1 after sticky",
+  "receipts": [
+    {
+      "dataset": "blobs",
+      "match": true,
+      "ripser_s": 0.01788650999969832,
+      "pith_s": 0.02305787900058931,
+      "time_ratio": 0.7757222595903629,
+      "edge_ratio": 31.058289174867525,
+      "collapse_ms": 18.486995
+    },
+    {
+      "dataset": "uniform2",
+      "match": true,
+      "ripser_s": 0.019347336000464566,
+      "pith_s": 0.024410623000221676,
+      "time_ratio": 0.7925785425586586,
+      "edge_ratio": 24.55323590814196,
+      "collapse_ms": 19.74521
+    },
+    {
+      "dataset": "sphere",
+      "match": true,
+      "ripser_s": 0.03397907100043085,
+      "pith_s": 0.05984279299991613,
+      "time_ratio": 0.5678055668370705,
+      "edge_ratio": 33.9196675900277,
+      "collapse_ms": 54.077325
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "id": "h04_remainder_after_collapse",
+  "lever": "H04",
+  "class": "experiment",
+  "fidelity": "exact",
+  "status": "hold",
+  "summary": "unpaired remainder after collapse already tiny on circles; H04 not a 10\u00d7 lever",
+  "receipts": [
+    {
+      "dataset": "circle_noisy",
+      "n": 200,
+      "cols0": 166935,
+      "cols1": 85,
+      "ratio": 1963.9411764705883,
+      "edges0": 8197,
+      "edges1": 283
+    },
+    {
+      "dataset": "torus",
+      "n": 200,
+      "cols0": 55843,
+      "cols1": 3098,
+      "ratio": 18.025500322788897,
+      "edges0": 4789,
+      "edges1": 1260
+    },
+    {
+      "dataset": "sphere",
+      "n": 80,
+      "cols0": 82901,
+      "cols1": 345,
+      "ratio": 240.29275362318842,
+      "edges0": 1564,
+      "edges1": 286
+    }
+  ]
+}

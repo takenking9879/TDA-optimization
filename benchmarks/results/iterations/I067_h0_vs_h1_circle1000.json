@@ -1,0 +1,26 @@
+{
+  "id": "h0_vs_h1_circle1000",
+  "lever": "H05",
+  "class": "experiment",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "H0 skip vs H1 collapse on circle1000",
+  "receipts": [
+    {
+      "tag": "h0",
+      "match": true,
+      "ripser_s": 0.04115924500001711,
+      "pith_s": 0.03294884099977935,
+      "time_ratio": 1.2491864281445513,
+      "collapse_ms": 0
+    },
+    {
+      "tag": "h1",
+      "match": true,
+      "ripser_s": 0.891568852999626,
+      "pith_s": 0.32106339799975103,
+      "time_ratio": 2.7769246153693214,
+      "collapse_ms": 305.51243
+    }
+  ]
+}

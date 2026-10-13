@@ -1,0 +1,76 @@
+{
+  "id": "torus_engines",
+  "lever": "H02",
+  "class": "structural",
+  "fidelity": "exact",
+  "status": "experiment",
+  "summary": "torus residual: homology vs implicit vs auto",
+  "receipts": [
+    {
+      "n": 200,
+      "engine": "homology",
+      "match": true,
+      "ripser_s": 0.005408644000453933,
+      "pith_s": 0.006651189999502094,
+      "time_ratio": 0.8131844077313717,
+      "collapse_ms": 2.883473,
+      "reduce_ms": 1.17464,
+      "edges_out": 977
+    },
+    {
+      "n": 200,
+      "engine": "implicit",
+      "match": false,
+      "ripser_s": 0.005408644000453933,
+      "pith_s": 0.006402471000001242,
+      "time_ratio": 0.844774462930466,
+      "collapse_ms": 2.423809,
+      "reduce_ms": 1.630354,
+      "edges_out": 977
+    },
+    {
+      "n": 200,
+      "engine": "auto",
+      "match": true,
+      "ripser_s": 0.005408644000453933,
+      "pith_s": 0.006584083999769064,
+      "time_ratio": 0.8214725086501996,
+      "collapse_ms": 2.832313,
+      "reduce_ms": 1.254444,
+      "edges_out": 977
+    },
+    {
+      "n": 500,
+      "engine": "homology",
+      "match": true,
+      "ripser_s": 0.05785640300018713,
+      "pith_s": 0.0648271879999811,
+      "time_ratio": 0.8924712730128599,
+      "collapse_ms": 30.457604,
+      "reduce_ms": 29.560048,
+      "edges_out": 5735
+    },
+    {
+      "n": 500,
+      "engine": "implicit",
+      "match": false,
+      "ripser_s": 0.05785640300018713,
+      "pith_s": 0.1060202170001503,
+      "time_ratio": 0.5457110411319486,
+      "collapse_ms": 30.210632,
+      "reduce_ms": 68.267126,
+      "edges_out": 5735
+    },
+    {
+      "n": 500,
+      "engine": "auto",
+      "match": true,
+      "ripser_s": 0.05785640300018713,
+      "pith_s": 0.06543896699986362,
+      "time_ratio": 0.8841276941353262,
+      "collapse_ms": 30.505974,
+      "reduce_ms": 29.20918,
+      "edges_out": 5735
+    }
+  ]
+}

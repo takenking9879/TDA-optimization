@@ -1,0 +1,58 @@
+{
+  "id": "sticky_collapse_identity",
+  "lever": "H01-sticky",
+  "class": "implementation",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "sticky+heap identity 4/4",
+  "receipts": [
+    {
+      "dataset": "circle_noisy",
+      "n": 80,
+      "dim": 1,
+      "match": true,
+      "unmatched": 0,
+      "edges_in": 1261,
+      "edges_out": 93,
+      "collapse_ms": 0.280569,
+      "ripser_s": 0.0018101860000570014,
+      "pith_s": 0.0016568930000175897
+    },
+    {
+      "dataset": "circle_noisy",
+      "n": 200,
+      "dim": 1,
+      "match": true,
+      "unmatched": 0,
+      "edges_in": 8197,
+      "edges_out": 283,
+      "collapse_ms": 2.973329,
+      "ripser_s": 0.010920635999809747,
+      "pith_s": 0.005752996999945026
+    },
+    {
+      "dataset": "blobs",
+      "n": 80,
+      "dim": 1,
+      "match": true,
+      "unmatched": 0,
+      "edges_in": 1036,
+      "edges_out": 142,
+      "collapse_ms": 0.184058,
+      "ripser_s": 0.002754534000359854,
+      "pith_s": 0.002483574000052613
+    },
+    {
+      "dataset": "sphere",
+      "n": 80,
+      "dim": 2,
+      "match": true,
+      "unmatched": 0,
+      "edges_in": 1564,
+      "edges_out": 286,
+      "collapse_ms": 0.407722,
+      "ripser_s": 0.009180151000236947,
+      "pith_s": 0.0017819120002968702
+    }
+  ]
+}

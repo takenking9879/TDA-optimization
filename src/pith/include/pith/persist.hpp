@@ -385,6 +385,58 @@ inline void for_cofacets_edge(const Graph& g, index_t u, index_t v, value_t te, 
     }
 }
 
+inline void f2_xor_into(std::vector<int>& a, int x) { a.push_back(x); }
+
+inline void f2_xor_into(std::vector<int>& a, const std::vector<int>& b) {
+    a.insert(a.end(), b.begin(), b.end());
+}
+
+inline void f2_normalize(std::vector<int>& a) {
+    if (a.size() < 2) return;
+    std::sort(a.begin(), a.end(), std::greater<int>());
+    std::vector<int> out;
+    out.reserve(a.size());
+    for (int x : a) {
+        if (!out.empty() && out.back() == x) out.pop_back();
+        else out.push_back(x);
+    }
+    a.swap(out);
+}
+
+inline bool zero_apparent_edge(const Graph& g, index_t u, index_t v, value_t te, value_t T,
+                               CohEntry* out_tau) {
+    // Apparent pair (Bauer): youngest cofacet τ of e, and e is the oldest facet of τ.
+    CohEntry youngest{kNegInf, 0};
+    bool any = false;
+    for_cofacets_edge(g, u, v, te, T, [&](CohEntry tau) {
+        if (!any || tau.t > youngest.t || (tau.t == youngest.t && tau.key > youngest.key)) {
+            youngest = tau;
+            any = true;
+        }
+    });
+    if (!any || youngest.t != te) return false;
+    const index_t a = static_cast<index_t>(youngest.key & ((1ull << 21) - 1));
+    const index_t b = static_cast<index_t>((youngest.key >> 21) & ((1ull << 21) - 1));
+    const index_t c = static_cast<index_t>(youngest.key >> 42);
+    struct F {
+        index_t x, y;
+        value_t t;
+        std::uint64_t k;
+    };
+    const F f[3] = {{a, b, edge_time(g, a, b), pack2(a, b)},
+                    {a, c, edge_time(g, a, c), pack2(a, c)},
+                    {b, c, edge_time(g, b, c), pack2(b, c)}};
+    F oldest = f[0];
+    for (int k = 1; k < 3; ++k) {
+        if (f[k].t < oldest.t || (f[k].t == oldest.t && f[k].k < oldest.k)) oldest = f[k];
+    }
+    if (oldest.t == te && oldest.k == pack2(u, v)) {
+        if (out_tau) *out_tau = youngest;
+        return true;
+    }
+    return false;
+}
+
 inline Result persist_implicit_coh(const Graph& g, int maxdim, value_t threshold, value_t ratio) {
     Result r;
     Counters& c = r.counters;
@@ -434,45 +486,69 @@ inline Result persist_implicit_coh(const Graph& g, int maxdim, value_t threshold
 
     std::unordered_map<std::uint64_t, int> pivot;
     pivot.reserve(leftover.size() * 2);
-    std::vector<std::vector<int>> V(leftover.size());
+    std::unordered_map<std::uint64_t, int> apparent;
+    apparent.reserve(leftover.size() * 2);
+    std::vector<std::vector<CohEntry>> reduced(leftover.size());
 
-    auto add_cob = [&](int k, std::priority_queue<CohEntry, std::vector<CohEntry>, CohYounger>& cob) {
-        for_cofacets_edge(g, leftover[k].u, leftover[k].v, leftover[k].t, threshold, [&](CohEntry x) {
-            ++c.n_cofacet_probes;
-            cob.push(x);
-        });
-        for (int s : V[k]) {
-            for_cofacets_edge(g, leftover[s].u, leftover[s].v, leftover[s].t, threshold,
-                              [&](CohEntry x) {
-                                  ++c.n_cofacet_probes;
-                                  cob.push(x);
-                              });
+    auto xor_entry = [](std::unordered_map<std::uint64_t, value_t>& cob, CohEntry x) {
+        auto it = cob.find(x.key);
+        if (it == cob.end()) cob.emplace(x.key, x.t);
+        else cob.erase(it);
+    };
+    auto dump_cob = [](const std::unordered_map<std::uint64_t, value_t>& cob) {
+        std::vector<CohEntry> out;
+        out.reserve(cob.size());
+        for (const auto& kv : cob) out.push_back({kv.second, kv.first});
+        return out;
+    };
+    auto youngest_in = [](const std::unordered_map<std::uint64_t, value_t>& cob) -> CohEntry {
+        CohEntry best{kNegInf, 0};
+        for (const auto& kv : cob) {
+            if (kv.second > best.t || (kv.second == best.t && kv.first > best.key))
+                best = {kv.second, kv.first};
         }
+        return best;
     };
 
     for (int i = 0; i < static_cast<int>(leftover.size()); ++i) {
+        CohEntry tau;
+        if (zero_apparent_edge(g, leftover[i].u, leftover[i].v, leftover[i].t, threshold, &tau)) {
+            apparent[tau.key] = i;
+            ++c.n_columns_apparent;
+            continue;
+        }
         ++c.n_columns_assembled;
-        std::priority_queue<CohEntry, std::vector<CohEntry>, CohYounger> cob;
-        add_cob(i, cob);
+        std::unordered_map<std::uint64_t, value_t> cob;
+        cob.reserve(64);
+        for_cofacets_edge(g, leftover[i].u, leftover[i].v, leftover[i].t, threshold, [&](CohEntry x) {
+            ++c.n_cofacet_probes;
+            xor_entry(cob, x);
+        });
         ++c.n_columns_reduced;
-        while (true) {
-            const CohEntry piv = pop_pivot_f2(cob);
-            if (piv.t < 0) {
-                r.pairs.push_back({1, leftover[i].t, kInf});
-                break;
-            }
+        while (!cob.empty()) {
+            const CohEntry piv = youngest_in(cob);
             auto it = pivot.find(piv.key);
             if (it != pivot.end()) {
-                add_cob(it->second, cob);
-                V[i].push_back(it->second);
-                for (int s : V[it->second]) V[i].push_back(s);
+                for (const CohEntry& x : reduced[it->second]) xor_entry(cob, x);
+                ++c.n_additions;
+                continue;
+            }
+            auto ap = apparent.find(piv.key);
+            if (ap != apparent.end()) {
+                for_cofacets_edge(g, leftover[ap->second].u, leftover[ap->second].v,
+                                  leftover[ap->second].t, threshold, [&](CohEntry x) {
+                                      ++c.n_cofacet_probes;
+                                      xor_entry(cob, x);
+                                  });
                 ++c.n_additions;
                 continue;
             }
             pivot[piv.key] = i;
+            reduced[i] = dump_cob(cob);
             if (piv.t > leftover[i].t * ratio) r.pairs.push_back({1, leftover[i].t, piv.t});
             break;
         }
+        if (cob.empty()) r.pairs.push_back({1, leftover[i].t, kInf});
     }
 
     // H2: fall back to homology on the residual (tiny after collapse).

@@ -1,0 +1,37 @@
+{
+  "id": "torus500_passes",
+  "lever": "H01-iter",
+  "class": "experiment",
+  "fidelity": "exact",
+  "status": "experiment",
+  "summary": "torus500 collapse passes after sticky",
+  "receipts": [
+    {
+      "tag": "one",
+      "match": true,
+      "ripser_s": 0.04757824599982996,
+      "pith_s": 0.10415388900037215,
+      "time_ratio": 0.45680719612553267,
+      "edges_out": 8825,
+      "collapse_ms": 22.359267
+    },
+    {
+      "tag": "adaptive",
+      "match": true,
+      "ripser_s": 0.04757824599982996,
+      "pith_s": 0.061135187999752816,
+      "time_ratio": 0.7782464985635168,
+      "edges_out": 5735,
+      "collapse_ms": 28.956968
+    },
+    {
+      "tag": "three",
+      "match": true,
+      "ripser_s": 0.04757824599982996,
+      "pith_s": 0.0608313429993359,
+      "time_ratio": 0.7821337431322102,
+      "edges_out": 5735,
+      "collapse_ms": 28.391829
+    }
+  ]
+}

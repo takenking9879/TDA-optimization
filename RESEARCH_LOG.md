@@ -285,3 +285,79 @@ Do not paste long reasoning here.
 
 - **Decision:** PITH with owned PH + adaptive collapse. See `docs/SELECTED.md`.
 - **Class:** verified (selection, scoped)
+
+## 2026-10-13 — I044 sticky collapse
+
+- **Question:** Does GUDHI’s sticky-dominator + lazy `C_later` heap speed exact collapse?
+- **Result:** Identity 4/4 (circle/blobs/sphere). Counts unchanged. circle1000 collapse 324 ms (was 318). **No wall-clock win.**
+- **Decision:** Keep (GUDHI-parity inner loop). Not a 10× lever.
+- **Class:** experiment (implementation, negative for speed)
+
+## 2026-10-13 — I045–I046 implicit cohomology
+
+- **Question:** Does leftover-edge coboundary with *triangle* rows fix I003?
+- **Result:** collapse=0: wrong (1147 unmatched) or OOM before F2 maps. After collapse: still wrong on blobs/torus/sphere/circle200. Only a near-cycle residual matches (I068 circle80).
+- **Decision:** Reject as engine. `--engine implicit` stays experimental. Auto = homology.
+- **Class:** experiment (failure archived)
+
+## 2026-10-13 — I047 / I059 H1 scale
+
+- **Result:** Exact. circle1500 **3.44×** / 124× edges. circle2000 **4.60×** / **159×** edges, collapse 2.63 s / reduce 1.7 ms.
+- **Decision:** H1 10× clock still collapse-bound; ratio grows with n and with T (I062: 1.5× at T=0.6 → 4.6× at T=1.5 on n=500).
+- **Class:** reproduced
+
+## 2026-10-13 — I048 / I055 high-d skip
+
+- **Question:** Skip collapse when domination probe is low?
+- **Result:** Probe did not fire. Forced skip+homology on uniform10 n=200: **0.005×** vs Ripser (3.5 s). Collapse+homology 0.07× — still lose, but skip is worse.
+- **Decision:** Do not skip collapse on high-d while the engine is `persist_sparse`.
+- **Class:** experiment (negative)
+
+## 2026-10-13 — I050 / I066 sphere H2
+
+- **Result:** Exact. n=200 **14×**, n=500 **57×**. T-sweep still exact.
+- **Class:** reproduced
+
+## 2026-10-13 — I051 distance CLI
+
+- **Result:** Square CSV `--distances` matches Ripser point-cloud (circle80).
+- **Decision:** I041 hold closed for square matrices.
+- **Class:** reproduced
+
+## 2026-10-13 — I052 / I067 H0 skip
+
+- **Result:** `--collapse -1` + `maxdim=0` skips collapse. circle1000 H0 **1.25×** vs Ripser (was 0.25–0.36×).
+- **Decision:** Keep.
+- **Class:** reproduced
+
+## 2026-10-13 — I053 / I056 reduced VR (H07)
+
+- **Result:** Essential H1 counts match n≤30; finite bars over-count (every triangle). Triangle count ≪ \(\binom{n}{3}\).
+- **Decision:** Reject current prototype as exact PH. Size claim still interesting.
+- **Class:** experiment (negative for barcodes)
+
+## 2026-10-13 — I054 / I057 / I061
+
+- **Result:** This GUDHI 3.13 wheel has no `flag_filtration`. Sheehy sparse ≠ exact VR (I057). RP2 n=600 `--distances` parses; collapse timed out at 180 s.
+- **Class:** hold / reject-as-exact
+
+## 2026-10-13 — I058 / I070 column remainder
+
+- **Result:** Uncollapsed→collapsed columns: circle200 **1964×**, torus200 **18×**, sphere80 H2 **240×**. Residual after collapse is tiny on circles ⇒ H04 extra Morse is not a 10× lever.
+- **Class:** experiment (diagnostic)
+
+## 2026-10-13 — I060 / I063 / I064 / I069
+
+- **Result:** Geometry recheck exact. Torus500 adaptive 0.78× vs Ripser (better than 1-pass 0.46×, still lose). blobs/uniform2/sphere n=500 H1 we lose wall-clock (0.57–0.79×) despite 25–34× edges. Seeds/σ exact.
+- **Class:** reproduced
+
+## 2026-10-13 — I065 Alpha
+
+- **Result:** Alpha ≠ VR. Other-complex only.
+- **Class:** experiment (empirical)
+
+## 2026-10-13 — selected after I070
+
+- **Decision:** Selected stack unchanged: collapse + triangle-boundary homology. Sticky inner loop kept. Implicit coh / reduced-VR-PH / high-d skip / Sheehy rejected. Distance CLI added. See `docs/SELECTED.md`.
+- **Next:** faster collapse (still the only H1 10×-clock path); do not stop at 70 iterations.
+- **Class:** verified (selection, scoped)
