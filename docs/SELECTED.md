@@ -1,6 +1,6 @@
 # Selected algorithm (living)
 
-Updated 2026-10-13 after iterations I001–I203. **Default is I193 + I197 +
+Updated 2026-10-13 after iterations I001–I218. **Default is I193 + I197 +
 I202 gated witness + I203 cofacet early-stop** on I182 live-bit C + I186
 no LiveAdj. Flagship circle n=4000 T=1.5 is **140×** vs Ripser (I196).
 That number is a collapse-friendly regime, **not** the success criterion.
@@ -15,12 +15,14 @@ justification (residual \(|E'(n)|\) slopes, column counts, or a different
 complex with a proven size bound). Any information loss vs exact VR must be
 quantified (unmatched bars / bottleneck / interleaving).
 
-Current honest status: the **code path is shape-agnostic and exact** (0
-unmatched vs Ripser on every measured family, including figure8 /
-two_circles). **Worst-case Big-O is not yet improved** — collapse is an
-extra \(O(E\cdot|C|)\) pass; torus residual stays \(\Theta(n^2)\). I203
-cuts the apparent cofacet walk (torus reduce 450→172 ms) without changing
-the pairing class. I204 measures residual slopes.
+Current honest status: the **exact default is shape-agnostic** (0 unmatched
+vs Ripser on every measured family, including figure8 / two_circles) but
+**worst-case Big-O is not improved** — collapse is an extra \(O(E\cdot|C|)\)
+pass; torus residual stays \(\Theta(n^2)\) (I204). The **optional**
+`--sparse-eps 0.6` path is also shape-agnostic, keeps essential \(H_1\), and
+**does** sit in a better size/time class (I218: edges \(n^{1.31–1.39}\),
+time \(n^{1.38–1.60}\) vs Ripser \(n^{2.14–3.29}\)). Topology loss on that
+path is quantified (bottleneck typically 0.005–0.034; torus n=2000 0.028).
 
 ## Selected exact-VR CPU pipeline
 
@@ -170,15 +172,40 @@ At n=2000, blobs/uniform2 are still 6–7×. 10× on those families is a
 **scale** effect from the exponent gap (sparse time \(\sim n^{1.2}\),
 Ripser \(\sim n^{2.2}\)).
 
-## Next levers (still open after I211)
+### Optional-path complexity (I218, `--sparse-eps 0.6`, n=500…2000)
+
+Justification: Cavanna–Jahanseir–Sheehy greedy-net flag complexes have
+size \(O(n)\) for fixed \(\varepsilon\) and homology degree. Measured
+pre-asymptotic edge exponents are **subquadratic on every family**,
+including torus (exact collapse was \(n^{2.08}\) there). Same code path
+for every cloud — not a circle/sphere/torus special case. Loss vs exact
+VR is the unmatched short finite bars; essential \(H_1\) is preserved.
+
+| Family | edges \(n^{}\) | PITH time \(n^{}\) | Ripser time \(n^{}\) | bn max | ess H1 |
+| --- | --- | --- | --- | --- | --- |
+| circle | **1.39** | 1.52 | **3.29** | 0.012 | 2=2 |
+| blobs | **1.38** | 1.38 | 2.21 | 0.024 | 3=3 |
+| sphere | **1.31** | 1.38 | 2.17 | 0.034 | 1=1 |
+| torus | **1.38** | 1.60 | **2.92** | 0.055 | 2=2 |
+| uniform2 | **1.37** | 1.40 | 2.14 | 0.014 | 1=1 |
+
+figure8 / two_circles (mixed loops): ess H1 3=3, bn 0.011 / 0.034.
+
+This is **not** exact VR. The exact default remains 0 topology loss and
+is **not** a general Big-O win.
+
+## Next levers (still open after I218)
 
 Exact default is shape-agnostic with **0 bars lost** and is **not** a
 general 10×. Optional approx is a multi-family 10× at sufficient n, with
 quantified loss, and a better size exponent.
 
-1. **Exact default:** I193 + I197 + I202 + I203.
-2. **Owned optional approx:** `--sparse-eps 0.6 --sparse-cap max` (I213).
-   ε=0.5 is the low-loss setting; ε=0.7 is faster (torus 21×, bn 0.038).
-   `--sparse-cap min` **rejected** (I212): invents essential loops.
+1. **Exact default:** I193 + I197 + I202 + I203. Shape-agnostic, 0 bars
+   lost, **not** a worst-case Big-O win (I204 / I214–I215).
+2. **Owned optional approx:** `--sparse-eps 0.6 --sparse-cap max` (I213/I218).
+   Better size class \(n^{1.31–1.39}\) vs Ripser \(n^2\); ess H1 held;
+   bottleneck typically ≤0.03. ε=0.5 is the low-loss setting; ε=0.7 is
+   faster. `--sparse-cap min` **rejected** (I212). `--witness-n`
+   **rejected** (I216–I217): invents or drops essential loops.
 3. Exact torus time-buckets deferred — shift path is Tm, not later[] (I198).
 4. GPU later.

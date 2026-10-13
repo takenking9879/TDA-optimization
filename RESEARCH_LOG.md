@@ -1071,6 +1071,15 @@ Do not paste long reasoning here.
 - **Decision:** `--witness-n` stays experimental/unsafe. Owned `--sparse-eps 0.6` remains the only optional approx with quantified acceptable loss. Exact default unchanged.
 - **Class:** experiment (reject; ess H1 / bottleneck fail)
 
+## 2026-10-13 — I218 owned sparse-eps 0.6 log-log slopes
+
+- **Question:** What is the measured |E(n)| / time exponent of the recommended optional path (`--sparse-eps 0.6 max`) vs Ripser on every scaled family, and does ess H1 still hold?
+- **Hypothesis:** Greedy-net flag size is theoretically O(n) for fixed ε, k (Cavanna–Jahanseir–Sheehy). I209 Sheehy edges were n^{1.09–1.17}. Owned ε=0.6 should sit in the same class, below Ripser's ~n² edges / ~n^{2.2–3.2} time. Loss already quantified (I213 bn ≤0.028 on torus). Shape-agnostic: same construction for every cloud.
+- **Work:** Wave 79 n=500…2000 + figure8/two_circles.
+- **Result:** **Essential H1 22/22** (including figure8 / two_circles). Edge slopes **1.31–1.39** (circle 1.39, blobs 1.38, sphere 1.31, torus 1.38, uniform2 1.37). PITH time **1.38–1.60** vs Ripser **2.14–3.29** (torus 1.60 vs 2.92). bn_max 0.012–0.055; torus n=2000 bn 0.028 / 17.8×. Unmatched are short finite bars (10–206).
+- **Decision:** **Support as the complexity justification** for the optional path. Same construction on every cloud (shape-agnostic). Better size/time class than Ripser VR; not exact (quantified). Exact default still has 0 loss and no general Big-O win (I204 torus residual n^{2.08}).
+- **Class:** experiment (support; optional-path Big-O evidence)
+
 ## 2026-10-13 — I164 collapse live-degree trace
 
 - **Question:** Does the live 1-skeleton thin early enough to stop the C-walk?
