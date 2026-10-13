@@ -671,6 +671,56 @@ static bool spatial_edges(const std::vector<std::vector<value_t>>& pts, value_t 
     return true;
 }
 
+static double bbox_max_extent(const std::vector<std::vector<value_t>>& pts) {
+    const int n = static_cast<int>(pts.size());
+    const int d = n ? static_cast<int>(pts[0].size()) : 0;
+    if (n <= 0 || d <= 0) return 0;
+    double L = 0;
+    for (int k = 0; k < d; ++k) {
+        double lo = static_cast<double>(pts[0][static_cast<size_t>(k)]);
+        double hi = lo;
+        for (int i = 1; i < n; ++i) {
+            const double x = static_cast<double>(pts[static_cast<size_t>(i)][static_cast<size_t>(k)]);
+            if (x < lo) lo = x;
+            if (x > hi) hi = x;
+        }
+        if (hi - lo > L) L = hi - lo;
+    }
+    return L;
+}
+
+// I256: EdgeList from spatial d≤T pairs. Same (diam, comb_index) buckets
+// as vendor build_edges, so VR≤T order is unchanged.
+static void edgelist_from_spat(const std::vector<SpatEdge>& se, value_t threshold,
+                               const BinomialTable& bt, EdgeList& out) {
+    const size_t m = se.size();
+    if (m == 0) {
+        out.count = 0;
+        return;
+    }
+    int nb = static_cast<int>(m >> 2);
+    if (nb < 1024) nb = 1024;
+    if (nb > (1 << 16)) nb = 1 << 16;
+    const value_t inv = (threshold > 0) ? static_cast<value_t>(1.0 / threshold) : 0.0f;
+    std::vector<rank_t> cnt(static_cast<size_t>(nb) + 1, 0);
+    for (const SpatEdge& e : se) cnt[static_cast<size_t>(bucket_of(e.t, 0.0f, inv, nb) + 1)] += 1;
+    for (int t = 1; t <= nb; ++t) cnt[static_cast<size_t>(t)] += cnt[static_cast<size_t>(t) - 1];
+    out.count = static_cast<size_t>(cnt[static_cast<size_t>(nb)]);
+    const std::vector<rank_t> starts = cnt;
+    out.diam.resize(out.count);
+    out.verts.resize(2 * out.count);
+    for (const SpatEdge& e : se) {
+        const int b = bucket_of(e.t, 0.0f, inv, nb);
+        const rank_t p = cnt[static_cast<size_t>(b)]++;
+        out.diam[static_cast<size_t>(p)] = e.t;
+        int lo = e.u, hi = e.v;
+        if (lo > hi) std::swap(lo, hi);
+        out.verts[2 * static_cast<size_t>(p)] = lo;
+        out.verts[2 * static_cast<size_t>(p) + 1] = hi;
+    }
+    finish_buckets_parallel(out.diam, out.verts, 2, starts, nb, bt);
+}
+
 static Result kruskal_h0(int n, std::vector<SpatEdge>&& edges) {
     Result r;
     Counters& c = r.counters;
@@ -859,44 +909,75 @@ Result persist_redzed_from_points(const std::vector<std::vector<value_t>>& pts, 
         return r;
     }
 
+    const int dim = maxdim;
+    const int d = static_cast<int>(pts[0].size());
+    // I256: when the T-ball is a small fraction of the bbox, skip far
+    // distances. Fill far entries with +∞, write only d≤T, pass a prebuilt
+    // EdgeList. Dense clouds (π(T/L)²≥0.2) keep I238 parallel all-pairs.
+    std::vector<SpatEdge> SE;
+    bool spatial = false;
+    if (std::isfinite(threshold) && threshold > 0 && d >= 2 && d <= 3 && n >= 256) {
+        const double L = bbox_max_extent(pts);
+        if (L > 0) {
+            const double tL = static_cast<double>(threshold) / L;
+            const double frac = (d == 2) ? (3.141592653589793 * tL * tL)
+                                         : (4.188790204786391 * tL * tL * tL);
+            if (frac < 0.20) spatial = spatial_edges(pts, threshold, SE);
+        }
+    }
     DistanceMatrix D;
     D.resize_lower(n);
     const auto tfill0 = std::chrono::steady_clock::now();
-    const int nth = std::max(1, static_cast<int>(std::thread::hardware_concurrency()));
-    auto fill_range = [&](int j0, int j1) {
-        for (int j = j0; j < j1; ++j) {
-            for (int i = 0; i < j; ++i) {
-                D.mat[DistanceMatrix::offset(i, j)] = point_dist(pts, i, j);
-            }
+    if (spatial) {
+        std::fill(D.mat.begin(), D.mat.end(), VINF);
+        for (const SpatEdge& e : SE) {
+            const int i = std::min(e.u, e.v), j = std::max(e.u, e.v);
+            D.mat[DistanceMatrix::offset(i, j)] = e.t;
         }
-    };
-    if (nth <= 1 || n < 64) {
-        fill_range(1, n);
     } else {
-        std::vector<std::thread> pool;
-        pool.reserve(static_cast<size_t>(nth));
-        const int span = (n - 1 + nth - 1) / nth;
-        for (int t = 0; t < nth; ++t) {
-            const int j0 = 1 + t * span;
-            const int j1 = std::min(n, j0 + span);
-            if (j0 >= j1) break;
-            pool.emplace_back(fill_range, j0, j1);
+        const int nth = std::max(1, static_cast<int>(std::thread::hardware_concurrency()));
+        auto fill_range = [&](int j0, int j1) {
+            for (int j = j0; j < j1; ++j) {
+                for (int i = 0; i < j; ++i) {
+                    D.mat[DistanceMatrix::offset(i, j)] = point_dist(pts, i, j);
+                }
+            }
+        };
+        if (nth <= 1 || n < 64) {
+            fill_range(1, n);
+        } else {
+            std::vector<std::thread> pool;
+            pool.reserve(static_cast<size_t>(nth));
+            const int span = (n - 1 + nth - 1) / nth;
+            for (int t = 0; t < nth; ++t) {
+                const int j0 = 1 + t * span;
+                const int j1 = std::min(n, j0 + span);
+                if (j0 >= j1) break;
+                pool.emplace_back(fill_range, j0, j1);
+            }
+            for (auto& th : pool) th.join();
         }
-        for (auto& th : pool) th.join();
     }
     const auto tfill1 = std::chrono::steady_clock::now();
-    const int dim = maxdim;
+    EdgeList pre;
+    EdgeList* pre_ptr = nullptr;
+    if (spatial) {
+        BinomialTable bt(n, dim + 2);
+        edgelist_from_spat(SE, threshold, bt, pre);
+        pre_ptr = &pre;
+    }
     const auto t0 = std::chrono::steady_clock::now();
-    auto bars = redzed_vr(D, dim, threshold, nullptr);
+    auto bars = redzed_vr(D, dim, threshold, pre_ptr);
     Result r;
     append_bars(r, bars, dim);
     const auto t1 = std::chrono::steady_clock::now();
     r.counters.n_vertices = n;
     r.counters.n_collapse_trims = 1;
-    r.counters.n_distances = static_cast<std::int64_t>(n) * (n - 1) / 2;
+    r.counters.n_distances = spatial ? static_cast<std::int64_t>(SE.size())
+                                     : static_cast<std::int64_t>(n) * (n - 1) / 2;
     r.counters.metric_ms = std::chrono::duration<double, std::milli>(tfill1 - tfill0).count();
     r.counters.reduce_ms = std::chrono::duration<double, std::milli>(t1 - t0).count();
-    r.counters.pipeline = "pith:redzed-thr";
+    r.counters.pipeline = spatial ? "pith:redzed-spatial" : "pith:redzed-thr";
     return r;
 }
 

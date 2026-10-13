@@ -586,9 +586,12 @@ int main(int argc, char** argv) {
                 r.counters.pipeline = auto_dispatch ? "pith:auto-redzed-h0" : "pith:redzed-h0";
             } else {
                 const bool cc = r.counters.n_collapse_trims > 1;
+                const bool spatial = r.counters.pipeline.find("spatial") != std::string::npos;
                 r.counters.pipeline = auto_dispatch
-                                          ? (cc ? "pith:auto-redzed-cc" : "pith:auto-redzed")
-                                          : (cc ? "pith:redzed-cc" : "pith:redzed");
+                                          ? (cc ? "pith:auto-redzed-cc"
+                                                : (spatial ? "pith:auto-redzed-spatial" : "pith:auto-redzed"))
+                                          : (cc ? "pith:redzed-cc"
+                                                : (spatial ? "pith:redzed-spatial" : "pith:redzed"));
             }
         } else if (engine == "active") {
             r.counters.n_vertices = g.n;
