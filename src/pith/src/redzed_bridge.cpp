@@ -838,6 +838,35 @@ static double bbox_max_extent(const std::vector<std::vector<value_t>>& pts) {
     return L;
 }
 
+// I263: 250 evenly spaced points, |{d≤T}| / C(m,2). Cheap predictor
+// of G_T density on hollow / manifold supports where π(T/L)^d over-
+// estimates (tight bbox) or under-shoots the I256 volume gate.
+// ~31k distances; not a collapse residual (see probe_residual_frac_points).
+static double probe_edge_frac(const std::vector<std::vector<value_t>>& pts, value_t T,
+                              int sample = 250) {
+    const int n = static_cast<int>(pts.size());
+    if (n < 8 || !(T > 0) || !std::isfinite(T)) return 1.0;
+    const int s = std::min(sample, n);
+    std::int64_t hits = 0;
+    std::int64_t tot = 0;
+    auto hit = [&](int i, int j) {
+        ++tot;
+        if (point_dist(pts, i, j) <= T) ++hits;
+    };
+    if (s == n) {
+        for (int j = 1; j < n; ++j)
+            for (int i = 0; i < j; ++i) hit(i, j);
+    } else {
+        std::vector<int> id(static_cast<size_t>(s));
+        for (int i = 0; i < s; ++i)
+            id[static_cast<size_t>(i)] =
+                static_cast<int>((static_cast<std::int64_t>(i) * (n - 1)) / (s - 1));
+        for (int j = 1; j < s; ++j)
+            for (int i = 0; i < j; ++i) hit(id[static_cast<size_t>(i)], id[static_cast<size_t>(j)]);
+    }
+    return tot ? static_cast<double>(hits) / static_cast<double>(tot) : 1.0;
+}
+
 // I256: EdgeList from spatial d≤T pairs. Same (diam, comb_index) buckets
 // as vendor build_edges, so VR≤T order is unchanged.
 static void edgelist_from_spat(const std::vector<SpatEdge>& se, value_t threshold,
@@ -1085,10 +1114,13 @@ Result persist_redzed_from_points(const std::vector<std::vector<value_t>>& pts, 
     const int d = static_cast<int>(pts[0].size());
     // I256: when the T-ball is a small fraction of the bbox, skip far
     // distances and pass a prebuilt EdgeList. Dense clouds (π(T/L)²≥0.2)
-    // keep I238 parallel all-pairs.
+    // keep I238 parallel all-pairs unless a cheap edge-frac probe says
+    // G_T is still sparse (hollow / manifold supports).
     // I262 always-spatial was exact (figure8 n=2000 14×) but lost the
     // dense 10× (uniform2 n=5000 7.4× / 0.46s; sphere n=2000 6.8×).
-    // Reverted the gate. I257–I261 hash path unchanged when spatial.
+    // I263: spatial if volume < 0.20 OR 250-pt edge frac < 0.25.
+    // figure8 T=1.1 is the discriminator (vol≈0.22, probe≈0.24);
+    // uniform2 n=5000 probe≈0.26–0.29 and sphere ≈0.49 stay all-pairs.
     std::vector<SpatEdge> SE;
     bool spatial = false;
     if (std::isfinite(threshold) && threshold > 0 && d >= 2 && d <= 3 && n >= 256) {
@@ -1097,7 +1129,9 @@ Result persist_redzed_from_points(const std::vector<std::vector<value_t>>& pts, 
             const double tL = static_cast<double>(threshold) / L;
             const double frac = (d == 2) ? (3.141592653589793 * tL * tL)
                                          : (4.188790204786391 * tL * tL * tL);
-            if (frac < 0.20) spatial = spatial_edges(pts, threshold, SE);
+            const bool vol_sparse = frac < 0.20;
+            const bool probe_sparse = !vol_sparse && probe_edge_frac(pts, threshold) < 0.25;
+            if (vol_sparse || probe_sparse) spatial = spatial_edges(pts, threshold, SE);
         }
     }
     DistanceMatrix D;
