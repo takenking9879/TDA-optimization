@@ -27,21 +27,10 @@ struct DenseTimes {
     void erase(int i, int j) { set(i, j, kInf); }
 };
 
-// I160: SoA live adjacency — sequential index/time streams (I155 was AoS pair).
-struct LiveRow {
-    std::vector<index_t> v;
-    std::vector<value_t> t;
-    size_t size() const noexcept { return v.size(); }
-    void reserve(size_t n) {
-        v.reserve(n);
-        t.reserve(n);
-    }
-    void push(index_t w, value_t tau) {
-        v.push_back(w);
-        t.push_back(tau);
-    }
-};
-using LiveAdj = std::vector<LiveRow>;
+// Live adjacency: (neighbor, current filtration time). Times stay in sync
+// with Tm on shift (I155) so C-build gathers only the other endpoint's row.
+using LiveNbr = std::pair<index_t, value_t>;
+using LiveAdj = std::vector<std::vector<LiveNbr>>;
 
 // True iff some c in C_now is adjacent (at time t) to every other vertex in C_now.
 inline bool dominated_by(const DenseTimes& Tm, const std::vector<index_t>& C_now,
@@ -171,22 +160,19 @@ inline std::uint64_t edge_key(index_t u, index_t v) {
 
 inline void drop_live_nbr(LiveAdj& nbr, index_t a, index_t b) {
     auto& row = nbr[a];
-    for (size_t i = 0; i < row.v.size(); ++i) {
-        if (row.v[i] == b) {
-            row.v[i] = row.v.back();
-            row.t[i] = row.t.back();
-            row.v.pop_back();
-            row.t.pop_back();
+    for (size_t i = 0; i < row.size(); ++i) {
+        if (row[i].first == b) {
+            row[i] = row.back();
+            row.pop_back();
             return;
         }
     }
 }
 
 inline void set_live_time(LiveAdj& nbr, index_t a, index_t b, value_t t) {
-    auto& row = nbr[a];
-    for (size_t i = 0; i < row.v.size(); ++i) {
-        if (row.v[i] == b) {
-            row.t[i] = t;
+    for (auto& p : nbr[a]) {
+        if (p.first == b) {
+            p.second = t;
             return;
         }
     }
@@ -219,15 +205,13 @@ inline bool process_one_backward(const Edge& e_in, value_t t_in, DenseTimes& Tm,
     bool fused_ok = true;
     bool any_later = false;
     std::int64_t commons = 0;
-    const auto& src_v = src.v;
-    const auto& src_t = src.t;
-    for (size_t i = 0; i < src_v.size(); ++i) {
-        const index_t w = src_v[i];
+    for (const LiveNbr& p : src) {
+        const index_t w = p.first;
         if (w == u || w == v) continue;
         const value_t t_other = r_other[w];
         if (t_other >= kInf / 2) continue;
         ++commons;
-        const value_t tau = src_t[i] > t_other ? src_t[i] : t_other;
+        const value_t tau = p.second > t_other ? p.second : t_other;
         if (tau <= t) {
             if (first < 0) {
                 first = w;
@@ -251,12 +235,12 @@ inline bool process_one_backward(const Edge& e_in, value_t t_in, DenseTimes& Tm,
         return false;
     }
 
-    for (size_t i = 0; i < src_v.size(); ++i) {
-        const index_t w = src_v[i];
+    for (const LiveNbr& p : src) {
+        const index_t w = p.first;
         if (w == u || w == v) continue;
         const value_t t_other = r_other[w];
         if (t_other >= kInf / 2) continue;
-        const value_t tau = src_t[i] > t_other ? src_t[i] : t_other;
+        const value_t tau = p.second > t_other ? p.second : t_other;
         if (tau <= t) S.C_now.push_back(w);
         else S.C_later.push_back({tau, w});
     }
@@ -327,8 +311,8 @@ inline void init_collapse_graph(const std::vector<Edge>& E, int n, DenseTimes& T
     for (int i = 0; i < n; ++i) nbr[i].reserve(static_cast<size_t>(deg[i]));
     for (const Edge& e : E) {
         Tm.set(e.u, e.v, e.t);
-        nbr[e.u].push(e.v, e.t);
-        nbr[e.v].push(e.u, e.t);
+        nbr[e.u].push_back({e.v, e.t});
+        nbr[e.v].push_back({e.u, e.t});
     }
 }
 
@@ -482,11 +466,11 @@ inline bool edge_dominated_in(const DenseTimes& Tm, const LiveAdj& nbr,
     const bool walk_u = nbr[u].size() <= nbr[v].size();
     const auto& src = walk_u ? nbr[u] : nbr[v];
     const value_t* r_other = walk_u ? Tm.row(v) : Tm.row(u);
-    for (size_t i = 0; i < src.v.size(); ++i) {
-        const index_t w = src.v[i];
+    for (const LiveNbr& p : src) {
+        const index_t w = p.first;
         if (w == u || w == v) continue;
         const value_t t_other = r_other[w];
-        if (src.t[i] <= t && t_other <= t) C.push_back(w);
+        if (p.second <= t && t_other <= t) C.push_back(w);
     }
     return first_dominator_deg(Tm, C, t, nbr, -1) >= 0;
 }
@@ -513,8 +497,8 @@ inline Graph collapse_edges_forward(Graph g, int iterations, Counters& c) {
 
         auto add_edge = [&](int i) {
             Tm.set(E[i].u, E[i].v, E[i].t);
-            nbr[E[i].u].push(E[i].v, E[i].t);
-            nbr[E[i].v].push(E[i].u, E[i].t);
+            nbr[E[i].u].push_back({E[i].v, E[i].t});
+            nbr[E[i].v].push_back({E[i].u, E[i].t});
         };
         auto rebuild_prefix = [&](int last_incl) {
             Tm = DenseTimes(n);
@@ -539,7 +523,8 @@ inline Graph collapse_edges_forward(Graph g, int iterations, Counters& c) {
                 const value_t ti = E[i].t;
                 const value_t* ru = Tm.row(u);
                 const value_t* rv = Tm.row(v);
-                for (index_t w : nbr[u].v) {
+                for (const LiveNbr& p : nbr[u]) {
+                    const index_t w = p.first;
                     if (w != u && w != v && ru[w] <= ti && rv[w] <= ti) {
                         Enbd.insert(edge_key(u, w));
                         Enbd.insert(edge_key(v, w));
@@ -564,7 +549,8 @@ inline Graph collapse_edges_forward(Graph g, int iterations, Counters& c) {
                         const index_t x = E[j].u, y = E[j].v;
                         const value_t* rx = Tm.row(x);
                         const value_t* ry = Tm.row(y);
-                        for (index_t w : nbr[x].v) {
+                        for (const LiveNbr& p : nbr[x]) {
+                            const index_t w = p.first;
                             if (w != x && w != y && rx[w] <= ti && ry[w] <= ti) {
                                 Enbd.insert(edge_key(x, w));
                                 Enbd.insert(edge_key(y, w));

@@ -676,8 +676,15 @@ Do not paste long reasoning here.
 - **Decision:** Revert sort. Sequential gathers do not beat the existing walk order.
 - **Class:** experiment (negative on clock)
 
-## 2026-10-13 — I160 SoA live adjacency (in progress)
+## 2026-10-13 — I160 SoA live adjacency
 
-- **Question:** Do separate index/time streams beat AoS `pair` on the 567M-probe C-walk?
-- **Hypothesis:** I155 pair doubled entry size; SoA keeps one-gather times with sequential `v[i]`/`t[i]` loads.
-- **Class:** proposal / experiment running
+- **Question:** Do separate index/time streams beat AoS `pair` on the C-walk?
+- **Result:** Exact, same residuals. **Reject on clock.** circle2000 3872 vs I156 3746 ms; circle3000 12974 vs 12606 ms.
+- **Decision:** Revert to I155 AoS pair. Layout micro-opts after I156 are closed (I158–I160 all slower).
+- **Class:** experiment (negative on clock)
+
+## 2026-10-13 — next after I160
+
+- **Open:** integer grade IDs; hub-batch; live-neighbor membership filter; real RedZeD (H09). Probe count still 4.58B at n=4000. Flagship **9.50×** needs ~5% more collapse cut for 10× on circle4000.
+- **Closed this wave:** prefetch, sorted stars, SoA, exact forward, D&C, progressive/hybrid/budget, merge C, AVX dominate.
+- **Class:** proposal

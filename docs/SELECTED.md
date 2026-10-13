@@ -1,6 +1,6 @@
 # Selected algorithm (living)
 
-Updated 2026-10-13 after iterations I001–I157. I158 prefetch is the live collapse cut.
+Updated 2026-10-13 after iterations I001–I160. Selected collapse is I155 pair-nbr + I156 fused first-apex.
 
 ## Selected exact-VR CPU pipeline
 
@@ -37,6 +37,7 @@ suite and I137 8/8 (including dense circle80/200 **collapse=0**, the I045 killer
 | AVX-512 `dominated_by` (I147) | Exact; **no collapse_ms win** (gather latency) |
 | Prefetch C-walk (I158) | Exact; **slower** (circle2000 3912 vs 3746 ms) |
 | Vertex-sorted stars (I159) | Exact; **slower** (circle2000 3843 vs 3746 ms) |
+| SoA live adjacency (I160) | Exact; **slower** (circle2000 3872 vs 3746 ms) |
 | Forward 2020 collapse (I149) | **Not exact** (over-collapse; circle80 unmatched 4). Also slower |
 | Time-axis D&C impl (I150) | PH match on n≤200; **fails** n=2000/3000 (19–25 unmatched). No clock win |
 | Forward at current grade (I152/I154) | Exact (same residual as backward). **Slower** (circle2000 6.8 s vs 4.3 s) |
@@ -81,7 +82,7 @@ I153: C-build is the wall (567M probes / 1.12M dom tests / 96% first-apex hits).
 ~49% of probes miss and still paid two gathers. Domination levers are closed.
 
 1. **I155 pair-nbr + I156 fused first-apex — selected.** Flagship **9.50×** (I157).
-2. **I160 SoA live adjacency** (in flight). Layout only; probe count unchanged.
-3. I158 prefetch and I159 sorted stars rejected on clock.
+2. Layout micro-opts closed (I158–I160 all slower). Next work-reducing cuts: integer grade IDs, hub-batch, membership filter, RedZeD (H09).
+3. Probe count unchanged (4.58B at n=4000). Geometry ceiling still ~2× on C-build.
 4. Fix D&C merge (I150) — parallel schedule only.
 5. GPU later (Ripser++ reference only)

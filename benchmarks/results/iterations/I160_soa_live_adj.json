@@ -1,0 +1,49 @@
+{
+  "id": "soa_live_adj",
+  "lever": "H01-soa",
+  "class": "experiment",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "SoA live adjacency vs I156 AoS pair-nbr",
+  "baseline": {
+    "I156_circle2000_collapse_ms": 3746.3351,
+    "I156_circle2000_ratio": 7.204315563457339,
+    "I156_circle3000_collapse_ms": 12605.784,
+    "I156_circle3000_ratio": 8.887997792569863
+  },
+  "receipts": [
+    {
+      "n": 200,
+      "T": 1.5,
+      "match": true,
+      "ripser_s": 0.016195320000406355,
+      "pith_s": 0.0067233049994683824,
+      "time_ratio": 2.408833155968223,
+      "collapse_ms": 4.246481,
+      "edges_out": 283,
+      "fast_trims": 10469
+    },
+    {
+      "n": 2000,
+      "T": 1.5,
+      "match": true,
+      "ripser_s": 25.992372910000995,
+      "pith_s": 3.951000193001164,
+      "time_ratio": 6.578681761657241,
+      "collapse_ms": 3872.0046,
+      "edges_out": 5169,
+      "fast_trims": 1040560
+    },
+    {
+      "n": 3000,
+      "T": 1.5,
+      "match": true,
+      "ripser_s": 114.70862333599871,
+      "pith_s": 13.154574762000266,
+      "time_ratio": 8.720055601292298,
+      "collapse_ms": 12973.917,
+      "edges_out": 9190,
+      "fast_trims": 2321396
+    }
+  ]
+}
