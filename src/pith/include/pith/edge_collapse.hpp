@@ -103,6 +103,33 @@ inline index_t first_dominator_deg(const DenseTimes& Tm, const std::vector<index
     return -1;
 }
 
+// I201: after sticky fails on witness w, a new dominator must lie in
+// C_now ∩ N_t[w] (including w). Skip the rest of C_now.
+inline index_t first_dominator_witness(const DenseTimes& Tm, const std::vector<index_t>& C_now,
+                                      value_t t, const LiveAdj& nbr, int budget, Counters* ctr,
+                                      const std::vector<int>* deg, index_t witness) {
+    if (C_now.empty()) return -1;
+    if (C_now.size() == 1) {
+        if (ctr) ++ctr->n_collapse_dom_hits;
+        return C_now[0];
+    }
+    const size_t need = C_now.size() - 1;
+    const value_t* rw = Tm.row(witness);
+    int tried = 0;
+    for (index_t cand : C_now) {
+        if (cand != witness && rw[cand] > t) continue;
+        const size_t cand_deg = deg ? static_cast<size_t>((*deg)[cand]) : nbr[cand].size();
+        if (cand_deg < need) continue;
+        if (ctr) ++ctr->n_collapse_dom_tests;
+        if (dominated_by(Tm, C_now, cand, t)) {
+            if (ctr) ++ctr->n_collapse_dom_hits;
+            return cand;
+        }
+        if (budget > 0 && ++tried >= budget) return -1;
+    }
+    return -1;
+}
+
 // I101: progressive intersection. Survivors of ∧_w N_t[w] ∩ C are exactly the
 // dominators. Early abort when S empties (the expensive "not dominated" case).
 inline index_t first_dominator_prog(const DenseTimes& Tm, const std::vector<index_t>& C_now,
@@ -414,6 +441,7 @@ inline bool process_one_backward(const Edge& e_in, value_t t_in, DenseTimes& Tm,
     S.C_now.clear();
     S.C_later.clear();
     std::int64_t commons = 0;
+    index_t known_dom = -1;
     const bool walk_u = nbr[u].size() <= nbr[v].size();
     const auto& src = walk_u ? nbr[u] : nbr[v];
     const value_t* r_other = walk_u ? Tm.row(v) : Tm.row(u);
@@ -644,6 +672,7 @@ inline bool process_one_backward(const Edge& e_in, value_t t_in, DenseTimes& Tm,
                     c.n_collapse_c_probes += W;
                     if (covers) {
                         hit = true;
+                        known_dom = cand;
                         ++c.n_collapse_dom_hits;
                         break;
                     }
@@ -764,12 +793,23 @@ inline bool process_one_backward(const Edge& e_in, value_t t_in, DenseTimes& Tm,
     bool heapified = false;
     bool ever_shifted = false;
     bool dead = false;
+    index_t witness = -1;
     while (true) {
-        // I198/I199 shift AND-eq variants were exact but not faster on torus.
-        const index_t dominator = first_dominator_deg(Tm, S.C_now, t, nbr, dom_budget, &c, deg);
+        // I201: reuse I197's apex; after sticky fail, only scan N_t[witness] ∩ C.
+        index_t dominator;
+        if (known_dom >= 0) {
+            dominator = known_dom;
+            known_dom = -1;
+        } else if (witness >= 0) {
+            dominator = first_dominator_witness(Tm, S.C_now, t, nbr, dom_budget, &c, deg,
+                                                witness);
+        } else {
+            dominator = first_dominator_deg(Tm, S.C_now, t, nbr, dom_budget, &c, deg);
+        }
         if (dominator < 0) break;
         const value_t* rd = Tm.row(dominator);
         bool still = true;
+        witness = -1;
         while (still) {
             if (S.C_later.empty()) {
                 dead = true;
@@ -785,7 +825,10 @@ inline bool process_one_backward(const Edge& e_in, value_t t_in, DenseTimes& Tm,
                 const index_t w = S.C_later.front().second;
                 const value_t tw = S.C_later.front().first;
                 ++c.n_collapse_shift_lookups;
-                if (rd[w] > tw) still = false;
+                if (rd[w] > tw) {
+                    still = false;
+                    witness = w;
+                }
                 S.C_now.push_back(w);
                 std::pop_heap(S.C_later.begin(), S.C_later.end(), later_cmp);
                 S.C_later.pop_back();

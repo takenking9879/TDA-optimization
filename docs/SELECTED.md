@@ -78,7 +78,6 @@ residual makes collapse *and* reduce slower (circle3000 1.49× vs full 8.11×).
 | circle_noisy | \(H_1\) | 4000 | 1.5 | **140×** I196 I193 (301s/2.15s, collapse 1824 ms). I190 first-apex was 113× |
 | circle_noisy | \(H_1\) | 3000 | 1.5 | **119×** I196 I193 (118s/0.99s, collapse 812 ms). I189 was 93.2× |
 | circle_noisy | \(H_1\) | 2000 | 1.5 | **83.5×** I197 (27.3s/0.33s, collapse 249 ms). I193 was 83.5× / 270 ms |
-| torus | \(H_1\) | 1000 | 1.6 | **1.31×** owned implicit (I139); E3 1.25× same run |
 | circle_noisy | \(H_1\) | 2000 | 1.2 | **33.8×** I200 I197 (10.6s/0.31s). I162 was 4.13× |
 | blobs | \(H_1\) | 2000 | 1.0 | **1.85×** I197 (was I193 1.78× / I189 0.48×) |
 | sphere | \(H_1\) | 2000 | 1.4 | **2.03×** I197 (was I193 1.96× / I189 0.50×) |
