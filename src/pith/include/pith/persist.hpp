@@ -334,24 +334,32 @@ inline Result persist_sparse(const Graph& g, int maxdim, value_t threshold, valu
     return r;
 }
 
-// Implicit persistent *cohomology* on a flag graph (Ripser-style).
-// Columns = leftover (non-MST) edges, youngest first.
-// Rows = triangles (packed keys). Never stores the 2-skeleton.
-// Exact PH of Flag(G)≤T — the I003 bug was projecting coboundaries onto
-// leftover *edges*; rows here are triangles. I045.
+// Implicit persistent *cohomology* on a flag graph — Ripser compute_pairs
+// ported onto Graph (I137). Previous leftover-as-cohomology (I045–I126) used
+// the *youngest* cofacet as pivot and required the *shortest* facet to carry
+// the triangle diameter (equilateral-only apparent pairs). Ripser's pivot is
+// the oldest remaining cofacet after F₂ heap cancellation; a zero-apparent
+// pair is a same-diameter cofacet whose first same-diameter facet (drop
+// largest vertex first) is the edge. V-matrix stores added edges and
+// re-enumerates coboundaries — never materializes the 2-skeleton.
 struct CohEntry {
     value_t t = kNegInf;
     std::uint64_t key = 0;
 };
 
-struct CohYounger {
+// Ripser greater_diameter_or_smaller_index as priority_queue Compare:
+// larger diameter (or same diameter + smaller key) has lower priority.
+// Top = oldest remaining cofacet, tie → larger pack key.
+struct CohRipserLess {
     bool operator()(CohEntry a, CohEntry b) const {
-        if (a.t != b.t) return a.t < b.t;
+        if (a.t != b.t) return a.t > b.t;
         return a.key < b.key;
     }
 };
 
-inline CohEntry pop_pivot_f2(std::priority_queue<CohEntry, std::vector<CohEntry>, CohYounger>& h) {
+using CohHeap = std::priority_queue<CohEntry, std::vector<CohEntry>, CohRipserLess>;
+
+inline CohEntry pop_pivot_ripser(CohHeap& h) {
     while (!h.empty()) {
         const CohEntry p = h.top();
         h.pop();
@@ -359,6 +367,18 @@ inline CohEntry pop_pivot_f2(std::priority_queue<CohEntry, std::vector<CohEntry>
         h.pop();
     }
     return {kNegInf, 0};
+}
+
+inline CohEntry peek_pivot_ripser(CohHeap& h) {
+    const CohEntry p = pop_pivot_ripser(h);
+    if (p.t != kNegInf) h.push(p);
+    return p;
+}
+
+inline void unpack3(std::uint64_t key, index_t& a, index_t& b, index_t& c) {
+    a = static_cast<index_t>(key & ((1ull << 21) - 1));
+    b = static_cast<index_t>((key >> 21) & ((1ull << 21) - 1));
+    c = static_cast<index_t>(key >> 42);
 }
 
 template <class Fn>
@@ -385,86 +405,89 @@ inline void for_cofacets_edge(const Graph& g, index_t u, index_t v, value_t te, 
     }
 }
 
-inline void f2_xor_into(std::vector<int>& a, int x) { a.push_back(x); }
-
-inline void f2_xor_into(std::vector<int>& a, const std::vector<int>& b) {
-    a.insert(a.end(), b.begin(), b.end());
-}
-
-inline void f2_normalize(std::vector<int>& a) {
-    if (a.size() < 2) return;
-    std::sort(a.begin(), a.end(), std::greater<int>());
-    std::vector<int> out;
-    out.reserve(a.size());
-    for (int x : a) {
-        if (!out.empty() && out.back() == x) out.pop_back();
-        else out.push_back(x);
-    }
-    a.swap(out);
-}
-
-inline bool zero_apparent_edge(const Graph& g, index_t u, index_t v, value_t te, value_t T,
-                               CohEntry* out_tau) {
-    // Ripser zero-apparent (ripser.cpp get_zero_apparent_cofacet): a SAME-DIAMETER
-    // cofacet τ (diam τ = diam e) whose oldest facet is e. I111 used the globally
-    // youngest cofacet, so old MST edges never paired (their latest triangle is late).
-    CohEntry best{kNegInf, 0};
-    bool any = false;
-    const auto ekey = pack2(u, v);
-    for_cofacets_edge(g, u, v, te, T, [&](CohEntry tau) {
-        if (tau.t != te) return;
-        const index_t a = static_cast<index_t>(tau.key & ((1ull << 21) - 1));
-        const index_t b = static_cast<index_t>((tau.key >> 21) & ((1ull << 21) - 1));
-        const index_t c = static_cast<index_t>(tau.key >> 42);
-        struct F {
-            index_t x, y;
-            value_t t;
-            std::uint64_t k;
-        };
-        const F f[3] = {{a, b, edge_time(g, a, b), pack2(a, b)},
-                        {a, c, edge_time(g, a, c), pack2(a, c)},
-                        {b, c, edge_time(g, b, c), pack2(b, c)}};
-        F oldest = f[0];
-        for (int k = 1; k < 3; ++k) {
-            if (f[k].t < oldest.t || (f[k].t == oldest.t && f[k].k < oldest.k)) oldest = f[k];
+// High-vertex-first cofacet walk (Ripser sparse enumerator uses rbegin).
+template <class Fn>
+inline void for_cofacets_edge_hi(const Graph& g, index_t u, index_t v, value_t te, value_t T,
+                                 Fn&& fn) {
+    const auto& nu = g.neighbors[u];
+    const auto& nv = g.neighbors[v];
+    int i = static_cast<int>(nu.size()) - 1;
+    int j = static_cast<int>(nv.size()) - 1;
+    while (i >= 0 && j >= 0) {
+        if (nu[static_cast<size_t>(i)].first > nv[static_cast<size_t>(j)].first) {
+            --i;
+            continue;
         }
-        if (oldest.k != ekey) return;
-        if (!any || tau.key > best.key) {
-            best = tau;
-            any = true;
+        if (nv[static_cast<size_t>(j)].first > nu[static_cast<size_t>(i)].first) {
+            --j;
+            continue;
+        }
+        const index_t w = nu[static_cast<size_t>(i)].first;
+        if (w != u && w != v) {
+            const value_t td =
+                std::max({te, nu[static_cast<size_t>(i)].second, nv[static_cast<size_t>(j)].second});
+            if (td <= T) fn(CohEntry{td, pack3(u, v, w)});
+        }
+        --i;
+        --j;
+    }
+}
+
+// First same-diameter facet, Ripser boundary order: drop largest vertex first.
+inline bool zero_pivot_facet(const Graph& g, std::uint64_t tri_key, value_t t_tri, index_t* ou,
+                             index_t* ov, value_t* ot) {
+    index_t a, b, c;
+    unpack3(tri_key, a, b, c);
+    const index_t us[3] = {a, a, b};
+    const index_t vs[3] = {b, c, c};
+    for (int k = 0; k < 3; ++k) {
+        const value_t t = edge_time(g, us[k], vs[k]);
+        if (t == t_tri) {
+            *ou = us[k];
+            *ov = vs[k];
+            *ot = t;
+            return true;
+        }
+    }
+    return false;
+}
+
+inline bool zero_pivot_cofacet(const Graph& g, index_t u, index_t v, value_t te, value_t T,
+                               CohEntry* out) {
+    bool found = false;
+    for_cofacets_edge_hi(g, u, v, te, T, [&](CohEntry tau) {
+        if (found) return;
+        if (tau.t == te) {
+            *out = tau;
+            found = true;
         }
     });
-    if (!any) return false;
-    if (out_tau) *out_tau = best;
+    return found;
+}
+
+inline bool zero_apparent_cofacet(const Graph& g, index_t u, index_t v, value_t te, value_t T,
+                                  CohEntry* out) {
+    CohEntry tau;
+    if (!zero_pivot_cofacet(g, u, v, te, T, &tau)) return false;
+    index_t fu, fv;
+    value_t ft;
+    if (!zero_pivot_facet(g, tau.key, tau.t, &fu, &fv, &ft)) return false;
+    if (pack2(fu, fv) != pack2(u, v)) return false;
+    if (out) *out = tau;
     return true;
 }
 
-// I111: a triangle may be Bauer-apparent with an MST facet. Ripser still
-// uses that facet as a reduction partner (get_zero_apparent_facet).
-inline bool apparent_facet_of_tri(const Graph& g, std::uint64_t tri_key, value_t t_tri,
-                                  value_t T, index_t* ou, index_t* ov, value_t* ot) {
-    const index_t a = static_cast<index_t>(tri_key & ((1ull << 21) - 1));
-    const index_t b = static_cast<index_t>((tri_key >> 21) & ((1ull << 21) - 1));
-    const index_t c = static_cast<index_t>(tri_key >> 42);
-    struct F {
-        index_t x, y;
-        value_t t;
-        std::uint64_t k;
-    };
-    const F f[3] = {{a, b, edge_time(g, a, b), pack2(a, b)},
-                    {a, c, edge_time(g, a, c), pack2(a, c)},
-                    {b, c, edge_time(g, b, c), pack2(b, c)}};
-    F oldest = f[0];
-    for (int k = 1; k < 3; ++k) {
-        if (f[k].t < oldest.t || (f[k].t == oldest.t && f[k].k < oldest.k)) oldest = f[k];
-    }
-    if (oldest.t != t_tri) return false;
+inline bool zero_apparent_facet(const Graph& g, std::uint64_t tri_key, value_t t_tri, value_t T,
+                                index_t* ou, index_t* ov, value_t* ot) {
+    index_t u, v;
+    value_t t;
+    if (!zero_pivot_facet(g, tri_key, t_tri, &u, &v, &t)) return false;
     CohEntry tau;
-    if (!zero_apparent_edge(g, oldest.x, oldest.y, oldest.t, T, &tau)) return false;
+    if (!zero_pivot_cofacet(g, u, v, t, T, &tau)) return false;
     if (tau.key != tri_key) return false;
-    *ou = oldest.x;
-    *ov = oldest.y;
-    *ot = oldest.t;
+    *ou = u;
+    *ov = v;
+    *ot = t;
     return true;
 }
 
@@ -487,8 +510,8 @@ inline Result persist_implicit_coh(const Graph& g, int maxdim, value_t threshold
         index_t u, v;
         value_t t;
     };
-    std::vector<LEdge> leftover;
-    leftover.reserve(edges.size());
+    std::vector<LEdge> cols;
+    cols.reserve(edges.size());
     int components = g.n;
     for (const Edge& e : edges) {
         if (e.t > threshold) continue;
@@ -496,8 +519,10 @@ inline Result persist_implicit_coh(const Graph& g, int maxdim, value_t threshold
             --components;
             r.pairs.push_back({0, 0, e.t});
             ++c.n_columns_cleared;
+        } else if (zero_apparent_cofacet(g, e.u, e.v, e.t, threshold, nullptr)) {
+            ++c.n_columns_apparent;
         } else {
-            leftover.push_back({e.u, e.v, e.t});
+            cols.push_back({e.u, e.v, e.t});
         }
     }
     for (int i = 0; i < components; ++i) r.pairs.push_back({0, 0, kInf});
@@ -509,104 +534,106 @@ inline Result persist_implicit_coh(const Graph& g, int maxdim, value_t threshold
         return r;
     }
 
-    // Youngest leftover first (cohomology).
-    std::sort(leftover.begin(), leftover.end(), [](const LEdge& a, const LEdge& b) {
+    // Youngest first: greater diameter, then smaller pack2 (Ripser reverse).
+    std::sort(cols.begin(), cols.end(), [](const LEdge& a, const LEdge& b) {
         if (a.t != b.t) return a.t > b.t;
-        return pack2(a.u, a.v) > pack2(b.u, b.v);
+        return pack2(a.u, a.v) < pack2(b.u, b.v);
     });
 
-    struct AEdge {
-        index_t u, v;
-        value_t t;
-    };
     std::unordered_map<std::uint64_t, int> pivot;
-    pivot.reserve(leftover.size() * 2);
-    // Apparent pairs on EVERY edge, including MST facets (I111 / Ripser L769).
-    std::unordered_map<std::uint64_t, AEdge> apparent;
-    apparent.reserve(edges.size() * 2);
-    for (const Edge& e : edges) {
-        if (e.t > threshold) continue;
-        CohEntry tau;
-        if (zero_apparent_edge(g, e.u, e.v, e.t, threshold, &tau)) {
-            apparent.emplace(tau.key, AEdge{e.u, e.v, e.t});
-        }
-    }
+    pivot.reserve(cols.size() * 2);
+    std::vector<std::vector<LEdge>> red(cols.size());
 
-    std::vector<std::vector<CohEntry>> reduced(leftover.size());
-
-    auto xor_entry = [](std::unordered_map<std::uint64_t, value_t>& cob, CohEntry x) {
-        auto it = cob.find(x.key);
-        if (it == cob.end()) cob.emplace(x.key, x.t);
-        else cob.erase(it);
-    };
-    auto dump_cob = [](const std::unordered_map<std::uint64_t, value_t>& cob) {
-        std::vector<CohEntry> out;
-        out.reserve(cob.size());
-        for (const auto& kv : cob) out.push_back({kv.second, kv.first});
-        return out;
-    };
-    auto youngest_in = [](const std::unordered_map<std::uint64_t, value_t>& cob) -> CohEntry {
-        CohEntry best{kNegInf, 0};
-        for (const auto& kv : cob) {
-            if (kv.second > best.t || (kv.second == best.t && kv.first > best.key))
-                best = {kv.second, kv.first};
-        }
-        return best;
-    };
-    auto xor_edge_cob = [&](std::unordered_map<std::uint64_t, value_t>& cob, index_t u, index_t v,
-                            value_t te) {
-        for_cofacets_edge(g, u, v, te, threshold, [&](CohEntry x) {
+    auto add_simplex_coboundary = [&](const LEdge& e, std::vector<LEdge>& vred, CohHeap& cob) {
+        vred.push_back(e);
+        for_cofacets_edge(g, e.u, e.v, e.t, threshold, [&](CohEntry x) {
             ++c.n_cofacet_probes;
-            xor_entry(cob, x);
+            cob.push(x);
         });
-        ++c.n_additions;
     };
 
-    for (int i = 0; i < static_cast<int>(leftover.size()); ++i) {
-        CohEntry tau;
-        if (zero_apparent_edge(g, leftover[i].u, leftover[i].v, leftover[i].t, threshold, &tau)) {
-            ++c.n_columns_apparent;
-            continue;
+    auto compress_vedges = [](std::vector<LEdge>& v) {
+        if (v.size() < 2) return;
+        std::sort(v.begin(), v.end(), [](const LEdge& a, const LEdge& b) {
+            const auto ka = pack2(a.u, a.v), kb = pack2(b.u, b.v);
+            return ka < kb;
+        });
+        std::vector<LEdge> out;
+        out.reserve(v.size());
+        for (const LEdge& e : v) {
+            if (!out.empty() && pack2(out.back().u, out.back().v) == pack2(e.u, e.v))
+                out.pop_back();
+            else
+                out.push_back(e);
         }
+        v.swap(out);
+    };
+
+    for (int i = 0; i < static_cast<int>(cols.size()); ++i) {
         ++c.n_columns_assembled;
-        std::unordered_map<std::uint64_t, value_t> cob;
-        cob.reserve(64);
-        for_cofacets_edge(g, leftover[i].u, leftover[i].v, leftover[i].t, threshold, [&](CohEntry x) {
+        CohHeap working_cob;
+        std::vector<LEdge> working_red;
+        std::vector<CohEntry> collected;
+        collected.reserve(16);
+
+        bool check_emergent = true;
+        bool have_emergent = false;
+        CohEntry emergent{kNegInf, 0};
+        for_cofacets_edge_hi(g, cols[i].u, cols[i].v, cols[i].t, threshold, [&](CohEntry tau) {
             ++c.n_cofacet_probes;
-            xor_entry(cob, x);
+            collected.push_back(tau);
+            if (check_emergent && tau.t == cols[i].t) {
+                if (pivot.find(tau.key) == pivot.end()) {
+                    index_t au, av;
+                    value_t at;
+                    if (!zero_apparent_facet(g, tau.key, tau.t, threshold, &au, &av, &at)) {
+                        have_emergent = true;
+                        emergent = tau;
+                    }
+                }
+                check_emergent = false;
+            }
         });
+
+        CohEntry piv;
+        if (have_emergent) {
+            piv = emergent;
+        } else {
+            for (const CohEntry& x : collected) working_cob.push(x);
+            piv = peek_pivot_ripser(working_cob);
+        }
         ++c.n_columns_reduced;
-        int guard = 0;
-        while (!cob.empty() && guard++ < 200000) {
-            const CohEntry piv = youngest_in(cob);
+
+        while (true) {
+            if (piv.t == kNegInf) {
+                r.pairs.push_back({1, cols[i].t, kInf});
+                break;
+            }
             auto it = pivot.find(piv.key);
             if (it != pivot.end()) {
-                for (const CohEntry& x : reduced[it->second]) xor_entry(cob, x);
+                const int j = it->second;
+                add_simplex_coboundary(cols[j], working_red, working_cob);
+                for (const LEdge& e : red[j]) add_simplex_coboundary(e, working_red, working_cob);
                 ++c.n_additions;
-                continue;
-            }
-            auto ap = apparent.find(piv.key);
-            if (ap != apparent.end()) {
-                xor_edge_cob(cob, ap->second.u, ap->second.v, ap->second.t);
+                piv = peek_pivot_ripser(working_cob);
                 continue;
             }
             index_t au = 0, av = 0;
             value_t at = 0;
-            if (apparent_facet_of_tri(g, piv.key, piv.t, threshold, &au, &av, &at) &&
-                pack2(au, av) != pack2(leftover[i].u, leftover[i].v)) {
-                apparent.emplace(piv.key, AEdge{au, av, at});
-                xor_edge_cob(cob, au, av, at);
+            if (zero_apparent_facet(g, piv.key, piv.t, threshold, &au, &av, &at)) {
+                add_simplex_coboundary({au, av, at}, working_red, working_cob);
+                ++c.n_additions;
+                piv = peek_pivot_ripser(working_cob);
                 continue;
             }
+            if (piv.t > cols[i].t * ratio) r.pairs.push_back({1, cols[i].t, piv.t});
             pivot[piv.key] = i;
-            reduced[i] = dump_cob(cob);
-            if (piv.t > leftover[i].t * ratio) r.pairs.push_back({1, leftover[i].t, piv.t});
+            compress_vedges(working_red);
+            red[i] = std::move(working_red);
             break;
         }
-        if (cob.empty()) r.pairs.push_back({1, leftover[i].t, kInf});
     }
 
-    // H2: fall back to homology on the residual (tiny after collapse).
     if (maxdim >= 2) {
         Result h = persist_sparse(g, maxdim, threshold, ratio);
         for (const auto& p : h.pairs) {

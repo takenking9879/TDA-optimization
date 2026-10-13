@@ -142,6 +142,7 @@ static void print_text(const Result& r) {
               << " simplices=" << c.n_simplices_enumerated
               << " cols_assembled=" << c.n_columns_assembled
               << " cols_reduced=" << c.n_columns_reduced
+              << " cols_apparent=" << c.n_columns_apparent
               << " cols_cleared=" << c.n_columns_cleared
               << " additions=" << c.n_additions
               << " cofacet_probes=" << c.n_cofacet_probes
@@ -165,6 +166,7 @@ static void print_json(const Result& r) {
               << "    \"n_simplices_enumerated\": " << c.n_simplices_enumerated << ",\n"
               << "    \"n_columns_assembled\": " << c.n_columns_assembled << ",\n"
               << "    \"n_columns_reduced\": " << c.n_columns_reduced << ",\n"
+              << "    \"n_columns_apparent\": " << c.n_columns_apparent << ",\n"
               << "    \"n_columns_cleared\": " << c.n_columns_cleared << ",\n"
               << "    \"n_additions\": " << c.n_additions << ",\n"
               << "    \"n_cofacet_probes\": " << c.n_cofacet_probes << ",\n"

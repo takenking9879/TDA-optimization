@@ -134,6 +134,37 @@ int main() {
         std::cout << "ok implicit C8 vs homology H1 bars=" << ba.size() << "\n";
     }
 
+    // I137: dense K6 with distinct times — I045 leftover-as-cohomology killer class.
+    {
+        Graph g;
+        g.n = 6;
+        int t = 1;
+        for (int i = 0; i < 6; ++i) {
+            for (int j = i + 1; j < 6; ++j) {
+                g.edges.push_back({i, j, static_cast<float>(t++)});
+            }
+        }
+        rebuild_neighbors(g);
+        Result a = persist_sparse(g, 1, 100, 1);
+        Result b = persist_implicit_coh(g, 1, 100, 1);
+        auto bars = [](const Result& r) {
+            std::vector<std::pair<float, float>> out;
+            for (const auto& p : r.pairs) {
+                if (p.dim != 1) continue;
+                out.push_back({p.birth, std::isfinite(p.death) ? p.death : 1e9f});
+            }
+            std::sort(out.begin(), out.end());
+            return out;
+        };
+        auto ba = bars(a), bb = bars(b);
+        assert(ba.size() == bb.size());
+        for (size_t i = 0; i < ba.size(); ++i) {
+            assert(std::fabs(ba[i].first - bb[i].first) < 1e-5);
+            assert(std::fabs(ba[i].second - bb[i].second) < 1e-5);
+        }
+        std::cout << "ok implicit K6 vs homology H1 bars=" << ba.size() << "\n";
+    }
+
     std::cout << "all collapse/persist unit tests passed\n";
     return 0;
 }
