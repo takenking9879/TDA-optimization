@@ -139,27 +139,39 @@ figure8 / torus / blobs / circle. Bottleneck after \(2\sqrt{r^2}\) scale
 is **0.01–1.39**. **Rejected as a VR stand-in** — not shape-agnostic
 enough for mixed homology.
 
-**Sheehy sparse ε=0.5 (I205–I207):** essential \(H_1\) **correct on every
-measured family**. Finite-H1 bottleneck **0.007–0.054**. GUDHI explicit
-sparse is not uniformly faster than Ripser. **I207** feeds the Sheehy
-1-skeleton to owned implicit (`--edges`, collapse=0): circle1000 **89×**,
-torus2000 **24×**, blobs2000 **6.8×**, uniform22000 **7.1×**. Sheehy is
-**not flag** (PITH computes the flag of that 1-skeleton). Optional approx
-pipeline; **not** the exact default (0 VR loss). 1-skeleton size
-\(\sim n^{1.1}\) on torus (24k→52k edges, n=1000→2000).
+**Optional approx (I207–I211):** sparse 1-skeleton → implicit, collapse=0.
+Essential \(H_1\) **correct on every measured family**. Finite-H1 bottleneck
+typically **0.005–0.04**. 1-skeleton size \(\sim n^{1.1}\). This is **not
+exact VR**. Two constructions:
 
-## Next levers (still open after I207)
+- GUDHI Sheehy ε=0.5 → `--edges` (I207).
+- Owned `--sparse-eps 0.5` greedy-net flag graph (I210). Denser than
+  GUDHI (~2× edges), often **lower** bottleneck (torus 0.016 vs 0.050).
+  Torus n=2000 **14.5×**. No GUDHI dependency.
 
-Circle family: **84.4 / 119 / 140×**. Other families ~1.3–2.1×. Default is
-shape-agnostic and **exact** (0 bars lost). Worst-case Big-O is **not**
-better than Ripser (torus residual \(\Theta(n^2)\)).
+**Approx 10× vs Ripser (essential \(H_1\) kept)**
 
-1. **Exact default:** I193 + I197 + I202 gated witness + I203 cofacet
-   early-stop (0 bars lost vs Ripser).
-2. **Optional approx:** Sheehy ε=0.5 1-skeleton → `--edges` → implicit,
-   collapse=0 (I207). Bottleneck ≤0.054; first >10× on torus.
-3. **I208 frontier:** ε=0.3 → torus 9.3× / bn 0.017; ε=0.5 → 21× /
-   0.032; ε=0.7 → 40× / 0.075. blobs/uniform2 stay **<10×** at every ε
-   at n=2000 (max 9.8× at ε=0.7). Optional default stays ε=0.5.
-4. Next: in-process Sheehy, or exact torus time-buckets (constant-factor
-   only). GPU later.
+| Family | n | T | vs Ripser | bottleneck | construction |
+| --- | --- | --- | --- | --- | --- |
+| circle | 1000 | 1.5 | **89×** / **81×** | 0.013 / 0.007 | GUDHI / owned |
+| torus | 2000 | 1.6 | **25×** / **14.5×** | 0.026 / 0.016 | GUDHI / owned |
+| torus | 3000 | 1.6 | **72×** | 0.026 | GUDHI |
+| blobs | 3000 | 1.0 | **10.6×** | 0.017 | GUDHI |
+| sphere | 2000 | 1.4 | **11.2×** | 0.013 | GUDHI |
+| sphere | 3000 | 1.4 | **19.4×** | 0.016 | GUDHI |
+| uniform2 | 4000 | 0.35 | **13.1×** | 0.006 | GUDHI |
+
+At n=2000, blobs/uniform2 are still 6–7×. 10× on those families is a
+**scale** effect from the exponent gap (sparse time \(\sim n^{1.2}\),
+Ripser \(\sim n^{2.2}\)).
+
+## Next levers (still open after I211)
+
+Exact default is shape-agnostic with **0 bars lost** and is **not** a
+general 10×. Optional approx is a multi-family 10× at sufficient n, with
+quantified loss, and a better size exponent.
+
+1. **Exact default:** I193 + I197 + I202 + I203.
+2. **Owned optional approx:** `--sparse-eps 0.5` (I210).
+3. Exact torus time-buckets (constant-factor only).
+4. GPU later.

@@ -1002,16 +1002,24 @@ Do not paste long reasoning here.
 ## 2026-10-13 — I209 Sheehy+implicit scaling
 
 - **Question:** Does the I207 approx path cross 10× on blobs/uniform2/sphere at n=3000 from the exponent gap?
-- **Result:** Pending wave71.
-- **Decision:** If yes, the optional approx is a second-family 10× (still inexact). If no, the exponent is not enough at these sizes.
-- **Class:** experiment (in progress)
+- **Result:** Essential H1 correct on all 20 rows. Edge slopes **1.09–1.17** (including torus). Time ~n^{1.15–1.38} vs Ripser n^{2.18–3.09}.
+  **10× at n≥2000:** blobs n=3000 **10.6×** (bn 0.017), sphere n=2000 **11.2×** / n=3000 **19.4×**, torus n=2000 **25×** / n=3000 **72×**. uniform2 n=3000 **7.0×** (plateau from 6.9× at n=2000).
+- **Decision:** Optional approx is now a **multi-family 10×** (circle, blobs, sphere, torus) at sufficient n, still inexact (bn 0.004–0.042). uniform2 is the holdout. Exact default unchanged.
+- **Class:** experiment (support as approx scaling)
 
 ## 2026-10-13 — I210 in-process greedy-net sparse Rips
 
 - **Question:** Can PITH own a `--sparse-eps` 1-skeleton (greedy insertion radii, keep d ≤ ((1+ε)/ε) max(λ_i,λ_j)) without GUDHI, preserving essential H1 and the torus 10×?
-- **Result:** Pending wave72. Construction is flag-of-greedy-net, not bit-identical to GUDHI Sheehy.
-- **Decision:** Select as optional engine only if essential H1 holds on the mixed-homology suite and torus ≥10× vs Ripser.
-- **Class:** experiment (in progress)
+- **Result:** **Essential H1 7/7** (two_circles/figure8/torus/blobs/circle). Owned skeleton is denser than GUDHI (~2× edges). Torus n=2000 **14.5×** (GUDHI path 25×), bn **0.016** (better than GUDHI 0.050). circle1000 **81×**, blobs 6.0×, uniform2 6.3×. two_circles bn 0.034 vs GUDHI 0.005.
+- **Decision:** Select `--sparse-eps` as the **owned optional approx engine** (no GUDHI). Not bit-identical to Sheehy; flag of a greedy-net graph. Exact default unchanged. GUDHI+`--edges` stays a comparison.
+- **Class:** experiment (support as optional owned engine)
+
+## 2026-10-13 — I211 uniform2 n=4000 Sheehy+implicit
+
+- **Question:** Does the last I209 holdout (uniform2) cross 10× at n=4000?
+- **Result:** **Yes. 13.05×** (2.13s / 0.16s), essential H1 1=1, bottleneck **0.0056**, 93k skeleton edges.
+- **Decision:** Optional approx path now has a **10× point on every scaled family** (circle, blobs, sphere, torus, uniform2) at sufficient n. Loss is quantified (bn typically 0.005–0.04; unmatched are short bars). Exact-VR default is still not a general 10×.
+- **Class:** experiment (support as approx; last holdout crossed)
 
 ## 2026-10-13 — I164 collapse live-degree trace
 
