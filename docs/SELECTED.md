@@ -540,14 +540,13 @@ H2 **62×**. Topology loss: **0**.
 ## Next levers (still open after I259)
 
 `--engine auto` is a shape-agnostic exact H0–H2 portfolio: circle H1
-10×, torus H1 10×, sphere H1 **11.0×** at n=2000, sphere H2 **57×**
-at n=400 / **136×** at n=600, **disconnected blobs 23×** at n=4000
-on one CLI path. Connected uniform2 H1 is **11.4×** at n=5000 after
-I258 (0.30 s). Sparse connected: n=15000 **5.8×** (0.82 s, 3.90M vs
-112M), n=20000 **6.2×** (0.99 s, 4.71M vs 200M, no 800 MB matrix).
-Torus n=2000 **12.7×**. I242/I243 owned AE is exact; rbit is ~1.5×
-on circle AE and still 12× slower than RedZeD. GUDHI explicit Rips
-is exact and too slow.
+10×, torus H1 **12.7×**, sphere H1 **10.1×** at n=2000, sphere H2
+**62×** at n=400 / **136×** at n=600, **disconnected blobs 21×**
+at n=4000 on one CLI path. Connected uniform2 H1 is **11.2×** at
+n=5000 (0.31 s). Sparse connected n=20000 **6.0×** (1.04 s, 4.71M
+vs 200M, no 800 MB matrix). I242/I243 owned AE is exact; rbit is
+~1.5× on circle AE and still 12× slower than RedZeD. GUDHI explicit
+Rips is exact and too slow.
 
 1. **CLI default:** `--engine auto` (I235+I236+I239+I240+I241). H1 τ=0.04; H2 τ=0.15.
 2. **Forced engines:** `--engine implicit` = I193+I197+I202+I203 only;
