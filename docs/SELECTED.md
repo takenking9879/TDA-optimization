@@ -1,6 +1,6 @@
 # Selected algorithm (living)
 
-Updated 2026-10-13 after iterations I001–I287. **CLI default `--engine
+Updated 2026-10-13 after iterations I001–I288. **CLI default `--engine
 auto` (I235+I236+I239+I240+I241+I263+I270+I271+I275):** subsample residual-frac dispatch,
 plus I263 edge-frac so hollow/manifold clouds take RedZeD. Fat →
 RedZeD (torus n=2000 **13.0×**). Thin-circle → collapse+implicit
@@ -133,6 +133,7 @@ suite and I137 8/8 (including dense circle80/200 **collapse=0**, the I045 killer
 | GUDHI 3.13 explicit Rips (I237) | Exact 7/7; **slower** (blobs n=1000 15.9 s / 17.8M simplices vs auto 21 ms) |
 | Gabriel leftover skip (I272) | **Not exact.** n=256 H1 invented ess 31 vs 0 and dropped finite 37 vs 68. Non-Gabriel leftovers still reduce in AE (not all leftover_coface). Reverted. Do not retry. |
 | Empty-seed non-Delaunay leftover skip (I273) | **Exact 13/13** but **no clock cut**. figure8 n=4000 reduce **864≈866 ms**. Wall is ae_seeded, not empty-seed leftover_coface. Reverted. Do not retry empty-seed geometric skips. |
+| Equal-set seeded_is_noop (I288) | **Exact 10/10.** figure8 n=4000 reduce **848≈866 ms**. `{A} XOR {A}` skip is valid and rare after mid-loop growth. Reverted. Do not retry seeded XOR/noop constants. |
 
 I107 (`--dom-budget 1`) **still rejected** with implicit (I142–I144): thicker
 residual makes collapse *and* reduce slower (circle3000 1.49× vs full 8.11×).
@@ -673,10 +674,15 @@ Rips is exact and too slow.
    sphere n=16000 **139× / 116 ms** exact; n=30000 **288× / 221 ms /
    151k** vs Ripser 63.6 s; n=50000 **367 ms / 252k**. Next: one
    Euclidean H0+H1+H2 path is I286 split (I287: sphere n=8000
-   1.42 s). ae_seeded leftover wall remains for exact H1.
+   1.42 s). **I288 equal-set seeded_is_noop:** exact 10/10,
+   figure8 n=4000 reduce **848≈866 ms** — reverted. Do not retry
+   leftover XOR/noop constants. ae_seeded visits remain the
+   exact-H1 wall.
 6. Owned AE leftover-star walk is still Θ(|leftover|·deg★) — rbit cut
-   has_leftover_coface, not seeded probes (circle still 875k). Packed
-   annotations / seeded_is_noop are the next owned constants.
+   has_leftover_coface, not seeded probes (circle still 875k). I288
+   equal-set seeded_is_noop is exact and reverted (848≈866). Packed
+   annotations are memory-hostile vs sorted-set XOR on sparse R.
+   Do not retry leftover XOR/noop constants.
 7. I241 T-cap fill is rejected (slower metric). Do not retry without
    a reduce cut.
 8. GPU later.

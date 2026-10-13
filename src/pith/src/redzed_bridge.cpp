@@ -355,33 +355,9 @@ static void ae_keep_singleton(State& st, rank_t xrank, const int32_t* verts, val
     register_active(st, xrank, s1, verts);
 }
 
-// I288: vendor seeded_is_noop only catches even copies of the same singleton.
-// {A} XOR {A} is empty for any equal annotation, so the same skip is valid
-// for |A|>1. Equality is size-then-memcmp; miss (unequal) falls through to
-// XOR + resolve_bar. Exact: even copies of one set cancel over F₂.
-static bool seeded_is_noop_any(const SetDict& Rn, slot_t xslot,
-                               const std::vector<slot_t>& seeds) {
-    if (seeded_is_noop(Rn, xslot, seeds)) return true;
-    const SSet* S = nullptr;
-    size_t nset = 0;
-    auto same = [&](const SSet& t) -> bool {
-        if (!S) {
-            S = &t;
-            return true;
-        }
-        if (t.size() != S->size()) return false;
-        return t.empty() || std::equal(t.begin(), t.end(), S->begin());
-    };
-    if (xslot && !same(Rn.at(xslot))) return false;
-    if (xslot) ++nset;
-    for (slot_t s : seeds) {
-        if (!same(Rn.at(s))) return false;
-        ++nset;
-    }
-    return S && (nset & 1u) == 0;
-}
-
 // Seeded leftover: insert, process_seeded, maybe leftover-coface / register.
+// I288 equal-set seeded_is_noop was exact 10/10 but figure8 n=4000 reduce
+// 848≈866 ms — do not retry (I266 3% precedent).
 static void ae_seeded(State& st, rank_t xrank, comb_t xidx, const int32_t* verts, value_t sdiam) {
     const int m = st.n + 1;
     SetDict& Rn = st.R[st.n];
@@ -395,7 +371,7 @@ static void ae_seeded(State& st, rank_t xrank, comb_t xidx, const int32_t* verts
     for (size_t t = 0; t < st.seedverts.size(); ++t) {
         const int32_t w = st.seedverts[t];
         const std::vector<slot_t>& sdw = st.seedlists[w];
-        if (seeded_is_noop_any(Rn, xslot, sdw)) continue;
+        if (seeded_is_noop(Rn, xslot, sdw)) continue;
         if (coface_ready_any(st.coface_buf.data(), verts, m, w, xidx, sdiam, st))
             dirty |= process_seeded(st, xslot, sdw, sdiam);
     }

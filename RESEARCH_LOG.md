@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-13 — I288 equal-set seeded_is_noop
+
+- **Question:** Does skipping `process_seeded` when seed annotations are equal even copies (not only singletons) cut the figure8 n=4000 ae_seeded wall?
+- **Hypothesis:** Vendor `seeded_is_noop` is `{a} XOR {a}`. Over F₂, `{A} XOR {A}` is empty for any equal set, so XOR + `resolve_bar` can be skipped. Shape-agnostic. Hits after a leftover’s annotation grows mid-loop.
+- **Work:** `seeded_is_noop_any` in owned `ae_seeded`. Wave 148 vs Ripser. Revert after the clock miss.
+- **Result:** **Exact 10/10** (0 unmatched; ess H0/H1/H2; figure8 2=2; sphere void 1=1). figure8 n=4000 reduce **848 vs I263 866 ms** (~2%). n=2000 **98 vs ~99 ms**. uniform2 **11.3×**. H0 **58×**. H2 **59×**.
+- **Decision:** **Hold / revert.** Exact, not a selected clock cut (I266 3% precedent). Do not retry equal-set or singleton-only seeded_is_noop extensions. Leftover-constant list is exhausted: I264–I269, I272–I273, I288. Remaining exact-H1 size-class change needs fewer leftover *visits* or a proven cheaper complex, not a cheaper XOR. Do not mark the goal complete.
+- **Class:** experiment (hold identity; revert clock)
+
 ## 2026-10-13 — I287 harder I286 split (sphere n=8k H0+H1+H2)
 
 - **Question:** Does I286 split stay usable at more 3D points (sphere n=4000/8000 maxdim=2) and figure8 n=8000, without breaking ess H1/H2 or the exact default?
