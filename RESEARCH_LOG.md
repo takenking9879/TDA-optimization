@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-13 — I254 skip ae_prepare on empty ActiveReg
+
+- **Question:** Empty ActiveReg means no seeds. Can the H1 leftover loop skip `ae_prepare` / `clear_seeds` (still `advance_rbits`) without changing H0–H2, and does that cut the connected wall at n=8000?
+- **Hypothesis:** `leftover_coface_h1_noseen` ignores stale seenbits. Next nonempty-act leftover runs `collect_candidates`, which clears stale seeds. Shape-agnostic. Exact if identity holds.
+- **Work:** Empty-act branch in the H1 leftover loop. Wave 115 vs Ripser: H0–H2 + sphere n=2000 H1 + uniform2 n=5000…8000.
+- **Result:** **Exact 15/15** (figure8 2=2; sphere void 1=1; torus ess H1 1=1; blobs H0 3=3). Uniform2 n=5000 **11.2×** (0.31s/3.43s; I252 0.30s). n=6000 11.2× (0.40s). n=7000 11.5× (0.53s). n=8000 **10.8×** (0.63s/6.79s). Sphere H1 **10.3×**. Torus **14.6×**. No pith cut.
+- **Decision:** **Hold identity, revert from the engine.** Topology loss: **0**. n=8000 10× in 0.63 s reconfirms I252 scale. Next leftover-coface constants are rejected until a measured reduce cut.
+- **Class:** experiment (hold identity; reject as clock; reverted)
+
 ## 2026-10-13 — I253 specialize H1 coface_ready
 
 - **Question:** Other faces of leftover∪{w} are edges. Does replacing `coface_ready` with one `dist()` + `C(lo,1)+C(hi,2)` cut the connected wall without changing H0–H2? Does uniform2 n=8000 stay 10× in under a second?
