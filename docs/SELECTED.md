@@ -71,7 +71,8 @@ residual makes collapse *and* reduce slower (circle3000 1.49× vs full 8.11×).
 
 **Not claimed:** H1 10× clock in general; high-d; worst-case asymptotics.
 I157: n=4000 T=1.5 is **9.50×** (Ripser 294 s / PITH 30.9 s, collapse 30.6 s, reduce 7.0 ms).
-I148 was 8.74× / 33.5 s. Still collapse-bound; ~5% more collapse cut would hit 10× here.
+I162: at n=2000 the same stack **loses** on blobs (0.32×), sphere (0.17×), uniform2 (0.30×), torus (0.74×).
+Collapse still reduces those graphs; Ripser's full implicit is cheaper than our C-walk there.
 I139: owned implicit **reduce 67 ms** on torus1000 residual 38k (homology was 1.7 s).
 E3 (collapse + Ripser-sparse) is no longer required; we own that residual class.
 
@@ -85,7 +86,7 @@ I153: C-build is the wall (567M probes / 1.12M dom tests / 96% first-apex hits).
 
 1. **I155 pair-nbr + I156 fused first-apex — selected.** Flagship **9.50×** (I157).
 2. Layout micro-opts closed (I158–I160). I161 integer grades **reverted** (under-collapse). Matching-batch **unsafe**.
-3. **I162** other-family H1 at n=2000 (hunt 10× off-circle). Then RedZeD (H09).
+3. I162: H1 10× is **not** general at n=2000. Next: collapse cost-model / skip when Ripser is cheap; RedZeD on thick torus residuals.
 3. Probe count unchanged (4.58B at n=4000). Geometry ceiling still ~2× on C-build.
 4. Fix D&C merge (I150) — parallel schedule only.
 5. GPU later (Ripser++ reference only)

@@ -690,7 +690,9 @@ Do not paste long reasoning here.
 - **Decision:** **Revert.** 0-as-missing + rank remap under-collapses. Matching-batch parallel also unsafe (shared commons).
 - **Class:** experiment (negative)
 
-## 2026-10-13 — I162 other-family H1 (in progress)
+## 2026-10-13 — I162 other-family H1 n=2000
 
-- **Question:** Does the selected stack hit H1 10× on blobs/torus/sphere/uniform2 at n=2000?
-- **Class:** proposal / experiment running
+- **Question:** Does pair-nbr+fused hit H1 10× off-circle?
+- **Result:** Exact 5/5. **No.** Best off-peak circle T=1.2 is **4.13×**. blobs **0.32×**, torus **0.74×** (residual 163k, reduce 431 ms), sphere **0.17×**, uniform2 **0.30×**. Collapse still shrinks those graphs (blobs 655k→6k) but costs more than Ripser's full PH.
+- **Decision:** 9.50× is a circle T≈1.5 phenomenon. H1 10× is not general. Next: skip/cost-model collapse when Ripser is cheap; RedZeD on thick torus residuals.
+- **Class:** reproduced

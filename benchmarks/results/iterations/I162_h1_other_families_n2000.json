@@ -1,0 +1,80 @@
+{
+  "id": "h1_other_families_n2000",
+  "lever": "H01-scope",
+  "class": "experiment",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "H1 other families n=2000; best ratio 4.13\u00d7",
+  "receipts": [
+    {
+      "name": "circle_noisy",
+      "n": 2000,
+      "T": 1.2,
+      "match": true,
+      "unmatched": 0,
+      "ripser_s": 9.906391155000165,
+      "pith_s": 2.3989867199998116,
+      "time_ratio": 4.129406416639498,
+      "collapse_ms": 2319.4821,
+      "reduce_ms": 2.09939,
+      "edges_in": 816143,
+      "edges_out": 5169
+    },
+    {
+      "name": "blobs",
+      "n": 2000,
+      "T": 1.0,
+      "match": true,
+      "unmatched": 0,
+      "ripser_s": 0.4265935469993565,
+      "pith_s": 1.315450136000436,
+      "time_ratio": 0.32429473024070227,
+      "collapse_ms": 1263.161,
+      "reduce_ms": 2.916088,
+      "edges_in": 655179,
+      "edges_out": 6169
+    },
+    {
+      "name": "torus",
+      "n": 2000,
+      "T": 1.6,
+      "match": true,
+      "unmatched": 0,
+      "ripser_s": 2.558125748000748,
+      "pith_s": 3.4590046129997063,
+      "time_ratio": 0.7395554600843098,
+      "collapse_ms": 2986.1032,
+      "reduce_ms": 431.49836,
+      "edges_in": 478860,
+      "edges_out": 163426
+    },
+    {
+      "name": "sphere",
+      "n": 2000,
+      "T": 1.4,
+      "match": true,
+      "unmatched": 0,
+      "ripser_s": 0.8261115749992314,
+      "pith_s": 5.001237365002453,
+      "time_ratio": 0.16518143705399319,
+      "collapse_ms": 4931.1337,
+      "reduce_ms": 3.775326,
+      "edges_in": 979816,
+      "edges_out": 6691
+    },
+    {
+      "name": "uniform2",
+      "n": 2000,
+      "T": 0.35,
+      "match": true,
+      "unmatched": 0,
+      "ripser_s": 0.4740730199991958,
+      "pith_s": 1.5720913660006772,
+      "time_ratio": 0.30155564126353174,
+      "collapse_ms": 1519.3143,
+      "reduce_ms": 3.099118,
+      "edges_in": 571692,
+      "edges_out": 6197
+    }
+  ]
+}
