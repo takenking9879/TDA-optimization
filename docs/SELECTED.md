@@ -1,14 +1,14 @@
 # Selected algorithm (living)
 
-Updated 2026-10-13 after iterations I001–I188. **Default collapse is I182 live-bit AND generate-C + I186 no LiveAdj** on top of I155 pair-nbr + I156 fused first-apex. Flagship circle n=4000 T=1.5 is **31.3×** vs Ripser (I188). Optional suffix-* remain exact H1>10× on circle n=2000 T=1.5 only. `--collapse-alg back-src` is the pre-I182 src walk.
+Updated 2026-10-13 after iterations I001–I190. **Default collapse is I189 AND-equality first-apex** on I182 live-bit C + I186 no LiveAdj. Flagship circle n=4000 T=1.5 is **113×** vs Ripser (I190). Optional suffix-* are no longer the clock leaders. `--collapse-alg back-src` is the pre-I182 src walk.
 
 ## Selected exact-VR CPU pipeline
 
 **Name:** **PITH** — threshold graph \(G_T\) → backward flag **edge collapse**
-(GUDHI sticky-dominator + lazy heap + cheap degree filter + I155 pair-nbr
-times on live adjacency + **I182 live-bit AND generate-C**) → **Ripser-heap
-implicit cohomology** on the residual flag graph (I137). I156 fused first-apex
-is selected on top of this. `--collapse-alg back` uses bits (I184).
+(GUDHI sticky-dominator + I182 live-bit AND generate-C + I186 no LiveAdj +
+**I189 AND-equality first-apex / later[] any_later**) → **Ripser-heap
+implicit cohomology** on the residual (I137). `--collapse-alg back` is this
+stack. `back-src` is the pre-I182 star walk.
 
 - \(H_0\): Kruskal. `--collapse -1` **skips collapse** when `maxdim=0`.
 - \(H_1\): leftover (non-MST, non-apparent) edges, youngest-first; F₂ heap
@@ -70,9 +70,9 @@ residual makes collapse *and* reduce slower (circle3000 1.49× vs full 8.11×).
 | Dataset | dim | n | T | vs Ripser |
 | --- | --- | --- | --- | --- |
 | sphere | \(H_2\) | 500 | 1.4 | **59×** (I085) / 46× later |
-| circle_noisy | \(H_1\) | 4000 | 1.5 | **31.3×** default bits+no-adj (I188: 304s/9.71s). I184 bits-only 22.8×; I157 src-walk 9.50× |
-| circle_noisy | \(H_1\) | 3000 | 1.5 | **27.4×** default (I187: 117s/4.25s). suffix-* 2 unmatched |
-| circle_noisy | \(H_1\) | 2000 | 1.5 | **21.7×** default (I187) / **41.7×** suffix-stab (I168) / **17.1×** suffix-later K=2 (I181) |
+| circle_noisy | \(H_1\) | 4000 | 1.5 | **113×** default AND-eq (I190: 300s/2.65s). I188 bits+no-adj 31.3×; I157 src-walk 9.50× |
+| circle_noisy | \(H_1\) | 3000 | 1.5 | **93.2×** default (I189: 115s/1.24s) |
+| circle_noisy | \(H_1\) | 2000 | 1.5 | **71.0×** default (I189: 27.4s/0.39s) / suffix-stab 41.7× (I168, obsolete as clock) |
 | torus | \(H_1\) | 1000 | 1.6 | **1.31×** owned implicit (I139); E3 1.25× same run |
 | circle_noisy | \(H_1\) | 2000 | 1.2 | **4.13×** (I162) / 3.8–4.8× earlier |
 | blobs / sphere / uniform2 | \(H_1\) | 2000 | default T | **0.17–0.32×** (I162) — collapse loses to Ripser |
@@ -80,18 +80,19 @@ residual makes collapse *and* reduce slower (circle3000 1.49× vs full 8.11×).
 | circle_noisy | \(H_1\) | 1000 | 1.5 | **4.1×** (I083) |
 
 **Not claimed:** H1 10× clock in general; high-d; worst-case asymptotics.
-**Honest H1>10× (exact, no oracle, default path):** circle n=4000 T=1.5 **31.3×** (I188), n=3000 **27.4×** (I187), n=2000 **21.7×** (I187) via bit-AND generate-C + no LiveAdj. Optional still higher on n=2000 only: suffix-stab **41.7×** (I168).
-I185 bits vs Ripser at n=2000: blobs **0.35×**, sphere **0.40×**, uniform2 **0.49×**, torus **1.01×** (was 0.70×). Still not a second-family 10×.
+**Honest H1>10× (exact, no oracle, default path):** circle n=4000 T=1.5 **113×** (I190), n=3000 **93.2×**, n=2000 **71.0×** (I189) via AND-equality first-apex.
+I189 vs Ripser at n=2000 losers: blobs **0.48×**, sphere **0.50×**, torus **1.10×**. Still not a second-family 10×.
 I139: owned implicit **reduce 67 ms** on torus1000 residual 38k (homology was 1.7 s).
 E3 (collapse + Ripser-sparse) is no longer required; we own that residual class.
 
 **Alpha (I136)** is a different complex: GUDHI Alpha circle3000 0.023 s vs Ripser VR 123 s
 (~5400× empirical) with 2745 \(H_1\) bars. Off the exact-VR 10× board.
 
-## Next levers (still open after I188)
+## Next levers (still open after I190)
 
-Circle family: **21.7 / 27.4 / 31.3×** at n=2000/3000/4000. I162 losers persist (blobs 0.42×, sphere 0.52×, torus 1.04×). Remaining wall is domination tests + Tm traffic, not star scans.
+Circle family: **71 / 93 / 113×** at n=2000/3000/4000. I162 losers persist (0.48–1.10×): most edges miss the AND-eq fast path (blobs 211k/649k fast-trims).
 
-1. **Default:** I182+I186 back-bits, no LiveAdj. Flagship **31.3×**.
-2. I189: cheaper `dominated_by` / skip deg-filter now that C is generated.
-3. I162 losers still need an order-of-magnitude cut. GPU later.
+1. **Default:** I189 AND-eq first-apex. Flagship **113×**.
+2. I191: word-AND progressive ∩ on the fused-fail / keep path (torus, blobs slow path).
+3. I192: flag vertex/strong collapse before the edge walk on blobs.
+4. GPU later.

@@ -850,8 +850,16 @@ Do not paste long reasoning here.
 ## 2026-10-13 — I189 AND-equality first-apex
 
 - **Question:** Can bits[first] covering C (minus later[first]) plus later[] any_later replace the Θ(|C|) Tm walk on I156 fast-trims?
-- **Work:** Fast path in `process_one_backward` when bits+later. Wave54.
-- **Class:** experiment (running)
+- **Result:** **Exact.** circle2000 **71.0×** (27.4s/0.39s, collapse 308 ms). circle3000 **93.2×** (115s/1.24s). blobs 0.48× (809 ms), sphere 0.50×, torus 1.10×. Fast-trim fraction is high on circle, low on losers.
+- **Decision:** Select as default. I190 remasured n=4000.
+- **Class:** experiment (support)
+
+## 2026-10-13 — I190 AND-eq n=4000
+
+- **Question:** Does I189 hold at the flagship n=4000 vs Ripser?
+- **Result:** **113×** exact (300s/2.65s, residual 12562, collapse 2331 ms).
+- **Decision:** New flagship. Next: fused-fail/keep path (I191) and vertex collapse on blobs (I192).
+- **Class:** experiment (support)
 
 ## 2026-10-13 — I164 collapse live-degree trace
 

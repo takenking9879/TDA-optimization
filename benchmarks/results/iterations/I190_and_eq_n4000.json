@@ -1,0 +1,24 @@
+{
+  "id": "and_eq_n4000",
+  "lever": "H01-and-eq-n4000",
+  "class": "experiment",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "I190 AND-equality first-apex vs Ripser at circle n=4000",
+  "receipts": [
+    {
+      "name": "circle_noisy",
+      "n": 4000,
+      "T": 1.5,
+      "match_ripser": true,
+      "unmatched_ripser": 0,
+      "pith_s": 2.650015736999194,
+      "ripser_s": 299.94904800800214,
+      "vs_ripser": 113.18764783927521,
+      "out": 12562,
+      "collapse_ms": 2331.0093,
+      "fast_trims": 3974377,
+      "trims": 4307631
+    }
+  ]
+}
