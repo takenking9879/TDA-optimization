@@ -25,6 +25,7 @@ static void usage() {
         << "  --ratio R           skip pairs with death <= birth*R (default 1)\n"
         << "  --no-enclosing      do not cap T by enclosing radius\n"
         << "  --sparse-only       write residual edges and exit\n"
+        << "  --probe-only        print ROI probe on G_T and exit (I163)\n"
         << "  --format text|json  output format (default text)\n";
 }
 
@@ -205,6 +206,7 @@ int main(int argc, char** argv) {
     value_t ratio = 1;
     bool use_enclosing = true;
     bool sparse_only = false;
+    bool probe_only = false;
     std::string format = "text";
     std::string engine = "auto";
     std::string collapse_alg = "back";
@@ -229,6 +231,7 @@ int main(int argc, char** argv) {
         else if (a == "--ratio") ratio = std::stof(need("--ratio"));
         else if (a == "--no-enclosing") use_enclosing = false;
         else if (a == "--sparse-only") sparse_only = true;
+        else if (a == "--probe-only") probe_only = true;
         else if (a == "--format") format = need("--format");
         else if (a == "--help" || a == "-h") {
             usage();
@@ -261,6 +264,21 @@ int main(int argc, char** argv) {
         Graph g = graph_from_distance(dist, threshold);
         c.n_vertices = g.n;
         c.n_edges_in = static_cast<std::int64_t>(g.edges.size());
+        if (probe_only) {
+            const RoiProbe roi = probe_roi(g, threshold);
+            const double dom = probe_domination(g, 64);
+            std::cout << "# PROBE leftover_apparent=" << roi.leftover_apparent
+                      << " leftover=" << roi.n_leftover
+                      << " sampled=" << roi.n_sampled
+                      << " mean_deg=" << roi.mean_deg
+                      << " mst_max=" << roi.mst_max
+                      << " leftover_median=" << roi.leftover_median
+                      << " domination=" << dom
+                      << " n=" << g.n
+                      << " edges=" << g.edges.size()
+                      << " T=" << threshold << "\n";
+            return 0;
+        }
         auto do_collapse = [&](Graph&& h, int iters) -> Graph {
             if (collapse_alg == "dc") return collapse_edges_dc(std::move(h), iters, c, dom_budget);
             if (collapse_alg == "forward") return collapse_edges_forward(std::move(h), iters, c);

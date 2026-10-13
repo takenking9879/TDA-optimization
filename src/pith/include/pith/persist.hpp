@@ -491,6 +491,49 @@ inline bool zero_apparent_facet(const Graph& g, std::uint64_t tri_key, value_t t
     return true;
 }
 
+// I163: leftover-apparent rate + MST scale. Used to decide whether collapse
+// can beat Ripser (circle T≈1.5: low apparent / long leftover tail).
+struct RoiProbe {
+    double leftover_apparent = 0;
+    std::int64_t n_leftover = 0;
+    std::int64_t n_sampled = 0;
+    double mean_deg = 0;
+    value_t mst_max = 0;
+    value_t leftover_median = 0;
+};
+
+inline RoiProbe probe_roi(const Graph& g, value_t T, int samples = 160) {
+    RoiProbe p;
+    p.mean_deg = g.n ? 2.0 * static_cast<double>(g.edges.size()) / g.n : 0;
+    std::vector<Edge> edges = g.edges;
+    std::sort(edges.begin(), edges.end(), [](const Edge& a, const Edge& b) {
+        if (a.t != b.t) return a.t < b.t;
+        if (a.u != b.u) return a.u < b.u;
+        return a.v < b.v;
+    });
+    UnionFind uf(g.n);
+    std::vector<Edge> leftover;
+    leftover.reserve(edges.size());
+    for (const Edge& e : edges) {
+        if (e.t > T) continue;
+        if (uf.unite(e.u, e.v)) p.mst_max = std::max(p.mst_max, e.t);
+        else leftover.push_back(e);
+    }
+    p.n_leftover = static_cast<std::int64_t>(leftover.size());
+    if (leftover.empty()) return p;
+    const int m = std::min(samples, static_cast<int>(leftover.size()));
+    int hit = 0;
+    for (int i = 0; i < m; ++i) {
+        const size_t idx = static_cast<size_t>((i + 0.5) * leftover.size() / m);
+        const Edge& e = leftover[std::min(idx, leftover.size() - 1)];
+        if (zero_apparent_cofacet(g, e.u, e.v, e.t, T, nullptr)) ++hit;
+    }
+    p.n_sampled = m;
+    p.leftover_apparent = static_cast<double>(hit) / static_cast<double>(m);
+    p.leftover_median = leftover[leftover.size() / 2].t;
+    return p;
+}
+
 inline Result persist_implicit_coh(const Graph& g, int maxdim, value_t threshold, value_t ratio) {
     Result r;
     Counters& c = r.counters;
