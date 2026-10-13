@@ -136,139 +136,20 @@ static void build_edges_parallel(const DistanceMatrix& dist, value_t threshold,
     finish_buckets_parallel(out.diam, out.verts, 2, starts, nb, bt);
 }
 
-static inline void add_rbit_raw(uint64_t* rbits, int* rlo, int* rhi, int words, int i, int j) {
-    const int wj = j >> 6, wi = i >> 6;
-    rbits[static_cast<size_t>(i) * words + wj] |= static_cast<uint64_t>(1) << (j & 63);
-    rbits[static_cast<size_t>(j) * words + wi] |= static_cast<uint64_t>(1) << (i & 63);
-    if (rlo[i] > wj) rlo[i] = wj;
-    if (rhi[i] < wj) rhi[i] = wj;
-    if (rlo[j] > wi) rlo[j] = wi;
-    if (rhi[j] < wi) rhi[j] = wi;
-}
-
-// I249: leftover-coface with empty seen (no-seed path). Same as vendor
-// has_leftover_coface when seedverts is empty.
-static bool leftover_coface_h1_raw(const uint64_t* rbits, const int* rlo, const int* rhi,
-                                   int words, int nv, const int32_t* xv, comb_t xidx, value_t r,
-                                   int32_t* cbuf, const DistanceMatrix& dist,
-                                   const BinomialTable& bt) {
-    int wlo = rlo[xv[0]], whi = rhi[xv[0]];
-    if (rlo[xv[1]] > wlo) wlo = rlo[xv[1]];
-    if (rhi[xv[1]] < whi) whi = rhi[xv[1]];
-    for (int w = wlo; w <= whi; ++w) {
-        uint64_t acc = rbits[static_cast<size_t>(xv[0]) * words + w] &
-                       rbits[static_cast<size_t>(xv[1]) * words + w];
-        while (acc) {
-            const int bp = redzed_ctz64(acc);
-            acc &= acc - 1;
-            const int cand = w * 64 + bp;
-            if (cand >= nv) break;
-            if (coface_ready(cbuf, xv, 2, static_cast<int32_t>(cand), xidx, r, dist, bt))
-                return true;
-        }
-    }
-    return false;
-}
-
-// I249: leftover-coface depends only on G_{≤t}, not on AE. Precompute it
-// in parallel (rbit snapshots at chunk starts) so the sequential no-seed
-// skip does not re-walk 3.5M leftover-coface checks.
-static void precompute_skippable(const EdgeList& ed, const DistanceMatrix& dist,
-                                 const BinomialTable& bt, int nv,
-                                 std::vector<uint8_t>& skippable) {
-    const size_t nE = ed.count;
-    skippable.assign(nE + 1, 0);
-    if (nE == 0) return;
-    std::vector<uint8_t> is_left(nE + 1, 0);
-    {
-        UnionFind uft(nv);
-        for (size_t e = 1; e <= nE; ++e) {
-            const int lo = ed.verts[2 * (e - 1)];
-            const int hi = ed.verts[2 * (e - 1) + 1];
-            const int32_t a = uft.find(lo), b = uft.find(hi);
-            if (a == b) is_left[e] = 1;
-            else uft.parent[std::max(a, b)] = std::min(a, b);
-        }
-    }
-    const int words = (nv + 63) / 64;
-    const int nth = std::max(1, static_cast<int>(std::thread::hardware_concurrency()));
-    auto run_range = [&](size_t e0, size_t e1, std::vector<uint64_t> rb, std::vector<int> rlo,
-                         std::vector<int> rhi) {
-        int32_t cbuf[4];
-        int32_t xv[2];
-        size_t rptr = e0;
-        for (size_t e = e0; e < e1; ++e) {
-            const value_t r = ed.diam[e - 1];
-            while (rptr <= nE && ed.diam[rptr - 1] <= r) {
-                add_rbit_raw(rb.data(), rlo.data(), rhi.data(), words,
-                             ed.verts[2 * (rptr - 1)], ed.verts[2 * (rptr - 1) + 1]);
-                ++rptr;
-            }
-            if (!is_left[e]) continue;
-            xv[0] = ed.verts[2 * (e - 1)];
-            xv[1] = ed.verts[2 * (e - 1) + 1];
-            const comb_t xidx = comb_index(&ed.verts[2 * (e - 1)], 2, bt);
-            skippable[e] = leftover_coface_h1_raw(rb.data(), rlo.data(), rhi.data(), words, nv, xv,
-                                                 xidx, r, cbuf, dist, bt)
-                               ? 1
-                               : 0;
-        }
-    };
-    if (nth <= 1 || nE < 8192) {
-        std::vector<uint64_t> rb(static_cast<size_t>(words) * nv, 0);
-        std::vector<int> rlo(nv, words), rhi(nv, -1);
-        run_range(1, nE + 1, std::move(rb), std::move(rlo), std::move(rhi));
-        return;
-    }
-    const size_t span = (nE + static_cast<size_t>(nth) - 1) / static_cast<size_t>(nth);
-    std::vector<std::vector<uint64_t>> snap_rb(static_cast<size_t>(nth));
-    std::vector<std::vector<int>> snap_lo(static_cast<size_t>(nth)), snap_hi(static_cast<size_t>(nth));
-    {
-        std::vector<uint64_t> rb(static_cast<size_t>(words) * nv, 0);
-        std::vector<int> rlo(nv, words), rhi(nv, -1);
-        for (int t = 0; t < nth; ++t) {
-            const size_t e0 = 1 + static_cast<size_t>(t) * span;
-            if (e0 > nE) break;
-            snap_rb[static_cast<size_t>(t)] = rb;
-            snap_lo[static_cast<size_t>(t)] = rlo;
-            snap_hi[static_cast<size_t>(t)] = rhi;
-            const size_t e1 = std::min(nE + 1, e0 + span);
-            for (size_t e = e0; e < e1; ++e)
-                add_rbit_raw(rb.data(), rlo.data(), rhi.data(), words, ed.verts[2 * (e - 1)],
-                             ed.verts[2 * (e - 1) + 1]);
-        }
-    }
-    std::vector<std::thread> pool;
-    pool.reserve(static_cast<size_t>(nth));
-    for (int t = 0; t < nth; ++t) {
-        const size_t e0 = 1 + static_cast<size_t>(t) * span;
-        if (e0 > nE) break;
-        const size_t e1 = std::min(nE + 1, e0 + span);
-        pool.emplace_back([&, t, e0, e1]() {
-            run_range(e0, e1, std::move(snap_rb[static_cast<size_t>(t)]),
-                      std::move(snap_lo[static_cast<size_t>(t)]),
-                      std::move(snap_hi[static_cast<size_t>(t)]));
-        });
-    }
-    for (auto& th : pool) th.join();
-}
-
 // I246: vendor AE inserts R/Ri singleton then often erases it (no seeds +
 // leftover coface = (n+1)-birth / zero bar). Skip that insert. When seeds
 // exist, insert once and finish AE without re-advance / re-collect.
 // set_side is a no-op unless side_vpc is set (H2+).
 // I247 leftover_coface_fast was exact but slower (9.24× vs I246 9.56×) — reverted.
-// I249: pre_cf 1/0 = leftover_coface already known (empty seen); -1 = compute.
 static void active_enum_lazy(State& st, rank_t xrank, comb_t xidx, const int32_t* verts,
-                             value_t sdiam, int pre_cf = -1) {
+                             value_t sdiam) {
     const int m = st.n + 1;
     advance_rbits(st, sdiam);
     collect_candidates(st, verts);
     SetDict& Rn = st.R[st.n];
     SetDict& Rin = st.Ri[st.n];
     if (st.seedverts.empty()) {
-        if (pre_cf == 1) return;
-        if (pre_cf != 0 && has_leftover_coface(st, verts, m, xidx, sdiam)) return;
+        if (has_leftover_coface(st, verts, m, xidx, sdiam)) return;
         const slot_t s1 = Rn.singleton(xrank, xrank);
         const slot_t s2 = Rin.singleton(xrank, xrank);
         Rn.set_side(s1, sdiam, verts);
@@ -357,10 +238,6 @@ redzed_vr(DistanceMatrix& distIn, int n, value_t threshold, EdgeList* prebuilt) 
     st.coface_buf.assign(n + 2, 0);
     st.top_buf.assign(n + 1, 0);
 
-    std::vector<uint8_t> skippable;
-    if (n == 1 && st.edges.count >= 8192)
-        precompute_skippable(st.edges, st.dist, st.binom, nv, skippable);
-
     {
         const bool want_h1 = n >= 1;
         SetDict* R1 = want_h1 ? &st.R[1] : nullptr;
@@ -378,8 +255,7 @@ redzed_vr(DistanceMatrix& distIn, int n, value_t threshold, EdgeList* prebuilt) 
                         st.top_buf[0] = lo;
                         st.top_buf[1] = hi;
                         comb_t xidx = comb_index(&ed.verts[2 * (e - 1)], 2, st.binom);
-                        const int pre_cf = skippable.empty() ? -1 : static_cast<int>(skippable[e]);
-                        active_enum_lazy(st, er, xidx, st.top_buf.data(), ediam, pre_cf);
+                        active_enum_lazy(st, er, xidx, st.top_buf.data(), ediam);
                     } else {
                         R1->singleton(er, er);
                         Ri1->singleton(er, er);

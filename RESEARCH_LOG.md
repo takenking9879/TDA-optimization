@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-13 — I249 parallel leftover-coface precompute
+
+- **Question:** leftover-coface at time t is a function of \(G_{\le t}\) only. Does a parallel rbit-snapshot precompute let sequential AE skip 3.5M leftover-coface walks on the no-seed path?
+- **Hypothesis:** Same-diameter lookahead matches vendor `advance_rbits`. No-seed skip uses the flag; seeded AE still calls leftover-coface with seen. Shape-agnostic. Exact if identity holds.
+- **Work:** `precompute_skippable` + `pre_cf` in `active_enum_lazy`. Wave 110 vs Ripser. Hard cases: uniform2 n=5000 / n=6000.
+- **Result:** **Exact 11/11**. Uniform2 n=5000 **10.05×** (0.353s/3.55s) is Ripser variance — pith 0.353s equals I246 0.354s (reduce 263≈264 ms). n=6000 **8.86×** (0.50s vs I246 0.47s). No pith cut.
+- **Decision:** **Hold identity, revert from the engine.** Do not claim connected 10× from a slower Ripser draw. Topology loss: **0**. Snapshot copies + extra Kruskal cost as much as they save.
+- **Class:** experiment (hold identity; reject as clock; reverted)
+
 ## 2026-10-13 — I248 fuse fill + edge histogram
 
 - **Question:** Can counting edge buckets during the from-points fill skip I245’s extra n² count pass without changing (diam, comb_index) order?

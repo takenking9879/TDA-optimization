@@ -114,6 +114,7 @@ suite and I137 8/8 (including dense circle80/200 **collapse=0**, the I045 killer
 | Fill-collect + std::sort EdgeList (I244 try) | Exact; **slower** metric (10→460 ms on uniform2 n=5000). Vendor `build_edges` stays |
 | leftover-coface fast (I247) | Exact 11/11; **slower** (uniform2 n=5000 9.24× / 279 ms vs I246 9.56× / 264 ms). Reverted |
 | Fuse fill + histogram (I248) | Exact 11/11; **slower** (metric 10→46 ms; 8.40× vs I246 9.56×). Reverted |
+| Parallel leftover-coface precompute (I249) | Exact 11/11; pith **unchanged** (0.353≈0.354 s). Apparent 10.05× was Ripser 3.55 vs 3.38 s. n=6000 slower. Reverted |
 | GUDHI 3.13 explicit Rips (I237) | Exact 7/7; **slower** (blobs n=1000 15.9 s / 17.8M simplices vs auto 21 ms) |
 
 I107 (`--dom-budget 1`) **still rejected** with implicit (I142–I144): thicker
@@ -495,8 +496,8 @@ too slow.
 4. Push **connected** uniform2 from **9.56×** to 10×. Need ~1.05× more
    (0.35s → 0.34s). Remaining wall is sequential leftover-coface on
    ~3.5M zero-persistence edges plus a second n² edge scan. Fill-collect
-   sort and I247 leftover-coface fast are rejected. Parallel
-   `build_edges` and lazy insert are in.
+   sort, I247 leftover-coface fast, and I248 fuse-fill histogram are
+   rejected. Parallel `build_edges` and lazy insert are in.
 5. Owned AE leftover-star walk is still Θ(|leftover|·deg★) — rbit cut
    has_leftover_coface, not seeded probes (circle still 875k). Packed
    annotations / seeded_is_noop are the next owned constants.
