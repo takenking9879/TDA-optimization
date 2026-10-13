@@ -1,0 +1,16 @@
+{
+  "id": "rp2",
+  "lever": "baseline",
+  "class": "implementation",
+  "fidelity": "exact-ripser-only",
+  "status": "hold",
+  "summary": "Ripser example RP2; PITH has no lower-distance CLI yet",
+  "receipts": [
+    {
+      "file": "projective_plane",
+      "ripser_s": 0.0024483600000166916,
+      "n_pairs": 15,
+      "note": "distance matrix; PITH point-cloud path not used"
+    }
+  ]
+}

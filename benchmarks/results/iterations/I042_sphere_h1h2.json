@@ -1,0 +1,52 @@
+{
+  "id": "sphere_more",
+  "lever": "H01+H02",
+  "class": "structural",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "sphere H1 and extra H2",
+  "receipts": [
+    {
+      "name": "sphere_n80.csv",
+      "dim": 1,
+      "collapse": 1,
+      "match": true,
+      "ripser_s": 0.0020949230001860997,
+      "pith_s": 0.001862135000010312,
+      "speedup": 1.1250113445988064,
+      "ratio": 5.468531468531468,
+      "edges_in": 1564,
+      "edges_out": 286,
+      "collapse_ms": 0.44366,
+      "reduce_ms": 0.132895
+    },
+    {
+      "name": "sphere_n200.csv",
+      "dim": 1,
+      "collapse": 1,
+      "match": true,
+      "ripser_s": 0.00859829900036857,
+      "pith_s": 0.007321878999846376,
+      "speedup": 1.174329567662751,
+      "ratio": 11.813186813186814,
+      "edges_in": 9675,
+      "edges_out": 819,
+      "collapse_ms": 4.552675,
+      "reduce_ms": 0.495906
+    },
+    {
+      "name": "sphere_n80.csv",
+      "dim": 2,
+      "collapse": 1,
+      "match": true,
+      "ripser_s": 0.008511399000326492,
+      "pith_s": 0.00215716100001373,
+      "speedup": 3.9456484705000316,
+      "ratio": 5.468531468531468,
+      "edges_in": 1564,
+      "edges_out": 286,
+      "collapse_ms": 0.431781,
+      "reduce_ms": 0.193546
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "id": "residual_density",
+  "lever": "H01-diagnostic",
+  "class": "structural",
+  "fidelity": "n/a",
+  "status": "hold",
+  "summary": "mean residual degree by family",
+  "receipts": [
+    {
+      "name": "circle_noisy_n200.csv",
+      "edges_out": 283,
+      "mean_deg": 2.83,
+      "ratio": 28.964664310954063
+    },
+    {
+      "name": "torus_n200.csv",
+      "edges_out": 1260,
+      "mean_deg": 12.6,
+      "ratio": 3.8007936507936506
+    },
+    {
+      "name": "sphere_n200.csv",
+      "edges_out": 819,
+      "mean_deg": 8.19,
+      "ratio": 11.813186813186814
+    },
+    {
+      "name": "uniform10_n200.csv",
+      "edges_out": 9543,
+      "mean_deg": 95.43,
+      "ratio": 2.056166823849942
+    }
+  ]
+}

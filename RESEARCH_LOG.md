@@ -230,9 +230,58 @@ Do not paste long reasoning here.
 - **Result:** Torus200: 1260→1023→977. Circle200: 283→281. Default stays 1 pass.
 - **Class:** experiment
 
+## 2026-10-13 — I027 degree-first collapse
+
+- **Question:** Does trying high-degree apexes first speed collapse?
+- **Result:** Exact, but **slower** (circle1000 453 vs 318 ms). Overhead > savings.
+- **Decision:** Revert heuristic; keep buffer reuse + lazy `C_later` sort.
+- **Class:** experiment (negative)
+
+## 2026-10-13 — I028 torus multi-pass
+
+- **Result:** torus500 3 passes: 8825→5735 edges, still 0.54× vs Ripser. Exact.
+- **Class:** experiment
+
+## 2026-10-13 — I029 sphere T sweep H2
+
+- **Result:** All exact. Speedup **4.0× at T=0.8 → 14.4× at T=1.4**.
+- **Decision:** Larger T favors PITH (Ripser clique work grows faster).
+- **Class:** reproduced
+
+## 2026-10-13 — I030 H0-only
+
+- **Result:** Exact. We lose (0.25–0.36×). Collapse is wasted if only \(H_0\).
+- **Decision:** Do not use PITH as an H0-only MST replacement.
+- **Class:** experiment (negative)
+
+## 2026-10-13 — I031–I034 more geometry
+
+- **Result:** Exact on new seed, σ∈{0.01..0.2}, two circles (2 essential \(H_1\)), figure-8. Cleaner circles collapse more (40× at σ=0.01).
+- **Class:** reproduced
+
+## 2026-10-13 — I035–I037 annulus / swiss / 3d blobs
+
+- **Result:** All exact. Annulus 23× / 1.7× time. Swiss 8.7× / 0.87×. Blobs3d 14× / 0.81×.
+- **Class:** reproduced
+
+## 2026-10-13 — I038–I039 residual density
+
+- **Result:** Residual mean degree: circle 2.83, sphere 8.2, torus 12.6, uniform10 95. Explains who gets 10×.
+- **Class:** experiment (diagnostic)
+
+## 2026-10-13 — I040–I042 Alpha cells / RP2 / sphere H1
+
+- **Result:** Alpha still other-complex. PITH has no distance-matrix CLI (I041 hold). Sphere H1 ~1.1–1.2×.
+- **Class:** experiment
+
+## 2026-10-13 — I043 adaptive collapse policy
+
+- **Question:** Extra passes only when residual mean degree \(>6\)?
+- **Result:** Exact. Circle unchanged. Torus200 1260→977 and **1.05×** vs Ripser (was 0.87×). Sphere200 819→624.
+- **Decision:** Default CLI `--collapse -1` (adaptive).
+- **Class:** reproduced
+
 ## 2026-10-13 — selected writeup
 
-- **Question:** What do we keep as the working algorithm?
-- **Decision:** PITH-E3. See `docs/SELECTED.md`. 10× is structural (edges) on typical low-d clouds, exact VR≤T. Not wall-clock at n≤200, not high-d noise, not our reducer.
-- **Next:** Challenge the selected stack (larger n, H2, Alpha, Morse, reducer fix).
+- **Decision:** PITH with owned PH + adaptive collapse. See `docs/SELECTED.md`.
 - **Class:** verified (selection, scoped)

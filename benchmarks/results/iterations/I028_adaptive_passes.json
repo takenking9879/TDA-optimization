@@ -1,0 +1,50 @@
+{
+  "id": "adaptive_passes",
+  "lever": "H01-iter",
+  "class": "structural",
+  "fidelity": "exact",
+  "status": "hold",
+  "summary": "1 vs 3 collapse passes on torus",
+  "receipts": [
+    {
+      "name": "torus_n200.csv",
+      "iters": 1,
+      "match": true,
+      "edges_out": 1260,
+      "pith_s": 0.006461730999944848,
+      "ripser_s": 0.00465469100026894,
+      "speedup": 0.7203473806490349,
+      "ratio": 3.8007936507936506
+    },
+    {
+      "name": "torus_n200.csv",
+      "iters": 3,
+      "match": true,
+      "edges_out": 977,
+      "pith_s": 0.006129188000159047,
+      "ripser_s": 0.004520177999893349,
+      "speedup": 0.7374839864230065,
+      "ratio": 4.901740020470829
+    },
+    {
+      "name": "torus_n500.csv",
+      "iters": 1,
+      "match": true,
+      "edges_out": 8825,
+      "pith_s": 0.12903746100028002,
+      "ripser_s": 0.048227322999991884,
+      "speedup": 0.37374668275507394,
+      "ratio": 3.326798866855524
+    },
+    {
+      "name": "torus_n500.csv",
+      "iters": 3,
+      "match": true,
+      "edges_out": 5735,
+      "pith_s": 0.08992364899995664,
+      "ripser_s": 0.04822265699976924,
+      "speedup": 0.5362622350855946,
+      "ratio": 5.119267654751526
+    }
+  ]
+}

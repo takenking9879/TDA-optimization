@@ -2,15 +2,15 @@
 
 #include "graph.hpp"
 
+#include <algorithm>
 #include <chrono>
 #include <cstring>
 
 namespace pith {
 
-// Dense symmetric filtration matrix: missing = +inf, diagonal = -inf.
 struct DenseTimes {
     int n = 0;
-    std::vector<value_t> a;  // n*n row-major
+    std::vector<value_t> a;
     explicit DenseTimes(int n_) : n(n_), a(static_cast<size_t>(n_) * n_, kInf) {
         for (int i = 0; i < n; ++i) a[static_cast<size_t>(i) * n + i] = kNegInf;
     }
@@ -23,10 +23,12 @@ struct DenseTimes {
 };
 
 // Backward filtration-preserving edge collapse (Glisse–Pritam / GUDHI).
-// Exact for the flag filtration of the input 1-skeleton.
 inline Graph collapse_edges(Graph g, int iterations, Counters& c) {
     const auto t0 = std::chrono::steady_clock::now();
-    c.n_edges_in = static_cast<std::int64_t>(g.edges.size());
+    if (c.n_edges_in == 0) c.n_edges_in = static_cast<std::int64_t>(g.edges.size());
+
+    std::vector<index_t> C_now;
+    std::vector<std::pair<value_t, index_t>> C_later;
 
     for (int pass = 0; pass < iterations; ++pass) {
         if (g.edges.empty()) break;
@@ -47,10 +49,9 @@ inline Graph collapse_edges(Graph g, int iterations, Counters& c) {
             nbr[e.u].push_back(e.v);
             nbr[e.v].push_back(e.u);
         }
-        // neighbor lists need not stay sorted; we filter by Tm
 
-        auto is_dominated_by = [&](const std::vector<index_t>& C, index_t cand, value_t t) {
-            for (index_t w : C) {
+        auto is_dominated_by = [&](index_t cand, value_t t) {
+            for (index_t w : C_now) {
                 if (Tm(cand, w) > t) return false;
             }
             return true;
@@ -65,6 +66,14 @@ inline Graph collapse_edges(Graph g, int iterations, Counters& c) {
                 }
             }
         };
+        auto find_dominator = [&](value_t t) -> bool {
+            if (C_now.empty()) return false;
+            if (C_now.size() == 1) return true;
+            for (index_t cand : C_now) {
+                if (is_dominated_by(cand, t)) return true;
+            }
+            return false;
+        };
 
         std::vector<Edge> kept;
         kept.reserve(E.size() / 4 + 8);
@@ -74,10 +83,9 @@ inline Graph collapse_edges(Graph g, int iterations, Counters& c) {
             const index_t v = e_in.v;
             value_t t = e_in.t;
 
-            std::vector<index_t> C_now;
-            std::vector<std::pair<value_t, index_t>> C_later;
+            C_now.clear();
+            C_later.clear();
             const auto& src = nbr[u].size() <= nbr[v].size() ? nbr[u] : nbr[v];
-            C_now.reserve(src.size());
             for (index_t w : src) {
                 if (w == u || w == v) continue;
                 const value_t tu = Tm(u, w);
@@ -87,23 +95,11 @@ inline Graph collapse_edges(Graph g, int iterations, Counters& c) {
                 if (tau <= t) C_now.push_back(w);
                 else C_later.push_back({tau, w});
             }
-            std::sort(C_later.begin(), C_later.end());
 
-            size_t later_i = 0;
+            bool later_sorted = false;
             bool ever_shifted = false;
             while (true) {
-                bool dominated = false;
-                if (C_now.size() == 1) {
-                    dominated = true;  // singleton common neighborhood is always a cone
-                } else {
-                    for (index_t cand : C_now) {
-                        if (is_dominated_by(C_now, cand, t)) {
-                            dominated = true;
-                            break;
-                        }
-                    }
-                }
-                if (!dominated) {
+                if (!find_dominator(t)) {
                     Edge out = e_in;
                     out.t = ever_shifted ? t : e_in.t;
                     kept.push_back(out);
@@ -113,19 +109,25 @@ inline Graph collapse_edges(Graph g, int iterations, Counters& c) {
                     }
                     break;
                 }
-                if (later_i >= C_later.size()) {
+                if (C_later.empty()) {
                     Tm.erase(u, v);
                     drop_nbr(u, v);
                     drop_nbr(v, u);
                     ++c.n_collapse_trims;
                     break;
                 }
-                t = C_later[later_i].first;
-                ever_shifted = true;
-                while (later_i < C_later.size() && C_later[later_i].first <= t) {
-                    C_now.push_back(C_later[later_i].second);
-                    ++later_i;
+                if (!later_sorted) {
+                    std::sort(C_later.begin(), C_later.end());
+                    later_sorted = true;
                 }
+                t = C_later.front().first;
+                ever_shifted = true;
+                size_t i = 0;
+                while (i < C_later.size() && C_later[i].first <= t) {
+                    C_now.push_back(C_later[i].second);
+                    ++i;
+                }
+                C_later.erase(C_later.begin(), C_later.begin() + static_cast<std::ptrdiff_t>(i));
             }
         }
 
@@ -135,7 +137,7 @@ inline Graph collapse_edges(Graph g, int iterations, Counters& c) {
     rebuild_neighbors(g);
     c.n_edges_out = static_cast<std::int64_t>(g.edges.size());
     const auto t1 = std::chrono::steady_clock::now();
-    c.collapse_ms = std::chrono::duration<double, std::milli>(t1 - t0).count();
+    c.collapse_ms += std::chrono::duration<double, std::milli>(t1 - t0).count();
     return g;
 }
 

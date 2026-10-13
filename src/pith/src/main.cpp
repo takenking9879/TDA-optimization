@@ -18,7 +18,7 @@ static void usage() {
         << "Usage: pith --points FILE.csv [options]\n"
         << "  --maxdim K          homology dimension (default 1)\n"
         << "  --threshold T       VR diameter threshold (default inf)\n"
-        << "  --collapse N        backward edge-collapse passes (default 1)\n"
+        << "  --collapse N        backward edge-collapse passes (default 1; -1 = adaptive)\n"
         << "  --ratio R           skip pairs with death <= birth*R (default 1)\n"
         << "  --no-enclosing      do not cap T by enclosing radius\n"
         << "  --sparse-only       write residual edges and exit\n"
@@ -134,7 +134,7 @@ int main(int argc, char** argv) {
     std::string points_path;
     int maxdim = 1;
     value_t threshold = kInf;
-    int collapse_iters = 1;
+    int collapse_iters = -1;  // adaptive: extra passes if residual is thick
     value_t ratio = 1;
     bool use_enclosing = true;
     bool sparse_only = false;
@@ -182,8 +182,15 @@ int main(int argc, char** argv) {
         Graph g = graph_from_distance(dist, threshold);
         c.n_vertices = g.n;
         c.n_edges_in = static_cast<std::int64_t>(g.edges.size());
-        if (collapse_iters > 0) g = collapse_edges(std::move(g), collapse_iters, c);
-        else c.n_edges_out = c.n_edges_in;
+        if (collapse_iters < 0) {
+            g = collapse_edges(std::move(g), 1, c);
+            const double mean_deg = g.n ? (2.0 * static_cast<double>(g.edges.size()) / g.n) : 0;
+            if (mean_deg > 6.0) g = collapse_edges(std::move(g), 2, c);
+        } else if (collapse_iters > 0) {
+            g = collapse_edges(std::move(g), collapse_iters, c);
+        } else {
+            c.n_edges_out = c.n_edges_in;
+        }
 
         if (sparse_only) {
             for (const auto& e : g.edges) std::cout << e.u << " " << e.v << " " << e.t << "\n";

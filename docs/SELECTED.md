@@ -1,6 +1,6 @@
 # Selected algorithm (living)
 
-Updated 2026-10-13 after iterations I001–I026.
+Updated 2026-10-13 after iterations I001–I043.
 
 ## Selected exact-VR CPU pipeline
 
@@ -20,7 +20,7 @@ Updated 2026-10-13 after iterations I001–I026.
 | Backward edge collapse (our MIT code) | Selected. Faster than GUDHI collapse on I012; counts match |
 | Owned triangle-boundary PH | **Selected** as of I010. Replaces stock Ripser on the residual |
 | Ripser++ | Unmodified GPU reference. No GPU here; not built |
-| Extra collapse passes | Default 1. Torus shrinks 1260→977 in 3 passes (I026); circle does not |
+| Extra collapse passes | **Default adaptive (`--collapse -1`)**: one pass, then two more if residual mean degree \(>6\) (I043). Circle unchanged (deg 2.8). Torus200 1260→977 and now slightly beats Ripser. |
 | Alpha / kNN / witness / cubical | Not exact-VR. Alpha is the fastest *other* Euclidean complex (I013) |
 
 ## 10× claim (honest scope)

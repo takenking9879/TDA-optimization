@@ -1,0 +1,19 @@
+{
+  "id": "two_circles",
+  "lever": "H01",
+  "class": "structural",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "two disjoint noisy circles",
+  "receipts": [
+    {
+      "match": true,
+      "ratio": 32.67729831144465,
+      "speedup": 1.9327226243650142,
+      "ripser_s": 0.01827330100013569,
+      "pith_s": 0.00945469399994181,
+      "n_ess_h1_pith": 2,
+      "n_ess_h1_ripser": 2
+    }
+  ]
+}

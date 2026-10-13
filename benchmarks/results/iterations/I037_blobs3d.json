@@ -1,0 +1,24 @@
+{
+  "id": "blobs3d",
+  "lever": "H01",
+  "class": "structural",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "3D gaussian blobs",
+  "receipts": [
+    {
+      "name": "blobs3d400",
+      "dim": 1,
+      "collapse": 1,
+      "match": true,
+      "ripser_s": 0.013819240999964677,
+      "pith_s": 0.017118549999850075,
+      "speedup": 0.8072670290466019,
+      "ratio": 13.631718999467802,
+      "edges_in": 25614,
+      "edges_out": 1879,
+      "collapse_ms": 11.440291,
+      "reduce_ms": 2.001427
+    }
+  ]
+}

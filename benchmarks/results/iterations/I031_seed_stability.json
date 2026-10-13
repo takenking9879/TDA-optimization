@@ -1,0 +1,16 @@
+{
+  "id": "seed",
+  "lever": "H01",
+  "class": "structural",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "different RNG seed circle200",
+  "receipts": [
+    {
+      "seed": 1,
+      "match": true,
+      "ratio": 31.118773946360154,
+      "speedup": 1.9046017045813122
+    }
+  ]
+}

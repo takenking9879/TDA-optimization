@@ -1,0 +1,17 @@
+{
+  "id": "figure8",
+  "lever": "H01",
+  "class": "structural",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "touching circles / figure-8",
+  "receipts": [
+    {
+      "match": true,
+      "ratio": 42.586363636363636,
+      "speedup": 1.5112935926449749,
+      "ripser_s": 0.0243997610000406,
+      "pith_s": 0.016144951000114816
+    }
+  ]
+}

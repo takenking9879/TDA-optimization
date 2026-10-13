@@ -1,0 +1,24 @@
+{
+  "id": "annulus",
+  "lever": "H01",
+  "class": "structural",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "annulus n=300",
+  "receipts": [
+    {
+      "name": "annulus300",
+      "dim": 1,
+      "collapse": 1,
+      "match": true,
+      "ripser_s": 0.01660765899987382,
+      "pith_s": 0.009702486000151112,
+      "speedup": 1.711691106755028,
+      "ratio": 22.58360655737705,
+      "edges_in": 13776,
+      "edges_out": 610,
+      "collapse_ms": 5.977918,
+      "reduce_ms": 0.176474
+    }
+  ]
+}

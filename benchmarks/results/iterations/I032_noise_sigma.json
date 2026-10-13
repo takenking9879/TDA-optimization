@@ -1,0 +1,38 @@
+{
+  "id": "sigma",
+  "lever": "H01",
+  "class": "structural",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "collapse ratio vs circle noise",
+  "receipts": [
+    {
+      "sigma": 0.01,
+      "match": true,
+      "ratio": 40.18536585365854,
+      "speedup": 1.441672085226351,
+      "edges_out": 205
+    },
+    {
+      "sigma": 0.05,
+      "match": true,
+      "ratio": 30.06159420289855,
+      "speedup": 1.6772949856009416,
+      "edges_out": 276
+    },
+    {
+      "sigma": 0.1,
+      "match": true,
+      "ratio": 23.732954545454547,
+      "speedup": 1.683370418906643,
+      "edges_out": 352
+    },
+    {
+      "sigma": 0.2,
+      "match": true,
+      "ratio": 16.677865612648223,
+      "speedup": 1.3241381755632264,
+      "edges_out": 506
+    }
+  ]
+}
