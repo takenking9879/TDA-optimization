@@ -153,23 +153,27 @@ static void clear_seeds(State& st) {
     st.seedverts.clear();
 }
 
-static void active_enum_lazy(State& st, rank_t xrank, comb_t xidx, const int32_t* verts,
-                             value_t sdiam) {
-    const int m = st.n + 1;
+static void ae_prepare(State& st, const int32_t* verts, value_t sdiam) {
     advance_rbits(st, sdiam);
     if (st.act.slot_of.count == 0) clear_seeds(st);
     else collect_candidates(st, verts);
+}
+
+static void ae_keep_singleton(State& st, rank_t xrank, const int32_t* verts, value_t sdiam) {
     SetDict& Rn = st.R[st.n];
     SetDict& Rin = st.Ri[st.n];
-    if (st.seedverts.empty()) {
-        if (has_leftover_coface(st, verts, m, xidx, sdiam)) return;
-        const slot_t s1 = Rn.singleton(xrank, xrank);
-        const slot_t s2 = Rin.singleton(xrank, xrank);
-        Rn.set_side(s1, sdiam, verts);
-        Rin.set_side(s2, sdiam, verts);
-        register_active(st, xrank, s1, verts);
-        return;
-    }
+    const slot_t s1 = Rn.singleton(xrank, xrank);
+    const slot_t s2 = Rin.singleton(xrank, xrank);
+    Rn.set_side(s1, sdiam, verts);
+    Rin.set_side(s2, sdiam, verts);
+    register_active(st, xrank, s1, verts);
+}
+
+// Seeded leftover: insert, process_seeded, maybe leftover-coface / register.
+static void ae_seeded(State& st, rank_t xrank, comb_t xidx, const int32_t* verts, value_t sdiam) {
+    const int m = st.n + 1;
+    SetDict& Rn = st.R[st.n];
+    SetDict& Rin = st.Ri[st.n];
     const slot_t s1 = Rn.singleton(xrank, xrank);
     const slot_t s2 = Rin.singleton(xrank, xrank);
     Rn.set_side(s1, sdiam, verts);
@@ -198,6 +202,18 @@ static void active_enum_lazy(State& st, rank_t xrank, comb_t xidx, const int32_t
         xslot = Rn.slot(xrank);
     }
     if (xslot) register_active(st, xrank, xslot, verts);
+}
+
+static void active_enum_lazy(State& st, rank_t xrank, comb_t xidx, const int32_t* verts,
+                             value_t sdiam) {
+    const int m = st.n + 1;
+    ae_prepare(st, verts, sdiam);
+    if (st.seedverts.empty()) {
+        if (has_leftover_coface(st, verts, m, xidx, sdiam)) return;
+        ae_keep_singleton(st, xrank, verts, sdiam);
+        return;
+    }
+    ae_seeded(st, xrank, xidx, verts, sdiam);
 }
 
 // I244: VR≤T does not need enclosing (cone). Finite T → thr=T is exact.
@@ -265,10 +281,20 @@ redzed_vr(DistanceMatrix& distIn, int n, value_t threshold, EdgeList* prebuilt) 
                 if (want_h1) {
                     rank_t er = (rank_t)e;
                     if (n == 1) {
+                        // I251: inline the 97% empty-seed leftover-coface skip so
+                        // those leftovers do not enter active_enum_lazy.
                         st.top_buf[0] = lo;
                         st.top_buf[1] = hi;
-                        comb_t xidx = comb_index(&ed.verts[2 * (e - 1)], 2, st.binom);
-                        active_enum_lazy(st, er, xidx, st.top_buf.data(), ediam);
+                        const int32_t* xv = &ed.verts[2 * (e - 1)];
+                        ae_prepare(st, st.top_buf.data(), ediam);
+                        if (st.seedverts.empty()) {
+                            const comb_t xidx = comb_index(xv, 2, st.binom);
+                            if (has_leftover_coface(st, xv, 2, xidx, ediam)) continue;
+                            ae_keep_singleton(st, er, st.top_buf.data(), ediam);
+                        } else {
+                            const comb_t xidx = comb_index(xv, 2, st.binom);
+                            ae_seeded(st, er, xidx, st.top_buf.data(), ediam);
+                        }
                     } else {
                         R1->singleton(er, er);
                         Ri1->singleton(er, er);
