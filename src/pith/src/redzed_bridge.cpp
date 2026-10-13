@@ -157,7 +157,25 @@ static void clear_seeds(State& st) {
 }
 
 // Vendor has_leftover_coface always masks ~seenbits. On the 97% no-seed
-// skip that mask is a no-op memory tax. Same coface_ready, same rbit AND.
+// skip that mask is a no-op memory tax. Same rbit AND.
+// I253: H1 other faces of {u,v,w} are edges, so diam = one dist() and
+// comb_index = C(lo,1)+C(hi,2). Same predicate as coface_ready(m=2).
+// Not I247 — no extra dist() before the combinatorial filter.
+static inline bool coface_ready_h1(const int32_t* xv, int32_t w, comb_t xidx, value_t xdiam,
+                                   const DistanceMatrix& dist, const BinomialTable& bt) {
+    const int32_t u = xv[0], v = xv[1];
+    int32_t a = u, b = w;
+    if (a > b) { const int32_t t = a; a = b; b = t; }
+    comb_t f = bt(a, 1) + bt(b, 2);
+    if (f >= xidx && !(dist(a, b) < xdiam)) return false;
+    a = v;
+    b = w;
+    if (a > b) { const int32_t t = a; a = b; b = t; }
+    f = bt(a, 1) + bt(b, 2);
+    if (f >= xidx && !(dist(a, b) < xdiam)) return false;
+    return true;
+}
+
 static bool leftover_coface_h1_noseen(State& st, const int32_t* xv, comb_t xidx, value_t r) {
     const uint64_t* rb = st.rbits.data();
     const int words = st.words, nv = st.nv;
@@ -165,7 +183,6 @@ static bool leftover_coface_h1_noseen(State& st, const int32_t* xv, comb_t xidx,
     int wlo = st.rlo[u], whi = st.rhi[u];
     if (st.rlo[v] > wlo) wlo = st.rlo[v];
     if (st.rhi[v] < whi) whi = st.rhi[v];
-    int32_t* cbuf = st.coface_buf.data();
     for (int w = wlo; w <= whi; ++w) {
         uint64_t acc = rb[(size_t)u * words + w] & rb[(size_t)v * words + w];
         while (acc) {
@@ -173,7 +190,7 @@ static bool leftover_coface_h1_noseen(State& st, const int32_t* xv, comb_t xidx,
             acc &= acc - 1;
             const int cand = w * 64 + bp;
             if (cand >= nv) break;
-            if (coface_ready(cbuf, xv, 2, (int32_t)cand, xidx, r, st.dist, st.binom))
+            if (coface_ready_h1(xv, (int32_t)cand, xidx, r, st.dist, st.binom))
                 return true;
         }
     }
