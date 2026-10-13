@@ -640,6 +640,37 @@ inline bool zero_apparent_cofacet(const Graph& g, index_t u, index_t v, value_t 
     return true;
 }
 
+// I289: same Ripser apparent test as zero_apparent_cofacet, but the
+// common-neighbor walk is G_t (incremental rbits) not G_T. A neighbor
+// born after te cannot form a same-diameter triangle, so the first
+// hi-order G_t common neighbor is the zero-pivot cofacet.
+inline bool zero_apparent_cofacet_rbit(const Graph& g, const std::uint64_t* rbits, int words,
+                                       const int* rlo, const int* rhi, index_t u, index_t v,
+                                       value_t te, Counters* ctr = nullptr) {
+    int wlo = rlo[u], whi = rhi[u];
+    if (rlo[v] > wlo) wlo = rlo[v];
+    if (rhi[v] < whi) whi = rhi[v];
+    if (wlo > whi) return false;
+    const std::uint64_t* ru = rbits + static_cast<size_t>(u) * static_cast<size_t>(words);
+    const std::uint64_t* rv = rbits + static_cast<size_t>(v) * static_cast<size_t>(words);
+    for (int w = whi; w >= wlo; --w) {
+        std::uint64_t acc = ru[w] & rv[w];
+        while (acc) {
+            const int bp = 63 - __builtin_clzll(acc);
+            acc ^= 1ull << bp;
+            const int cand = w * 64 + bp;
+            if (cand >= g.n || cand == u || cand == v) continue;
+            if (ctr) ++ctr->n_cofacet_apparent_probes;
+            CohEntry tau{te, pack3(u, v, static_cast<index_t>(cand))};
+            index_t fu, fv;
+            value_t ft;
+            if (!zero_pivot_facet(g, tau.key, te, &fu, &fv, &ft)) return false;
+            return pack2(fu, fv) == pack2(u, v);
+        }
+    }
+    return false;
+}
+
 inline bool zero_apparent_facet(const Graph& g, std::uint64_t tri_key, value_t t_tri, value_t T,
                                 index_t* ou, index_t* ov, value_t* ot, Counters* ctr = nullptr) {
     index_t u, v;
@@ -719,17 +750,35 @@ inline Result persist_implicit_coh(const Graph& g, int maxdim, value_t threshold
     std::vector<LEdge> cols;
     cols.reserve(edges.size());
     int components = g.n;
+    // I289: grow G_t adjacency as bitsets. Apparent pairs only need
+    // common neighbors already born (same-diameter triangles).
+    const int words = (g.n + 63) / 64;
+    std::vector<std::uint64_t> rbits(static_cast<size_t>(g.n) * static_cast<size_t>(words), 0);
+    std::vector<int> rlo(static_cast<size_t>(g.n), words), rhi(static_cast<size_t>(g.n), -1);
+    auto rset = [&](int a, int b) {
+        const int wa = b >> 6, wb = a >> 6;
+        rbits[static_cast<size_t>(a) * static_cast<size_t>(words) + static_cast<size_t>(wa)] |=
+            1ull << (b & 63);
+        rbits[static_cast<size_t>(b) * static_cast<size_t>(words) + static_cast<size_t>(wb)] |=
+            1ull << (a & 63);
+        if (wa < rlo[a]) rlo[a] = wa;
+        if (wa > rhi[a]) rhi[a] = wa;
+        if (wb < rlo[b]) rlo[b] = wb;
+        if (wb > rhi[b]) rhi[b] = wb;
+    };
     for (const Edge& e : edges) {
         if (e.t > threshold) continue;
         if (uf.unite(e.u, e.v)) {
             --components;
             r.pairs.push_back({0, 0, e.t});
             ++c.n_columns_cleared;
-        } else if (zero_apparent_cofacet(g, e.u, e.v, e.t, threshold, nullptr, &c)) {
+        } else if (zero_apparent_cofacet_rbit(g, rbits.data(), words, rlo.data(), rhi.data(), e.u,
+                                             e.v, e.t, &c)) {
             ++c.n_columns_apparent;
         } else {
             cols.push_back({e.u, e.v, e.t});
         }
+        rset(e.u, e.v);
     }
     for (int i = 0; i < components; ++i) r.pairs.push_back({0, 0, kInf});
 
