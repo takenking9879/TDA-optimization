@@ -595,11 +595,13 @@ int main(int argc, char** argv) {
             } else {
                 const bool cc = r.counters.n_collapse_trims > 1;
                 const bool spatial = r.counters.pipeline.find("spatial") != std::string::npos;
+                const bool delskip = r.counters.pipeline.find("delskip") != std::string::npos;
                 r.counters.pipeline = auto_dispatch
                                           ? (cc ? "pith:auto-redzed-cc"
                                                 : (spatial ? "pith:auto-redzed-spatial" : "pith:auto-redzed"))
                                           : (cc ? "pith:redzed-cc"
                                                 : (spatial ? "pith:redzed-spatial" : "pith:redzed"));
+                if (delskip) r.counters.pipeline += "-delskip";
             }
         } else if (engine == "active") {
             r.counters.n_vertices = g.n;

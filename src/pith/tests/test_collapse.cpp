@@ -687,7 +687,34 @@ int main() {
             std::cerr << "I271 expected delaunay pipeline " << del.counters.pipeline << "\n";
             return 1;
         }
+        Result del1 = persist_redzed_from_points(pts, 1, T);
+        Result full1 = persist_redzed(dist, 1, T);
+        auto h1deaths = [](const Result& r) {
+            std::vector<std::pair<value_t, value_t>> d;
+            int ess = 0;
+            for (const auto& p : r.pairs) {
+                if (p.dim != 1) continue;
+                if (!std::isfinite(p.death)) ++ess;
+                else if (p.death - p.birth > 1e-5f) d.push_back({p.birth, p.death});
+            }
+            std::sort(d.begin(), d.end());
+            return std::pair<int, std::vector<std::pair<value_t, value_t>>>{ess, d};
+        };
+        const auto ha = h1deaths(del1), hb = h1deaths(full1);
+        if (ha.first != hb.first || ha.second.size() != hb.second.size()) {
+            std::cerr << "I273 H1 delskip count " << ha.first << "/" << ha.second.size() << " vs "
+                      << hb.first << "/" << hb.second.size() << "\n";
+            return 1;
+        }
+        for (size_t i = 0; i < ha.second.size(); ++i) {
+            if (std::abs(ha.second[i].first - hb.second[i].first) > 1e-5f ||
+                std::abs(ha.second[i].second - hb.second[i].second) > 1e-5f) {
+                std::cerr << "I273 H1 delskip bar mismatch\n";
+                return 1;
+            }
+        }
         std::cout << "ok I271 walk-locate Delaunay H0 n=256\n";
+        std::cout << "ok I273 empty-seed non-Delaunay leftover skip H1 n=256\n";
     }
 
     // I239: two octahedra far apart — H0=2 and H2=2 (wedge of voids).

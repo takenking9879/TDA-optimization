@@ -214,6 +214,16 @@ struct SparseDist {
 
 static thread_local const SparseDist* g_sparse = nullptr;
 
+static uint64_t edge_key_u32(int a, int b) {
+    if (a > b) std::swap(a, b);
+    return (static_cast<uint64_t>(static_cast<uint32_t>(a)) << 32) | static_cast<uint32_t>(b);
+}
+
+// I273: empty-seed non-Delaunay leftovers are apparent (non-Delaunay ⇒
+// non-Gabriel ⇒ diametral witness). I272 also skipped ae_seeded and
+// invented ess H1. Seeded leftovers always run.
+static thread_local const std::unordered_set<uint64_t>* g_delaunay = nullptr;
+
 static value_t face_diam_any(const int32_t* v, int m, int omit, const State& st) {
     value_t diam = 0;
     for (int a = 1; a <= m; ++a) {
@@ -476,6 +486,9 @@ redzed_vr(DistanceMatrix& distIn, int n, value_t threshold, EdgeList* prebuilt) 
                         st.top_buf[1] = hi;
                         const int32_t* xv = &ed.verts[2 * (e - 1)];
                         ae_prepare(st, st.top_buf.data(), ediam);
+                        if (st.seedverts.empty() && g_delaunay &&
+                            g_delaunay->find(edge_key_u32(lo, hi)) == g_delaunay->end())
+                            continue;
                         if (st.seedverts.empty()) {
                             const comb_t xidx = comb_index(xv, 2, st.binom);
                             if (leftover_coface_h1_noseen(st, xv, xidx, ediam)) continue;
@@ -1601,6 +1614,19 @@ Result persist_redzed_from_points(const std::vector<std::vector<value_t>>& pts, 
         ~SparseGuard() { g_sparse = nullptr; }
     };
     const SparseGuard guard(spatial ? &csr : nullptr);
+    std::unordered_set<uint64_t> delset;
+    if (dim == 1 && d == 2 && n >= 256 && n <= 100000) {
+        std::vector<SpatEdge> del;
+        if (delaunay_edges_2d(pts, del)) {
+            delset.reserve(del.size());
+            for (const SpatEdge& e : del) delset.insert(edge_key_u32(e.u, e.v));
+        }
+    }
+    struct DelGuard {
+        explicit DelGuard(const std::unordered_set<uint64_t>* p) { g_delaunay = p; }
+        ~DelGuard() { g_delaunay = nullptr; }
+    };
+    const DelGuard dguard(delset.empty() ? nullptr : &delset);
     const auto t0 = std::chrono::steady_clock::now();
     auto bars = redzed_vr(D, dim, threshold, pre_ptr);
     Result r;
@@ -1613,6 +1639,7 @@ Result persist_redzed_from_points(const std::vector<std::vector<value_t>>& pts, 
     r.counters.metric_ms = std::chrono::duration<double, std::milli>(tfill1 - tfill0).count();
     r.counters.reduce_ms = std::chrono::duration<double, std::milli>(t1 - t0).count();
     r.counters.pipeline = spatial ? "pith:redzed-spatial" : "pith:redzed-thr";
+    if (!delset.empty()) r.counters.pipeline += "-delskip";
     return r;
 }
 
