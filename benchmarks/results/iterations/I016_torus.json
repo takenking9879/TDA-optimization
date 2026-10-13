@@ -1,0 +1,54 @@
+{
+  "id": "torus",
+  "lever": "H01+H02",
+  "class": "structural",
+  "fidelity": "exact",
+  "status": "hold",
+  "summary": "torus remainder and H2",
+  "receipts": [
+    {
+      "name": "torus_n80.csv",
+      "dim": 1,
+      "match": true,
+      "unmatched": 0,
+      "ripser_s": 0.0015074989996719523,
+      "pith_s": 0.0014508899998872948,
+      "speedup": 1.0390167413029623,
+      "ratio": 3.88265306122449,
+      "edges_out": 196
+    },
+    {
+      "name": "torus_n80.csv",
+      "dim": 2,
+      "match": true,
+      "unmatched": 0,
+      "ripser_s": 0.0029383940000116127,
+      "pith_s": 0.0014804300003561366,
+      "speedup": 1.9848246788465136,
+      "ratio": 3.88265306122449,
+      "edges_out": 196
+    },
+    {
+      "name": "torus_n200.csv",
+      "dim": 2,
+      "match": true,
+      "unmatched": 0,
+      "ripser_s": 0.028329928999937692,
+      "pith_s": 0.008972094999990077,
+      "speedup": 3.157560079331419,
+      "ratio": 3.8007936507936506,
+      "edges_out": 1260
+    },
+    {
+      "name": "torus_n500.csv",
+      "dim": 1,
+      "match": true,
+      "unmatched": 0,
+      "ripser_s": 0.026562761000150203,
+      "pith_s": 0.1027783869999439,
+      "speedup": 0.2584469534452287,
+      "ratio": 2.1785835694050992,
+      "edges_out": 8825
+    }
+  ]
+}

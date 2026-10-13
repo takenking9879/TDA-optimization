@@ -55,6 +55,16 @@ inline Graph collapse_edges(Graph g, int iterations, Counters& c) {
             }
             return true;
         };
+        auto drop_nbr = [&](index_t a, index_t b) {
+            auto& row = nbr[a];
+            for (size_t i = 0; i < row.size(); ++i) {
+                if (row[i] == b) {
+                    row[i] = row.back();
+                    row.pop_back();
+                    return;
+                }
+            }
+        };
 
         std::vector<Edge> kept;
         kept.reserve(E.size() / 4 + 8);
@@ -105,6 +115,8 @@ inline Graph collapse_edges(Graph g, int iterations, Counters& c) {
                 }
                 if (later_i >= C_later.size()) {
                     Tm.erase(u, v);
+                    drop_nbr(u, v);
+                    drop_nbr(v, u);
                     ++c.n_collapse_trims;
                     break;
                 }

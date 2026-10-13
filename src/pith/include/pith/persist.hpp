@@ -2,14 +2,14 @@
 
 #include "graph.hpp"
 
+#include <algorithm>
 #include <chrono>
 #include <cstdint>
-#include <map>
+#include <functional>
 #include <numeric>
-#include <queue>
-#include <tuple>
 #include <unordered_map>
 #include <unordered_set>
+#include <vector>
 
 namespace pith {
 
@@ -24,15 +24,6 @@ inline std::uint64_t pack3(index_t a, index_t b, index_t c) {
     return (static_cast<std::uint64_t>(v[2]) << 42) |
            (static_cast<std::uint64_t>(v[1]) << 21) |
            static_cast<std::uint32_t>(v[0]);
-}
-
-inline std::uint64_t pack4(index_t a, index_t b, index_t c, index_t d) {
-    index_t v[4] = {a, b, c, d};
-    std::sort(v, v + 4);
-    return (static_cast<std::uint64_t>(v[3]) << 48) |
-           (static_cast<std::uint64_t>(v[2]) << 32) |
-           (static_cast<std::uint64_t>(v[1]) << 16) |
-           static_cast<std::uint16_t>(v[0]);
 }
 
 struct UnionFind {
@@ -50,155 +41,12 @@ struct UnionFind {
     }
 };
 
-// F2 column as a max-heap of keys with cancellation (Ripser-style pop_pivot).
-struct HeapColumn {
-    std::priority_queue<std::uint64_t> heap;
-    void push(std::uint64_t k) { heap.push(k); }
-    bool empty() const { return heap.empty(); }
-    std::uint64_t pop_pivot() {
-        while (!heap.empty()) {
-            const std::uint64_t k = heap.top();
-            heap.pop();
-            int c = 1;
-            while (!heap.empty() && heap.top() == k) {
-                heap.pop();
-                ++c;
-            }
-            if (c & 1) return k;
-        }
-        return ~std::uint64_t{0};
-    }
-    std::uint64_t peek_pivot() {
-        const std::uint64_t k = pop_pivot();
-        if (k != ~std::uint64_t{0}) heap.push(k);
-        return k;
-    }
-};
-
 inline value_t edge_time(const Graph& g, index_t a, index_t b) {
     return lookup_time(g.neighbors[a], b);
 }
 
-inline std::vector<index_t> common_neighbors(const Graph& g, const std::vector<index_t>& verts,
-                                            value_t threshold, Counters& c) {
-    if (verts.empty()) return {};
-    // Start from the lowest-degree vertex.
-    int best = 0;
-    for (size_t i = 1; i < verts.size(); ++i) {
-        if (g.neighbors[verts[i]].size() < g.neighbors[verts[best]].size()) best = static_cast<int>(i);
-    }
-    std::vector<index_t> cand;
-    cand.reserve(g.neighbors[verts[best]].size());
-    for (const auto& [w, t] : g.neighbors[verts[best]]) {
-        ++c.n_cofacet_probes;
-        if (t > threshold) continue;
-        bool skip = false;
-        for (index_t v : verts) {
-            if (v == w) {
-                skip = true;
-                break;
-            }
-        }
-        if (skip) continue;
-        bool ok = true;
-        for (index_t v : verts) {
-            if (v == verts[best]) continue;
-            const value_t tw = edge_time(g, v, w);
-            ++c.n_cofacet_probes;
-            if (tw > threshold) {
-                ok = false;
-                break;
-            }
-        }
-        if (ok) cand.push_back(w);
-    }
-    return cand;
-}
-
-inline value_t triangle_diam(const Graph& g, index_t a, index_t b, index_t c) {
-    return std::max({edge_time(g, a, b), edge_time(g, a, c), edge_time(g, b, c)});
-}
-
-inline value_t tet_diam(const Graph& g, index_t a, index_t b, index_t c, index_t d) {
-    return std::max({triangle_diam(g, a, b, c), edge_time(g, a, d), edge_time(g, b, d),
-                     edge_time(g, c, d)});
-}
-
-struct Cofacet {
-    std::uint64_t key = 0;
-    value_t diam = 0;
-    // sort: larger diameter first (younger), then larger key
-    bool operator<(const Cofacet& o) const {
-        if (diam != o.diam) return diam < o.diam;
-        return key < o.key;
-    }
-};
-
-inline bool cofacet_greater(const Cofacet& a, const Cofacet& b) {
-    if (a.diam != b.diam) return a.diam > b.diam;
-    return a.key > b.key;
-}
-
-inline void xor_column(std::vector<Cofacet>& col, const std::vector<Cofacet>& add) {
-    std::vector<Cofacet> out;
-    out.reserve(col.size() + add.size());
-    size_t i = 0, j = 0;
-    while (i < col.size() && j < add.size()) {
-        if (col[i].key == add[j].key) {
-            ++i;
-            ++j;
-        } else if (cofacet_greater(col[i], add[j])) {
-            out.push_back(col[i++]);
-        } else {
-            out.push_back(add[j++]);
-        }
-    }
-    while (i < col.size()) out.push_back(col[i++]);
-    while (j < add.size()) out.push_back(add[j++]);
-    col.swap(out);
-}
-
-inline std::vector<Cofacet> coboundary_edge(const Graph& g, index_t u, index_t v, value_t threshold,
-                                           Counters& c) {
-    std::vector<Cofacet> col;
-    const auto ws = common_neighbors(g, {u, v}, threshold, c);
-    col.reserve(ws.size());
-    for (index_t w : ws) {
-        Cofacet f;
-        f.key = pack3(u, v, w);
-        f.diam = triangle_diam(g, u, v, w);
-        if (f.diam <= threshold) {
-            col.push_back(f);
-            ++c.n_simplices_enumerated;
-        }
-    }
-    std::sort(col.begin(), col.end(), [](const Cofacet& a, const Cofacet& b) {
-        if (a.diam != b.diam) return a.diam > b.diam;
-        return a.key > b.key;
-    });
-    return col;
-}
-
-inline std::vector<Cofacet> coboundary_triangle(const Graph& g, index_t a, index_t b, index_t vc,
-                                               value_t threshold, Counters& c) {
-    std::vector<Cofacet> col;
-    const auto ws = common_neighbors(g, {a, b, vc}, threshold, c);
-    for (index_t w : ws) {
-        Cofacet f;
-        f.key = pack4(a, b, vc, w);
-        f.diam = tet_diam(g, a, b, vc, w);
-        if (f.diam <= threshold) {
-            col.push_back(f);
-            ++c.n_simplices_enumerated;
-        }
-    }
-    std::sort(col.begin(), col.end(), [](const Cofacet& a, const Cofacet& b) {
-        if (a.diam != b.diam) return a.diam > b.diam;
-        return a.key > b.key;
-    });
-    return col;
-}
-
+// Standard persistent homology in dimension 1: reduce triangle *boundaries*
+// over leftover (non-MST) edges. Pivot = youngest leftover edge.
 inline Result persist_sparse(const Graph& g, int maxdim, value_t threshold, value_t ratio) {
     Result r;
     Counters& c = r.counters;
@@ -214,8 +62,13 @@ inline Result persist_sparse(const Graph& g, int maxdim, value_t threshold, valu
     });
 
     UnionFind uf(g.n);
-    std::vector<Edge> h1_births;
-    h1_births.reserve(edges.size());
+    struct BirthEdge {
+        index_t u, v;
+        value_t t;
+        int id;
+    };
+    std::vector<BirthEdge> leftover;
+    leftover.reserve(edges.size());
     int components = g.n;
     for (const Edge& e : edges) {
         if (e.t > threshold) continue;
@@ -224,7 +77,7 @@ inline Result persist_sparse(const Graph& g, int maxdim, value_t threshold, valu
             r.pairs.push_back({0, 0, e.t});
             ++c.n_columns_cleared;
         } else {
-            h1_births.push_back(e);
+            leftover.push_back({e.u, e.v, e.t, static_cast<int>(leftover.size())});
         }
     }
     for (int i = 0; i < components; ++i) r.pairs.push_back({0, 0, kInf});
@@ -236,127 +89,241 @@ inline Result persist_sparse(const Graph& g, int maxdim, value_t threshold, valu
         return r;
     }
 
-    // Reduce leftover edges. Column = F2 set of incident triangles, keyed by pack3.
-    // Pivot = youngest triangle (max diameter, then max key).
-    using ColMap = std::map<std::uint64_t, value_t>;  // key -> diam; iterate is not pivot order
-    std::vector<ColMap> reduced;
-    reduced.reserve(h1_births.size());
-    std::unordered_map<std::uint64_t, int> pivot;  // triangle key -> column
-    pivot.reserve(h1_births.size() * 2);
+    std::unordered_map<std::uint64_t, int> edge_id;
+    edge_id.reserve(leftover.size() * 2);
+    for (const auto& e : leftover) edge_id[pack2(e.u, e.v)] = e.id;
 
-    auto col_pivot = [](const ColMap& col) -> Cofacet {
-        Cofacet best;
-        best.key = ~std::uint64_t{0};
-        best.diam = -1;
-        for (const auto& [k, d] : col) {
-            if (d > best.diam || (d == best.diam && k > best.key && best.diam >= 0)) {
-                best.key = k;
-                best.diam = d;
+    struct Tri {
+        index_t a, b, c;
+        value_t t;
+        int e[3];
+        int n_left = 0;
+    };
+    std::vector<Tri> tris;
+    tris.reserve(leftover.size() * 4);
+
+    for (const Edge& e : edges) {
+        if (e.t > threshold) continue;
+        const auto& nu = g.neighbors[e.u];
+        const auto& nv = g.neighbors[e.v];
+        size_t i = 0, j = 0;
+        while (i < nu.size() && j < nv.size()) {
+            if (nu[i].first < nv[j].first) {
+                ++i;
+                continue;
             }
-        }
-        if (best.diam < 0) best.key = ~std::uint64_t{0};
-        return best;
-    };
-    auto xor_map = [](ColMap& a, const ColMap& b) {
-        for (const auto& [k, d] : b) {
-            auto it = a.find(k);
-            if (it == a.end()) a.emplace(k, d);
-            else a.erase(it);
-        }
-    };
-
-    std::vector<std::tuple<index_t, index_t, index_t, value_t>> h1_deaths;
-
-    for (const Edge& e : h1_births) {
-        ++c.n_columns_assembled;
-        ColMap col;
-        for (const auto& f : coboundary_edge(g, e.u, e.v, threshold, c)) col[f.key] = f.diam;
-        ++c.n_columns_reduced;
-        int guard = 0;
-        while (!col.empty() && guard++ < 100000) {
-            const Cofacet p = col_pivot(col);
-            auto it = pivot.find(p.key);
-            if (it == pivot.end()) break;
-            xor_map(col, reduced[it->second]);
-            ++c.n_additions;
-        }
-        if (col.empty()) {
-            r.pairs.push_back({1, e.t, kInf});
-            reduced.push_back(std::move(col));
-        } else {
-            const Cofacet p = col_pivot(col);
-            if (p.diam > e.t * ratio) r.pairs.push_back({1, e.t, p.diam});
-            const index_t a = static_cast<index_t>(p.key & ((1u << 21) - 1));
-            const index_t b = static_cast<index_t>((p.key >> 21) & ((1u << 21) - 1));
-            const index_t cc = static_cast<index_t>(p.key >> 42);
-            h1_deaths.push_back({a, b, cc, p.diam});
-            pivot[p.key] = static_cast<int>(reduced.size());
-            reduced.push_back(std::move(col));
+            if (nv[j].first < nu[i].first) {
+                ++j;
+                continue;
+            }
+            const index_t w = nu[i].first;
+            ++c.n_cofacet_probes;
+            if (w != e.u && w != e.v && w > e.u && w > e.v) {
+                const value_t twu = nu[i].second;
+                const value_t twv = nv[j].second;
+                if (twu <= threshold && twv <= threshold) {
+                    const value_t td = std::max({e.t, twu, twv});
+                    if (td <= threshold) {
+                        Tri tr;
+                        tr.a = e.u;
+                        tr.b = e.v;
+                        tr.c = w;
+                        tr.t = td;
+                        const std::uint64_t k0 = pack2(e.u, e.v);
+                        const std::uint64_t k1 = pack2(e.u, w);
+                        const std::uint64_t k2 = pack2(e.v, w);
+                        auto add = [&](std::uint64_t k) {
+                            auto it = edge_id.find(k);
+                            if (it != edge_id.end()) tr.e[tr.n_left++] = it->second;
+                        };
+                        add(k0);
+                        add(k1);
+                        add(k2);
+                        if (tr.n_left) {
+                            tris.push_back(tr);
+                            ++c.n_simplices_enumerated;
+                        }
+                    }
+                }
+            }
+            ++i;
+            ++j;
         }
     }
 
-    if (maxdim >= 2) {
-        // H2: triangles that were not H1 death pivots.
-        std::unordered_set<std::uint64_t> killed;
-        killed.reserve(h1_deaths.size() * 2);
-        for (const auto& [a, b, cc, d] : h1_deaths) killed.insert(pack3(a, b, cc));
+    std::sort(tris.begin(), tris.end(), [](const Tri& a, const Tri& b) {
+        if (a.t != b.t) return a.t < b.t;
+        return pack3(a.a, a.b, a.c) < pack3(b.a, b.b, b.c);
+    });
 
-        struct Tri {
-            index_t a, b, c;
+    // F2 columns on leftover-edge ids. Pivot = youngest leftover edge
+    // (latest birth, then largest id) still in the reduced boundary.
+    const int m = static_cast<int>(leftover.size());
+    std::vector<std::vector<int>> reduced;
+    reduced.reserve(tris.size());
+    std::vector<int> pivot_of(m, -1);  // leftover edge -> triangle column
+    std::vector<char> paired(m, 0);
+    std::vector<std::uint64_t> h2_birth_keys;
+    std::vector<value_t> h2_birth_t;
+
+    auto xor_sorted = [](std::vector<int>& a, const std::vector<int>& b) {
+        std::vector<int> out;
+        out.reserve(a.size() + b.size());
+        size_t i = 0, j = 0;
+        while (i < a.size() && j < b.size()) {
+            if (a[i] == b[j]) {
+                ++i;
+                ++j;
+            } else if (a[i] > b[j]) {  // store descending so front is youngest-ish by id; we pick pivot by birth
+                out.push_back(a[i++]);
+            } else {
+                out.push_back(b[j++]);
+            }
+        }
+        while (i < a.size()) out.push_back(a[i++]);
+        while (j < b.size()) out.push_back(b[j++]);
+        a.swap(out);
+    };
+
+    auto choose_pivot = [&](const std::vector<int>& col) -> int {
+        int best = -1;
+        value_t best_t = -1;
+        for (int id : col) {
+            const value_t t = leftover[id].t;
+            if (t > best_t || (t == best_t && id > best)) {
+                best_t = t;
+                best = id;
+            }
+        }
+        return best;
+    };
+
+    for (const Tri& tr : tris) {
+        ++c.n_columns_assembled;
+        std::vector<int> col(tr.e, tr.e + tr.n_left);
+        std::sort(col.begin(), col.end(), std::greater<int>());
+        col.erase(std::unique(col.begin(), col.end()), col.end());
+        ++c.n_columns_reduced;
+        int guard = 0;
+        while (!col.empty() && guard++ < 200000) {
+            const int p = choose_pivot(col);
+            if (p < 0 || pivot_of[p] < 0) break;
+            xor_sorted(col, reduced[pivot_of[p]]);
+            ++c.n_additions;
+        }
+        if (col.empty()) {
+            h2_birth_keys.push_back(pack3(tr.a, tr.b, tr.c));
+            h2_birth_t.push_back(tr.t);
+            continue;
+        }
+        const int p = choose_pivot(col);
+        if (p < 0) continue;
+        if (tr.t > leftover[p].t * ratio) r.pairs.push_back({1, leftover[p].t, tr.t});
+        pivot_of[p] = static_cast<int>(reduced.size());
+        paired[p] = 1;
+        reduced.push_back(std::move(col));
+    }
+    for (int i = 0; i < m; ++i) {
+        if (!paired[i]) r.pairs.push_back({1, leftover[i].t, kInf});
+    }
+
+    if (maxdim >= 2 && !h2_birth_keys.empty()) {
+        std::unordered_map<std::uint64_t, int> birth_id;
+        birth_id.reserve(h2_birth_keys.size() * 2);
+        for (size_t i = 0; i < h2_birth_keys.size(); ++i) birth_id[h2_birth_keys[i]] = static_cast<int>(i);
+        const int nt = static_cast<int>(h2_birth_keys.size());
+
+        struct Tet {
             value_t t;
+            int faces[4];
+            int n_left = 0;
         };
-        std::vector<Tri> h2_births;
-        for (const Edge& e : edges) {
-            if (e.t > threshold) continue;
-            const auto ws = common_neighbors(g, {e.u, e.v}, threshold, c);
-            for (index_t w : ws) {
-                if (w < e.v) continue;  // emit each triangle once: w > max(u,v) after sort...
-            }
-        }
-        // Enumerate each triangle once from its longest edge? Safer: from each edge with w > both.
-        std::vector<Tri> all_tris;
-        for (const Edge& e : edges) {
-            if (e.t > threshold) continue;
-            for (index_t w : common_neighbors(g, {e.u, e.v}, threshold, c)) {
-                if (w <= e.u || w <= e.v) continue;
-                const value_t td = triangle_diam(g, e.u, e.v, w);
-                if (td > threshold) continue;
-                const std::uint64_t key = pack3(e.u, e.v, w);
-                if (killed.count(key)) {
-                    ++c.n_columns_cleared;
-                    continue;
+        std::vector<Tet> tets;
+        for (const Tri& tr : tris) {
+            const auto& na = g.neighbors[tr.a];
+            const auto& nb = g.neighbors[tr.b];
+            const auto& nc = g.neighbors[tr.c];
+            size_t i = 0, j = 0;
+            std::vector<index_t> cab;
+            while (i < na.size() && j < nb.size()) {
+                if (na[i].first < nb[j].first) ++i;
+                else if (nb[j].first < na[i].first) ++j;
+                else {
+                    cab.push_back(na[i].first);
+                    ++i;
+                    ++j;
                 }
-                all_tris.push_back({e.u, e.v, w, td});
+            }
+            size_t k = 0, p = 0;
+            while (k < cab.size() && p < nc.size()) {
+                if (cab[k] < nc[p].first) ++k;
+                else if (nc[p].first < cab[k]) ++p;
+                else {
+                    const index_t w = cab[k];
+                    ++c.n_cofacet_probes;
+                    if (w > tr.a && w > tr.b && w > tr.c) {
+                        const value_t tw = std::max({tr.t, edge_time(g, tr.a, w),
+                                                     edge_time(g, tr.b, w), edge_time(g, tr.c, w)});
+                        if (tw <= threshold) {
+                            const std::uint64_t f[4] = {pack3(tr.a, tr.b, tr.c), pack3(tr.a, tr.b, w),
+                                                        pack3(tr.a, tr.c, w), pack3(tr.b, tr.c, w)};
+                            Tet tet;
+                            tet.t = tw;
+                            for (int u = 0; u < 4; ++u) {
+                                auto it = birth_id.find(f[u]);
+                                if (it != birth_id.end()) tet.faces[tet.n_left++] = it->second;
+                            }
+                            if (tet.n_left) {
+                                tets.push_back(tet);
+                                ++c.n_simplices_enumerated;
+                            }
+                        }
+                    }
+                    ++k;
+                    ++p;
+                }
             }
         }
-        std::sort(all_tris.begin(), all_tris.end(), [](const Tri& a, const Tri& b) {
-            if (a.t != b.t) return a.t < b.t;
-            return pack3(a.a, a.b, a.c) < pack3(b.a, b.b, b.c);
-        });
+        std::sort(tets.begin(), tets.end(), [](const Tet& a, const Tet& b) { return a.t < b.t; });
 
-        std::vector<std::vector<Cofacet>> red2;
-        std::unordered_map<std::uint64_t, int> pivot2;
-        for (const Tri& tr : all_tris) {
+        std::vector<std::vector<int>> red2;
+        std::vector<int> piv2(nt, -1);
+        std::vector<char> paired_tri(nt, 0);
+        auto choose_piv2 = [&](const std::vector<int>& col) -> int {
+            int best = -1;
+            value_t best_t = -1;
+            for (int id : col) {
+                const value_t t = h2_birth_t[id];
+                if (t > best_t || (t == best_t && id > best)) {
+                    best_t = t;
+                    best = id;
+                }
+            }
+            return best;
+        };
+        for (const Tet& tet : tets) {
             ++c.n_columns_assembled;
-            auto col = coboundary_triangle(g, tr.a, tr.b, tr.c, threshold, c);
+            std::vector<int> col(tet.faces, tet.faces + tet.n_left);
+            std::sort(col.begin(), col.end(), std::greater<int>());
+            col.erase(std::unique(col.begin(), col.end()), col.end());
             ++c.n_columns_reduced;
             int guard = 0;
-            while (!col.empty() && guard++ < 100000) {
-                const std::uint64_t pk = col.front().key;
-                auto it = pivot2.find(pk);
-                if (it == pivot2.end()) break;
-                xor_column(col, red2[it->second]);
+            while (!col.empty() && guard++ < 200000) {
+                const int p = choose_piv2(col);
+                if (p < 0 || piv2[p] < 0) break;
+                xor_sorted(col, red2[piv2[p]]);
                 ++c.n_additions;
             }
-            if (col.empty()) {
-                r.pairs.push_back({2, tr.t, kInf});
-                red2.push_back(std::move(col));
-            } else {
-                const Cofacet p = col.front();
-                if (p.diam > tr.t * ratio) r.pairs.push_back({2, tr.t, p.diam});
-                pivot2[p.key] = static_cast<int>(red2.size());
-                red2.push_back(std::move(col));
-            }
+            if (col.empty()) continue;
+            const int p = choose_piv2(col);
+            if (p < 0) continue;
+            if (tet.t > h2_birth_t[p] * ratio) r.pairs.push_back({2, h2_birth_t[p], tet.t});
+            piv2[p] = static_cast<int>(red2.size());
+            paired_tri[p] = 1;
+            red2.push_back(std::move(col));
+        }
+        for (int i = 0; i < nt; ++i) {
+            if (!paired_tri[i]) r.pairs.push_back({2, h2_birth_t[i], kInf});
         }
     }
 

@@ -1,0 +1,42 @@
+{
+  "id": "gudhi_collapse_time",
+  "lever": "H01-impl",
+  "class": "implementation",
+  "fidelity": "exact",
+  "status": "hold",
+  "summary": "GUDHI vs our collapse wall-clock; counts should match",
+  "receipts": [
+    {
+      "name": "circle_noisy_n200.csv",
+      "gudhi_collapse_s": 0.006361663000006956,
+      "our_collapse_ms": 3.114585,
+      "gudhi_out": 283,
+      "our_out": 283,
+      "match_count": true
+    },
+    {
+      "name": "circle_noisy_n500.csv",
+      "gudhi_collapse_s": 0.07328727599997364,
+      "our_collapse_ms": 37.789351,
+      "gudhi_out": 959,
+      "our_out": 959,
+      "match_count": true
+    },
+    {
+      "name": "circle_noisy_n1000.csv",
+      "gudhi_collapse_s": 0.5743668329996581,
+      "our_collapse_ms": 319.64046,
+      "gudhi_out": 2265,
+      "our_out": 2265,
+      "match_count": true
+    },
+    {
+      "name": "sphere_n500.csv",
+      "gudhi_collapse_s": 0.14115815100012696,
+      "our_collapse_ms": 56.049843,
+      "gudhi_out": 1805,
+      "our_out": 1805,
+      "match_count": true
+    }
+  ]
+}

@@ -1,60 +1,67 @@
 # Selected algorithm (living)
 
-Updated 2026-10-13 after iterations I001–I008.
+Updated 2026-10-13 after iterations I001–I026.
 
 ## Selected exact-VR CPU pipeline
 
-**Name:** PITH-E3 — threshold graph → backward flag edge collapse → stock Ripser on the residual sparse 1-skeleton.
+**Name:** **PITH** — threshold graph \(G_T\) → backward flag **edge collapse** → **owned** persistent homology on the residual flag filtration.
 
-**Fidelity:** exact persistence module of \(\mathrm{VR}_{\le T}\) (Boissonnat–Pritam 2020; Glisse–Pritam 2022). Identity vs unmodified Ripser on the same \(T\) is **reproduced** on the smoke + I001 suite (12/12 E3 matches).
+- \(H_0\): Kruskal / union-find
+- \(H_1\): reduce **triangle boundaries** over leftover (non-MST) edges
+- \(H_2\): reduce tetrahedron boundaries over triangles whose \(H_1\) boundary vanished
+
+**Fidelity:** exact persistence module of \(\mathrm{VR}_{\le T}\). Identity vs Ripser `01add51` reproduced on I010–I011, I016, I018, I020, I024 (owned engine) and I001–I008 (collapse+Ripser residual). Collapse edge counts match GUDHI (I009, I012).
 
 **What is selected, and what is not**
 
 | Piece | Status |
 | --- | --- |
-| Ripser `01add51` | Pinned parent / residual engine |
-| Backward edge collapse (our MIT code) | Selected preprocessor. Unit tests C4 / C4+diagonal. Edge counts match GUDHI `collapse_edges` (I009, 5/5). |
-| Our implicit cohomology core | **Not selected.** H02 rejected: diagrams fail on uncollapsed graphs. |
-| Ripser++ | Unmodified GPU reference. No GPU here; not built. |
-| Extra collapse passes | Hold. Circles: 283 → 281 edges. Not worth a default second pass. |
-| Alpha / sparse Rips / witness | Not selected for exact-VR. Still open as different complexes. |
+| Ripser `01add51` | Pinned **parent / oracle**, not required at run time |
+| Backward edge collapse (our MIT code) | Selected. Faster than GUDHI collapse on I012; counts match |
+| Owned triangle-boundary PH | **Selected** as of I010. Replaces stock Ripser on the residual |
+| Ripser++ | Unmodified GPU reference. No GPU here; not built |
+| Extra collapse passes | Default 1. Torus shrinks 1260→977 in 3 passes (I026); circle does not |
+| Alpha / kNN / witness / cubical | Not exact-VR. Alpha is the fastest *other* Euclidean complex (I013) |
 
 ## 10× claim (honest scope)
 
-**Structural, exact, typical low-d geometric clouds, metric = residual edges (and therefore residual cliques).**
+**Algebraic work (columns after vs before collapse), exact VR≤T**
 
-| Dataset | n | T | edges in → out | ratio | E3 identity |
-| --- | --- | --- | --- | --- | --- |
-| circle_noisy | 200 | 1.2 | 8197 → 283 | **29×** | yes |
-| blobs | 200 | 1.0 | 6495 → 445 | **15×** | yes |
-| sphere | 200 | 1.4 | 9675 → 819 | **12×** | yes |
-| uniform2 | 200 | 0.35 | 5405 → 528 | **10×** | yes |
-| torus | 200 | 1.6 | 4789 → 1260 | 3.8× | yes |
-| uniform10 | 200 | 1.8 | 19622 → 9543 | 2.1× | yes |
+| Dataset | dim | cols uncollapsed → collapsed | ratio |
+| --- | --- | --- | --- |
+| circle n=80 | \(H_1\) | 9500 → 13 | **731×** |
+| blobs n=200 | \(H_1\) | 137982 → 273 | **505×** |
+| sphere n=80 | \(H_2\) | 82901 → 345 | **240×** |
 
-On a noisy circle the residual 1-skeleton **stops growing with \(T\)** (I004: 283 edges for every \(T\ge 0.4\)). Ripser’s input keeps filling in; collapse trims the dominated chords. At \(T=1.5\), edge ratio **38×** and residual Ripser time **~10×** below dense Ripser (15.8 ms → 1.6 ms). Collapse time is still charged.
+**Edges, exact**
 
-Headline wall-clock (dense-lookup collapse, I008, exact):
+| Dataset | n | edges in → out | ratio |
+| --- | --- | --- | --- |
+| circle_noisy | 1500 | — → — | **127×** |
+| circle_noisy | 1000 | 204915 → 2265 | **90×** |
+| sphere | 500 | 61225 → 1805 | **34×** |
 
-| Dataset | dim | n | edges | residual PH | **total vs Ripser** |
-| --- | --- | --- | --- | --- | --- |
-| sphere | \(H_2\) | 500 | 37× | 425× | **25×** |
-| circle_noisy | \(H_1\) | 1000 | 90× | 175× | 2.0× |
-| circle_noisy | \(H_1\) | 500 | 53× | 41× | 2.2× |
+**Wall-clock vs pinned Ripser (owned PITH, collapse charged)**
 
-So the **10× total-time** goal is met on Euclidean \(H_2\) (sphere \(n=500\)). On \(H_1\) the work cut is larger (53–90× edges) but collapse still dominates the clock.
+| Dataset | dim | n | total vs Ripser |
+| --- | --- | --- | --- |
+| sphere | \(H_2\) | 500 | **57×** |
+| sphere | \(H_2\) | 200 | **14×** |
+| circle_noisy | \(H_1\) | 1500 | 3.1× |
+| circle_noisy | \(H_1\) | 1000 | 2.6× |
+
+vs GUDHI *explicit* Rips (sphere \(n=500\), \(H_2\)): **1134×** (GUDHI built 1.17e8 simplices). That is a different baseline than Ripser.
 
 **Not claimed**
 
-- 10× wall-clock of *collapse + residual* vs Ripser at \(n\le 200\) (collapse dominates).
-- 10× on high-d i.i.d. noise or on a thick torus at these \(T\).
-- 10× from our own reducer (incorrect).
-- Asymptotic worst-case improvement (high-d dense graphs remain \(\Theta(n^2)\)).
+- 10× wall-clock on \(H_1\) at \(n\le 1500\) (collapse still dominates; trend is up with \(n\))
+- 10× on high-d i.i.d. noise or a thick torus (2–4× edges; we can be slower)
+- Worst-case asymptotic improvement
+- kNN / witness / Alpha as exact VR (I014, I015, I021 reject or other-complex)
 
 ## Next levers
 
-1. Faster collapse (dominates wall-clock) — implementation, not a new theorem.
-2. Fix the owned residual reducer (H02) so we do not depend on Ripser for the remainder.
-3. Extra Morse / reduced VR only if the collapsed remainder is still expensive (torus, \(H_2\)).
-4. Alpha for Euclidean \(d\le 3\) as a *different* exact filtration.
-5. Larger \(n\) (500–2000) where Ripser clique work should overtake collapse.
+1. Asymptotically faster collapse (still the \(H_1\) clock)
+2. Optional second collapse pass on thick remainders (torus)
+3. Alpha as a *documented other-complex* Euclidean fast path
+4. GPU later (Ripser++ reference only)

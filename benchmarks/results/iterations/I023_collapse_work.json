@@ -1,0 +1,37 @@
+{
+  "id": "collapse_work",
+  "lever": "H01",
+  "class": "structural",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "columns reduced before vs after collapse on owned engine",
+  "receipts": [
+    {
+      "name": "circle_noisy_n80.csv",
+      "dim": 1,
+      "cols0": 9500,
+      "cols1": 13,
+      "col_ratio": 730.7692307692307,
+      "t0": 0.005317533999914303,
+      "t1": 0.0025642379996497766
+    },
+    {
+      "name": "sphere_n80.csv",
+      "dim": 2,
+      "cols0": 82901,
+      "cols1": 345,
+      "col_ratio": 240.29275362318842,
+      "t0": 1.597253830000227,
+      "t1": 0.0023844399997869914
+    },
+    {
+      "name": "blobs_n200.csv",
+      "dim": 1,
+      "cols0": 137982,
+      "cols1": 273,
+      "col_ratio": 505.42857142857144,
+      "t0": 0.1059031849999883,
+      "t1": 0.003944712999782496
+    }
+  ]
+}

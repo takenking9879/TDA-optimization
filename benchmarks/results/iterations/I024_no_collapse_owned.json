@@ -1,0 +1,26 @@
+{
+  "id": "no_collapse_owned",
+  "lever": "H02",
+  "class": "structural",
+  "fidelity": "exact",
+  "status": "support-correct-slow",
+  "summary": "owned reducer exact without collapse; more columns",
+  "receipts": [
+    {
+      "name": "circle_noisy_n200.csv",
+      "match": true,
+      "ripser_s": 0.009165302999917913,
+      "pith_s": 0.09796180600005755,
+      "cols": 166935,
+      "simplices": 166935
+    },
+    {
+      "name": "circle_noisy_n500.csv",
+      "match": true,
+      "ripser_s": 0.12596369899983983,
+      "pith_s": 2.2492564730000595,
+      "cols": 2555990,
+      "simplices": 2555990
+    }
+  ]
+}

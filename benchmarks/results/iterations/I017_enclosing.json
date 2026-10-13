@@ -1,0 +1,24 @@
+{
+  "id": "enclosing",
+  "lever": "H06",
+  "class": "structural",
+  "fidelity": "exact_if_R_covers_feature",
+  "status": "hold",
+  "summary": "enclosing radius vs protocol T on circle200",
+  "receipts": [
+    {
+      "mode": "enclosing_T10",
+      "edges_in": 17103,
+      "edges_out": 1186,
+      "pith_s": 0.02054907199999434,
+      "match_T12": false
+    },
+    {
+      "mode": "fixed_T1.2",
+      "edges_in": 8197,
+      "edges_out": 283,
+      "pith_s": 0.004905384000267077,
+      "match_T12": true
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "id": "multipass",
+  "lever": "H01-iter",
+  "class": "structural",
+  "fidelity": "exact",
+  "status": "hold",
+  "summary": "2-3 collapse passes on torus/circle",
+  "receipts": [
+    {
+      "name": "torus_n200.csv",
+      "passes": [
+        {
+          "iters": 1,
+          "edges_out": 1260,
+          "collapse_ms": 1.900829
+        },
+        {
+          "iters": 2,
+          "edges_out": 1023,
+          "collapse_ms": 2.294525
+        },
+        {
+          "iters": 3,
+          "edges_out": 977,
+          "collapse_ms": 2.582761
+        }
+      ]
+    },
+    {
+      "name": "circle_noisy_n200.csv",
+      "passes": [
+        {
+          "iters": 1,
+          "edges_out": 283,
+          "collapse_ms": 3.130778
+        },
+        {
+          "iters": 2,
+          "edges_out": 281,
+          "collapse_ms": 3.077372
+        },
+        {
+          "iters": 3,
+          "edges_out": 281,
+          "collapse_ms": 3.160717
+        }
+      ]
+    }
+  ]
+}

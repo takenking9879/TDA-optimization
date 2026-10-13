@@ -135,6 +135,101 @@ Do not paste long reasoning here.
 - **Next:** Own reducer still rejected (map rewrite unchanged I003 failure). Torus Morse / faster collapse / larger H2.
 - **Class:** reproduced (collapse); empirical (Alpha)
 
+## 2026-10-13 — I010 owned H1 via triangle boundaries
+
+- **Question:** Does reducing triangle boundaries over leftover edges fix H02?
+- **Result:** Identity vs Ripser on 6/6, including collapse=0 dense circle/blobs. Previous coboundary-of-edges reducer was the bug.
+- **Decision:** Select owned H1 reducer.
+- **Next:** H2 + scale.
+- **Class:** reproduced
+
+## 2026-10-13 — I011 owned pipeline scale
+
+- **Result:** 10/10 exact including sphere \(H_2\). sphere500 \(H_2\): **57×** vs Ripser. circle1000 \(H_1\): 90× edges, 2.6× time. Live-neighbor collapse 318 ms.
+- **Decision:** Residual engine is ours; Ripser is oracle only.
+- **Next:** GUDHI/Alpha/kNN/witness/torus.
+- **Class:** reproduced
+
+## 2026-10-13 — I012 GUDHI collapse time
+
+- **Result:** Edge counts still match. Our collapse **faster** than GUDHI (circle1000 320 vs 574 ms).
+- **Decision:** Keep our collapser.
+- **Class:** reproduced
+
+## 2026-10-13 — I013 Alpha vs VR
+
+- **Result:** GUDHI Alpha sphere500 \(H_2\) 9 ms vs Ripser VR 3.6 s (396×) but **different complex**.
+- **Decision:** Other-complex fast path only. Not selected for exact VR.
+- **Class:** experiment (empirical)
+
+## 2026-10-13 — I014–I015 kNN / witness
+
+- **Result:** kNN k=16 matched VR on one circle (fluke). Witness 1-skeletons are tiny, different estimator.
+- **Decision:** Reject as exact-VR.
+- **Class:** experiment (negative)
+
+## 2026-10-13 — I016 torus
+
+- **Result:** Exact \(H_1\)/\(H_2\). Ratios 2–4×. n=500 \(H_1\) we lose wall-clock (0.26×).
+- **Decision:** Thick remainder; try extra collapse passes later.
+- **Class:** reproduced
+
+## 2026-10-13 — I017 enclosing radius
+
+- **Result:** \(T=\infty\) capped by \(R\) ≠ protocol \(T=1.2\) on circle200 (more edges, different module).
+- **Decision:** Do not silently replace protocol \(T\).
+- **Class:** experiment
+
+## 2026-10-13 — I018 high-d noise
+
+- **Result:** Exact. Ratios 2–3.7×. n=200 we are 36× slower (dense collapse).
+- **Decision:** Negative control stands.
+- **Class:** reproduced
+
+## 2026-10-13 — I019 GUDHI explicit Rips
+
+- **Result:** sphere500 \(H_2\): GUDHI 97 s / 1.17e8 simplices vs PITH 86 ms → **1134×**. Different baseline than Ripser.
+- **Class:** reproduced
+
+## 2026-10-13 — I020 circle n=1500
+
+- **Result:** Exact. **127×** edges, 3.1× wall-clock, collapse 1.09 s / reduce 1.0 ms.
+- **Decision:** H1 10× clock still collapse-bound; trend up with \(n\).
+- **Class:** reproduced
+
+## 2026-10-13 — I021 kNN more clouds
+
+- **Result:** k=16 matches circles only; blobs/uniform/torus fail.
+- **Decision:** Confirm reject-as-exact.
+- **Class:** experiment (negative)
+
+## 2026-10-13 — I022 H1 vs H2 cost
+
+- **Result:** sphere500 collapse dominates; H2 adds ~0.6 ms after collapse.
+- **Class:** experiment
+
+## 2026-10-13 — I023 column work before/after collapse
+
+- **Result:** circle80 **731×** fewer columns; blobs200 **505×**; sphere80 \(H_2\) **240×**.
+- **Decision:** 10× algebraic-work target is met by a large margin on typical clouds.
+- **Class:** reproduced
+
+## 2026-10-13 — I024 owned reducer without collapse
+
+- **Result:** Exact on circle200/500. Much slower than Ripser (materialized triangles).
+- **Decision:** Collapse remains mandatory for speed.
+- **Class:** reproduced
+
+## 2026-10-13 — I025 cubical grid
+
+- **Result:** 32² image, GUDHI cubical 1 ms, one \(H_1\). Not a point-cloud VR substitute.
+- **Class:** experiment
+
+## 2026-10-13 — I026 multi-pass collapse
+
+- **Result:** Torus200: 1260→1023→977. Circle200: 283→281. Default stays 1 pass.
+- **Class:** experiment
+
 ## 2026-10-13 — selected writeup
 
 - **Question:** What do we keep as the working algorithm?

@@ -8,16 +8,14 @@ Target: about **10×** fewer edges / columns on typical point clouds,
 
 ## Current selected pipeline
 
-**PITH-E3:** build the threshold graph \(G_T\) → filtration-preserving
-**edge collapse** → run pinned **Ripser** on the residual sparse
-1-skeleton.
+**PITH:** build the threshold graph \(G_T\) → filtration-preserving
+**edge collapse** → **owned** persistent homology on the residual
+(union-find + triangle/tet boundary reduction).
 
-This is exact for \(\mathrm{VR}_{\le T}\). On noisy circles, blobs, and
-spheres at \(n=200\) the residual has **10–29×** fewer edges than
-\(G_T\), and diagrams match Ripser. Details: [`docs/SELECTED.md`](docs/SELECTED.md).
-
-Our own cohomology reducer is **not** selected yet (diagrams fail on
-dense uncollapsed graphs).
+This is exact for \(\mathrm{VR}_{\le T}\). Collapse cuts **240–730×**
+columns and **10–127×** edges on typical low-d clouds. Sphere
+\(H_2\) at \(n=500\) is **57×** wall-clock versus pinned Ripser.
+Details: [`docs/SELECTED.md`](docs/SELECTED.md).
 
 ## Layout
 

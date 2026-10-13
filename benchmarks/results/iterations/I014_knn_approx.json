@@ -1,0 +1,37 @@
+{
+  "id": "knn_approx",
+  "lever": "knn",
+  "class": "structural",
+  "fidelity": "empirical",
+  "status": "reject-as-exact",
+  "summary": "kNN 1-skeleton is not exact VR",
+  "receipts": [
+    {
+      "name": "circle_noisy_n200.csv",
+      "k": 8,
+      "knn_edges": 920,
+      "match_vr": false,
+      "unmatched": 2,
+      "knn_build_s": 0.0034590069999467232,
+      "ripser_vr_s": 0.009726549999868439
+    },
+    {
+      "name": "circle_noisy_n200.csv",
+      "k": 16,
+      "knn_edges": 1770,
+      "match_vr": true,
+      "unmatched": 0,
+      "knn_build_s": 0.004319744999975228,
+      "ripser_vr_s": 0.00954803600006926
+    },
+    {
+      "name": "circle_noisy_n500.csv",
+      "k": 12,
+      "knn_edges": 3500,
+      "match_vr": false,
+      "unmatched": 2,
+      "knn_build_s": 0.012914685000396275,
+      "ripser_vr_s": 0.12904687900027056
+    }
+  ]
+}

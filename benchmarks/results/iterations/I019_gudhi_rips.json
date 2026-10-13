@@ -1,0 +1,34 @@
+{
+  "id": "gudhi_rips",
+  "lever": "baseline",
+  "class": "implementation",
+  "fidelity": "n/a",
+  "status": "support",
+  "summary": "PITH vs GUDHI explicit Rips persistence",
+  "receipts": [
+    {
+      "name": "circle_noisy_n200.csv",
+      "dim": 1,
+      "gudhi_rips_s": 0.04623331099992356,
+      "pith_s": 0.00602725199996712,
+      "speedup_vs_gudhi": 7.670711461902666,
+      "gudhi_simplices": 175332
+    },
+    {
+      "name": "sphere_n200.csv",
+      "dim": 2,
+      "gudhi_rips_s": 1.2474296750001486,
+      "pith_s": 0.008279989000129717,
+      "speedup_vs_gudhi": 150.65595799470336,
+      "gudhi_simplices": 2941996
+    },
+    {
+      "name": "sphere_n500.csv",
+      "dim": 2,
+      "gudhi_rips_s": 97.37824291299967,
+      "pith_s": 0.08586406399990665,
+      "speedup_vs_gudhi": 1134.097763100353,
+      "gudhi_simplices": 117123032
+    }
+  ]
+}
