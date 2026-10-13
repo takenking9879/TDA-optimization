@@ -27,6 +27,11 @@ struct DenseTimes {
     void erase(int i, int j) { set(i, j, kInf); }
 };
 
+// Live adjacency: (neighbor, current filtration time). Times stay in sync
+// with Tm on shift (I155) so C-build gathers only the other endpoint's row.
+using LiveNbr = std::pair<index_t, value_t>;
+using LiveAdj = std::vector<std::vector<LiveNbr>>;
+
 // True iff some c in C_now is adjacent (at time t) to every other vertex in C_now.
 inline bool dominated_by(const DenseTimes& Tm, const std::vector<index_t>& C_now,
                          index_t cand, value_t t) {
@@ -52,7 +57,7 @@ inline index_t first_dominator(const DenseTimes& Tm, const std::vector<index_t>&
 // I107: budget>0 keeps the edge after that many failed exact checks (still
 // filtration-safe: fewer trims, same PH as the thicker residual).
 inline index_t first_dominator_deg(const DenseTimes& Tm, const std::vector<index_t>& C_now,
-                                  value_t t, const std::vector<std::vector<index_t>>& nbr,
+                                  value_t t, const LiveAdj& nbr,
                                   int budget = -1, Counters* ctr = nullptr) {
     if (C_now.empty()) return -1;
     if (C_now.size() == 1) {
@@ -76,7 +81,7 @@ inline index_t first_dominator_deg(const DenseTimes& Tm, const std::vector<index
 // I101: progressive intersection. Survivors of ∧_w N_t[w] ∩ C are exactly the
 // dominators. Early abort when S empties (the expensive "not dominated" case).
 inline index_t first_dominator_prog(const DenseTimes& Tm, const std::vector<index_t>& C_now,
-                                   value_t t, const std::vector<std::vector<index_t>>& nbr,
+                                   value_t t, const LiveAdj& nbr,
                                    std::vector<index_t>& S) {
     if (C_now.empty()) return -1;
     if (C_now.size() == 1) return C_now[0];
@@ -105,7 +110,7 @@ inline index_t first_dominator_prog(const DenseTimes& Tm, const std::vector<inde
 // 136 s vs 4.5 s). After a few failed exact checks, prove emptiness / find
 // a later apex via progressive ∩ — that is the leftover-edge O(k²) tail.
 inline index_t first_dominator_hybrid(const DenseTimes& Tm, const std::vector<index_t>& C_now,
-                                      value_t t, const std::vector<std::vector<index_t>>& nbr,
+                                      value_t t, const LiveAdj& nbr,
                                       std::vector<index_t>& S, int quick = 2) {
     if (C_now.empty()) return -1;
     if (C_now.size() == 1) return C_now[0];
@@ -153,12 +158,21 @@ inline std::uint64_t edge_key(index_t u, index_t v) {
     return (static_cast<std::uint64_t>(v) << 32) | static_cast<std::uint32_t>(u);
 }
 
-inline void drop_live_nbr(std::vector<std::vector<index_t>>& nbr, index_t a, index_t b) {
+inline void drop_live_nbr(LiveAdj& nbr, index_t a, index_t b) {
     auto& row = nbr[a];
     for (size_t i = 0; i < row.size(); ++i) {
-        if (row[i] == b) {
+        if (row[i].first == b) {
             row[i] = row.back();
             row.pop_back();
+            return;
+        }
+    }
+}
+
+inline void set_live_time(LiveAdj& nbr, index_t a, index_t b, value_t t) {
+    for (auto& p : nbr[a]) {
+        if (p.first == b) {
+            p.second = t;
             return;
         }
     }
@@ -172,25 +186,26 @@ struct BwScratch {
 // One backward edge (Glisse–Pritam). t_in is the start filtration (may be t_*
 // on a D&C merge replay). Returns true if the edge is kept.
 inline bool process_one_backward(const Edge& e_in, value_t t_in, DenseTimes& Tm,
-                                 std::vector<std::vector<index_t>>& nbr, BwScratch& S,
+                                 LiveAdj& nbr, BwScratch& S,
                                  int dom_budget, Edge& out, Counters& c) {
     const index_t u = e_in.u, v = e_in.v;
     value_t t = t_in;
     S.C_now.clear();
     S.C_later.clear();
-    const value_t* ru = Tm.row(u);
-    const value_t* rv = Tm.row(v);
-    const auto& src = nbr[u].size() <= nbr[v].size() ? nbr[u] : nbr[v];
+    const bool walk_u = nbr[u].size() <= nbr[v].size();
+    const auto& src = walk_u ? nbr[u] : nbr[v];
+    const value_t* r_other = walk_u ? Tm.row(v) : Tm.row(u);
     c.n_collapse_c_probes += static_cast<std::int64_t>(src.size());
-    for (index_t w : src) {
+    for (const LiveNbr& p : src) {
+        const index_t w = p.first;
         if (w == u || w == v) continue;
-        const value_t tu = ru[w];
-        const value_t tv = rv[w];
-        if (tu >= kInf / 2 || tv >= kInf / 2) continue;
-        const value_t tau = std::max(tu, tv);
+        const value_t t_other = r_other[w];
+        if (t_other >= kInf / 2) continue;
+        const value_t tau = p.second > t_other ? p.second : t_other;
         if (tau <= t) S.C_now.push_back(w);
         else S.C_later.push_back({tau, w});
     }
+    c.n_collapse_c_size_sum += static_cast<std::int64_t>(S.C_now.size() + S.C_later.size());
 
     const auto later_cmp = [](const std::pair<value_t, index_t>& a,
                               const std::pair<value_t, index_t>& b) {
@@ -218,6 +233,7 @@ inline bool process_one_backward(const Edge& e_in, value_t t_in, DenseTimes& Tm,
             while (!S.C_later.empty() && S.C_later.front().first <= t) {
                 const index_t w = S.C_later.front().second;
                 const value_t tw = S.C_later.front().first;
+                ++c.n_collapse_shift_lookups;
                 if (rd[w] > tw) still = false;
                 S.C_now.push_back(w);
                 std::pop_heap(S.C_later.begin(), S.C_later.end(), later_cmp);
@@ -238,13 +254,15 @@ inline bool process_one_backward(const Edge& e_in, value_t t_in, DenseTimes& Tm,
     out.t = ever_shifted ? t : t_in;
     if (ever_shifted) {
         Tm.set(u, v, out.t);
+        set_live_time(nbr, u, v, out.t);
+        set_live_time(nbr, v, u, out.t);
         ++c.n_collapse_shifts;
     }
     return true;
 }
 
 inline void init_collapse_graph(const std::vector<Edge>& E, int n, DenseTimes& Tm,
-                                std::vector<std::vector<index_t>>& nbr) {
+                                LiveAdj& nbr) {
     Tm = DenseTimes(n);
     nbr.assign(n, {});
     std::vector<int> deg(n, 0);
@@ -255,8 +273,8 @@ inline void init_collapse_graph(const std::vector<Edge>& E, int n, DenseTimes& T
     for (int i = 0; i < n; ++i) nbr[i].reserve(static_cast<size_t>(deg[i]));
     for (const Edge& e : E) {
         Tm.set(e.u, e.v, e.t);
-        nbr[e.u].push_back(e.v);
-        nbr[e.v].push_back(e.u);
+        nbr[e.u].push_back({e.v, e.t});
+        nbr[e.v].push_back({e.u, e.t});
     }
 }
 
@@ -282,7 +300,7 @@ inline Graph collapse_edges(Graph g, int iterations, Counters& c, int dom_budget
         });
 
         DenseTimes Tm(g.n);
-        std::vector<std::vector<index_t>> nbr;
+        LiveAdj nbr;
         init_collapse_graph(E, g.n, Tm, nbr);
 
         std::vector<Edge> kept;
@@ -340,7 +358,7 @@ inline Graph collapse_edges_dc(Graph g, int iterations, Counters& c, int dom_bud
         Graph left_out;
         Counters cL;
         DenseTimes Tm_R(0);
-        std::vector<std::vector<index_t>> nbr_R;
+        LiveAdj nbr_R;
         std::vector<Edge> kept_R;
         Counters cR;
         BwScratch scratch_R;
@@ -404,15 +422,17 @@ inline Graph collapse_edges_dc(Graph g, int iterations, Counters& c, int dom_bud
 
 // I149: Boissonnat–Pritam 2020 forward Algorithm 1. Exact PH; residual
 // edge set may differ from backward under ties. O(n_e n_c k^2).
-inline bool edge_dominated_in(const DenseTimes& Tm, const std::vector<std::vector<index_t>>& nbr,
+inline bool edge_dominated_in(const DenseTimes& Tm, const LiveAdj& nbr,
                               index_t u, index_t v, value_t t) {
     std::vector<index_t> C;
-    const auto& src = nbr[u].size() <= nbr[v].size() ? nbr[u] : nbr[v];
-    const value_t* ru = Tm.row(u);
-    const value_t* rv = Tm.row(v);
-    for (index_t w : src) {
+    const bool walk_u = nbr[u].size() <= nbr[v].size();
+    const auto& src = walk_u ? nbr[u] : nbr[v];
+    const value_t* r_other = walk_u ? Tm.row(v) : Tm.row(u);
+    for (const LiveNbr& p : src) {
+        const index_t w = p.first;
         if (w == u || w == v) continue;
-        if (ru[w] <= t && rv[w] <= t) C.push_back(w);
+        const value_t t_other = r_other[w];
+        if (p.second <= t && t_other <= t) C.push_back(w);
     }
     return first_dominator_deg(Tm, C, t, nbr, -1) >= 0;
 }
@@ -435,12 +455,12 @@ inline Graph collapse_edges_forward(Graph g, int iterations, Counters& c) {
         std::vector<char> critical(m, 0);
         std::vector<int> crit_idx(m, -1);
         DenseTimes Tm(n);
-        std::vector<std::vector<index_t>> nbr(n);
+        LiveAdj nbr(n);
 
         auto add_edge = [&](int i) {
             Tm.set(E[i].u, E[i].v, E[i].t);
-            nbr[E[i].u].push_back(E[i].v);
-            nbr[E[i].v].push_back(E[i].u);
+            nbr[E[i].u].push_back({E[i].v, E[i].t});
+            nbr[E[i].v].push_back({E[i].u, E[i].t});
         };
         auto rebuild_prefix = [&](int last_incl) {
             Tm = DenseTimes(n);
@@ -465,7 +485,8 @@ inline Graph collapse_edges_forward(Graph g, int iterations, Counters& c) {
                 const value_t ti = E[i].t;
                 const value_t* ru = Tm.row(u);
                 const value_t* rv = Tm.row(v);
-                for (index_t w : nbr[u]) {
+                for (const LiveNbr& p : nbr[u]) {
+                    const index_t w = p.first;
                     if (w != u && w != v && ru[w] <= ti && rv[w] <= ti) {
                         Enbd.insert(edge_key(u, w));
                         Enbd.insert(edge_key(v, w));
@@ -490,7 +511,8 @@ inline Graph collapse_edges_forward(Graph g, int iterations, Counters& c) {
                         const index_t x = E[j].u, y = E[j].v;
                         const value_t* rx = Tm.row(x);
                         const value_t* ry = Tm.row(y);
-                        for (index_t w : nbr[x]) {
+                        for (const LiveNbr& p : nbr[x]) {
+                            const index_t w = p.first;
                             if (w != x && w != y && rx[w] <= ti && ry[w] <= ti) {
                                 Enbd.insert(edge_key(x, w));
                                 Enbd.insert(edge_key(y, w));

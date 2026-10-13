@@ -1,6 +1,6 @@
 # Selected algorithm (living)
 
-Updated 2026-10-13 after iterations I001–I150.
+Updated 2026-10-13 after iterations I001–I154. I155 pair-nbr is the live collapse cut.
 
 ## Selected exact-VR CPU pipeline
 
@@ -36,6 +36,7 @@ suite and I137 8/8 (including dense circle80/200 **collapse=0**, the I045 killer
 | AVX-512 `dominated_by` (I147) | Exact; **no collapse_ms win** (gather latency) |
 | Forward 2020 collapse (I149) | **Not exact** (over-collapse; circle80 unmatched 4). Also slower |
 | Time-axis D&C impl (I150) | PH match on n≤200; **fails** n=2000/3000 (19–25 unmatched). No clock win |
+| Forward at current grade (I152/I154) | Exact (same residual as backward). **Slower** (circle2000 6.8 s vs 4.3 s) |
 
 I107 (`--dom-budget 1`) **still rejected** with implicit (I142–I144): thicker
 residual makes collapse *and* reduce slower (circle3000 1.49× vs full 8.11×).
@@ -71,9 +72,14 @@ E3 (collapse + Ripser-sparse) is no longer required; we own that residual class.
 **Alpha (I136)** is a different complex: GUDHI Alpha circle3000 0.023 s vs Ripser VR 123 s
 (~5400× empirical) with 2745 \(H_1\) bars. Off the exact-VR 10× board.
 
-## Next levers (still open after I150)
+## Next levers (still open after I154)
 
-1. Fix D&C merge (I150 failed at n≥2000) — only worth it if extra left-call work can be cut.
-2. Real RedZeD active enumeration (H09).
-3. A collapse cheaper than sequential \(O(n_e k^2)\) that we have not already rejected.
-4. GPU later (Ripser++ reference only)
+I153: C-build is the wall (567M probes / 1.12M dom tests / 96% first-apex hits).
+~49% of probes miss and still paid two gathers. Domination levers are closed.
+
+1. **I155 pair-nbr** — store times on live adjacency; one gather per C-probe (in flight).
+2. If I155 wins: drop `DenseTimes` for the shift path; hub-batch edges sharing a vertex; integer grade IDs.
+3. If I155 loses: time-sorted early exit on the walked star; then close C-construction and reopen RedZeD (H09).
+4. Geometric lens / range query: ceiling ~2× (`|C|`≈269 vs probes≈527). Not a 10× path.
+5. Fix D&C merge (I150) — parallel schedule only; not less sequential work.
+6. GPU later (Ripser++ reference only)

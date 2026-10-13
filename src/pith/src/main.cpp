@@ -152,6 +152,8 @@ static void print_text(const Result& r) {
               << " collapse_c_probes=" << c.n_collapse_c_probes
               << " collapse_dom_tests=" << c.n_collapse_dom_tests
               << " collapse_dom_hits=" << c.n_collapse_dom_hits
+              << " collapse_c_size=" << c.n_collapse_c_size_sum
+              << " collapse_shift_lookups=" << c.n_collapse_shift_lookups
               << " metric_ms=" << c.metric_ms
               << " collapse_ms=" << c.collapse_ms
               << " reduce_ms=" << c.reduce_ms
@@ -300,6 +302,8 @@ int main(int argc, char** argv) {
         r.counters.n_collapse_c_probes = c.n_collapse_c_probes;
         r.counters.n_collapse_dom_tests = c.n_collapse_dom_tests;
         r.counters.n_collapse_dom_hits = c.n_collapse_dom_hits;
+        r.counters.n_collapse_c_size_sum = c.n_collapse_c_size_sum;
+        r.counters.n_collapse_shift_lookups = c.n_collapse_shift_lookups;
         r.counters.collapse_ms = c.collapse_ms;
         r.counters.metric_ms = c.metric_ms;
         r.counters.n_vertices = g.n;

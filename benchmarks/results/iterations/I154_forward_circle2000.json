@@ -1,0 +1,30 @@
+{
+  "id": "forward_circle2000",
+  "lever": "H01-fwd",
+  "class": "experiment",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "exact forward vs backward on circle2000 T=1.5",
+  "receipts": [
+    {
+      "alg": "back",
+      "match": true,
+      "unmatched": 0,
+      "ripser_s": 28.84637128599934,
+      "pith_s": 4.331837262998306,
+      "time_ratio": 6.659153965085281,
+      "collapse_ms": 4252.834,
+      "edges_out": 5169
+    },
+    {
+      "alg": "forward",
+      "match": true,
+      "unmatched": 0,
+      "ripser_s": 28.84637128599934,
+      "pith_s": 6.8611032879998675,
+      "time_ratio": 4.204334212028539,
+      "collapse_ms": 6781.3741,
+      "edges_out": 5169
+    }
+  ]
+}

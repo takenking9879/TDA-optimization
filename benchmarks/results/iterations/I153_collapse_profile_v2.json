@@ -1,0 +1,58 @@
+{
+  "id": "collapse_profile_v2",
+  "lever": "H01-profile",
+  "class": "experiment",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "C-probe vs dom-test mix (counters copied from collapse)",
+  "receipts": [
+    {
+      "n": 200,
+      "T": 1.5,
+      "match": true,
+      "ripser_s": 0.016055422000135877,
+      "pith_s": 0.00642814700040617,
+      "time_ratio": 2.497674990805499,
+      "collapse_ms": 4.256065,
+      "edges_in": 10880,
+      "edges_out": 283,
+      "c_probes": 568339,
+      "dom_tests": 10720,
+      "dom_hits": 10641,
+      "hit_rate": 0.9926305970149254,
+      "probes_per_in_edge": 52.23704044117647
+    },
+    {
+      "n": 2000,
+      "T": 1.5,
+      "match": true,
+      "ripser_s": 28.01659463299984,
+      "pith_s": 4.329384808001123,
+      "time_ratio": 6.471264596582511,
+      "collapse_ms": 4253.1195,
+      "edges_in": 1077130,
+      "edges_out": 5169,
+      "c_probes": 567540727,
+      "dom_tests": 1121950,
+      "dom_hits": 1074660,
+      "hit_rate": 0.9578501715762735,
+      "probes_per_in_edge": 526.9008634055314
+    },
+    {
+      "n": 3000,
+      "T": 1.5,
+      "match": true,
+      "ripser_s": 116.56512786999883,
+      "pith_s": 14.791480795000098,
+      "time_ratio": 7.880558375832178,
+      "collapse_ms": 14621.864,
+      "edges_in": 2425527,
+      "edges_out": 9190,
+      "c_probes": 1923661060,
+      "dom_tests": 2687084,
+      "dom_hits": 2426397,
+      "hit_rate": 0.9029851690531446,
+      "probes_per_in_edge": 793.0899388050515
+    }
+  ]
+}

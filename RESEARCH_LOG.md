@@ -612,3 +612,38 @@ Do not paste long reasoning here.
 - **Result:** Exact. collapse=0 implicit is **0.62×** vs Ripser at n=200/500/1000 T=1.5. Our heap port is correct but slower than Bauer on dense \(G_T\).
 - **Decision:** Collapse remains mandatory for H1 clock. Implicit wins on *collapsed* thick residuals, not on raw \(G_T\).
 - **Class:** reproduced
+
+## 2026-10-13 — I151 collapse profile (counters not copied)
+
+- **Question:** Is C-build or domination the collapse wall?
+- **Result:** Identity exact, but printed `c_probes`/`dom_*` were **0** — persist Result overwrote Counters; main only copied trims/shifts.
+- **Decision:** Do not trust I151 mix. Fix copy, remasure (I153).
+- **Class:** experiment (instrumentation miss)
+
+## 2026-10-13 — I152 forward at current grade
+
+- **Question:** Does testing secondary domination at \(t(e_i)\) (not \(t(e_j)\)) make 2020 forward exact?
+- **Result:** Exact **4/4** (circle/torus n=80/200). Residuals match backward (93/283). Small-n clock still slower than backward.
+- **Decision:** I149 over-collapse was the wrong grade. Identity restored. Scale clock = I154.
+- **Class:** reproduced / verified (identity)
+
+## 2026-10-13 — I153 collapse profile v2
+
+- **Question:** What is the C-probe vs domination mix with counters copied?
+- **Result:** circle2000: 567M C-probes, 290M commons, 1.12M dom tests, **96%** first-apex hits, collapse 4253 ms, **6.47×**. circle3000: 1.92B probes, 90% hits, 14622 ms, **7.88×**. ~49% of probes miss and still paid two DenseTimes gathers.
+- **Decision:** Domination is not the wall. C-build is. Next: store times on live nbr (I155).
+- **Class:** reproduced
+
+## 2026-10-13 — I154 exact forward at n=2000
+
+- **Question:** Does exact forward beat backward on circle2000 T=1.5?
+- **Result:** Exact, same residual 5169. Forward 6781 ms / 4.20× vs backward 4253 ms / **6.66×**.
+- **Decision:** Reject on clock. Default stays backward.
+- **Class:** experiment (negative on clock)
+
+## 2026-10-13 — I155 pair-nbr one-gather (in progress)
+
+- **Question:** Does storing `(w,t)` on live adjacency cut C-build from two DenseTimes gathers to one, without changing residuals?
+- **Hypothesis:** ~2× fewer random loads; probe count unchanged. Shift must update stored times or identity breaks.
+- **Work:** `LiveAdj` + `set_live_time` on shift; `n_collapse_shift_lookups`. Wave28 pending.
+- **Class:** proposal / experiment running
