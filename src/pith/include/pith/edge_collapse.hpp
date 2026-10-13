@@ -367,8 +367,8 @@ inline Graph collapse_edges(Graph g, int iterations, Counters& c, int dom_budget
                     ++c.n_collapse_early_keep_n;
                     if (c.n_collapse_last_commons == 0) ++c.n_collapse_early_empty_c;
                     if (std::getenv("PITH_EARLY_KEEP")) {
-                        std::fprintf(stderr, "# EARLY_KEEP i=%zu/%zu commons=%lld mindeg=%lld t_in=%g t_out=%g\n",
-                                     i, mE,
+                        std::fprintf(stderr, "# EARLY_KEEP i=%zu/%zu u=%d v=%d commons=%lld mindeg=%lld t_in=%g t_out=%g\n",
+                                     i, mE, (int)out.u, (int)out.v,
                                      static_cast<long long>(c.n_collapse_last_commons),
                                      static_cast<long long>(c.n_collapse_last_mindeg),
                                      static_cast<double>(E[i].t),
