@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-13 — I256 spatial prebuild on sparse connected clouds
+
+- **Question:** After leftover-coface inner-loop constants are exhausted, can a connected from-points RedZeD skip far distances (spatial d≤T + ∞-fill + prebuilt EdgeList) without changing H0–H2, and does that let us take n=10000 in about half a second?
+- **Hypothesis:** When π(T/L)²<0.2, |E|≪n². Same VR≤T (vendor bucket order). Dense clouds keep I238. Shape-agnostic. Exact if identity holds.
+- **Work:** `bbox_max_extent` + `edgelist_from_spat` + ∞-fill. Wave 117 vs Ripser: H0–H2 + dense uniform2 n=5000 T=0.35 + sparse n=10000 T=0.14.
+- **Result:** **Exact 13/13** (figure8 2=2; sphere void 1=1; torus ess H1 1=1; blobs H0 3=3). Dense n=5000 stayed all-pairs **10.9×** (0.30s/3.28s; reduce 206=I252). Sparse n=10000 **spatial** 6.03× (0.50s/2.99s; **2.73M vs 50M** distances; reduce 175 ms). Torus n=2000 also spatial (479k vs 2.0M) **13.9×** (0.18s). Sphere n=2000 stayed dense 10.4×.
+- **Decision:** **Support as the sparse-T from-points path.** Not a dense 10× cut (n=10000 is 6× because Ripser is also cheap at T=0.14). Justified size class: O(n + n²(T/L)^d) distances vs O(n²) when the T-ball is small. Topology loss: **0**. Worst-case connected G_T is still Θ(n²).
+- **Class:** experiment (support sparse metric; hold general 10×)
+
 ## 2026-10-13 — I255 unique-diameter leftover-coface
 
 - **Question:** On unique edge diameters, is leftover-coface just a nonempty rbit AND (skip `coface_ready`), and does that cut the connected wall without changing H0–H2?

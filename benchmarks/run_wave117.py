@@ -73,7 +73,7 @@ def main():
             "pipeline": cs.get("pipeline"),
             "metric_ms": cs.get("metric_ms"),
             "reduce_ms": cs.get("reduce_ms"),
-            "n_dist": cs.get("n_distances"),
+            "n_dist": cs.get("distances"),
             "n_cc": cs.get("collapse_trims"),
             "pith_s": ta,
             "ripser_s": tr,

@@ -1,6 +1,6 @@
 # Selected algorithm (living)
 
-Updated 2026-10-13 after iterations I001–I255. **CLI default `--engine
+Updated 2026-10-13 after iterations I001–I256. **CLI default `--engine
 auto` (I235+I236+I239+I240+I241):** subsample residual-frac dispatch. Fat →
 RedZeD (torus n=2000 **14.5×**). Thin-circle → collapse+implicit
 (n=1000 **28×**; n=4000 still **140×**). Disconnected G_T → spatial UF
@@ -507,7 +507,15 @@ Sphere n=2000 H1 **10.3×** (0.079s/0.81s). Torus **14.5×**. Blobs H1
 **25×**. H0 **1.9×**. Sphere H2 **59×** (void 1=1). Topology loss:
 **0**. Real pith cut. Not a better Big-O.
 
-## Next levers (still open after I252)
+**I256 spatial prebuild (sparse T):** when π(T/L)²<0.2, ∞-fill far
+pairs, write only d≤T, pass a spatial EdgeList. Wave 117 **exact
+13/13**. Dense uniform2 n=5000 stays all-pairs **10.9×** (0.30s).
+Sparse n=10000 T=0.14 **2.73M vs 50M** distances, 0.50s / 6.0× vs
+Ripser (Ripser is also cheap at that T). Torus n=2000 used spatial
+(479k vs 2.0M) **13.9×**. Topology loss: **0**. Better distance
+class when the T-ball is small; worst-case G_T still Θ(n²).
+
+## Next levers (still open after I256)
 
 `--engine auto` is a shape-agnostic exact H0–H2 portfolio: circle H1
 10×, torus H1 10×, sphere H1 **10.3×** at n=2000, sphere H2 **136×**
@@ -520,7 +528,7 @@ too slow.
 
 1. **CLI default:** `--engine auto` (I235+I236+I239+I240+I241). H1 τ=0.04; H2 τ=0.15.
 2. **Forced engines:** `--engine implicit` = I193+I197+I202+I203 only;
-   `--engine redzed` = I228+I239+I240+I244+I245+I246+I250+I251+I252; H0 = Kruskal.
+   `--engine redzed` = I228+I239+I240+I244+I245+I246+I250+I251+I252+I256; H0 = Kruskal.
 3. **Owned optional approx:** `--sparse-eps 0.6 --sparse-cap max` (I213/I218)
    when n grows past exact VR.
 4. Connected uniform2 is **12.7× / 11.2× / 11.8×** at n=5000 / 6000 /
@@ -534,7 +542,9 @@ too slow.
    Fill-collect sort, I247 leftover-coface fast, I248 fuse-fill
    histogram, and I249 parallel leftover-coface precompute are rejected.
    Parallel `build_edges`, lazy insert, skip-collect, inline skip, and
-   leftover-coface no-seen are in.
+   leftover-coface no-seen are in. **I256** spatial prebuild is in for
+   sparse connected clouds (π(T/L)²<0.2): n=10000 T=0.14 uses 2.73M
+   distances vs C(n,2)=50M. Dense n=5000 stays I238 all-pairs.
 5. Owned AE leftover-star walk is still Θ(|leftover|·deg★) — rbit cut
    has_leftover_coface, not seeded probes (circle still 875k). Packed
    annotations / seeded_is_noop are the next owned constants.
