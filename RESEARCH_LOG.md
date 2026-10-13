@@ -456,6 +456,17 @@ Do not paste long reasoning here.
 - **Result:** Exact. 1-pass 0.71×; adaptive **1.12×** (was 0.96×). Still a hold-out.
 - **Class:** reproduced
 
+## 2026-10-13 — I119 circle3000 T-sweep
+
+- **Result:** Exact. T=1.35 **6.41×** / residual 8325. T=1.45 **7.52×** / 8325. T=1.55 **7.68×** / 11542. T=1.65 **6.59×** / 16770. Peak remains T≈1.5 (I115 **8.0×**).
+- **Decision:** Do not move the protocol T off 1.5 for H1 clock claims.
+- **Class:** reproduced
+
+## 2026-10-13 — I120 high-d control
+
+- **Result:** Exact. uniform10 n=200: 1-pass **0.05×**, adaptive **0.12×**. Still a negative control.
+- **Class:** reproduced
+
 ## 2026-10-13 — I103–I105
 
 - **Result:** Skipped. They required the progressive binary on n=500–3000 after I102 failed.

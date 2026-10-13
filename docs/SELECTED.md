@@ -49,11 +49,11 @@ after the I081 bitset revert.
 
 **Not claimed:** H1 10× clock in general; high-d; thick torus; worst-case asymptotics.
 I117: n=4000 T=1.5 is **8.38×** (Ripser 287 s / PITH 34 s). Gains vs n=3000 are diminishing; 10× H1 is not a pure-n play.
+I119: on n=3000 the peak is still **T≈1.5**. T=1.55 residual grows (11542) and the ratio drops to 7.68×; T=1.65 is 6.59× (fill-in).
 
-## Next levers (still open after I118)
+## Next levers (still open after I120)
 
-1. T-sweep around 1.5 on n=3000 (I119) for a better large-T sweet spot
-2. A collapse cheaper than \(O(n^3)\) sequential (progressive/bitset/budget all failed)
-3. A correct Ripser-class residual engine (implicit still rejected; RedZeD unimplemented)
-4. Thick torus / high-d remainder (torus200 adaptive 1.12× this run)
-5. GPU later (Ripser++ reference only)
+1. A collapse cheaper than \(O(n^3)\) sequential (progressive/bitset/budget/maxdeg all failed)
+2. A correct Ripser-class residual engine (implicit still rejected; RedZeD unimplemented)
+3. Thick torus / high-d remainder (torus200 adaptive 1.12×; uniform10 0.05–0.12×)
+4. GPU later (Ripser++ reference only)
