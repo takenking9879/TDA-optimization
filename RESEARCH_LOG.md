@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-13 — I267 tight H2 generate_stream
+
+- **Question:** Vendor H2 `generate_stream` ANDs all n/64 neighborhood words per edge. Does restricting the AND to the live rlo/rhi intersection cut forced-redzed H2 (sphere n=200/400) without losing the void?
+- **Hypothesis:** Same triangles if unique-diam emit and comb_index ties match vendor EdStream. leftover_coface already uses this range. d>2 stays vendor. Shape-agnostic. H0/H1 hold.
+- **Work:** `generate_stream_h2_tight`. Wave 128 vs Ripser: H0–H2 + forced redzed sphere n=80/200/400 H2 + figure8 n=2000 + dense n=5000.
+- **Result:** **Exact 15/15** (sphere void 1=1 at n=80/200/400; two_spheres 2=2; figure8 2=2; blobs H0 3=3). **No H2 clock cut:** n=80 reduce **1.50 vs I263 1.47 ms** (2.22× vs 2.64×). n=200 4.16× / 28 ms; n=400 4.27× / 237 ms (new forced-redzed rows; auto-collapse stays 58×). Dense **11.1×**. leftover_coface already had the live-range AND; n≤400 is 2–7 words so the stream skip cannot matter.
+- **Decision:** **Revert.** Extra H2 path with no pith cut. Topology loss: **0**. I263 stays. Next: Morton/spatial vertex order so leftover rbit ranges are actually local (figure8 n=4000 has 63 words).
+- **Class:** experiment (hold identity; reject clock; reverted)
+
 ## 2026-10-13 — I266 fused H1 leftover loop
 
 - **Question:** Does adding each diam-tie group to rbits once and skipping `ae_prepare`/`advance_rbits` cut figure8 n=4000 reduce (866 ms) without inventing bars?

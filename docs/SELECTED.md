@@ -595,7 +595,10 @@ Rips is exact and too slow.
    Do not retry leftover-coface inner-loop skips. I266 fused H1
    leftover loop is exact after an H2-only fix and reverted (840 vs
    866 ms). Do not retry ae_prepare fusion. Incremental rbits are
-   required for maxdim≥2.
+   required for maxdim≥2. I267 tight H2 generate_stream is exact
+   15/15 and reverted (n=80 reduce 1.50 vs 1.47 ms). leftover_coface
+   already ANDs the live word range; do not retry H2 stream word
+   skips at n≲400 (2–7 words).
 6. Owned AE leftover-star walk is still Θ(|leftover|·deg★) — rbit cut
    has_leftover_coface, not seeded probes (circle still 875k). Packed
    annotations / seeded_is_noop are the next owned constants.
