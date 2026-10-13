@@ -144,6 +144,9 @@ static void build_edges_parallel(const DistanceMatrix& dist, value_t threshold,
 // I250: collect_candidates only reads ActiveReg. If no actives, reset any
 // leftover seen from a prior seeded leftover and skip the face-slot walk.
 // Uniform2 n=5000: 3.37M / 3.46M leftovers have empty ActiveReg.
+// I252: leftover-coface on the no-seed path does not need seenbits
+// (seedverts empty ⇒ seenbits is zero). H1 unrolls m=2. Do not add
+// I247's extra dist() before coface_ready.
 static void clear_seeds(State& st) {
     for (int32_t w : st.seedverts) {
         st.seen[w] = 0;
@@ -151,6 +154,63 @@ static void clear_seeds(State& st) {
         st.seenbits[w >> 6] = 0;
     }
     st.seedverts.clear();
+}
+
+// Vendor has_leftover_coface always masks ~seenbits. On the 97% no-seed
+// skip that mask is a no-op memory tax. Same coface_ready, same rbit AND.
+static bool leftover_coface_h1_noseen(State& st, const int32_t* xv, comb_t xidx, value_t r) {
+    const uint64_t* rb = st.rbits.data();
+    const int words = st.words, nv = st.nv;
+    const int u = xv[0], v = xv[1];
+    int wlo = st.rlo[u], whi = st.rhi[u];
+    if (st.rlo[v] > wlo) wlo = st.rlo[v];
+    if (st.rhi[v] < whi) whi = st.rhi[v];
+    int32_t* cbuf = st.coface_buf.data();
+    for (int w = wlo; w <= whi; ++w) {
+        uint64_t acc = rb[(size_t)u * words + w] & rb[(size_t)v * words + w];
+        while (acc) {
+            const int bp = redzed_ctz64(acc);
+            acc &= acc - 1;
+            const int cand = w * 64 + bp;
+            if (cand >= nv) break;
+            if (coface_ready(cbuf, xv, 2, (int32_t)cand, xidx, r, st.dist, st.binom))
+                return true;
+        }
+    }
+    return false;
+}
+
+// H2+ no-seed leftover-coface: same skip of the empty seenbits mask.
+static bool leftover_coface_noseen(State& st, const int32_t* xverts, int m, comb_t xidx,
+                                    value_t r) {
+    if (m == 2) return leftover_coface_h1_noseen(st, xverts, xidx, r);
+    const uint64_t* rb = st.rbits.data();
+    const int words = st.words, nv = st.nv;
+    int wlo = 0, whi = words - 1;
+    for (int i = 0; i < m; ++i) {
+        const int v = xverts[i];
+        if (st.rlo[v] > wlo) wlo = st.rlo[v];
+        if (st.rhi[v] < whi) whi = st.rhi[v];
+    }
+    int32_t* cbuf = st.coface_buf.data();
+    for (int w = wlo; w <= whi; ++w) {
+        uint64_t acc = rb[(size_t)xverts[0] * words + w];
+        if (!acc) continue;
+        for (int i = 1; i < m; ++i) {
+            acc &= rb[(size_t)xverts[i] * words + w];
+            if (!acc) break;
+        }
+        if (!acc) continue;
+        while (acc) {
+            const int bp = redzed_ctz64(acc);
+            acc &= acc - 1;
+            const int cand = w * 64 + bp;
+            if (cand >= nv) break;
+            if (coface_ready(cbuf, xverts, m, (int32_t)cand, xidx, r, st.dist, st.binom))
+                return true;
+        }
+    }
+    return false;
 }
 
 static void ae_prepare(State& st, const int32_t* verts, value_t sdiam) {
@@ -209,7 +269,7 @@ static void active_enum_lazy(State& st, rank_t xrank, comb_t xidx, const int32_t
     const int m = st.n + 1;
     ae_prepare(st, verts, sdiam);
     if (st.seedverts.empty()) {
-        if (has_leftover_coface(st, verts, m, xidx, sdiam)) return;
+        if (leftover_coface_noseen(st, verts, m, xidx, sdiam)) return;
         ae_keep_singleton(st, xrank, verts, sdiam);
         return;
     }
@@ -289,7 +349,7 @@ redzed_vr(DistanceMatrix& distIn, int n, value_t threshold, EdgeList* prebuilt) 
                         ae_prepare(st, st.top_buf.data(), ediam);
                         if (st.seedverts.empty()) {
                             const comb_t xidx = comb_index(xv, 2, st.binom);
-                            if (has_leftover_coface(st, xv, 2, xidx, ediam)) continue;
+                            if (leftover_coface_h1_noseen(st, xv, xidx, ediam)) continue;
                             ae_keep_singleton(st, er, st.top_buf.data(), ediam);
                         } else {
                             const comb_t xidx = comb_index(xv, 2, st.binom);
