@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-13 — I271 walk-locate 2D Delaunay H0
+
+- **Question:** Is I270’s H0 wall the O(n²) Bowyer–Watson scan (n=8000 metric 557 ms), and does Lawson walk + cavity flood cut construction to expected O(n log n) without changing VR H0?
+- **Hypothesis:** Incremental Delaunay with adjacency flood does the same incircle tests on the cavity only. Morton order keeps walks local. Same MST ⊆ Delaunay. H1/H2 unchanged. Shape-agnostic in the plane. Justified: expected O(n log n) vs O(n²) vs Θ(|E_T|).
+- **Work:** `delaunay_edges_2d_walk`; scan stays n≤12000 fallback; n cap 100000. Wave 132 vs Ripser: H0 blobs n=4000/8000/12000 + H1/H2 hold.
+- **Result:** **Exact 14/14** (blobs H0 3=3 at 4k/8k/12k; figure8 2=2; sphere void 1=1; two_spheres 2=2). blobs n=4000 **54.8× / 4.1 ms / 11946 edges** (I270 176 ms / 3.17×). n=8000 **137× / 7.6 ms** (I270 557 ms). n=12000 **218× / 0.027 s / 35948 edges** vs Ripser 5.81 s. Dense H1 **10.8×**. figure8 n=2000 **17.8×**. Sphere H2 **57×**. Construction now ~linear (4.1 / 7.6 / 12.4 ms).
+- **Decision:** **Support for H0.** Topology loss: **0**. Replace I270 scan as the selected 2D H0 construction. H1 leftover visits stay Θ(|E|). Next: Gabriel leftover skip (only Delaunay\MST can birth H1).
+- **Class:** experiment (support H0 identity + construction class)
+
 ## 2026-10-13 — I270 2D Delaunay H0
 
 - **Question:** Euclidean MST ⊆ Delaunay, so is H0 of VR≤T exactly Kruskal on Delaunay edges with d≤T, skipping the G_T listing (blobs n=4000: 2.6M spatial pairs / 1.85×)?
