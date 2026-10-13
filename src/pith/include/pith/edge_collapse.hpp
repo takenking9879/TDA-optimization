@@ -445,9 +445,31 @@ inline bool same_residual(const Graph& a, const Graph& b) {
     return true;
 }
 
-// I168: double oldest-keep until the residual plateaus (no first-keep oracle).
-// I167: circle2000 is exact at keep ≥ 54561 (27.3n). Start at 8n, cap at 64n
-// (or 12.5% of m); bail to full backward if the residual never settles.
+inline Graph suffix_back_keep(const Graph& g, size_t keep, Counters& c, int dom_budget) {
+    Graph attempt;
+    attempt.n = g.n;
+    attempt.edges = g.edges;
+    Counters tmp;
+    Graph out = collapse_edges_oldest_then_back(std::move(attempt), 0, tmp, dom_budget,
+                                               static_cast<std::int64_t>(keep));
+    add_collapse_counters(c, tmp);
+    return out;
+}
+
+inline Graph suffix_full_bail(Graph g, Counters& c, int dom_budget, const std::chrono::steady_clock::time_point& t0) {
+    Counters full;
+    Graph out = collapse_edges(std::move(g), 1, full, dom_budget);
+    add_collapse_counters(c, full);
+    c.n_edges_out = static_cast<std::int64_t>(out.edges.size());
+    c.n_collapse_first_keep = -1;
+    const auto t1 = std::chrono::steady_clock::now();
+    c.collapse_ms = std::chrono::duration<double, std::milli>(t1 - t0).count();
+    return out;
+}
+
+// I168/I169: double oldest-keep until the residual plateaus, then confirm on a
+// strictly larger keep. I168 false-plateaued on circle3000/4000: 64n and 12.5%
+// agreed on the same *wrong* residual. Confirm at 2k (or k+m/8) catches that.
 inline Graph collapse_edges_suffix_stabilize(Graph g, Counters& c, int dom_budget) {
     const auto t0 = std::chrono::steady_clock::now();
     if (c.n_edges_in == 0) c.n_edges_in = static_cast<std::int64_t>(g.edges.size());
@@ -455,40 +477,34 @@ inline Graph collapse_edges_suffix_stabilize(Graph g, Counters& c, int dom_budge
     const size_t n = static_cast<size_t>(std::max(g.n, 1));
     if (m <= n) return collapse_edges(std::move(g), 1, c, dom_budget);
 
-    size_t k = std::max(n * 8, n);
-    const size_t k_cap = std::min(m, std::max(n * 64, m / 8 + 1));
-    if (k > k_cap) k = k_cap;
-
+    const size_t k_cap = std::min(m, std::max(n * 128, m / 2));
+    size_t k = std::min(k_cap, std::max(n * 8, n));
     Graph prev;
     bool have_prev = false;
     Graph cur;
     size_t used = k;
     while (k <= k_cap) {
-        Graph attempt;
-        attempt.n = g.n;
-        attempt.edges = g.edges;
-        Counters tmp;
-        cur = collapse_edges_oldest_then_back(std::move(attempt), 0, tmp, dom_budget,
-                                             static_cast<std::int64_t>(k));
-        add_collapse_counters(c, tmp);
+        cur = suffix_back_keep(g, k, c, dom_budget);
         used = k;
-        if (have_prev && same_residual(prev, cur)) break;
+        if (have_prev && same_residual(prev, cur)) {
+            const size_t k_v = std::min(m, std::max(k * 2, k + m / 8));
+            if (k_v <= k) break;
+            Graph ver = suffix_back_keep(g, k_v, c, dom_budget);
+            if (same_residual(cur, ver)) {
+                used = k_v;
+                break;
+            }
+            // False plateau (I168 n=3000/4000). Keep growing from the verify keep.
+            prev = std::move(ver);
+            have_prev = true;
+            if (k_v >= k_cap) return suffix_full_bail(std::move(g), c, dom_budget, t0);
+            k = (k_v > k_cap / 2) ? k_cap : std::min(k_cap, k_v * 2);
+            continue;
+        }
         prev = cur;
         have_prev = true;
-        if (k >= k_cap) {
-            // No plateau: full backward on the original graph.
-            Counters full;
-            Graph out = collapse_edges(std::move(g), 1, full, dom_budget);
-            add_collapse_counters(c, full);
-            c.n_edges_out = static_cast<std::int64_t>(out.edges.size());
-            c.n_collapse_first_keep = -1;
-            const auto t1 = std::chrono::steady_clock::now();
-            c.collapse_ms = std::chrono::duration<double, std::milli>(t1 - t0).count();
-            return out;
-        }
-        const size_t nxt = (k > k_cap / 2) ? k_cap : k * 2;
-        if (nxt == k) break;
-        k = nxt;
+        if (k >= k_cap) return suffix_full_bail(std::move(g), c, dom_budget, t0);
+        k = (k > k_cap / 2) ? k_cap : k * 2;
     }
     c.n_edges_out = static_cast<std::int64_t>(cur.edges.size());
     c.n_collapse_first_keep = static_cast<std::int64_t>(used);

@@ -711,9 +711,16 @@ Do not paste long reasoning here.
 - **Decision:** Oracle suffix-back is the first H1 **>10×** on circle2000. I168: find the cutoff without a full C-walk (stabilize / double keep).
 - **Class:** reproduced (oracle)
 
-## 2026-10-13 — I168 suffix-stabilize (in progress)
+## 2026-10-13 — I168 suffix-stabilize
 
 - **Question:** Does doubling oldest-keep until the residual plateaus recover I167 without an oracle?
+- **Result:** **Exact on n≤2000.** circle2000: residual 5169, **41.7× vs Ripser** (27.2 s / 0.65 s), 6.2× vs full back, keep used 128000. blobs bails to full (slower, 0.24× vs Ripser). **False plateau at n=3000/4000:** 64n and 12.5% agreed on a *wrong* residual (8325 vs 9190; 11361 vs 12562), 2 unmatched. Two too-small prefixes can match.
+- **Decision:** Do not select yet. I169: confirm every plateau on a strictly larger keep.
+- **Class:** experiment (partial; false plateau)
+
+## 2026-10-13 — I169 confirm-larger (in progress)
+
+- **Question:** Does a 2k / k+m/8 confirm after a plateau fix n=3000/4000 without an oracle?
 - **Class:** experiment running
 
 ## 2026-10-13 — I164 collapse live-degree trace
