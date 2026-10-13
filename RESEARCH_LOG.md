@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-13 — I273 empty-seed non-Delaunay leftover skip
+
+- **Question:** I272 invented ess H1 by skipping ae_seeded. If we skip leftover_coface only on empty-seed non-Delaunay leftovers (seeded always runs), does figure8 n=4000 reduce drop below 866 ms?
+- **Hypothesis:** I251: 97% leftovers are empty-seed. Non-Delaunay ⇒ non-Gabriel ⇒ apparent. Seeded path is the I272 bug. H0/H2 unchanged. Shape-agnostic in the plane.
+- **Work:** `g_delaunay` set from I271 walk; empty-seed + not-in-set → continue after ae_prepare. Wave 134 vs Ripser: H0–H2 + figure8 n=2000/4000 + dense n=5000.
+- **Result:** **Exact 13/13** (figure8 2=2 at n=2000 and n=4000; sphere void 1=1; two_spheres 2=2; blobs H0 3=3). figure8 n=4000 reduce **864 vs 866 ms**; n=2000 111 vs 99. Dense **11.3×**. H0 **59× / 3.9 ms**. Sphere H2 **59×**. No leftover-visit cut — wall is ae_seeded, not empty-seed leftover_coface.
+- **Decision:** **Revert.** Exact but not a clock lever. Do not retry empty-seed geometric skips. Topology loss: **0**. I271 H0 stays. Next H1: cheaper ae_seeded or fewer seeded leftovers, not another empty-seed filter.
+- **Class:** experiment (hold identity; reject clock; reverted)
+
 ## 2026-10-13 — I272 Gabriel leftover skip
 
 - **Question:** Non-Gabriel leftovers have a diametral witness, so are they apparent (n+1)-births we can skip leftover_coface on, cutting figure8 n=4000 reduce (866 ms) to O(n) pairing?
@@ -1149,7 +1158,7 @@ Do not paste long reasoning here.
 - **Hypothesis:** Incremental Delaunay with adjacency flood does the same incircle tests on the cavity only. Morton order keeps walks local. Same MST ⊆ Delaunay. H1/H2 unchanged. Shape-agnostic in the plane. Justified: expected O(n log n) vs O(n²) vs Θ(|E_T|).
 - **Work:** `delaunay_edges_2d_walk`; scan stays n≤12000 fallback; n cap 100000. Wave 132 vs Ripser: H0 blobs n=4000/8000/12000 + H1/H2 hold.
 - **Result:** **Exact 14/14** (blobs H0 3=3 at 4k/8k/12k; figure8 2=2; sphere void 1=1; two_spheres 2=2). blobs n=4000 **54.8× / 4.1 ms / 11946 edges** (I270 176 ms / 3.17×). n=8000 **137× / 7.6 ms** (I270 557 ms). n=12000 **218× / 0.027 s / 35948 edges** vs Ripser 5.81 s. Dense H1 **10.8×**. figure8 n=2000 **17.8×**. Sphere H2 **57×**. Construction now ~linear (4.1 / 7.6 / 12.4 ms).
-- **Decision:** **Support for H0.** Topology loss: **0**. Replace I270 scan as the selected 2D H0 construction. H1 leftover visits stay Θ(|E|). Next: Gabriel leftover skip (only Delaunay\MST can birth H1).
+- **Decision:** **Support for H0.** Topology loss: **0**. Replace I270 scan as the selected 2D H0 construction. H1 leftover visits stay Θ(|E|). I272 Gabriel leftover skip was inexact (reverted).
 - **Class:** experiment (support H0 identity + construction class)
 
 ## 2026-10-13 — I270 2D Delaunay H0
