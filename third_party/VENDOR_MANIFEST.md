@@ -7,6 +7,7 @@ Pinned, unmodified snapshots used as baselines. Do not edit files under
 | --- | --- | --- | --- | --- | --- |
 | Ripser | https://github.com/Ripser/ripser | MIT | `01add51ff64aaf40889483260cc5c3b7d0f2a1e7` | `third_party/ripser/` | Exact VR CPU baseline (implicit cohomology) |
 | Ripser++ | https://github.com/simonzhang00/ripser-plusplus | MIT | `30243c0c752de26d7fdf6e41f08bf7b840ca4744` | `third_party/ripser-plusplus/` | GPU reference only. **Local clone, not a remote fork.** |
+| RedZeD | https://github.com/nkershaw01/RedZeD | MIT | `22ef1bf8696bccad02b041a83863d12d4bd92766` | `third_party/redzed/` | Exact VR engine (active enumeration). PITH `--engine redzed` (I228). |
 
 ## Ripser++ status in this environment
 
@@ -22,7 +23,7 @@ Pinned, unmodified snapshots used as baselines. Do not edit files under
 | --- | --- |
 | giotto-ph | AGPL-3. Use as an optional pip oracle only; do not copy source. |
 | GUDHI | MIT, but large. Optional system/pip oracle for collapse and Alpha. I227: flag collapse is slower than PITH on n=2000. |
-| RedZeD / redzed-tda | MIT (Kapulkin–Kershaw, arXiv:2606.06310). I227 pip oracle `redzed-tda==0.1.1` is exact VR on mixed homology. Not vendored yet — own the algorithm before in-tree copy. |
+| redzed-tda (PyPI) | MIT wheel used as I227 oracle. In-tree copy is `third_party/redzed/` (same upstream). |
 | Oineus | LBNL BSD + grant-back. Independent reference, not a kernel. |
 | Ripserer.jl | MIT, Julia not installed here. |
 
