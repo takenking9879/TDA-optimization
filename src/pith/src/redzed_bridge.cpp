@@ -12,6 +12,7 @@
 #include <chrono>
 #include <cmath>
 #include <functional>
+#include <iterator>
 #include <numeric>
 #include <thread>
 #include <unordered_map>
@@ -302,7 +303,10 @@ redzed_vr(DistanceMatrix& distIn, int n, value_t threshold, EdgeList* prebuilt) 
     st.n = n;
     st.dist = std::move(distIn);
     st.binom = BinomialTable(nv, n + 2);
-    if (prebuilt && prebuilt->count) {
+    // I257: empty prebuilt is a valid G_T (no d≤T edges). Do not fall
+    // through to build_edges on a zero-initialized matrix — far 0s would
+    // be read as diameter-0 edges.
+    if (prebuilt) {
         st.edges = std::move(*prebuilt);
     } else {
         build_edges_parallel(st.dist, thr, st.binom, st.edges);
@@ -628,6 +632,8 @@ struct SpatEdge {
 };
 
 // I241: Moore neighborhood emits every Euclidean pair with d≤T.
+// I257: grid is built once (read-only after), then the neighbor scan
+// runs on a thread pool. Same (u,v,d) set as the sequential walk.
 static bool spatial_edges(const std::vector<std::vector<value_t>>& pts, value_t T,
                           std::vector<SpatEdge>& out) {
     const int n = static_cast<int>(pts.size());
@@ -647,9 +653,8 @@ static bool spatial_edges(const std::vector<std::vector<value_t>>& pts, value_t 
         grid[pack_cell(c, d)].push_back(i);
     }
     out.clear();
-    out.reserve(static_cast<size_t>(n) * 8);
     const int z1 = (d == 3) ? 1 : 0;
-    for (int i = 0; i < n; ++i) {
+    auto scan_i = [&](int i, std::vector<SpatEdge>& dest) {
         int c0[3] = {0, 0, 0};
         cell_of(i, c0);
         int c[3] = {0, 0, 0};
@@ -664,9 +669,36 @@ static bool spatial_edges(const std::vector<std::vector<value_t>>& pts, value_t 
                     for (int j : it->second) {
                         if (j <= i) continue;
                         const value_t dist = point_dist(pts, i, j);
-                        if (dist <= T) out.push_back({dist, i, j});
+                        if (dist <= T) dest.push_back({dist, i, j});
                     }
                 }
+    };
+    const int nth = std::max(1, static_cast<int>(std::thread::hardware_concurrency()));
+    if (nth <= 1 || n < 256) {
+        out.reserve(static_cast<size_t>(n) * 8);
+        for (int i = 0; i < n; ++i) scan_i(i, out);
+        return true;
+    }
+    std::vector<std::vector<SpatEdge>> local(static_cast<size_t>(nth));
+    std::vector<std::thread> pool;
+    pool.reserve(static_cast<size_t>(nth));
+    const int span = (n + nth - 1) / nth;
+    for (int t = 0; t < nth; ++t) {
+        const int i0 = t * span;
+        const int i1 = std::min(n, i0 + span);
+        if (i0 >= i1) break;
+        pool.emplace_back([&, i0, i1, t]() {
+            auto& dest = local[static_cast<size_t>(t)];
+            dest.reserve(static_cast<size_t>(i1 - i0) * 8);
+            for (int i = i0; i < i1; ++i) scan_i(i, dest);
+        });
+    }
+    for (auto& th : pool) th.join();
+    size_t tot = 0;
+    for (const auto& v : local) tot += v.size();
+    out.reserve(tot);
+    for (auto& v : local) {
+        out.insert(out.end(), std::make_move_iterator(v.begin()), std::make_move_iterator(v.end()));
     }
     return true;
 }
@@ -912,8 +944,12 @@ Result persist_redzed_from_points(const std::vector<std::vector<value_t>>& pts, 
     const int dim = maxdim;
     const int d = static_cast<int>(pts[0].size());
     // I256: when the T-ball is a small fraction of the bbox, skip far
-    // distances. Fill far entries with +∞, write only d≤T, pass a prebuilt
-    // EdgeList. Dense clouds (π(T/L)²≥0.2) keep I238 parallel all-pairs.
+    // distances and pass a prebuilt EdgeList. Dense clouds (π(T/L)²≥0.2)
+    // keep I238 parallel all-pairs.
+    // I257: do not ∞-fill C(n,2). With finite T and a prebuilt EdgeList,
+    // coface_ready / generate_stream only read d≤T pairs (rbit AND of
+    // EdgeList neighbors; generate_stream uses the edge-graph, not mat).
+    // Far entries stay 0 from resize_lower and must never be read.
     std::vector<SpatEdge> SE;
     bool spatial = false;
     if (std::isfinite(threshold) && threshold > 0 && d >= 2 && d <= 3 && n >= 256) {
@@ -929,7 +965,6 @@ Result persist_redzed_from_points(const std::vector<std::vector<value_t>>& pts, 
     D.resize_lower(n);
     const auto tfill0 = std::chrono::steady_clock::now();
     if (spatial) {
-        std::fill(D.mat.begin(), D.mat.end(), VINF);
         for (const SpatEdge& e : SE) {
             const int i = std::min(e.u, e.v), j = std::max(e.u, e.v);
             D.mat[DistanceMatrix::offset(i, j)] = e.t;
