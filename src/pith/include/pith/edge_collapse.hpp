@@ -762,6 +762,24 @@ inline Graph collapse_edges_suffix_later(Graph g, Counters& c, int dom_budget,
             }
         }
         if (!leave) {
+            // I178: Case B — later neighbor of the other endpoint, still
+            // adjacent to src at time ≤ t. Other high-time tail is tiny on
+            // young edges (I167 tau_late is rare).
+            const auto& other_star = walk_u ? nbr[v] : nbr[u];
+            const value_t* r_src = walk_u ? Tm.row(u) : Tm.row(v);
+            for (const LiveNbr& p : other_star) {
+                const index_t w = p.first;
+                if (w == u || w == v) continue;
+                if (p.second <= t) continue;
+                ++probed;
+                const value_t t_src = r_src[w];
+                if (t_src < kInf / 2 && t_src <= t) {
+                    leave = true;
+                    break;
+                }
+            }
+        }
+        if (!leave) {
             index_t first = -1;
             const value_t* r_first = nullptr;
             bool fused_ok = true;

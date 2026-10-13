@@ -766,9 +766,16 @@ Do not paste long reasoning here.
 - **Note:** I174 K=0 already does full-walk-to-trim; the missing cut is proving `!any_later` without a full walk (I167: `p.second > t` is too rare on young edges).
 - **Class:** proposal
 
-## 2026-10-13 — I176 Case A/B + suffix-later (in progress)
+## 2026-10-13 — I176 Case A/B + suffix-later
 
 - **Question:** Are shift-keep `any_later` commons Case A (`p.second > t`) so a tail filter can leave them before K-sample trim?
+- **Result:** circle3000: 96 any_later = **80 A + 18 B** (16 B-only). circle4000: 74 A / 20 B. blobs: 109 A / 75 B. Case-A-only leave + K=2: circle2000 **exact 13.4×** vs Ripser (26.7 s / 2.0 s, 142M vs 568M probes). n=3000 **2 unmatched** (8325 vs 9190) — the B-only keeps. K=8 no clock win.
+- **Decision:** Case A is the cheap 13× on n=2000. I178: also leave Case B via the *other* star’s high-time tail (tiny on young edges).
+- **Class:** experiment (partial)
+
+## 2026-10-13 — I178 Case A+B tails (in progress)
+
+- **Question:** Does leaving both high-time tails before K-sample make n=3000 exact and keep the n=2000 13×?
 - **Class:** experiment running
 
 ## 2026-10-13 — I164 collapse live-degree trace
