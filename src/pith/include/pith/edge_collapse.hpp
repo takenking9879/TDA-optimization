@@ -716,10 +716,13 @@ inline Graph collapse_edges_suffix_sample(Graph g, Counters& c, int dom_budget,
     return g;
 }
 
-// I176: leave young edges that have a Case-A later common (p.second > t
-// and other endpoint adjacent) before any K-sample trim. Case A is a
-// suffix of the live star if times are unsorted — still only a p.second
-// filter plus a few r_other loads. Then K-sample first-apex on the rest.
+// I176/I179: leave young edges that have a later common before K-sample
+// trim. Because the young loop is newest-first, every live neighbor with
+// time > t has already been processed: trimmed (dropped) or kept. The
+// kept-later adjacency is therefore the exact high-time prefix — Case A
+// (later common on src) and Case B (later common on the other star) are
+// O(|kept|) instead of a full other-star scan (I178). Then K-sample
+// first-apex on the p.second ≤ t commons.
 inline Graph collapse_edges_suffix_later(Graph g, Counters& c, int dom_budget,
                                          int sample_k, bool case_b = false) {
     const auto t0 = std::chrono::steady_clock::now();
@@ -740,6 +743,8 @@ inline Graph collapse_edges_suffix_later(Graph g, Counters& c, int dom_budget,
     DenseTimes Tm(g.n);
     LiveAdj nbr;
     init_collapse_graph(E, g.n, Tm, nbr);
+    // I179: high-time prefix = already-kept newer edges, not a full sort.
+    std::vector<std::vector<LiveNbr>> later(n);
 
     for (size_t i = 0; i < young; ++i) {
         const index_t u = E[i].u, v = E[i].v;
@@ -747,33 +752,28 @@ inline Graph collapse_edges_suffix_later(Graph g, Counters& c, int dom_budget,
         const bool walk_u = nbr[u].size() <= nbr[v].size();
         const auto& src = walk_u ? nbr[u] : nbr[v];
         const value_t* r_other = walk_u ? Tm.row(v) : Tm.row(u);
+        const index_t src_v = walk_u ? u : v;
+        const index_t other_v = walk_u ? v : u;
 
         bool leave = false;
         std::int64_t probed = 0;
-        for (const LiveNbr& p : src) {
-            const index_t w = p.first;
-            if (w == u || w == v) continue;
-            if (p.second <= t) continue;
+        // Case A: later kept neighbor of src, still adjacent to other.
+        for (const LiveNbr& p : later[src_v]) {
             ++probed;
-            const value_t t_other = r_other[w];
-            if (t_other < kInf / 2) {
+            if (p.second <= t) continue;
+            if (r_other[p.first] < kInf / 2) {
                 leave = true;
                 break;
             }
         }
         if (!leave && case_b) {
-            // I178: Case B — later neighbor of the other endpoint, still
-            // adjacent to src at time ≤ t. Scanning the other star costs a
-            // full deg walk as t drops; optional because it erased I176's
-            // 13.4× on circle2000 K=2.
-            const auto& other_star = walk_u ? nbr[v] : nbr[u];
+            // Case B: later kept neighbor of the other endpoint, adjacent
+            // to src at time ≤ t. later[other] is tiny (I171: ~100 keeps).
             const value_t* r_src = walk_u ? Tm.row(u) : Tm.row(v);
-            for (const LiveNbr& p : other_star) {
-                const index_t w = p.first;
-                if (w == u || w == v) continue;
-                if (p.second <= t) continue;
+            for (const LiveNbr& p : later[other_v]) {
                 ++probed;
-                const value_t t_src = r_src[w];
+                if (p.second <= t) continue;
+                const value_t t_src = r_src[p.first];
                 if (t_src < kInf / 2 && t_src <= t) {
                     leave = true;
                     break;
@@ -821,6 +821,10 @@ inline Graph collapse_edges_suffix_later(Graph g, Counters& c, int dom_budget,
                 ++c.n_collapse_trims;
                 ++c.n_collapse_fast_trims;
             }
+        }
+        if (leave) {
+            later[u].push_back({v, t});
+            later[v].push_back({u, t});
         }
         c.n_collapse_c_probes += probed;
     }

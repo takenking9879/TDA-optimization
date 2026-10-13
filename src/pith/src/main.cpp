@@ -23,7 +23,7 @@ static void usage() {
         << "  --suffix-mult X     oldest X·n edges for suffix* (default 6; I165)\n"
         << "  --suffix-keep N     oldest N edges (overrides --suffix-mult; I167)\n"
         << "  --suffix-k K        sample-K first-apex for suffix-k/later (0=full fused)\n"
-        << "  --later-b           also leave Case-B later commons (I178; slower)\n"
+        << "  --later-b           also leave Case-B later commons via kept-later (I179)\n"
         << "  --dom-budget K      max domination candidates per edge (-1 = all; I107)\n"
         << "  --engine auto|homology|implicit   residual PH engine (default auto)\n"
         << "  --ratio R           skip pairs with death <= birth*R (default 1)\n"

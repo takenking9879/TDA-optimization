@@ -785,6 +785,12 @@ Do not paste long reasoning here.
 - **Question:** Time-bucket live stars so both high-time tails are O(1)/O(log) without scanning the larger star?
 - **Class:** proposal
 
+## 2026-10-13 — I179 kept-later high-time prefix
+
+- **Question:** Is the already-kept newer adjacency the exact Case A/B tail (newest-first), so B is O(|keeps|) not a full other-star scan?
+- **Work:** `later[v]` records young-loop keeps. Case A walks `later[src]`; `--later-b` walks `later[other]`. No full-star sort (I159 was slower). Wave47 = I180.
+- **Class:** experiment (running)
+
 ## 2026-10-13 — I164 collapse live-degree trace
 
 - **Question:** Does the live 1-skeleton thin early enough to stop the C-walk?
