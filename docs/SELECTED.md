@@ -52,6 +52,7 @@ suite and I137 8/8 (including dense circle80/200 **collapse=0**, the I045 killer
 | kept-later Case B leave (I180) | Exact at n=4000 K=2 (9.08×) and n=3000 K=8 (7.78×); leave-cascade kills the 16.9× |
 | escalate-until-keep (I181/I183) | n=3000 still 2 unmatched (8325). Early leave turns escalate off |
 | Progressive word-AND on fused-fail (I191) | Exact; **slower** on losers (blobs 809→1309 ms). Full ∩ cannot early-abort trims |
+| Sticky vertex-dominator (I194) | Exact; **no clock win** (sphere 357→459 ms discovery tax). Static G_T frac ≠ grade-t hits |
 
 I107 (`--dom-budget 1`) **still rejected** with implicit (I142–I144): thicker
 residual makes collapse *and* reduce slower (circle3000 1.49× vs full 8.11×).
@@ -71,8 +72,8 @@ residual makes collapse *and* reduce slower (circle3000 1.49× vs full 8.11×).
 | Dataset | dim | n | T | vs Ripser |
 | --- | --- | --- | --- | --- |
 | sphere | \(H_2\) | 500 | 1.4 | **59×** (I085) / 46× later |
-| circle_noisy | \(H_1\) | 4000 | 1.5 | **113×** I190 AND-eq (300s/2.65s). I193 n=2000 is 83.5×; n=4000 remasure pending |
-| circle_noisy | \(H_1\) | 3000 | 1.5 | **93.2×** I189 (115s/1.24s); I193 remasure pending |
+| circle_noisy | \(H_1\) | 4000 | 1.5 | **113×** I190 AND-eq (300s/2.65s). I196 remasure pending |
+| circle_noisy | \(H_1\) | 3000 | 1.5 | **128×** I195 I193+I194 (123s/0.96s); I196 I193-only pending |
 | circle_noisy | \(H_1\) | 2000 | 1.5 | **83.5×** default I193 (29.1s/0.35s, collapse 270 ms). I189 was 71.0× |
 | torus | \(H_1\) | 1000 | 1.6 | **1.31×** owned implicit (I139); E3 1.25× same run |
 | circle_noisy | \(H_1\) | 2000 | 1.2 | **4.13×** (I162) / 3.8–4.8× earlier |
@@ -90,12 +91,12 @@ E3 (collapse + Ripser-sparse) is no longer required; we own that residual class.
 **Alpha (I136)** is a different complex: GUDHI Alpha circle3000 0.023 s vs Ripser VR 123 s
 (~5400× empirical) with 2745 \(H_1\) bars. Off the exact-VR 10× board.
 
-## Next levers (still open after I193)
+## Next levers (still open after I195)
 
-Circle family: **83.5 / 93 / 113×** at n=2000/3000/4000 (n=3000/4000 still I189 numbers). I193 made blobs/sphere beat Ripser (1.78× / 1.96×).
+Circle family: **83.5 / 128× (I194-on) / 113×** at n=2000/3000/4000. I193 made blobs/sphere beat Ripser (1.78× / 1.96×). I194 rejected as default.
 
-1. **Default:** I193 multi-apex AND-eq. n=2000 **83.5×**.
-2. I195: remasure n=3000/4000 under I193.
-3. I194: sticky vertex-dominator star-trim (blobs frac=1.0, torus 0.64; skip sphere 0.01).
-4. Shift-train AND-eq on torus `any_later` tail (~100k non-fast trims).
+1. **Default:** I193 multi-apex AND-eq (I194 off). n=2000 **83.5×**.
+2. I196: I193-only remasure n=3000/4000.
+3. Shift-train AND-eq on torus `any_later` tail (~100k non-fast trims).
+4. Second-pass collapse / RedZeD on torus residual 163k.
 5. GPU later.

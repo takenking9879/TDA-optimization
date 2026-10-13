@@ -882,6 +882,20 @@ Do not paste long reasoning here.
 - **Decision:** Implement filtration-safe sticky vertex-dominator (I194) on blobs/torus. Do not batch-trim sphere.
 - **Class:** experiment (support as a count; implement next)
 
+## 2026-10-13 — I194 sticky vertex-dominator
+
+- **Question:** Does N_t[v]⊆N_t[u] star-trim beat I193 AND-eq on blobs/torus?
+- **Result:** **Exact**, same residuals. vertex_trims: circle2000 462k, blobs 36k, torus 9k, sphere 12. Clock **not better**: circle 286 vs 270 ms, blobs 202 vs 192, sphere 459 vs 357 (discovery tax), torus 1780 vs 1828 (tiny). Static G_T frac≠dynamic grade-t hits.
+- **Decision:** Reject as default (leave code, vdom=null). AND-eq already covers those edges.
+- **Class:** experiment (reject as clock; exact)
+
+## 2026-10-13 — I195 n=3000 with I194 on
+
+- **Question:** Does I193+I194 hold H1 10× at circle n=3000?
+- **Result:** **128×** exact (123s/0.96s, residual 9190, collapse 776 ms). I189 was 93.2× / 1058 ms. Mixed stack; remasure I193-only next.
+- **Decision:** Circle n=3000 still ≫10×. I196: I193-only n=3000/4000.
+- **Class:** experiment (support, I194-on)
+
 ## 2026-10-13 — I164 collapse live-degree trace
 
 - **Question:** Does the live 1-skeleton thin early enough to stop the C-walk?

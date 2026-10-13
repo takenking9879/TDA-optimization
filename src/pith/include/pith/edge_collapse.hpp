@@ -687,13 +687,11 @@ inline Graph collapse_edges(Graph g, int iterations, Counters& c, int dom_budget
         LiveBits* bits = nullptr;
         std::vector<int> deg;
         LiveAdj later;
-        std::vector<index_t> vdom;
         if (use_bits) {
             bits = &bits_store;
             init_collapse_graph(E, g.n, Tm, nbr, bits, true);
             deg.assign(static_cast<size_t>(g.n), 0);
             later.assign(static_cast<size_t>(g.n), {});
-            vdom.assign(static_cast<size_t>(g.n), -1);
             scratch.cover.resize(static_cast<size_t>(bits->W));
             scratch.cwords.resize(static_cast<size_t>(bits->W));
             for (const Edge& e : E) {
@@ -714,7 +712,7 @@ inline Graph collapse_edges(Graph g, int iterations, Counters& c, int dom_budget
             if (process_one_backward(E[i], E[i].t, Tm, nbr, scratch, dom_budget, out, c, bits,
                                     use_bits ? &deg : nullptr,
                                     use_bits ? &later : nullptr,
-                                    use_bits ? &vdom : nullptr)) {
+                                    nullptr)) {
                 if (c.n_collapse_first_keep < 0)
                     c.n_collapse_first_keep = static_cast<std::int64_t>(i);
                 if (mE > 0) {
