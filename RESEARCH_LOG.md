@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-13 — I257 skip ∞-fill + parallel spatial_edges
+
+- **Question:** I256 still `std::fill`s C(n,2) with +∞ (~200 MB at n=10000). With finite T and a prebuilt EdgeList, do `coface_ready` / `generate_stream` only read d≤T pairs, so we can leave far entries 0 and parallelize `spatial_edges` without changing H0–H2? Does that hold a harder n=15000 case in under a second?
+- **Hypothesis:** rbit AND / edge-graph triangles only touch G_T edges (written). Empty prebuilt is a valid G_T, not a cue to scan the zero matrix. Same VR≤T. Shape-agnostic. Exact if identity holds.
+- **Work:** drop ∞-fill; honor empty prebuilt; thread the Moore scan after a read-only grid. Wave 118 vs Ripser: H0–H2 + dense n=5000 + spatial n=10000/15000.
+- **Result:** **Exact 14/14** (figure8 2=2; sphere void 1=1; two_spheres 2=2; torus ess H1 1=1; blobs H0 3=3). Dense n=5000 stayed all-pairs **11.2×** (0.31s/3.49s; hold). Spatial n=10000 **6.42×** (0.48s; metric **21 vs I256 27 ms**; 2.73M vs 50M). Harder n=15000 T=0.11 **5.60×** (0.83s/4.66s; **3.90M vs 112M**; reduce 341 ms). Torus **14.2×**. Blobs H1 **25×**. Sphere H2 **60×**. H0 1.8× (metric 55 vs I256 45 ms — thread merge on 2.6M H0 edges).
+- **Decision:** **Support.** Skip-fill is exact. Topology loss: **0**. Remaining spatial tax is `resize_lower` zero-init of C(n,2) (~450 MB at n=15000). Next: skip the n×n allocation (sparse lookup for the few `coface_ready` reads). Worst-case connected G_T is still Θ(n²).
+- **Class:** experiment (support; exact skip-fill + n=15000 scale)
+
 ## 2026-10-13 — I256 spatial prebuild on sparse connected clouds
 
 - **Question:** After leftover-coface inner-loop constants are exhausted, can a connected from-points RedZeD skip far distances (spatial d≤T + ∞-fill + prebuilt EdgeList) without changing H0–H2, and does that let us take n=10000 in about half a second?
