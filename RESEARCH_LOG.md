@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-13 — I290 implicit R-column cache
+
+- **Question:** Does storing the reduced coboundary \(R[j]=DV[j]\) cut implicit `--collapse 0` on figure8 (I289: 24 s / 103M cofacet probes / 170k V-adds)?
+- **Hypothesis:** Adding column \(j\) can replay \(R[j]\) instead of re-walking V-edges. Emergent columns store the singleton pivot. Exact if \(R\equiv DV\). Hard case: figure8 n=4000 collapse=0. Auto H0/H1/H2 should hold.
+- **Work:** `rcol` + `edge_cob` in `persist_implicit_coh`. Wave 150 vs Ripser. Reverted after identity break + no clock cut.
+- **Result:** collapse=0 **exact** (figure8 n=2000/4000 ess1 2=2, 0 unmatched) but **slower**: n=4000 **27.7 s vs I289 24.5 s**. collapse=1 **invented bars** (figure8 n=4000 ess1 **117 vs 2**, unmatched 338; auto-collapse circle ess1 12 vs 1; sphere unmatched 50). auto-redzed / H0 Delaunay held (figure8 16.4×, uniform2 11.1×, blobs 60×). Emergent pairing never fills the heap, so stored \(R\) is only the pivot; later adds need the full \(D(e_j)\). On dense \(G_T\), \(R\) is fatter than \(V\) and dump is extra work.
+- **Decision:** **Reject and revert.** Do not retry add-\(R\) on implicit without a full coboundary for emergent columns. The collapse=0 wall is still coboundary assembly of the 892 survivors, not a cache of reduced \(R\). Do not mark the goal complete.
+- **Class:** experiment (reject; identity break on collapse+implicit)
+
 ## 2026-10-13 — I289 grade-t rbit apparent (implicit)
 
 - **Question:** Does testing Ripser apparent pairs on G_t (incremental rbit AND) instead of walking G_T common neighbors cut implicit `--collapse 0` on figure8 (25 s / 64M apparent probes)?

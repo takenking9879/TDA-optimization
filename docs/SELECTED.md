@@ -1,6 +1,6 @@
 # Selected algorithm (living)
 
-Updated 2026-10-13 after iterations I001–I289. **CLI default `--engine
+Updated 2026-10-13 after iterations I001–I290. **CLI default `--engine
 auto` (I235+I236+I239+I240+I241+I263+I270+I271+I275):** subsample residual-frac dispatch,
 plus I263 edge-frac so hollow/manifold clouds take RedZeD. Fat →
 RedZeD (torus n=2000 **13.0×**). Thin-circle → collapse+implicit
@@ -135,6 +135,7 @@ suite and I137 8/8 (including dense circle80/200 **collapse=0**, the I045 killer
 | Empty-seed non-Delaunay leftover skip (I273) | **Exact 13/13** but **no clock cut**. figure8 n=4000 reduce **864≈866 ms**. Wall is ae_seeded, not empty-seed leftover_coface. Reverted. Do not retry empty-seed geometric skips. |
 | Equal-set seeded_is_noop (I288) | **Exact 10/10.** figure8 n=4000 reduce **848≈866 ms**. `{A} XOR {A}` skip is valid and rare after mid-loop growth. Reverted. Do not retry seeded XOR/noop constants. |
 | Grade-t rbit apparent (I289) | Implicit collapse=0 exact (unit tests; same 892 cols). figure8 n=4000 **24424≈25463 ms**. Apparent probes 64M→3.2M; wall is 103M cofacet probes on surviving columns. Reverted. Do not retry as a clock lever. |
+| Implicit R-column cache (I290) | collapse=0 exact but **27.7 s vs 24.5 s**. collapse=1 invented H1 (figure8 ess1 117 vs 2; circle 12 vs 1). Emergent \(R\) is only the pivot; dump of fat \(R\) is slower than re-walking \(V\). Reverted. Do not retry add-\(R\) without full \(D(e_j)\) on emergent. |
 
 I107 (`--dom-budget 1`) **still rejected** with implicit (I142–I144): thicker
 residual makes collapse *and* reduce slower (circle3000 1.49× vs full 8.11×).
@@ -679,7 +680,10 @@ Rips is exact and too slow.
    figure8 n=4000 reduce **848≈866 ms** — reverted. Do not retry
    leftover XOR/noop constants. **I289 G_t rbit apparent:** exact,
    collapse=0 still ~24 s — coboundary assembly of 892 cols is the
-   wall. Reverted. ae_seeded visits remain the exact-H1 wall.
+   wall. Reverted. **I290 implicit R-cache:** collapse=0 exact but
+   27.7 s (slower); collapse=1 invented H1. Reverted. Do not retry
+   add-\(R\) without a full emergent coboundary. ae_seeded visits
+   remain the exact-H1 wall.
 6. Owned AE leftover-star walk is still Θ(|leftover|·deg★) — rbit cut
    has_leftover_coface, not seeded probes (circle still 875k). I288
    equal-set seeded_is_noop is exact and reverted (848≈866). Packed
