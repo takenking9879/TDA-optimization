@@ -19,12 +19,14 @@ static void usage() {
         << "  --maxdim K          homology dimension (default 1)\n"
         << "  --threshold T       VR diameter threshold (default inf)\n"
         << "  --collapse N        collapse passes (default -1 adaptive+probe; 0 = off)\n"
-        << "  --collapse-alg back|dc|forward|suffix|suffix-back|suffix-stab|suffix-rescue|suffix-k|suffix-later\n"
+        << "  --collapse-alg back|back-bits|dc|forward|suffix|suffix-back|suffix-stab|suffix-rescue|suffix-k|suffix-later\n"
         << "  --suffix-mult X     oldest X·n edges for suffix* (default 6; I165)\n"
         << "  --suffix-keep N     oldest N edges (overrides --suffix-mult; I167)\n"
         << "  --suffix-k K        sample-K first-apex for suffix-k/later (0=full fused)\n"
-        << "  --later-b           Case-B later commons escalate K (I181; was leave in I178)\n"
-        << "  --later-escalate K  use K until first keep, then --suffix-k (I181)\n"
+        << "  --later-b           Case-B later commons leave if |later[other]|<=cap (I183)\n"
+        << "  --later-escalate K  deeper K until first fused-fail (I183)\n"
+        << "  --later-esc-until N max young edges to escalate (default 32n)\n"
+        << "  --later-b-cap N     Case-B leave cap on |later[other]| (default 4)\n"
         << "  --dom-budget K      max domination candidates per edge (-1 = all; I107)\n"
         << "  --engine auto|homology|implicit   residual PH engine (default auto)\n"
         << "  --ratio R           skip pairs with death <= birth*R (default 1)\n"
@@ -233,6 +235,8 @@ int main(int argc, char** argv) {
     int suffix_k = 8;
     bool later_b = false;
     int later_escalate = 0;
+    int later_esc_until = 0;
+    int later_b_cap = 0;
 
     for (int i = 1; i < argc; ++i) {
         const std::string a = argv[i];
@@ -254,6 +258,8 @@ int main(int argc, char** argv) {
         else if (a == "--suffix-k") suffix_k = std::stoi(need("--suffix-k"));
         else if (a == "--later-b") later_b = true;
         else if (a == "--later-escalate") later_escalate = std::stoi(need("--later-escalate"));
+        else if (a == "--later-esc-until") later_esc_until = std::stoi(need("--later-esc-until"));
+        else if (a == "--later-b-cap") later_b_cap = std::stoi(need("--later-b-cap"));
         else if (a == "--dom-budget") dom_budget = std::stoi(need("--dom-budget"));
         else if (a == "--engine") engine = need("--engine");
         else if (a == "--ratio") ratio = std::stof(need("--ratio"));
@@ -308,6 +314,8 @@ int main(int argc, char** argv) {
             return 0;
         }
         auto do_collapse = [&](Graph&& h, int iters) -> Graph {
+            if (collapse_alg == "back-bits")
+                return collapse_edges(std::move(h), iters, c, dom_budget, true);
             if (collapse_alg == "dc") return collapse_edges_dc(std::move(h), iters, c, dom_budget);
             if (collapse_alg == "forward") return collapse_edges_forward(std::move(h), iters, c);
             if (collapse_alg == "suffix")
@@ -322,7 +330,7 @@ int main(int argc, char** argv) {
                 return collapse_edges_suffix_sample(std::move(h), c, dom_budget, suffix_k);
             if (collapse_alg == "suffix-later")
                 return collapse_edges_suffix_later(std::move(h), c, dom_budget, suffix_k, later_b,
-                                                  later_escalate);
+                                                  later_escalate, later_esc_until, later_b_cap);
             return collapse_edges(std::move(h), iters, c, dom_budget);
         };
         if (collapse_iters < 0) {

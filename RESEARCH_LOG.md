@@ -798,6 +798,13 @@ Do not paste long reasoning here.
 - **Decision:** Keep `--later-b` off. Optional suffix-later K=2 Case A is now **16.9×** on n=2000. I181: escalate-until-first-keep and treat Case B as deeper-K, not leave.
 - **Class:** experiment (partial)
 
+## 2026-10-13 — I181 escalate-first-keep
+
+- **Question:** Does K=8 until the first keep, then K=2 + Case-A `later[]`, with Case B as deeper-K (not leave), make n=3000 exact without losing the 16.9×?
+- **Result:** n=2000 k2 **17.1×** exact; k2-esc8 **16.3×** exact (162M). n=3000 all variants **2 unmatched** (8325). esc8 added only 12k probes — `seen_keep` fired on an early leave, not the fused-fail. Case-B-as-K also 2 unmatched (B-only commons sit past the first 8 src hits). blobs +B exact 0.29×.
+- **Decision:** Reject escalate-as-coded. I183: fused-fail-only escalate + capped Case-B leave. I182: bit-AND generate-C on the default path (flagship 9.50×).
+- **Class:** experiment (negative on n=3000 exact)
+
 ## 2026-10-13 — I164 collapse live-degree trace
 
 - **Question:** Does the live 1-skeleton thin early enough to stop the C-walk?

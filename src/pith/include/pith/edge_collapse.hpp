@@ -29,6 +29,27 @@ struct DenseTimes {
     void erase(int i, int j) { set(i, j, kInf); }
 };
 
+// I182: live existence bits, lockstep with Tm. Generate C by row AND
+// instead of walking src and gathering misses (~49% of probes).
+struct LiveBits {
+    int n = 0;
+    int W = 0;
+    std::vector<std::uint64_t> a;
+    LiveBits() = default;
+    explicit LiveBits(int n_)
+        : n(n_), W((n_ + 63) >> 6), a(static_cast<size_t>(std::max(n_, 0)) * std::max(W, 1), 0) {}
+    std::uint64_t* row(int i) { return a.data() + static_cast<size_t>(i) * W; }
+    const std::uint64_t* row(int i) const { return a.data() + static_cast<size_t>(i) * W; }
+    void set_edge(int i, int j) {
+        row(i)[static_cast<unsigned>(j) >> 6] |= 1ull << (j & 63);
+        row(j)[static_cast<unsigned>(i) >> 6] |= 1ull << (i & 63);
+    }
+    void clear_edge(int i, int j) {
+        row(i)[static_cast<unsigned>(j) >> 6] &= ~(1ull << (j & 63));
+        row(j)[static_cast<unsigned>(i) >> 6] &= ~(1ull << (i & 63));
+    }
+};
+
 // Live adjacency: (neighbor, current filtration time). Times stay in sync
 // with Tm on shift (I155) so C-build gathers only the other endpoint's row.
 using LiveNbr = std::pair<index_t, value_t>;
@@ -189,7 +210,8 @@ struct BwScratch {
 // on a D&C merge replay). Returns true if the edge is kept.
 inline bool process_one_backward(const Edge& e_in, value_t t_in, DenseTimes& Tm,
                                  LiveAdj& nbr, BwScratch& S,
-                                 int dom_budget, Edge& out, Counters& c) {
+                                 int dom_budget, Edge& out, Counters& c,
+                                 LiveBits* bits = nullptr) {
     const index_t u = e_in.u, v = e_in.v;
     value_t t = t_in;
     S.C_now.clear();
@@ -197,7 +219,7 @@ inline bool process_one_backward(const Edge& e_in, value_t t_in, DenseTimes& Tm,
     const bool walk_u = nbr[u].size() <= nbr[v].size();
     const auto& src = walk_u ? nbr[u] : nbr[v];
     const value_t* r_other = walk_u ? Tm.row(v) : Tm.row(u);
-    c.n_collapse_c_probes += static_cast<std::int64_t>(src.size());
+    const value_t* r_src = walk_u ? Tm.row(u) : Tm.row(v);
 
     // I156: fuse first-apex verify into the C walk. If the first common
     // dominates and there is no C_later, trim without materializing C
@@ -210,15 +232,12 @@ inline bool process_one_backward(const Edge& e_in, value_t t_in, DenseTimes& Tm,
     bool later_b = false;
     std::int64_t commons = 0;
     std::int64_t fail_at = -1;
-    for (const LiveNbr& p : src) {
-        const index_t w = p.first;
-        if (w == u || w == v) continue;
-        if (p.second > t) ++c.n_collapse_tau_late;
-        const value_t t_other = r_other[w];
-        if (t_other >= kInf / 2) continue;
+    auto consider = [&](index_t w, value_t t_src_w, value_t t_other_w) {
+        if (w == u || w == v) return;
+        if (t_other_w >= kInf / 2) return;
         ++commons;
-        if (p.second > t) ++c.n_collapse_tau_late_common;
-        const value_t tau = p.second > t_other ? p.second : t_other;
+        if (t_src_w > t) ++c.n_collapse_tau_late_common;
+        const value_t tau = t_src_w > t_other_w ? t_src_w : t_other_w;
         if (tau <= t) {
             if (first < 0) {
                 first = w;
@@ -229,8 +248,29 @@ inline bool process_one_backward(const Edge& e_in, value_t t_in, DenseTimes& Tm,
             }
         } else {
             any_later = true;
-            if (p.second > t) later_a = true;
+            if (t_src_w > t) later_a = true;
             else later_b = true;
+        }
+    };
+    if (bits) {
+        const std::uint64_t* bu = bits->row(u);
+        const std::uint64_t* bv = bits->row(v);
+        const int W = bits->W;
+        c.n_collapse_c_probes += W;
+        for (int w0 = 0; w0 < W; ++w0) {
+            std::uint64_t word = bu[w0] & bv[w0];
+            while (word) {
+                const int tz = __builtin_ctzll(word);
+                word &= word - 1;
+                const index_t w = static_cast<index_t>(w0 * 64 + tz);
+                consider(w, r_src[w], r_other[w]);
+            }
+        }
+    } else {
+        c.n_collapse_c_probes += static_cast<std::int64_t>(src.size());
+        for (const LiveNbr& p : src) {
+            if (p.second > t) ++c.n_collapse_tau_late;
+            consider(p.first, p.second, r_other[p.first]);
         }
     }
     c.n_collapse_last_fail_at = fail_at;
@@ -239,24 +279,45 @@ inline bool process_one_backward(const Edge& e_in, value_t t_in, DenseTimes& Tm,
     c.n_collapse_last_later_b = later_b ? 1 : 0;
     c.n_collapse_c_size_sum += commons;
 
-    if (first >= 0 && fused_ok && !any_later) {
+    auto drop_uv = [&]() {
         Tm.erase(u, v);
         drop_live_nbr(nbr, u, v);
         drop_live_nbr(nbr, v, u);
+        if (bits) bits->clear_edge(u, v);
+    };
+
+    if (first >= 0 && fused_ok && !any_later) {
+        drop_uv();
         ++c.n_collapse_trims;
         ++c.n_collapse_fast_trims;
         ++c.n_collapse_dom_hits;
         return false;
     }
 
-    for (const LiveNbr& p : src) {
-        const index_t w = p.first;
-        if (w == u || w == v) continue;
-        const value_t t_other = r_other[w];
-        if (t_other >= kInf / 2) continue;
-        const value_t tau = p.second > t_other ? p.second : t_other;
+    auto push_common = [&](index_t w, value_t t_src_w, value_t t_other_w) {
+        if (w == u || w == v) return;
+        if (t_other_w >= kInf / 2) return;
+        const value_t tau = t_src_w > t_other_w ? t_src_w : t_other_w;
         if (tau <= t) S.C_now.push_back(w);
         else S.C_later.push_back({tau, w});
+    };
+    if (bits) {
+        const std::uint64_t* bu = bits->row(u);
+        const std::uint64_t* bv = bits->row(v);
+        const int W = bits->W;
+        for (int w0 = 0; w0 < W; ++w0) {
+            std::uint64_t word = bu[w0] & bv[w0];
+            while (word) {
+                const int tz = __builtin_ctzll(word);
+                word &= word - 1;
+                const index_t w = static_cast<index_t>(w0 * 64 + tz);
+                push_common(w, r_src[w], r_other[w]);
+            }
+        }
+    } else {
+        for (const LiveNbr& p : src) {
+            push_common(p.first, p.second, r_other[p.first]);
+        }
     }
 
     const auto later_cmp = [](const std::pair<value_t, index_t>& a,
@@ -296,9 +357,7 @@ inline bool process_one_backward(const Edge& e_in, value_t t_in, DenseTimes& Tm,
     }
 
     if (dead) {
-        Tm.erase(u, v);
-        drop_live_nbr(nbr, u, v);
-        drop_live_nbr(nbr, v, u);
+        drop_uv();
         ++c.n_collapse_trims;
         return false;
     }
@@ -317,9 +376,10 @@ inline bool process_one_backward(const Edge& e_in, value_t t_in, DenseTimes& Tm,
 }
 
 inline void init_collapse_graph(const std::vector<Edge>& E, int n, DenseTimes& Tm,
-                                LiveAdj& nbr) {
+                                LiveAdj& nbr, LiveBits* bits = nullptr) {
     Tm = DenseTimes(n);
     nbr.assign(n, {});
+    if (bits) *bits = LiveBits(n);
     std::vector<int> deg(n, 0);
     for (const Edge& e : E) {
         ++deg[e.u];
@@ -330,12 +390,14 @@ inline void init_collapse_graph(const std::vector<Edge>& E, int n, DenseTimes& T
         Tm.set(e.u, e.v, e.t);
         nbr[e.u].push_back({e.v, e.t});
         nbr[e.v].push_back({e.u, e.t});
+        if (bits) bits->set_edge(e.u, e.v);
     }
 }
 
 // Backward filtration-preserving edge collapse (Glisse–Pritam / GUDHI).
 // I044: sticky dominator across C_later shifts + lazy heap (GUDHI L237–264).
-inline Graph collapse_edges(Graph g, int iterations, Counters& c, int dom_budget = -1) {
+inline Graph collapse_edges(Graph g, int iterations, Counters& c, int dom_budget = -1,
+                            bool use_bits = false) {
     const auto t0 = std::chrono::steady_clock::now();
     if (c.n_edges_in == 0) c.n_edges_in = static_cast<std::int64_t>(g.edges.size());
 
@@ -356,7 +418,14 @@ inline Graph collapse_edges(Graph g, int iterations, Counters& c, int dom_budget
 
         DenseTimes Tm(g.n);
         LiveAdj nbr;
-        init_collapse_graph(E, g.n, Tm, nbr);
+        LiveBits bits_store;
+        LiveBits* bits = nullptr;
+        if (use_bits) {
+            bits = &bits_store;
+            init_collapse_graph(E, g.n, Tm, nbr, bits);
+        } else {
+            init_collapse_graph(E, g.n, Tm, nbr);
+        }
 
         std::vector<Edge> kept;
         kept.reserve(E.size() / 4 + 8);
@@ -365,7 +434,7 @@ inline Graph collapse_edges(Graph g, int iterations, Counters& c, int dom_budget
         int early_n = 0;
         for (size_t i = 0; i < mE; ++i) {
             Edge out;
-            if (process_one_backward(E[i], E[i].t, Tm, nbr, scratch, dom_budget, out, c)) {
+            if (process_one_backward(E[i], E[i].t, Tm, nbr, scratch, dom_budget, out, c, bits)) {
                 if (c.n_collapse_first_keep < 0)
                     c.n_collapse_first_keep = static_cast<std::int64_t>(i);
                 if (mE > 0) {
@@ -725,7 +794,8 @@ inline Graph collapse_edges_suffix_sample(Graph g, Counters& c, int dom_budget,
 // first-apex on the p.second ≤ t commons.
 inline Graph collapse_edges_suffix_later(Graph g, Counters& c, int dom_budget,
                                          int sample_k, bool case_b = false,
-                                         int escalate_k = 0) {
+                                         int escalate_k = 0, int escalate_until = 0,
+                                         int later_b_cap = 0) {
     const auto t0 = std::chrono::steady_clock::now();
     if (c.n_edges_in == 0) c.n_edges_in = static_cast<std::int64_t>(g.edges.size());
     std::vector<Edge>& E = g.edges;
@@ -740,10 +810,15 @@ inline Graph collapse_edges_suffix_later(Graph g, Counters& c, int dom_budget,
     const size_t k_suf = std::min(m, std::max(n * 64, m / 8));
     const size_t young = m > k_suf ? m - k_suf : 0;
     const int K = sample_k < 0 ? 0 : sample_k;
-    // I181: until the first keep, use escalate_k (default 0 = off) so the
-    // fused-fail at first_keep is not K=2-trimmed before later[] exists.
+    // I183: escalate only until the first fused-fail leave (I181 fired
+    // seen_keep on the first empty-C / any leave). Bound the prefix so
+    // n=2000 (no fused-fail) does not K=8 the whole young loop.
     const int K_esc = escalate_k > K ? escalate_k : K;
-    bool seen_keep = false;
+    const size_t esc_lim = escalate_until > 0
+                               ? static_cast<size_t>(escalate_until)
+                               : (K_esc > K ? std::min(young, n * 32) : 0);
+    const int b_cap = later_b_cap > 0 ? later_b_cap : 4;
+    bool got_fused = false;
 
     DenseTimes Tm(g.n);
     LiveAdj nbr;
@@ -771,29 +846,29 @@ inline Graph collapse_edges_suffix_later(Graph g, Counters& c, int dom_budget,
                 break;
             }
         }
-        // I181: Case B and pre-first-keep use a deeper K instead of leaving.
-        // Blind Case-B leave cascades shift-then-trim edges into the tail
-        // (I180: n=2000 K=2 later-b 16.9× → 7.75×).
-        bool escalate = !seen_keep && K_esc > K;
-        if (!leave && case_b) {
+        // I183: Case B leave only while later[other] is still a small
+        // keep-support (cap). Uncapped leave cascaded (I180).
+        if (!leave && case_b && later[other_v].size() <= static_cast<size_t>(b_cap)) {
             const value_t* r_src = walk_u ? Tm.row(u) : Tm.row(v);
             for (const LiveNbr& p : later[other_v]) {
                 ++probed;
                 if (p.second <= t) continue;
                 const value_t t_src = r_src[p.first];
                 if (t_src < kInf / 2 && t_src <= t) {
-                    escalate = true;
+                    leave = true;
                     break;
                 }
             }
         }
+        bool fused_leave = false;
         if (!leave) {
             index_t first = -1;
             const value_t* r_first = nullptr;
             bool fused_ok = true;
             int commons = 0;
             bool trim = false;
-            const int K_now = escalate ? (K_esc > K ? K_esc : 8) : K;
+            const bool escalate = !got_fused && K_esc > K && i < esc_lim;
+            const int K_now = escalate ? K_esc : K;
             for (const LiveNbr& p : src) {
                 const index_t w = p.first;
                 if (w == u || w == v) continue;
@@ -811,6 +886,7 @@ inline Graph collapse_edges_suffix_later(Graph g, Counters& c, int dom_budget,
                     r_first = Tm.row(w);
                 } else if (fused_ok && r_first[w] > t) {
                     leave = true;
+                    fused_leave = true;
                     break;
                 }
                 if (K_now > 0 && fused_ok && commons >= K_now) {
@@ -833,7 +909,7 @@ inline Graph collapse_edges_suffix_later(Graph g, Counters& c, int dom_budget,
         if (leave) {
             later[u].push_back({v, t});
             later[v].push_back({u, t});
-            seen_keep = true;
+            if (fused_leave) got_fused = true;
         }
         c.n_collapse_c_probes += probed;
     }
