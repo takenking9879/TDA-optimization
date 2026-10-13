@@ -690,7 +690,7 @@ int main() {
         std::cout << "ok I271 walk-locate Delaunay H0 n=256\n";
     }
 
-    // I274: n=256 3D H0 Delaunay matches all-pairs Kruskal.
+    // I274/I275: n=256 3D H0 Delaunay matches all-pairs Kruskal.
     {
         const int n = 256;
         const value_t T = 0.55f;
@@ -731,21 +731,21 @@ int main() {
         };
         const auto a = deaths(del), b = deaths(full);
         if (a.first != b.first || a.second.size() != b.second.size()) {
-            std::cerr << "I274 H0 3D Delaunay count " << a.first << "/" << a.second.size() << " vs "
+            std::cerr << "I275 H0 3D Delaunay count " << a.first << "/" << a.second.size() << " vs "
                       << b.first << "/" << b.second.size() << "\n";
             return 1;
         }
         for (size_t i = 0; i < a.second.size(); ++i) {
             if (std::abs(a.second[i] - b.second[i]) > 1e-4f) {
-                std::cerr << "I274 H0 3D Delaunay death mismatch\n";
+                std::cerr << "I275 H0 3D Delaunay death mismatch\n";
                 return 1;
             }
         }
         if (del.counters.pipeline.find("delaunay") == std::string::npos) {
-            std::cerr << "I274 expected delaunay pipeline " << del.counters.pipeline << "\n";
+            std::cerr << "I275 expected delaunay pipeline " << del.counters.pipeline << "\n";
             return 1;
         }
-        std::cout << "ok I274 walk-locate 3D Delaunay H0 n=256\n";
+        std::cout << "ok I275 walk-locate 3D Delaunay H0 n=256\n";
     }
 
     // I239: two octahedra far apart — H0=2 and H2=2 (wedge of voids).

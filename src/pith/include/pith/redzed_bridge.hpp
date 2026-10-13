@@ -18,7 +18,7 @@ Result persist_redzed(const std::vector<std::vector<value_t>>& dist, int maxdim,
 // each block allocates only its own m×m metric.
 // I241: maxdim=0 is spatial/matrix Kruskal (no RedZeD).
 // I270/I271: 2D Delaunay MST (walk-locate) when n∈[256,100000].
-// I274: 3D Delaunay MST (walk-locate) when n∈[256,30000].
+// I274/I275: 3D Delaunay MST (walk-locate, no slot reuse) when n∈[256,50000].
 // I244: finite T skips vendor enclosing (exact for VR≤T).
 // I245: parallel build_edges (same buckets + finish_buckets).
 Result persist_redzed_from_points(const std::vector<std::vector<value_t>>& pts, int maxdim,

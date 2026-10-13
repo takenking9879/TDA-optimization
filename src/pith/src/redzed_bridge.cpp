@@ -1333,7 +1333,7 @@ static bool delaunay_edges_2d(const std::vector<std::vector<value_t>>& pts,
     return false;
 }
 
-// I274: Euclidean MST ⊆ 3D Delaunay. Walk-locate + circumsphere flood.
+// I274/I275: Euclidean MST ⊆ 3D Delaunay. Walk-locate + circumsphere flood.
 // Same H0 identity as I271 in the plane. Fall back to spatial Kruskal.
 static double delaunay_orient3(double ax, double ay, double az, double bx, double by, double bz,
                                double cx, double cy, double cz, double dx, double dy, double dz) {
@@ -1384,6 +1384,12 @@ static uint64_t tet_face_key(int a, int b, int c) {
            (static_cast<uint64_t>(static_cast<uint32_t>(b)) << 21) | static_cast<uint32_t>(c);
 }
 
+// I275: incremental Bowyer–Watson, no cavity-slot reuse. I274 walk fell
+// off the mesh (nbor=-1 at Morton p=183) because a reused index is a
+// different tet than the live outers still point at. Dead tets stay
+// dead; walk only follows live neighbors. If walk returns -1, scan
+// live tets for containment (p on the same side of each face as the
+// opposite vertex) and flood from there.
 static bool delaunay_edges_3d_walk(const std::vector<std::vector<value_t>>& pts,
                                    std::vector<SpatEdge>& out) {
     const int n = static_cast<int>(pts.size());
@@ -1428,21 +1434,23 @@ static bool delaunay_edges_3d_walk(const std::vector<std::vector<value_t>>& pts,
                                 xs[static_cast<size_t>(c)], ys[static_cast<size_t>(c)], zs[static_cast<size_t>(c)],
                                 xs[static_cast<size_t>(d)], ys[static_cast<size_t>(d)], zs[static_cast<size_t>(d)]);
     };
-    if (o3(n, n + 1, n + 2, n + 3) <= 0.0) std::swap(xs[static_cast<size_t>(n) + 2], xs[static_cast<size_t>(n) + 3]),
-        std::swap(ys[static_cast<size_t>(n) + 2], ys[static_cast<size_t>(n) + 3]),
-        std::swap(zs[static_cast<size_t>(n) + 2], zs[static_cast<size_t>(n) + 3]);
     if (o3(n, n + 1, n + 2, n + 3) <= 0.0) {
-        std::fprintf(stderr, "I274 fail super\n");
-        return false;
+        std::swap(xs[static_cast<size_t>(n) + 2], xs[static_cast<size_t>(n) + 3]);
+        std::swap(ys[static_cast<size_t>(n) + 2], ys[static_cast<size_t>(n) + 3]);
+        std::swap(zs[static_cast<size_t>(n) + 2], zs[static_cast<size_t>(n) + 3]);
     }
+    if (o3(n, n + 1, n + 2, n + 3) <= 0.0) return false;
 
     struct Tet {
         int v[4];
         int nbor[4];
+        bool live;
     };
     std::vector<Tet> tets;
     std::vector<int> stamp;
-    tets.push_back({{n, n + 1, n + 2, n + 3}, {-1, -1, -1, -1}});
+    tets.reserve(static_cast<size_t>(n) * 8 + 8);
+    stamp.reserve(static_cast<size_t>(n) * 8 + 8);
+    tets.push_back({{n, n + 1, n + 2, n + 3}, {-1, -1, -1, -1}, true});
     stamp.push_back(0);
     int gen = 1;
 
@@ -1450,6 +1458,9 @@ static bool delaunay_edges_3d_walk(const std::vector<std::vector<value_t>>& pts,
         int k = 0;
         for (int j = 0; j < 4; ++j)
             if (j != i) f[k++] = v[j];
+    };
+    auto live = [&](int t) {
+        return t >= 0 && t < static_cast<int>(tets.size()) && tets[static_cast<size_t>(t)].live;
     };
     auto insphere_t = [&](int t, double px, double py, double pz) {
         const int* v = tets[static_cast<size_t>(t)].v;
@@ -1460,12 +1471,43 @@ static bool delaunay_edges_3d_walk(const std::vector<std::vector<value_t>>& pts,
                                  zs[static_cast<size_t>(v[2])], xs[static_cast<size_t>(v[3])],
                                  ys[static_cast<size_t>(v[3])], zs[static_cast<size_t>(v[3])], px, py, pz);
     };
+    auto contains = [&](int t, double px, double py, double pz) {
+        if (!live(t)) return false;
+        const Tet& tr = tets[static_cast<size_t>(t)];
+        for (int i = 0; i < 4; ++i) {
+            int f[3];
+            face_opp(tr.v, i, f);
+            const double ov = delaunay_orient3(
+                xs[static_cast<size_t>(f[0])], ys[static_cast<size_t>(f[0])], zs[static_cast<size_t>(f[0])],
+                xs[static_cast<size_t>(f[1])], ys[static_cast<size_t>(f[1])], zs[static_cast<size_t>(f[1])],
+                xs[static_cast<size_t>(f[2])], ys[static_cast<size_t>(f[2])], zs[static_cast<size_t>(f[2])],
+                xs[static_cast<size_t>(tr.v[i])], ys[static_cast<size_t>(tr.v[i])],
+                zs[static_cast<size_t>(tr.v[i])]);
+            double op = delaunay_orient3(
+                xs[static_cast<size_t>(f[0])], ys[static_cast<size_t>(f[0])], zs[static_cast<size_t>(f[0])],
+                xs[static_cast<size_t>(f[1])], ys[static_cast<size_t>(f[1])], zs[static_cast<size_t>(f[1])],
+                xs[static_cast<size_t>(f[2])], ys[static_cast<size_t>(f[2])], zs[static_cast<size_t>(f[2])],
+                px, py, pz);
+            if (ov < 0.0) op = -op;
+            if (op < 0.0) return false;
+        }
+        return true;
+    };
+    auto locate_scan = [&](double px, double py, double pz) -> int {
+        for (int t = 0; t < static_cast<int>(tets.size()); ++t)
+            if (contains(t, px, py, pz)) return t;
+        return -1;
+    };
     auto walk = [&](int hint, double px, double py, double pz) -> int {
         int t = hint;
+        if (!live(t)) t = locate_scan(px, py, pz);
+        if (t < 0) return -1;
         const int guard = n * 8 + 64;
         for (int step = 0; step < guard; ++step) {
+            if (!live(t)) return locate_scan(px, py, pz);
             const Tet& tr = tets[static_cast<size_t>(t)];
             bool moved = false;
+            bool hole = false;
             for (int i = 0; i < 4; ++i) {
                 int f[3];
                 face_opp(tr.v, i, f);
@@ -1483,15 +1525,17 @@ static bool delaunay_edges_3d_walk(const std::vector<std::vector<value_t>>& pts,
                 if (ov < 0.0) op = -op;
                 if (op < 0.0) {
                     const int nb = tr.nbor[i];
-                    if (nb < 0) return -1;
-                    t = nb;
-                    moved = true;
-                    break;
+                    if (live(nb)) {
+                        t = nb;
+                        moved = true;
+                        break;
+                    }
+                    hole = true;
                 }
             }
-            if (!moved) return t;
+            if (!moved) return hole ? locate_scan(px, py, pz) : t;
         }
-        return -1;
+        return locate_scan(px, py, pz);
     };
 
     std::vector<int> order(static_cast<size_t>(n));
@@ -1515,21 +1559,23 @@ static bool delaunay_edges_3d_walk(const std::vector<std::vector<value_t>>& pts,
     std::vector<SpatEdge> extra;
     int hint = 0;
     std::vector<int> cavity, q, newids;
+    cavity.reserve(32);
+    q.reserve(32);
     struct BFace {
         int a, b, c, outer, oface;
     };
     std::vector<BFace> bfaces;
+    bfaces.reserve(32);
     std::unordered_map<uint64_t, std::pair<int, int>> pending;
+    pending.reserve(64);
 
     for (int pi = 0; pi < n; ++pi) {
         const int p = order[static_cast<size_t>(pi)];
         const double px = xs[static_cast<size_t>(p)], py = ys[static_cast<size_t>(p)],
                      pz = zs[static_cast<size_t>(p)];
-        const int t0 = walk(hint, px, py, pz);
-        if (t0 < 0) {
-            std::fprintf(stderr, "I274 fail walk p=%d\n", p);
-            return false;
-        }
+        int t0 = walk(hint, px, py, pz);
+        if (t0 < 0 || !contains(t0, px, py, pz)) t0 = locate_scan(px, py, pz);
+        if (t0 < 0) return false;
         {
             const int* v = tets[static_cast<size_t>(t0)].v;
             int best = -1;
@@ -1545,7 +1591,7 @@ static bool delaunay_edges_3d_walk(const std::vector<std::vector<value_t>>& pts,
                     best = v[k];
                 }
             }
-            if (best >= 0 && best2 < 1e-24) {
+            if (best >= 0 && (best2 < 1e-24 || !insphere_t(t0, px, py, pz))) {
                 extra.push_back({point_dist(pts, p, best), std::min(p, best), std::max(p, best)});
                 continue;
             }
@@ -1564,7 +1610,7 @@ static bool delaunay_edges_3d_walk(const std::vector<std::vector<value_t>>& pts,
             const int t = q[qi];
             for (int i = 0; i < 4; ++i) {
                 const int nb = tets[static_cast<size_t>(t)].nbor[i];
-                if (nb < 0 || stamp[static_cast<size_t>(nb)] == gen) continue;
+                if (!live(nb) || stamp[static_cast<size_t>(nb)] == gen) continue;
                 if (!insphere_t(nb, px, py, pz)) continue;
                 stamp[static_cast<size_t>(nb)] = gen;
                 q.push_back(nb);
@@ -1575,41 +1621,34 @@ static bool delaunay_edges_3d_walk(const std::vector<std::vector<value_t>>& pts,
         for (int t : cavity) {
             for (int i = 0; i < 4; ++i) {
                 const int nb = tets[static_cast<size_t>(t)].nbor[i];
-                if (nb >= 0 && stamp[static_cast<size_t>(nb)] == gen) continue;
+                if (live(nb) && stamp[static_cast<size_t>(nb)] == gen) continue;
                 int oface = -1;
-                if (nb >= 0) {
+                if (live(nb)) {
                     for (int k = 0; k < 4; ++k)
                         if (tets[static_cast<size_t>(nb)].nbor[k] == t) {
                             oface = k;
                             break;
                         }
-                    if (oface < 0) {
-                        std::fprintf(stderr, "I274 fail oface\n");
-                        return false;
-                    }
+                    if (oface < 0) return false;
                 }
                 int f[3];
                 face_opp(tets[static_cast<size_t>(t)].v, i, f);
-                bfaces.push_back({f[0], f[1], f[2], nb, oface});
+                bfaces.push_back({f[0], f[1], f[2], live(nb) ? nb : -1, oface});
             }
         }
-        if (bfaces.size() < 4 || bfaces.size() < cavity.size()) {
-            std::fprintf(stderr, "I274 fail cavity %zu %zu\n", bfaces.size(), cavity.size());
-            return false;
-        }
+        // 3-ball: F_b = 4T - 2I, so F_b < T is normal for a large cavity.
+        // I274 required F_b >= T and aborted (sphere n=512: 20 faces / 21 tets).
+        if (bfaces.size() < 4) return false;
 
-        newids.clear();
-        for (size_t i = 0; i < bfaces.size(); ++i) {
-            int id;
-            if (i < cavity.size()) {
-                id = cavity[i];
-            } else {
-                id = static_cast<int>(tets.size());
-                tets.push_back({{0, 0, 0, 0}, {-1, -1, -1, -1}});
-                stamp.push_back(0);
-            }
-            newids.push_back(id);
+        for (int t : cavity) {
+            tets[static_cast<size_t>(t)].live = false;
+            tets[static_cast<size_t>(t)].nbor[0] = -1;
+            tets[static_cast<size_t>(t)].nbor[1] = -1;
+            tets[static_cast<size_t>(t)].nbor[2] = -1;
+            tets[static_cast<size_t>(t)].nbor[3] = -1;
         }
+        newids.clear();
+        newids.reserve(bfaces.size());
         pending.clear();
         auto link = [&](int t, int eidx, int a, int b, int c) {
             const uint64_t k = tet_face_key(a, b, c);
@@ -1627,19 +1666,11 @@ static bool delaunay_edges_3d_walk(const std::vector<std::vector<value_t>>& pts,
         for (size_t i = 0; i < bfaces.size(); ++i) {
             int a = bfaces[i].a, b = bfaces[i].b, c = bfaces[i].c;
             if (o3(a, b, c, p) <= 0.0) std::swap(a, b);
-            if (o3(a, b, c, p) <= 0.0) {
-                std::fprintf(stderr, "I274 fail orient\n");
-                return false;
-            }
-            const int id = newids[i];
-            tets[static_cast<size_t>(id)].v[0] = a;
-            tets[static_cast<size_t>(id)].v[1] = b;
-            tets[static_cast<size_t>(id)].v[2] = c;
-            tets[static_cast<size_t>(id)].v[3] = p;
-            tets[static_cast<size_t>(id)].nbor[0] = -1;
-            tets[static_cast<size_t>(id)].nbor[1] = -1;
-            tets[static_cast<size_t>(id)].nbor[2] = -1;
-            tets[static_cast<size_t>(id)].nbor[3] = bfaces[i].outer;
+            if (o3(a, b, c, p) <= 0.0) return false;
+            const int id = static_cast<int>(tets.size());
+            tets.push_back({{a, b, c, p}, {-1, -1, -1, bfaces[i].outer}, true});
+            stamp.push_back(0);
+            newids.push_back(id);
             if (bfaces[i].outer >= 0) {
                 int oe = bfaces[i].oface;
                 if (oe < 0) return false;
@@ -1647,10 +1678,7 @@ static bool delaunay_edges_3d_walk(const std::vector<std::vector<value_t>>& pts,
             }
             if (!link(id, 0, b, c, p) || !link(id, 1, a, c, p) || !link(id, 2, a, b, p)) return false;
         }
-        if (!pending.empty()) {
-            std::fprintf(stderr, "I274 fail pending %zu\n", pending.size());
-            return false;
-        }
+        if (!pending.empty()) return false;
         hint = newids[0];
     }
 
@@ -1659,6 +1687,7 @@ static bool delaunay_edges_3d_walk(const std::vector<std::vector<value_t>>& pts,
     out.clear();
     out.reserve(static_cast<size_t>(n) * 4 + extra.size());
     for (const Tet& tr : tets) {
+        if (!tr.live) continue;
         const int eij[6][2] = {{0, 1}, {0, 2}, {0, 3}, {1, 2}, {1, 3}, {2, 3}};
         for (const auto& e : eij) {
             int a = tr.v[e[0]], b = tr.v[e[1]];
@@ -1671,18 +1700,15 @@ static bool delaunay_edges_3d_walk(const std::vector<std::vector<value_t>>& pts,
         }
     }
     for (const SpatEdge& e : extra)
-        if (seen.insert((static_cast<uint64_t>(static_cast<uint32_t>(e.u)) << 32) | static_cast<uint32_t>(e.v))
+        if (e.u != e.v &&
+            seen.insert((static_cast<uint64_t>(static_cast<uint32_t>(e.u)) << 32) | static_cast<uint32_t>(e.v))
                 .second)
             out.push_back(e);
-    if (out.size() < static_cast<size_t>(n - 1)) {
-        std::fprintf(stderr, "I274 fail edges %zu n=%d\n", out.size(), n);
-        return false;
-    }
-    return true;
+    return out.size() >= static_cast<size_t>(n - 1);
 }
 
-// I274: 3D Bowyer–Watson scan (I270-style). Walk-locate can fall off the
-// mesh; scan visits live tets. n≤8000. Same MST ⊆ Delaunay identity.
+// I274: 3D Bowyer–Watson scan (I270-style). I275 walk is preferred;
+// scan is the n≤8000 fallback if walk still fails. Same MST ⊆ Delaunay.
 static bool delaunay_edges_3d_scan(const std::vector<std::vector<value_t>>& pts,
                                    std::vector<SpatEdge>& out) {
     const int n = static_cast<int>(pts.size());
@@ -1811,6 +1837,14 @@ static bool delaunay_edges_3d_scan(const std::vector<std::vector<value_t>>& pts,
         }
     }
     return out.size() >= static_cast<size_t>(n - 1);
+}
+
+static bool delaunay_edges_3d(const std::vector<std::vector<value_t>>& pts,
+                              std::vector<SpatEdge>& out) {
+    if (delaunay_edges_3d_walk(pts, out)) return true;
+    const int n = static_cast<int>(pts.size());
+    if (n <= 8000) return delaunay_edges_3d_scan(pts, out);
+    return false;
 }
 
 static Result kruskal_h0(int n, std::vector<SpatEdge>&& edges) {
@@ -1986,7 +2020,7 @@ Result persist_redzed_from_points(const std::vector<std::vector<value_t>>& pts, 
                 for (const SpatEdge& e : del)
                     if (e.t <= threshold) E.push_back(e);
                 delaunay = true;
-            } else if (d0 == 3 && n <= 8000 && delaunay_edges_3d_scan(pts, del)) {
+            } else if (d0 == 3 && n <= 50000 && delaunay_edges_3d(pts, del)) {
                 E.reserve(del.size());
                 for (const SpatEdge& e : del)
                     if (e.t <= threshold) E.push_back(e);
