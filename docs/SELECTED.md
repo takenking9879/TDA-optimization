@@ -601,7 +601,10 @@ Rips is exact and too slow.
    skips at n≲400 (2–7 words). I268 Morton vertex order is exact
    14/14 and reverted (figure8 n=4000 reduce 821 vs 866 ms). Do
    not retry space-filling vertex orders. Collapse on the same
-   cloud is 845 ms / 1.97M fast trims — same Θ(|E|) wall.
+   cloud is 845 ms / 1.97M fast trims — same Θ(|E|) wall. I269
+   collapse live AND-eq + Morton is exact 15/15 and reverted
+   (figure8 n=4000 collapse 768 vs 845 ms). Do not retry collapse
+   word-range + Morton.
 6. Owned AE leftover-star walk is still Θ(|leftover|·deg★) — rbit cut
    has_leftover_coface, not seeded probes (circle still 875k). Packed
    annotations / seeded_is_noop are the next owned constants.

@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-13 — I269 collapse live AND-eq + Morton
+
+- **Question:** I268 A/B: collapse on figure8 n=4000 is 845 ms / 1.97M fast trims. Does restricting AND-eq to LiveBits [rlo,rhi] plus Morton order cut that walk (AND-eq still scanned all n/64 words)?
+- **Hypothesis:** leftover_coface already had the live range; collapse did not. Morton makes the range actually local. Collapse-only (I268 RedZeD layout was 5%). Same VR. H0/H2 / auto-redzed hold.
+- **Work:** LiveBits rlo/rhi; AND-eq C-build/cover on [wlo,whi]; Morton before pairwise on the collapse path. Wave 130 vs Ripser: H0–H2 + `--engine implicit` figure8 n=2000/4000 + auto hold.
+- **Result:** **Exact 15/15** (figure8 2=2; sphere void 1=1; two_spheres 2=2; blobs H0 3=3). implicit figure8 n=4000 collapse **768 vs 845 ms** (~9%); n=2000 105 vs 128. Dense **11.4×**. Auto figure8 still spatial redzed. Sphere H2 54×. Not a trim-walk skip.
+- **Decision:** **Revert.** 9% is not a visit skip. Do not retry collapse word-range + Morton. Topology loss: **0**. I263 stays. Shared wall remains ~2M G_T edge visits (collapse trims or leftover AE).
+- **Class:** experiment (hold identity; reject clock; reverted)
+
 ## 2026-10-13 — I268 Morton vertex order
 
 - **Question:** Does Morton-ordering vertices before RedZeD shrink leftover [rlo,rhi] enough to cut figure8 n=4000 reduce (866 ms)? Random IDs make the live range all 63 words.

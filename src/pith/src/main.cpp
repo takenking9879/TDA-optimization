@@ -420,13 +420,7 @@ int main(int argc, char** argv) {
                                            knn_k == 0 && witness_n == 0 && !reduced_vr &&
                                            !(sparse_eps > 0 && sparse_eps < 1));
             if (!skip_full_metric) {
-                // I269: Morton-order before collapse AND-eq so LiveBits
-                // [rlo,rhi] is local. RedZeD keeps the I263 label order
-                // (I268 layout was only 5%). Same VR.
-                if (dist.empty() && have_pts) {
-                    morton_permute_points(pts);
-                    dist = pairwise(pts, c);
-                }
+                if (dist.empty() && have_pts) dist = pairwise(pts, c);
                 if (use_enclosing && !dist.empty()) {
                     const value_t R = enclosing_radius(dist);
                     if (R < threshold) threshold = R;
