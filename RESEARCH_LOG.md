@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-13 — I259 open-address hash spatial get
+
+- **Question:** Does replacing I258’s lower-tri CSR binary search with an open-address hash (load ≤ 1/2, miss = +∞) cut the torus leftover-coface tax without inventing bars or slowing n=20000 past a second?
+- **Hypothesis:** leftover-coface does random pair lookups. O(1) beats log(deg) on long low-id rows. Same G_T pairs. Dense stays I238. Shape-agnostic. Exact if identity holds.
+- **Work:** `SparseDist` slots `{key, value}`; `spat_to_hash`. Wave 120 vs Ripser: H0–H2 + torus + dense n=5000 + n=20000.
+- **Result:** **Exact 13/13** (figure8 2=2; sphere void 1=1; two_spheres 2=2; torus ess H1 1=1; blobs H0 3=3). Torus reduce **154 vs I258 174** (I257 array 133); pith 0.21s / **12.7×** (was 11.5×). Dense n=5000 **11.2×** (0.31s hold). n=20000 **5.96×** (1.04s; reduce 456 vs 497, metric **192 vs 118** — 16M-slot zero). Sphere H1 **10.1×**. Blobs H1 **21×**. Sphere H2 **62×**.
+- **Decision:** **Support.** Topology loss: **0**. Hash cuts the lookup tax; table zero is the new large-|E| metric cost. Next: tighter load / smaller table so n=20000 metric returns toward I258. Worst-case connected G_T is still Θ(n²).
+- **Class:** experiment (support; exact torus reduce cut)
+
 ## 2026-10-13 — I258 skip C(n,2) matrix (CSR of d≤T)
 
 - **Question:** I257 still `resize_lower`s C(n,2) (~450 MB of zeros at n=15000). Can `coface_ready` read a lower-tri CSR of the spatial edges instead, so the spatial path is O(|E|) memory, and does that let n=20000 finish in about a second without inventing bars?

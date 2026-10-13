@@ -1,8 +1,8 @@
 # Selected algorithm (living)
 
-Updated 2026-10-13 after iterations I001–I258. **CLI default `--engine
+Updated 2026-10-13 after iterations I001–I259. **CLI default `--engine
 auto` (I235+I236+I239+I240+I241):** subsample residual-frac dispatch. Fat →
-RedZeD (torus n=2000 **11.5×**). Thin-circle → collapse+implicit
+RedZeD (torus n=2000 **12.7×**). Thin-circle → collapse+implicit
 (n=1000 **28×**; n=4000 still **140×**). Disconnected G_T → spatial UF
 + parallel RedZeD per component (blobs n=4000 **25×**, n=8000 **27×**
 in 0.38 s). **H0** is Kruskal (no RedZeD). **H2:** τ=0.15 so sphere void
@@ -531,7 +531,13 @@ an 800 MB matrix is gone). Torus **11.5×** (CSR lookup tax vs I257
 14.2×). Sphere H2 **57×**. Topology loss: **0**. Justified class:
 O(|E|) metric memory vs O(n²) when the T-ball is small.
 
-## Next levers (still open after I258)
+**I259 open-address hash get:** same sparse path, O(1) expected
+lookup. Wave 120 **exact 13/13**. Torus reduce **154 vs 174**,
+**12.7×** (0.21s). Dense n=5000 **11.2×**. n=20000 **5.96×**
+(1.04s; reduce 456 vs 497, table-zero metric 192 vs 118). Sphere
+H2 **62×**. Topology loss: **0**.
+
+## Next levers (still open after I259)
 
 `--engine auto` is a shape-agnostic exact H0–H2 portfolio: circle H1
 10×, torus H1 10×, sphere H1 **11.0×** at n=2000, sphere H2 **57×**
@@ -539,32 +545,31 @@ at n=400 / **136×** at n=600, **disconnected blobs 23×** at n=4000
 on one CLI path. Connected uniform2 H1 is **11.4×** at n=5000 after
 I258 (0.30 s). Sparse connected: n=15000 **5.8×** (0.82 s, 3.90M vs
 112M), n=20000 **6.2×** (0.99 s, 4.71M vs 200M, no 800 MB matrix).
-Torus n=2000 **11.5×**. I242/I243 owned AE is exact; rbit is ~1.5×
+Torus n=2000 **12.7×**. I242/I243 owned AE is exact; rbit is ~1.5×
 on circle AE and still 12× slower than RedZeD. GUDHI explicit Rips
 is exact and too slow.
 
 1. **CLI default:** `--engine auto` (I235+I236+I239+I240+I241). H1 τ=0.04; H2 τ=0.15.
 2. **Forced engines:** `--engine implicit` = I193+I197+I202+I203 only;
-   `--engine redzed` = I228+I239+I240+I244+I245+I246+I250+I251+I252+I256+I257+I258; H0 = Kruskal.
+   `--engine redzed` = I228+I239+I240+I244+I245+I246+I250+I251+I252+I256+I257+I258+I259; H0 = Kruskal.
 3. **Owned optional approx:** `--sparse-eps 0.6 --sparse-cap max` (I213/I218)
    when n grows past exact VR.
 4. Connected uniform2 is **11.4×** at n=5000 after I258 (0.30 s).
-   Sphere n=2000 H1 **11.0×**. Torus n=2000 **11.5×**. Sparse
-   n=15000 / n=20000 are **5.8× / 6.2×** (Ripser is also cheap at
-   those T). Remaining dense wall is visiting leftover edges (UF +
-   `advance_rbits` + first rbit AND), not `coface_ready`. Spatial
-   metric is now O(|E|) memory (I258 CSR). I253–I255 leftover-coface
-   inner-loop constants are exact and reverted. Fill-collect sort,
-   I247 leftover-coface fast, I248 fuse-fill histogram, and I249
-   parallel leftover-coface precompute are rejected. Parallel
-   `build_edges`, lazy insert, skip-collect, inline skip,
-   leftover-coface no-seen, spatial prebuild, skip ∞-fill, parallel
-   `spatial_edges`, and CSR-no-n² are in. Dense n=5000 stays I238
-   all-pairs.
-5. **I259 (open):** faster CSR `get` (bidirectional rows or open-
-   address hash). Lower-tri binary search taxed torus reduce
-   (174 vs I257 133 ms) because low-id rows are long. Must stay
-   exact (miss = +∞). Dense path stays I238 all-pairs.
+   Sphere n=2000 H1 **10.1×**. Torus n=2000 **12.7×**. Sparse
+   n=20000 is **6.0×** (1.04 s, 4.71M vs 200M). Remaining dense
+   wall is visiting leftover edges (UF + `advance_rbits` + first
+   rbit AND), not `coface_ready`. Spatial metric is O(|E|) memory
+   (I258/I259 hash). I253–I255 leftover-coface inner-loop constants
+   are exact and reverted. Fill-collect sort, I247 leftover-coface
+   fast, I248 fuse-fill histogram, and I249 parallel leftover-coface
+   precompute are rejected. Parallel `build_edges`, lazy insert,
+   skip-collect, inline skip, leftover-coface no-seen, spatial
+   prebuild, skip ∞-fill, parallel `spatial_edges`, CSR-no-n², and
+   hash get are in. Dense n=5000 stays I238 all-pairs.
+5. **I260 (open):** tighter hash table (load ~0.75 / 8M slots at
+   n=20000) so `tab.assign` does not zero 256 MB. I259 cut torus
+   reduce 174→154 but n=20000 metric 118→192. Must stay exact
+   (miss = +∞). Dense path stays I238 all-pairs.
 6. Owned AE leftover-star walk is still Θ(|leftover|·deg★) — rbit cut
    has_leftover_coface, not seeded probes (circle still 875k). Packed
    annotations / seeded_is_noop are the next owned constants.
