@@ -1,6 +1,6 @@
 # Selected algorithm (living)
 
-Updated 2026-10-13 after iterations I001–I172. Default collapse is I155 pair-nbr + I156 fused first-apex. Optional `--collapse-alg suffix-rescue` / `suffix-stab` are exact H1>10× on circle n=2000 T=1.5 only.
+Updated 2026-10-13 after iterations I001–I178. Default collapse is I155 pair-nbr + I156 fused first-apex. Optional `--collapse-alg suffix-stab` / `suffix-rescue` / `suffix-later` (K=2, Case A) are exact H1>10× on circle n=2000 T=1.5 only.
 
 ## Selected exact-VR CPU pipeline
 
@@ -47,6 +47,7 @@ suite and I137 8/8 (including dense circle80/200 **collapse=0**, the I045 killer
 | suffix-stab / suffix-rescue as default (I168–I172) | Exact **41.7× / 36.5×** on circle n=2000; **2 unmatched** at n=3000/4000 |
 | suffix-k K-sample (I174) | K=0 exact, no clock win. K=2 fast but wrong. K=32 exact at n=3000, 4% probe cut |
 | Skip-collapse + implicit (I175) | Exact; **slower** than collapse=1 and than Ripser on every I162 family |
+| suffix-later Case B other-star (I178) | K=8 exact at n=3000; other-star scan kills the I176 13.4× |
 
 I107 (`--dom-budget 1`) **still rejected** with implicit (I142–I144): thicker
 residual makes collapse *and* reduce slower (circle3000 1.49× vs full 8.11×).
@@ -68,7 +69,7 @@ residual makes collapse *and* reduce slower (circle3000 1.49× vs full 8.11×).
 | sphere | \(H_2\) | 500 | 1.4 | **59×** (I085) / 46× later |
 | circle_noisy | \(H_1\) | 4000 | 1.5 | **9.50×** default back (I157). suffix-* not exact (I168–I172) |
 | circle_noisy | \(H_1\) | 3000 | 1.5 | **8.89×** default back (I156). suffix-* 2 unmatched |
-| circle_noisy | \(H_1\) | 2000 | 1.5 | **41.7×** suffix-stab (I168) / **36.5×** suffix-rescue (I172) / 7.20× default |
+| circle_noisy | \(H_1\) | 2000 | 1.5 | **41.7×** suffix-stab (I168) / **36.5×** suffix-rescue (I172) / **13.4×** suffix-later K=2 (I176) / 7.20× default |
 | torus | \(H_1\) | 1000 | 1.6 | **1.31×** owned implicit (I139); E3 1.25× same run |
 | circle_noisy | \(H_1\) | 2000 | 1.2 | **4.13×** (I162) / 3.8–4.8× earlier |
 | blobs / sphere / uniform2 | \(H_1\) | 2000 | default T | **0.17–0.32×** (I162) — collapse loses to Ripser |
@@ -76,7 +77,7 @@ residual makes collapse *and* reduce slower (circle3000 1.49× vs full 8.11×).
 | circle_noisy | \(H_1\) | 1000 | 1.5 | **4.1×** (I083) |
 
 **Not claimed:** H1 10× clock in general; high-d; worst-case asymptotics.
-**Honest H1>10× (exact, no oracle):** circle n=2000 T=1.5 via `--collapse-alg suffix-stab` **41.7×** (I168) or `suffix-rescue` **36.5×** (I172). Both fail at n=3000/4000 (2 unmatched): ~100 nonempty-C **shift-keeps** (I170–I171) are not an oldest suffix.
+**Honest H1>10× (exact, no oracle):** circle n=2000 T=1.5 via `--collapse-alg suffix-stab` **41.7×** (I168), `suffix-rescue` **36.5×** (I172), or `suffix-later --suffix-k 2` **13.4×** (I176 Case A). All fail or lose their cut at n=3000/4000: ~100 nonempty-C **shift-keeps** (16+ are Case B only; I178 other-star scan is exact at K=8 but not faster).
 I157 default back: n=4000 T=1.5 is **9.50×** (Ripser 294 s / PITH 30.9 s).
 I162: at n=2000 the same default **loses** on blobs (0.32×), sphere (0.17×), uniform2 (0.30×), torus (0.74×).
 I139: owned implicit **reduce 67 ms** on torus1000 residual 38k (homology was 1.7 s).
@@ -85,13 +86,12 @@ E3 (collapse + Ripser-sparse) is no longer required; we own that residual class.
 **Alpha (I136)** is a different complex: GUDHI Alpha circle3000 0.023 s vs Ripser VR 123 s
 (~5400× empirical) with 2745 \(H_1\) bars. Off the exact-VR 10× board.
 
-## Next levers (still open after I172)
+## Next levers (still open after I178)
 
 I153: C-build is the wall (567M probes / 1.12M dom tests / 96% first-apex hits).
-I164/I170: n=2000 circle residual **is** an oldest suffix (5169/5169 last 6.25%). n=3000/4000 add ~100 earlier **shift-keeps** (nonempty C, almost all shifted to one grade ≈1.489). Early-stop and 6n prefix are dead. I171: those keeps are not C-empty, so abort-at-first-common over-trims.
+I164/I170: n=2000 circle residual **is** an oldest suffix. n=3000/4000 add ~100 **shift-keeps** (80 Case A / 16 Case B-only / 1 fused-fail). I176 Case-A leave + K=2 is **13.4×** exact on n=2000. I178 Case-B other-star scan is exact at K=8 on n=3000 but not faster.
 
 1. **Default:** I155 pair-nbr + I156 fused first-apex. Flagship **9.50×** (I157).
-2. **Optional exact H1>10× on circle n=2000:** `suffix-stab` 41.7× / `suffix-rescue` 36.5×. Do not default.
-3. Predict / preserve the ~100 shift-keeps without walking every young star (needed for n=3000/4000 10×).
-4. Skip-collapse + our implicit **rejected** (I175): thick-graph reduce is slower than Ripser.
-5. Prove `!any_later` without a full young star walk (I174/I176). Geometry C-query ceiling still ~2×. GPU later.
+2. **Optional exact H1>10× on circle n=2000:** `suffix-stab` 41.7× / `suffix-rescue` 36.5× / `suffix-later -k 2` 13.4×. Do not default.
+3. Time-bucket live stars so Case A+B tails are O(1) without scanning the larger star (I179).
+4. Skip-collapse + our implicit **rejected** (I175). Geometry C-query ceiling still ~2×. GPU later.

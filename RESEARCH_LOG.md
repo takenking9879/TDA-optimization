@@ -773,10 +773,17 @@ Do not paste long reasoning here.
 - **Decision:** Case A is the cheap 13× on n=2000. I178: also leave Case B via the *other* star’s high-time tail (tiny on young edges).
 - **Class:** experiment (partial)
 
-## 2026-10-13 — I178 Case A+B tails (in progress)
+## 2026-10-13 — I178 Case A+B tails
 
 - **Question:** Does leaving both high-time tails before K-sample make n=3000 exact and keep the n=2000 13×?
-- **Class:** experiment running
+- **Result:** K=8 n=3000 **exact** (9190) but **no clock win** (14.4 s / 8.75× vs Ripser; 1.89B probes). K=2 n=3000 still **2 unmatched**. n=2000 K=2 dropped from **13.4× to 7.46×** — walking the other star for Case B as t falls is another O(deg) pass. blobs exact, still 0.28× vs Ripser.
+- **Decision:** Case-B scan is not a 10× lever. Keep `--later-b` off so `suffix-later` K=2 stays the I176 13.4× n=2000 optional. Default remains I156 back.
+- **Class:** experiment (negative on clock)
+
+## 2026-10-13 — I179 next (open)
+
+- **Question:** Time-bucket live stars so both high-time tails are O(1)/O(log) without scanning the larger star?
+- **Class:** proposal
 
 ## 2026-10-13 — I164 collapse live-degree trace
 

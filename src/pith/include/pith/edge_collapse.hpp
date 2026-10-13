@@ -721,7 +721,7 @@ inline Graph collapse_edges_suffix_sample(Graph g, Counters& c, int dom_budget,
 // suffix of the live star if times are unsorted — still only a p.second
 // filter plus a few r_other loads. Then K-sample first-apex on the rest.
 inline Graph collapse_edges_suffix_later(Graph g, Counters& c, int dom_budget,
-                                         int sample_k) {
+                                         int sample_k, bool case_b = false) {
     const auto t0 = std::chrono::steady_clock::now();
     if (c.n_edges_in == 0) c.n_edges_in = static_cast<std::int64_t>(g.edges.size());
     std::vector<Edge>& E = g.edges;
@@ -761,10 +761,11 @@ inline Graph collapse_edges_suffix_later(Graph g, Counters& c, int dom_budget,
                 break;
             }
         }
-        if (!leave) {
+        if (!leave && case_b) {
             // I178: Case B — later neighbor of the other endpoint, still
-            // adjacent to src at time ≤ t. Other high-time tail is tiny on
-            // young edges (I167 tau_late is rare).
+            // adjacent to src at time ≤ t. Scanning the other star costs a
+            // full deg walk as t drops; optional because it erased I176's
+            // 13.4× on circle2000 K=2.
             const auto& other_star = walk_u ? nbr[v] : nbr[u];
             const value_t* r_src = walk_u ? Tm.row(u) : Tm.row(v);
             for (const LiveNbr& p : other_star) {
