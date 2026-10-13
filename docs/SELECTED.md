@@ -621,7 +621,11 @@ Rips is exact and too slow.
    (n=256 ess H1 31 vs 0). I273 empty-seed-only non-Delaunay skip
    is exact 13/13 but figure8 n=4000 reduce **864≈866 ms** — the
    wall is ae_seeded, not empty-seed leftover_coface. Do not retry
-   empty-seed geometric leftover skips.
+   empty-seed geometric leftover skips. **I274 3D Delaunay H0 is
+   held** for maxdim=0, d=3, n∈[256,8000]: exact 13/13, Θ(n) edges
+   (sphere n=4000 20k / n=8000 40k) but scan construction is
+   **1.44× / 0.59 s** and **1.53× / 2.39 s** vs Ripser H0. Next 3D
+   H0 is a working walk-locate, not another leftover skip.
 6. Owned AE leftover-star walk is still Θ(|leftover|·deg★) — rbit cut
    has_leftover_coface, not seeded probes (circle still 875k). Packed
    annotations / seeded_is_noop are the next owned constants.

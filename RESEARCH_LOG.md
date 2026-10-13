@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-13 — I274 3D Delaunay H0
+
+- **Question:** Euclidean MST ⊆ Delaunay in R³, so is H0 of VR≤T exactly Kruskal on 3D Delaunay edges with d≤T (sphere n=4000/8000), skipping G_T listing?
+- **Hypothesis:** Same merge times as MST. Scan Bowyer–Watson (walk-locate fell off the mesh). n∈[256,8000]. H1/H2 / 2D I271 unchanged. Justified size: Θ(n) vs Θ(|E_T|).
+- **Work:** `delaunay_edges_3d_scan` + Kruskal d≤T. Unit test n=256 vs all-pairs. Wave 135 vs Ripser: sphere H0 n=4000/8000 + 2D H0 and H1/H2 hold.
+- **Result:** **Exact 13/13** (sphere H0 1=1; blobs H0 3=3; figure8 2=2; sphere void 1=1; two_spheres 2=2). sphere n=4000 **1.44× / 0.585 s / 20122 edges** (metric 578 ms). n=8000 **1.53× / 2.39 s / 40327** (metric 2376 ms). Dense H1 **11.2×**. figure8 **17.2×**. Sphere H2 **59×**. Size class is Θ(n); construction is O(n²) scan — not a 10× clock. Ripser H0 on the sphere is already cheap.
+- **Decision:** **Hold.** Exact 3D H0 identity + Θ(n) edges. Do not claim a 10×. Keep as the 3D H0 path (better than listing a fat G_T). Next 3D construction is a working walk-locate (I271 analog); do not retry leftover empty-seed skips. Topology loss: **0**. I271 2D stays.
+- **Class:** experiment (hold identity + size; reject 10× clock)
+
 ## 2026-10-13 — I273 empty-seed non-Delaunay leftover skip
 
 - **Question:** I272 invented ess H1 by skipping ae_seeded. If we skip leftover_coface only on empty-seed non-Delaunay leftovers (seeded always runs), does figure8 n=4000 reduce drop below 866 ms?
