@@ -71,6 +71,32 @@ int main() {
         std::cout << "ok C4 essential H1\n";
     }
 
+    // Implicit cohomology must match homology on triangle and C4 (I045).
+    {
+        Graph g = from_edges(3, {{0, 1, 1}, {1, 2, 1}, {0, 2, 1}});
+        Result a = persist_sparse(g, 1, 10, 1);
+        Result b = persist_implicit_coh(g, 1, 10, 1);
+        int h1a = 0, h1b = 0;
+        for (const auto& p : a.pairs)
+            if (p.dim == 1) ++h1a;
+        for (const auto& p : b.pairs)
+            if (p.dim == 1) ++h1b;
+        assert(h1a == h1b);
+        std::cout << "ok implicit triangle H1 bars=" << h1b << "\n";
+    }
+    {
+        Graph g = from_edges(4, {{0, 1, 1}, {1, 2, 1}, {2, 3, 1}, {0, 3, 1}});
+        Result a = persist_sparse(g, 1, 10, 1);
+        Result b = persist_implicit_coh(g, 1, 10, 1);
+        int ea = 0, eb = 0;
+        for (const auto& p : a.pairs)
+            if (p.dim == 1 && !std::isfinite(p.death)) ++ea;
+        for (const auto& p : b.pairs)
+            if (p.dim == 1 && !std::isfinite(p.death)) ++eb;
+        assert(ea == 1 && eb == 1);
+        std::cout << "ok implicit C4 essential H1\n";
+    }
+
     std::cout << "all collapse/persist unit tests passed\n";
     return 0;
 }

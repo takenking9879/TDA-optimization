@@ -9,8 +9,9 @@ Target: about **10×** fewer edges / columns on typical point clouds,
 ## Current selected pipeline
 
 **PITH:** build the threshold graph \(G_T\) → filtration-preserving
-**edge collapse** → **owned** persistent homology on the residual
-(union-find + triangle/tet boundary reduction).
+**edge collapse** (adaptive extra passes if the residual is thick) →
+**owned** persistent homology on the residual (union-find + triangle/tet
+boundary reduction).
 
 This is exact for \(\mathrm{VR}_{\le T}\). Collapse cuts **240–730×**
 columns and **10–127×** edges on typical low-d clouds. Sphere

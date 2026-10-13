@@ -7,6 +7,7 @@
 #include <cstdint>
 #include <functional>
 #include <numeric>
+#include <queue>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
@@ -333,4 +334,165 @@ inline Result persist_sparse(const Graph& g, int maxdim, value_t threshold, valu
     return r;
 }
 
+// Implicit persistent *cohomology* on a flag graph (Ripser-style).
+// Columns = leftover (non-MST) edges, youngest first.
+// Rows = triangles (packed keys). Never stores the 2-skeleton.
+// Exact PH of Flag(G)≤T — the I003 bug was projecting coboundaries onto
+// leftover *edges*; rows here are triangles. I045.
+struct CohEntry {
+    value_t t = kNegInf;
+    std::uint64_t key = 0;
+};
+
+struct CohYounger {
+    bool operator()(CohEntry a, CohEntry b) const {
+        if (a.t != b.t) return a.t < b.t;
+        return a.key < b.key;
+    }
+};
+
+inline CohEntry pop_pivot_f2(std::priority_queue<CohEntry, std::vector<CohEntry>, CohYounger>& h) {
+    while (!h.empty()) {
+        const CohEntry p = h.top();
+        h.pop();
+        if (h.empty() || h.top().t != p.t || h.top().key != p.key) return p;
+        h.pop();
+    }
+    return {kNegInf, 0};
+}
+
+template <class Fn>
+inline void for_cofacets_edge(const Graph& g, index_t u, index_t v, value_t te, value_t T, Fn&& fn) {
+    const auto& nu = g.neighbors[u];
+    const auto& nv = g.neighbors[v];
+    size_t i = 0, j = 0;
+    while (i < nu.size() && j < nv.size()) {
+        if (nu[i].first < nv[j].first) {
+            ++i;
+            continue;
+        }
+        if (nv[j].first < nu[i].first) {
+            ++j;
+            continue;
+        }
+        const index_t w = nu[i].first;
+        if (w != u && w != v) {
+            const value_t td = std::max({te, nu[i].second, nv[j].second});
+            if (td <= T) fn(CohEntry{td, pack3(u, v, w)});
+        }
+        ++i;
+        ++j;
+    }
+}
+
+inline Result persist_implicit_coh(const Graph& g, int maxdim, value_t threshold, value_t ratio) {
+    Result r;
+    Counters& c = r.counters;
+    c.n_vertices = g.n;
+    c.n_edges_out = static_cast<std::int64_t>(g.edges.size());
+    const auto t0 = std::chrono::steady_clock::now();
+
+    std::vector<Edge> edges = g.edges;
+    std::sort(edges.begin(), edges.end(), [](const Edge& a, const Edge& b) {
+        if (a.t != b.t) return a.t < b.t;
+        if (a.u != b.u) return a.u < b.u;
+        return a.v < b.v;
+    });
+
+    UnionFind uf(g.n);
+    struct LEdge {
+        index_t u, v;
+        value_t t;
+    };
+    std::vector<LEdge> leftover;
+    leftover.reserve(edges.size());
+    int components = g.n;
+    for (const Edge& e : edges) {
+        if (e.t > threshold) continue;
+        if (uf.unite(e.u, e.v)) {
+            --components;
+            r.pairs.push_back({0, 0, e.t});
+            ++c.n_columns_cleared;
+        } else {
+            leftover.push_back({e.u, e.v, e.t});
+        }
+    }
+    for (int i = 0; i < components; ++i) r.pairs.push_back({0, 0, kInf});
+
+    if (maxdim < 1) {
+        const auto t1 = std::chrono::steady_clock::now();
+        c.reduce_ms = std::chrono::duration<double, std::milli>(t1 - t0).count();
+        c.rss_bytes_peak = peak_rss_bytes();
+        return r;
+    }
+
+    // Youngest leftover first (cohomology).
+    std::sort(leftover.begin(), leftover.end(), [](const LEdge& a, const LEdge& b) {
+        if (a.t != b.t) return a.t > b.t;
+        return pack2(a.u, a.v) > pack2(b.u, b.v);
+    });
+
+    std::unordered_map<std::uint64_t, int> pivot;
+    pivot.reserve(leftover.size() * 2);
+    std::vector<std::vector<int>> V(leftover.size());
+
+    auto add_cob = [&](int k, std::priority_queue<CohEntry, std::vector<CohEntry>, CohYounger>& cob) {
+        for_cofacets_edge(g, leftover[k].u, leftover[k].v, leftover[k].t, threshold, [&](CohEntry x) {
+            ++c.n_cofacet_probes;
+            cob.push(x);
+        });
+        for (int s : V[k]) {
+            for_cofacets_edge(g, leftover[s].u, leftover[s].v, leftover[s].t, threshold,
+                              [&](CohEntry x) {
+                                  ++c.n_cofacet_probes;
+                                  cob.push(x);
+                              });
+        }
+    };
+
+    for (int i = 0; i < static_cast<int>(leftover.size()); ++i) {
+        ++c.n_columns_assembled;
+        std::priority_queue<CohEntry, std::vector<CohEntry>, CohYounger> cob;
+        add_cob(i, cob);
+        ++c.n_columns_reduced;
+        while (true) {
+            const CohEntry piv = pop_pivot_f2(cob);
+            if (piv.t < 0) {
+                r.pairs.push_back({1, leftover[i].t, kInf});
+                break;
+            }
+            auto it = pivot.find(piv.key);
+            if (it != pivot.end()) {
+                add_cob(it->second, cob);
+                V[i].push_back(it->second);
+                for (int s : V[it->second]) V[i].push_back(s);
+                ++c.n_additions;
+                continue;
+            }
+            pivot[piv.key] = i;
+            if (piv.t > leftover[i].t * ratio) r.pairs.push_back({1, leftover[i].t, piv.t});
+            break;
+        }
+    }
+
+    // H2: fall back to homology on the residual (tiny after collapse).
+    if (maxdim >= 2) {
+        Result h = persist_sparse(g, maxdim, threshold, ratio);
+        for (const auto& p : h.pairs) {
+            if (p.dim >= 2) r.pairs.push_back(p);
+        }
+        c.n_simplices_enumerated += h.counters.n_simplices_enumerated;
+        c.n_columns_assembled += h.counters.n_columns_assembled;
+        c.n_columns_reduced += h.counters.n_columns_reduced;
+        c.n_additions += h.counters.n_additions;
+        c.n_cofacet_probes += h.counters.n_cofacet_probes;
+    }
+
+    const auto t1 = std::chrono::steady_clock::now();
+    c.reduce_ms = std::chrono::duration<double, std::milli>(t1 - t0).count();
+    c.rss_bytes_peak = peak_rss_bytes();
+    return r;
+}
+
 }  // namespace pith
+

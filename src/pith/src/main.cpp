@@ -15,10 +15,11 @@ using namespace pith;
 static void usage() {
     std::cerr
         << "PITH — Preprocessed Implicit Topology Homology\n"
-        << "Usage: pith --points FILE.csv [options]\n"
+        << "Usage: pith --points FILE.csv | --distances FILE [options]\n"
         << "  --maxdim K          homology dimension (default 1)\n"
         << "  --threshold T       VR diameter threshold (default inf)\n"
-        << "  --collapse N        backward edge-collapse passes (default 1; -1 = adaptive)\n"
+        << "  --collapse N        collapse passes (default -1 adaptive+probe; 0 = off)\n"
+        << "  --engine auto|homology|implicit   residual PH engine (default auto)\n"
         << "  --ratio R           skip pairs with death <= birth*R (default 1)\n"
         << "  --no-enclosing      do not cap T by enclosing radius\n"
         << "  --sparse-only       write residual edges and exit\n"
@@ -40,6 +41,45 @@ static std::vector<std::vector<value_t>> read_points(const std::string& path) {
         if (!row.empty()) pts.push_back(std::move(row));
     }
     return pts;
+}
+
+static std::vector<std::vector<value_t>> read_distance_matrix(const std::string& path) {
+    std::ifstream in(path);
+    if (!in) throw std::runtime_error("cannot open " + path);
+    std::vector<std::vector<value_t>> rows;
+    std::string line;
+    while (std::getline(in, line)) {
+        if (line.empty() || line[0] == '#') continue;
+        std::replace(line.begin(), line.end(), ',', ' ');
+        std::istringstream ss(line);
+        std::vector<value_t> row;
+        value_t x;
+        while (ss >> x) row.push_back(x);
+        if (!row.empty()) rows.push_back(std::move(row));
+    }
+    if (rows.empty()) throw std::runtime_error("empty distance file");
+    const int n = static_cast<int>(rows.size());
+    // Square matrix.
+    if (static_cast<int>(rows[0].size()) == n) {
+        for (int i = 0; i < n; ++i) {
+            if (static_cast<int>(rows[i].size()) != n)
+                throw std::runtime_error("ragged square distance matrix");
+        }
+        return rows;
+    }
+    // Ripser lower-distance: row i has i entries (no diagonal).
+    if (static_cast<int>(rows[0].size()) == 1 || rows[0].size() < rows.back().size()) {
+        std::vector<std::vector<value_t>> dist(n, std::vector<value_t>(n, 0));
+        for (int i = 0; i < n; ++i) {
+            if (static_cast<int>(rows[i].size()) != i)
+                throw std::runtime_error("lower-distance row length != i");
+            for (int j = 0; j < i; ++j) {
+                dist[i][j] = dist[j][i] = rows[i][j];
+            }
+        }
+        return dist;
+    }
+    throw std::runtime_error("unrecognized distance matrix shape");
 }
 
 static std::vector<std::vector<value_t>> pairwise(const std::vector<std::vector<value_t>>& pts,
@@ -132,13 +172,15 @@ static void print_json(const Result& r) {
 
 int main(int argc, char** argv) {
     std::string points_path;
+    std::string dist_path;
     int maxdim = 1;
     value_t threshold = kInf;
-    int collapse_iters = -1;  // adaptive: extra passes if residual is thick
+    int collapse_iters = -1;  // adaptive + domination probe
     value_t ratio = 1;
     bool use_enclosing = true;
     bool sparse_only = false;
     std::string format = "text";
+    std::string engine = "auto";
 
     for (int i = 1; i < argc; ++i) {
         const std::string a = argv[i];
@@ -150,9 +192,11 @@ int main(int argc, char** argv) {
             return argv[++i];
         };
         if (a == "--points") points_path = need("--points");
+        else if (a == "--distances") dist_path = need("--distances");
         else if (a == "--maxdim") maxdim = std::stoi(need("--maxdim"));
         else if (a == "--threshold") threshold = std::stof(need("--threshold"));
         else if (a == "--collapse") collapse_iters = std::stoi(need("--collapse"));
+        else if (a == "--engine") engine = need("--engine");
         else if (a == "--ratio") ratio = std::stof(need("--ratio"));
         else if (a == "--no-enclosing") use_enclosing = false;
         else if (a == "--sparse-only") sparse_only = true;
@@ -166,15 +210,21 @@ int main(int argc, char** argv) {
             return 2;
         }
     }
-    if (points_path.empty()) {
+    if (points_path.empty() && dist_path.empty()) {
         usage();
         return 2;
     }
 
     try {
         Counters c;
-        const auto pts = read_points(points_path);
-        auto dist = pairwise(pts, c);
+        std::vector<std::vector<value_t>> dist;
+        if (!dist_path.empty()) {
+            dist = read_distance_matrix(dist_path);
+            c.n_distances = static_cast<std::int64_t>(dist.size()) * (dist.size() - 1) / 2;
+        } else {
+            const auto pts = read_points(points_path);
+            dist = pairwise(pts, c);
+        }
         if (use_enclosing) {
             const value_t R = enclosing_radius(dist);
             if (R < threshold) threshold = R;
@@ -182,13 +232,27 @@ int main(int argc, char** argv) {
         Graph g = graph_from_distance(dist, threshold);
         c.n_vertices = g.n;
         c.n_edges_in = static_cast<std::int64_t>(g.edges.size());
+        bool skipped_collapse = false;
         if (collapse_iters < 0) {
-            g = collapse_edges(std::move(g), 1, c);
-            const double mean_deg = g.n ? (2.0 * static_cast<double>(g.edges.size()) / g.n) : 0;
-            if (mean_deg > 6.0) g = collapse_edges(std::move(g), 2, c);
+            if (maxdim < 1) {
+                skipped_collapse = true;
+                c.n_edges_out = c.n_edges_in;
+            } else {
+                const double p = probe_domination(g, 64);
+                const double mean_in = g.n ? (2.0 * static_cast<double>(g.edges.size()) / g.n) : 0;
+                if (p < 0.25 && mean_in > 40.0 && maxdim <= 1) {
+                    skipped_collapse = true;
+                    c.n_edges_out = c.n_edges_in;
+                } else {
+                    g = collapse_edges(std::move(g), 1, c);
+                    const double mean_deg = g.n ? (2.0 * static_cast<double>(g.edges.size()) / g.n) : 0;
+                    if (mean_deg > 6.0) g = collapse_edges(std::move(g), 2, c);
+                }
+            }
         } else if (collapse_iters > 0) {
             g = collapse_edges(std::move(g), collapse_iters, c);
         } else {
+            skipped_collapse = true;
             c.n_edges_out = c.n_edges_in;
         }
 
@@ -197,7 +261,15 @@ int main(int argc, char** argv) {
             return 0;
         }
 
-        Result r = persist_sparse(g, maxdim, threshold, ratio);
+        const double mean_res = g.n ? (2.0 * static_cast<double>(g.edges.size()) / g.n) : 0;
+        bool use_implicit = false;
+        if (engine == "implicit") use_implicit = true;
+        else if (engine == "homology") use_implicit = false;
+        else {
+            use_implicit = (maxdim <= 1) && (skipped_collapse || mean_res > 8.0);
+        }
+        Result r = use_implicit ? persist_implicit_coh(g, maxdim, threshold, ratio)
+                                : persist_sparse(g, maxdim, threshold, ratio);
         r.counters.n_distances = c.n_distances;
         r.counters.n_edges_in = c.n_edges_in;
         r.counters.n_collapse_trims = c.n_collapse_trims;
@@ -205,8 +277,9 @@ int main(int argc, char** argv) {
         r.counters.collapse_ms = c.collapse_ms;
         r.counters.metric_ms = c.metric_ms;
         r.counters.n_vertices = g.n;
-        r.counters.pipeline = "pith:threshold+collapse" + std::to_string(collapse_iters) +
-                              "+implicit_coh";
+        r.counters.pipeline = std::string("pith:threshold+collapse") +
+                              std::to_string(collapse_iters) +
+                              (use_implicit ? "+implicit_coh" : "+homology");
         std::sort(r.pairs.begin(), r.pairs.end(), [](const PersistencePair& a, const PersistencePair& b) {
             if (a.dim != b.dim) return a.dim < b.dim;
             if (a.birth != b.birth) return a.birth < b.birth;

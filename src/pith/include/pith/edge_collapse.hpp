@@ -22,13 +22,65 @@ struct DenseTimes {
     void erase(int i, int j) { set(i, j, kInf); }
 };
 
+// True iff some c in C_now is adjacent (at time t) to every other vertex in C_now.
+inline bool dominated_by(const DenseTimes& Tm, const std::vector<index_t>& C_now,
+                         index_t cand, value_t t) {
+    for (index_t w : C_now) {
+        if (Tm(cand, w) > t) return false;
+    }
+    return true;
+}
+
+inline index_t first_dominator(const DenseTimes& Tm, const std::vector<index_t>& C_now,
+                               value_t t) {
+    if (C_now.empty()) return -1;
+    if (C_now.size() == 1) return C_now[0];
+    for (index_t cand : C_now) {
+        if (dominated_by(Tm, C_now, cand, t)) return cand;
+    }
+    return -1;
+}
+
+// Fraction of the `samples` youngest (largest-t) edges that are dominated
+// in the static graph. Used as a cheap incompressibility probe (I047).
+inline double probe_domination(const Graph& g, int samples = 64) {
+    if (g.edges.empty()) return 0;
+    std::vector<Edge> E = g.edges;
+    const int m = std::min(samples, static_cast<int>(E.size()));
+    std::partial_sort(E.begin(), E.begin() + m, E.end(),
+                      [](const Edge& a, const Edge& b) { return a.t > b.t; });
+    DenseTimes Tm(g.n);
+    for (const Edge& e : g.edges) Tm.set(e.u, e.v, e.t);
+
+    int hit = 0;
+    std::vector<index_t> C;
+    for (int i = 0; i < m; ++i) {
+        const index_t u = E[i].u, v = E[i].v;
+        const value_t t = E[i].t;
+        C.clear();
+        for (int w = 0; w < g.n; ++w) {
+            if (w == u || w == v) continue;
+            const value_t tu = Tm(u, w);
+            const value_t tv = Tm(v, w);
+            if (tu <= t && tv <= t) C.push_back(w);
+        }
+        if (first_dominator(Tm, C, t) >= 0) ++hit;
+    }
+    return static_cast<double>(hit) / static_cast<double>(m);
+}
+
 // Backward filtration-preserving edge collapse (Glisse–Pritam / GUDHI).
+// I044: sticky dominator across C_later shifts + lazy heap (GUDHI L237–264).
 inline Graph collapse_edges(Graph g, int iterations, Counters& c) {
     const auto t0 = std::chrono::steady_clock::now();
     if (c.n_edges_in == 0) c.n_edges_in = static_cast<std::int64_t>(g.edges.size());
 
     std::vector<index_t> C_now;
     std::vector<std::pair<value_t, index_t>> C_later;
+    const auto later_cmp = [](const std::pair<value_t, index_t>& a,
+                              const std::pair<value_t, index_t>& b) {
+        return a.first > b.first;  // min-time at front after make_heap
+    };
 
     for (int pass = 0; pass < iterations; ++pass) {
         if (g.edges.empty()) break;
@@ -50,12 +102,6 @@ inline Graph collapse_edges(Graph g, int iterations, Counters& c) {
             nbr[e.v].push_back(e.u);
         }
 
-        auto is_dominated_by = [&](index_t cand, value_t t) {
-            for (index_t w : C_now) {
-                if (Tm(cand, w) > t) return false;
-            }
-            return true;
-        };
         auto drop_nbr = [&](index_t a, index_t b) {
             auto& row = nbr[a];
             for (size_t i = 0; i < row.size(); ++i) {
@@ -66,14 +112,6 @@ inline Graph collapse_edges(Graph g, int iterations, Counters& c) {
                 }
             }
         };
-        auto find_dominator = [&](value_t t) -> bool {
-            if (C_now.empty()) return false;
-            if (C_now.size() == 1) return true;
-            for (index_t cand : C_now) {
-                if (is_dominated_by(cand, t)) return true;
-            }
-            return false;
-        };
 
         std::vector<Edge> kept;
         kept.reserve(E.size() / 4 + 8);
@@ -82,6 +120,7 @@ inline Graph collapse_edges(Graph g, int iterations, Counters& c) {
             const index_t u = e_in.u;
             const index_t v = e_in.v;
             value_t t = e_in.t;
+            const value_t t_in = e_in.t;
 
             C_now.clear();
             C_later.clear();
@@ -96,38 +135,51 @@ inline Graph collapse_edges(Graph g, int iterations, Counters& c) {
                 else C_later.push_back({tau, w});
             }
 
-            bool later_sorted = false;
+            bool heapified = false;
             bool ever_shifted = false;
+            bool dead = false;
             while (true) {
-                if (!find_dominator(t)) {
-                    Edge out = e_in;
-                    out.t = ever_shifted ? t : e_in.t;
-                    kept.push_back(out);
-                    if (ever_shifted) {
-                        Tm.set(u, v, out.t);
-                        ++c.n_collapse_shifts;
+                const index_t dominator = first_dominator(Tm, C_now, t);
+                if (dominator < 0) break;
+                // Sticky: keep shifting while this apex still dominates newcomers.
+                bool still = true;
+                while (still) {
+                    if (C_later.empty()) {
+                        dead = true;
+                        break;
                     }
-                    break;
+                    if (!heapified) {
+                        std::make_heap(C_later.begin(), C_later.end(), later_cmp);
+                        heapified = true;
+                    }
+                    t = C_later.front().first;
+                    ever_shifted = true;
+                    while (!C_later.empty() && C_later.front().first <= t) {
+                        const index_t w = C_later.front().second;
+                        const value_t tw = C_later.front().first;
+                        if (Tm(dominator, w) > tw) still = false;
+                        C_now.push_back(w);
+                        std::pop_heap(C_later.begin(), C_later.end(), later_cmp);
+                        C_later.pop_back();
+                    }
                 }
-                if (C_later.empty()) {
-                    Tm.erase(u, v);
-                    drop_nbr(u, v);
-                    drop_nbr(v, u);
-                    ++c.n_collapse_trims;
-                    break;
+                if (dead) break;
+                // Newcomers broke the apex; outer loop finds another or keeps.
+            }
+
+            if (dead) {
+                Tm.erase(u, v);
+                drop_nbr(u, v);
+                drop_nbr(v, u);
+                ++c.n_collapse_trims;
+            } else {
+                Edge out = e_in;
+                out.t = ever_shifted ? t : t_in;
+                kept.push_back(out);
+                if (ever_shifted) {
+                    Tm.set(u, v, out.t);
+                    ++c.n_collapse_shifts;
                 }
-                if (!later_sorted) {
-                    std::sort(C_later.begin(), C_later.end());
-                    later_sorted = true;
-                }
-                t = C_later.front().first;
-                ever_shifted = true;
-                size_t i = 0;
-                while (i < C_later.size() && C_later[i].first <= t) {
-                    C_now.push_back(C_later[i].second);
-                    ++i;
-                }
-                C_later.erase(C_later.begin(), C_later.begin() + static_cast<std::ptrdiff_t>(i));
             }
         }
 
