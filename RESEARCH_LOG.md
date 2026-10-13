@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-13 — I251 inline empty-seed leftover-coface skip
+
+- **Question:** Does inlining the 97% no-seed leftover-coface skip (so those leftovers never enter `active_enum_lazy`) cut the connected wall without changing H0–H2? Does torus n=2000 still hold 10×?
+- **Hypothesis:** Same I246/I250 pairing. The skip path is prepare + leftover-coface only. Shape-agnostic. Exact if identity holds.
+- **Work:** `ae_prepare` / `ae_keep_singleton` / `ae_seeded`. H1 loop inlines the skip. Wave 112 vs Ripser including torus n=2000.
+- **Result:** **Exact 12/12** (figure8 2=2; sphere void 1=1; torus ess H1 1=1; blobs H0 3=3). Uniform2 n=5000 **11.0×** (0.32s/3.54s; I250 0.34s). n=6000 **10.8×** (0.41s/4.42s; I250 0.43s). Torus n=2000 **15.0×** (0.18s/2.70s). Blobs H1 **23×**. H0 **1.9×**. Sphere H2 **61×**.
+- **Decision:** **Support.** Real pith cut (reduce 226 vs I250 253 ms at n=5000). Connected 10× holds; torus reconfirmed. Topology loss: **0**. Not a better Big-O.
+- **Class:** experiment (support; exact constant)
+
 ## 2026-10-13 — I250 skip collect when ActiveReg empty
 
 - **Question:** On a connected dense \(G_T\), how often is ActiveReg empty, and does skipping `collect_candidates` then keep exact H0–H2 and cut the connected wall?
