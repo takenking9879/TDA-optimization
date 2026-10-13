@@ -33,6 +33,7 @@ static void usage() {
         << "  --later-b-cap N     Case-B leave cap on |later[other]| (default 4)\n"
         << "  --dom-budget K      max domination candidates per edge (-1 = all; I107)\n"
         << "  --engine auto|homology|implicit|redzed|active   residual PH engine (default auto)\n"
+        << "                    auto: I235 subsample residual-frac; fat → redzed, thin → collapse+implicit\n"
         << "  --ratio R           skip pairs with death <= birth*R (default 1)\n"
         << "  --no-enclosing      do not cap T by enclosing radius\n"
         << "  --edges FILE        1-skeleton: '# n=N' then 'u v t' lines (I207)\n"
@@ -237,6 +238,7 @@ static void print_text(const Result& r) {
     std::cout << " metric_ms=" << c.metric_ms
               << " collapse_ms=" << c.collapse_ms
               << " reduce_ms=" << c.reduce_ms
+              << " residual_frac=" << c.residual_frac
               << " rss=" << c.rss_bytes_peak << "\n";
 }
 
@@ -372,6 +374,7 @@ int main(int argc, char** argv) {
         Counters c;
         Graph g;
         std::vector<std::vector<value_t>> dist;
+        bool auto_dispatch = false;
         if (!edges_path.empty()) {
             // I207: 1-skeleton input. Enclosing radius needs a full metric;
             // do not invent missing distances.
@@ -388,6 +391,16 @@ int main(int argc, char** argv) {
             if (use_enclosing) {
                 const value_t R = enclosing_radius(dist);
                 if (R < threshold) threshold = R;
+            }
+            // I235: --engine auto on a metric. Fat subsample residual → RedZeD
+            // (skip full G_T + collapse). Thin → existing collapse+implicit.
+            // Shape-agnostic: same probe for every cloud. Both engines exact.
+            if (engine == "auto" && maxdim >= 1 && gic_n == 0 && knn_k == 0 &&
+                witness_n == 0 && !(sparse_eps > 0 && sparse_eps < 1) && !reduced_vr &&
+                static_cast<int>(dist.size()) >= 400) {
+                auto_dispatch = true;
+                c.residual_frac = probe_residual_frac(dist, threshold, 250);
+                if (c.residual_frac > 0.08) engine = "redzed";
             }
             if (gic_n > 0) {
                 // I222: flag of a kNN-quotient on farthest-point landmarks.
@@ -538,8 +551,9 @@ int main(int argc, char** argv) {
         r.counters.n_collapse_early_later_b = c.n_collapse_early_later_b;
         r.counters.collapse_ms = c.collapse_ms;
         r.counters.metric_ms = c.metric_ms;
+        r.counters.residual_frac = c.residual_frac;
         if (engine == "redzed") {
-            r.counters.pipeline = "pith:redzed";
+            r.counters.pipeline = auto_dispatch ? "pith:auto-redzed" : "pith:redzed";
         } else if (engine == "active") {
             r.counters.n_vertices = g.n;
             if (r.counters.pipeline.empty()) r.counters.pipeline = "pith:active-h1";
@@ -547,9 +561,11 @@ int main(int argc, char** argv) {
             r.counters.n_vertices = g.n;
             r.counters.pipeline = reduced_vr
                                       ? std::string("pith:reduced-vr")
-                                      : std::string("pith:threshold+collapse") +
-                                            std::to_string(collapse_iters) +
-                                            (use_implicit ? "+implicit_coh" : "+homology");
+                                      : (auto_dispatch
+                                             ? std::string("pith:auto-collapse")
+                                             : std::string("pith:threshold+collapse") +
+                                                   std::to_string(collapse_iters) +
+                                                   (use_implicit ? "+implicit_coh" : "+homology"));
         }
         std::sort(r.pairs.begin(), r.pairs.end(), [](const PersistencePair& a, const PersistencePair& b) {
             if (a.dim != b.dim) return a.dim < b.dim;
