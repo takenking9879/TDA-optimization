@@ -1,6 +1,6 @@
 # Selected algorithm (living)
 
-Updated 2026-10-13 after iterations I001–I145.
+Updated 2026-10-13 after iterations I001–I146.
 
 ## Selected exact-VR CPU pipeline
 
@@ -32,6 +32,7 @@ suite and I137 8/8 (including dense circle80/200 **collapse=0**, the I045 killer
 | `-march=native -flto` (I128) | Exact; **slower** than `-O3` |
 | Fake RedZeD (I122–I125) | Still enumerated all leftover triangles |
 | Hybrid first-apex + progressive (I145) | Exact; **slower** (circle3000 6.90× vs 8.11×) |
+| Sorted-merge C (I146) | Exact; **slower** (circle2000 4.43× / 6.3 s vs 6.30× / 4.2 s) |
 
 I107 (`--dom-budget 1`) **still rejected** with implicit (I142–I144): thicker
 residual makes collapse *and* reduce slower (circle3000 1.49× vs full 8.11×).
@@ -66,9 +67,9 @@ E3 (collapse + Ripser-sparse) is no longer required; we own that residual class.
 **Alpha (I136)** is a different complex: GUDHI Alpha circle3000 0.023 s vs Ripser VR 123 s
 (~5400× empirical) with 2745 \(H_1\) bars. Off the exact-VR 10× board.
 
-## Next levers (still open after I145)
+## Next levers (still open after I146)
 
-1. Sorted-merge C construction (I146) — avoid gathering non-common neighbors.
-2. Forward 2020 collapse; AVX-512 domination; time-axis parallel (4 cores here).
-3. Real RedZeD active enumeration (H09) — lower priority now that implicit owns E3.
+1. Forward 2020 collapse (untried; likely worse on dense circle, try small n).
+2. AVX-512 gather for C / domination (constant; 4-core CPU has AVX-512).
+3. Time-axis parallel collapse (Glisse Lemma 6) — same work, wall-clock only.
 4. GPU later (Ripser++ reference only)

@@ -1,0 +1,75 @@
+{
+  "id": "sorted_merge_C",
+  "lever": "H01-mergeC",
+  "class": "experiment",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "sorted-merge C circle2000 4.4328232013155775\u00d7 / 6329.0356 ms; circle3000 5.319910180329219\u00d7 (I140 6.30\u00d7/4212 ms; I144 8.11\u00d7/13885 ms)",
+  "receipts": [
+    {
+      "dataset": "circle_noisy",
+      "n": 80,
+      "T": 1.2,
+      "match": true,
+      "unmatched": 0,
+      "ripser_s": 0.0018160390009143157,
+      "pith_s": 0.00167431899899384,
+      "time_ratio": 1.0846433696360374,
+      "collapse_ms": 0.38929,
+      "reduce_ms": 0.018085,
+      "edges_out": 93
+    },
+    {
+      "dataset": "circle_noisy",
+      "n": 200,
+      "T": 1.2,
+      "match": true,
+      "unmatched": 0,
+      "ripser_s": 0.008862151000357699,
+      "pith_s": 0.006572808999408153,
+      "time_ratio": 1.348304963852698,
+      "collapse_ms": 4.546414,
+      "reduce_ms": 0.066951,
+      "edges_out": 283
+    },
+    {
+      "dataset": "torus",
+      "n": 200,
+      "T": 1.6,
+      "match": true,
+      "unmatched": 0,
+      "ripser_s": 0.004535780000878731,
+      "pith_s": 0.005672590999893146,
+      "time_ratio": 0.7995958109731816,
+      "collapse_ms": 2.729037,
+      "reduce_ms": 0.892195,
+      "edges_out": 1304
+    },
+    {
+      "dataset": "circle_noisy",
+      "n": 2000,
+      "T": 1.5,
+      "match": true,
+      "unmatched": 0,
+      "ripser_s": 28.397892340000908,
+      "pith_s": 6.406276779000109,
+      "time_ratio": 4.4328232013155775,
+      "collapse_ms": 6329.0356,
+      "reduce_ms": 2.320551,
+      "edges_out": 5169
+    },
+    {
+      "dataset": "circle_noisy",
+      "n": 3000,
+      "T": 1.5,
+      "match": true,
+      "unmatched": 0,
+      "ripser_s": 118.24813929700031,
+      "pith_s": 22.22746912799994,
+      "time_ratio": 5.319910180329219,
+      "collapse_ms": 22053.54,
+      "reduce_ms": 4.770013,
+      "edges_out": 9190
+    }
+  ]
+}

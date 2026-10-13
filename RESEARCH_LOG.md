@@ -565,6 +565,13 @@ Do not paste long reasoning here.
 - **Decision:** I107 rejection stands even with implicit. Do not cap domination search.
 - **Class:** experiment (negative on clock; identity archived)
 
+## 2026-10-13 — I146 sorted-merge C
+
+- **Question:** Is a vertex-sorted merge cheaper than gathering the smaller neighborhood?
+- **Result:** Exact. **Reject on clock.** circle2000 4.43× / 6329 ms vs I140 6.30× / 4212 ms. circle3000 5.32× / 22.1 s vs 8.11× / 13.9 s. Merge walks both lists; the smaller-nbr gather already skips non-commons after two loads and hits cache better.
+- **Decision:** Revert to smaller-nbr gather + swap-drop.
+- **Class:** experiment (negative on clock)
+
 ## 2026-10-13 — I145 hybrid dominator
 
 - **Question:** Does first-2 `dominated_by` then progressive ∩ cut leftover-edge \(O(k^2)\)?

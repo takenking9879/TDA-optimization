@@ -179,14 +179,16 @@ inline Graph collapse_edges(Graph g, int iterations, Counters& c, int dom_budget
             nbr[e.u].push_back(e.v);
             nbr[e.v].push_back(e.u);
         }
-        // I146: vertex-sorted live lists so C is a merge of commons, not a
-        // gather over the smaller neighborhood (which probes non-commons).
-        for (int i = 0; i < n; ++i) std::sort(nbr[i].begin(), nbr[i].end());
 
         auto drop_nbr = [&](index_t a, index_t b) {
             auto& row = nbr[a];
-            auto it = std::lower_bound(row.begin(), row.end(), b);
-            if (it != row.end() && *it == b) row.erase(it);
+            for (size_t i = 0; i < row.size(); ++i) {
+                if (row[i] == b) {
+                    row[i] = row.back();
+                    row.pop_back();
+                    return;
+                }
+            }
         };
 
         std::vector<Edge> kept;
@@ -202,26 +204,15 @@ inline Graph collapse_edges(Graph g, int iterations, Counters& c, int dom_budget
             C_later.clear();
             const value_t* ru = Tm.row(u);
             const value_t* rv = Tm.row(v);
-            const auto& nu = nbr[u];
-            const auto& nv = nbr[v];
-            size_t iu = 0, iv = 0;
-            while (iu < nu.size() && iv < nv.size()) {
-                if (nu[iu] < nv[iv]) {
-                    ++iu;
-                    continue;
-                }
-                if (nv[iv] < nu[iu]) {
-                    ++iv;
-                    continue;
-                }
-                const index_t w = nu[iu];
-                if (w != u && w != v) {
-                    const value_t tau = std::max(ru[w], rv[w]);
-                    if (tau <= t) C_now.push_back(w);
-                    else C_later.push_back({tau, w});
-                }
-                ++iu;
-                ++iv;
+            const auto& src = nbr[u].size() <= nbr[v].size() ? nbr[u] : nbr[v];
+            for (index_t w : src) {
+                if (w == u || w == v) continue;
+                const value_t tu = ru[w];
+                const value_t tv = rv[w];
+                if (tu >= kInf / 2 || tv >= kInf / 2) continue;
+                const value_t tau = std::max(tu, tv);
+                if (tau <= t) C_now.push_back(w);
+                else C_later.push_back({tau, w});
             }
 
             bool heapified = false;
