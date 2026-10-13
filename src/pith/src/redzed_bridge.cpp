@@ -1861,6 +1861,73 @@ bool delaunay_one_skeleton(const std::vector<std::vector<value_t>>& pts, std::ve
     return true;
 }
 
+bool delaunay_vr_skeleton(const std::vector<std::vector<value_t>>& pts, value_t T, value_t alpha,
+                          std::vector<Edge>& out) {
+    if (!delaunay_one_skeleton(pts, out)) return false;
+    if (!(alpha > 1.0) || pts.empty()) return true;
+    const int n = static_cast<int>(pts.size());
+    const int d = static_cast<int>(pts[0].size());
+    if (d < 2 || d > 3) return true;
+    std::vector<double> rad(static_cast<size_t>(n), 0);
+    std::unordered_set<uint64_t> have;
+    have.reserve(out.size() * 2 + static_cast<size_t>(n) * 8);
+    auto ek = [](int u, int v) -> uint64_t {
+        if (u > v) std::swap(u, v);
+        return (static_cast<uint64_t>(static_cast<uint32_t>(u)) << 32) | static_cast<uint32_t>(v);
+    };
+    for (const Edge& e : out) {
+        have.insert(ek(e.u, e.v));
+        const double dt = static_cast<double>(e.t);
+        if (dt > rad[static_cast<size_t>(e.u)]) rad[static_cast<size_t>(e.u)] = dt;
+        if (dt > rad[static_cast<size_t>(e.v)]) rad[static_cast<size_t>(e.v)] = dt;
+    }
+    std::vector<double> rr = rad;
+    std::nth_element(rr.begin(), rr.begin() + n / 2, rr.end());
+    const double med = std::max(rr[static_cast<size_t>(n / 2)], 1e-9);
+    const double inv = 1.0 / med;
+    auto cell_of = [&](int i, int* c) {
+        for (int k = 0; k < d; ++k)
+            c[k] = static_cast<int>(std::floor(static_cast<double>(pts[static_cast<size_t>(i)][static_cast<size_t>(k)]) * inv));
+        if (d == 2) c[2] = 0;
+    };
+    std::unordered_map<uint64_t, std::vector<int>> grid;
+    grid.reserve(static_cast<size_t>(n) * 2);
+    for (int i = 0; i < n; ++i) {
+        int c[3] = {0, 0, 0};
+        cell_of(i, c);
+        grid[pack_cell(c, d)].push_back(i);
+    }
+    out.reserve(out.size() + static_cast<size_t>(n) * 16);
+    const int cap = (d == 2) ? 16 : 8;
+    for (int i = 0; i < n; ++i) {
+        const double R = alpha * rad[static_cast<size_t>(i)];
+        if (!(R > 0)) continue;
+        const int reach = std::min(cap, std::max(1, static_cast<int>(std::ceil(R * inv + 1e-9))));
+        int c0[3] = {0, 0, 0};
+        cell_of(i, c0);
+        int c[3] = {0, 0, 0};
+        for (int dx = -reach; dx <= reach; ++dx)
+            for (int dy = -reach; dy <= reach; ++dy)
+                for (int dz = (d == 3 ? -reach : 0); dz <= (d == 3 ? reach : 0); ++dz) {
+                    c[0] = c0[0] + dx;
+                    c[1] = c0[1] + dy;
+                    c[2] = (d == 3) ? c0[2] + dz : 0;
+                    const auto it = grid.find(pack_cell(c, d));
+                    if (it == grid.end()) continue;
+                    for (int j : it->second) {
+                        // Query both ends: d≤α·r_i from i plus d≤α·r_j from j
+                        // is d≤α·max(r_i,r_j). have[] dedups.
+                        if (j == i) continue;
+                        const value_t dist = point_dist(pts, i, j);
+                        if (dist > T || static_cast<double>(dist) > R) continue;
+                        if (!have.insert(ek(i, j)).second) continue;
+                        out.push_back({i, j, dist});
+                    }
+                }
+    }
+    return true;
+}
+
 static Result kruskal_h0(int n, std::vector<SpatEdge>&& edges) {
     Result r;
     Counters& c = r.counters;
