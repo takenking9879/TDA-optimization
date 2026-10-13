@@ -690,6 +690,12 @@ Do not paste long reasoning here.
 - **Decision:** **Revert.** 0-as-missing + rank remap under-collapses. Matching-batch parallel also unsafe (shared commons).
 - **Class:** experiment (negative)
 
+## 2026-10-13 — I165 oldest-prefix (in progress)
+
+- **Question:** Does keeping the oldest \(6n\) edges (no C-walk) match Ripser, given I164’s suffix residual?
+- **Hypothesis:** Essential H1 lives on short edges; high-t trims do not need to be processed. Risk: finite deaths that need shifts.
+- **Class:** proposal / experiment running
+
 ## 2026-10-13 — I164 collapse live-degree trace
 
 - **Question:** Does the live 1-skeleton thin early enough to stop the C-walk?
