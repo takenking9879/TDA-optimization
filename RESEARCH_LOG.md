@@ -565,6 +565,13 @@ Do not paste long reasoning here.
 - **Decision:** I107 rejection stands even with implicit. Do not cap domination search.
 - **Class:** experiment (negative on clock; identity archived)
 
+## 2026-10-13 — I145 hybrid dominator
+
+- **Question:** Does first-2 `dominated_by` then progressive ∩ cut leftover-edge \(O(k^2)\)?
+- **Result:** Exact. **Reject on clock.** circle2000 5.88× / 4606 ms vs I140 6.30× / 4212 ms. circle3000 6.90× / 17.0 s vs I144 8.11× / 13.9 s. Too many edges miss the first two apexes and pay progressive.
+- **Decision:** Revert call site to `first_dominator_deg`. Keep `first_dominator_hybrid` archived.
+- **Class:** experiment (negative on clock)
+
 ## 2026-10-13 — I143 dense implicit vs Ripser
 
 - **Result:** Exact. collapse=0 implicit is **0.62×** vs Ripser at n=200/500/1000 T=1.5. Our heap port is correct but slower than Bauer on dense \(G_T\).

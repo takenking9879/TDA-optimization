@@ -1,0 +1,58 @@
+{
+  "id": "hybrid_dominator",
+  "lever": "H01-hybrid",
+  "class": "experiment",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "hybrid dominator circle2000 5.8832496533360406\u00d7 / 4606.3316 ms; circle3000 6.898610054632277\u00d7 (I140 was 6.30\u00d7 / 4212 ms; I144 was 8.11\u00d7 / 13885 ms)",
+  "receipts": [
+    {
+      "n": 80,
+      "T": 1.2,
+      "match": true,
+      "unmatched": 0,
+      "ripser_s": 0.002167226000892697,
+      "pith_s": 0.0016055470005085226,
+      "time_ratio": 1.3498365355895994,
+      "collapse_ms": 0.269781,
+      "reduce_ms": 0.020162,
+      "edges_out": 93
+    },
+    {
+      "n": 200,
+      "T": 1.2,
+      "match": true,
+      "unmatched": 0,
+      "ripser_s": 0.008927147000576952,
+      "pith_s": 0.004752414999529719,
+      "time_ratio": 1.878444328085899,
+      "collapse_ms": 2.827736,
+      "reduce_ms": 0.06361,
+      "edges_out": 283
+    },
+    {
+      "n": 2000,
+      "T": 1.5,
+      "match": true,
+      "unmatched": 0,
+      "ripser_s": 27.553622081000867,
+      "pith_s": 4.683401811000294,
+      "time_ratio": 5.8832496533360406,
+      "collapse_ms": 4606.3316,
+      "reduce_ms": 2.072086,
+      "edges_out": 5169
+    },
+    {
+      "n": 3000,
+      "T": 1.5,
+      "match": true,
+      "unmatched": 0,
+      "ripser_s": 118.15186548699967,
+      "pith_s": 17.12690883399955,
+      "time_ratio": 6.898610054632277,
+      "collapse_ms": 16949.957,
+      "reduce_ms": 4.744146,
+      "edges_out": 9190
+    }
+  ]
+}
