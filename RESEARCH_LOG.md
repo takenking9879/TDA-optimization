@@ -1112,8 +1112,17 @@ Do not paste long reasoning here.
 - **Question:** Does a Dey–Fan–Wang-style GIC 1-skeleton (farthest-point landmarks + kNN-cell quotient) keep essential H1 on mixed-homology families with a better size class than Ripser?
 - **Hypothesis:** PH on m ≪ n. The full-cloud kNN graph sees loops; the quotient to landmarks should preserve them if L covers. Shape-agnostic. Not exact VR — quantify ess H1 + bottleneck. Witness/kNN already failed; GIC is a different estimator.
 - **Work:** `--gic-n M --gic-k K`. Wave 83.
+- **Result:** **Reject.** Invents essential H1 on blobs (1 vs 0), sphere (6 vs 0), torus (8 vs 1, bn 0.36). Circle/two_circles/figure8 ess OK (bn 0.014–0.020) but 355–1096 unmatched finite bars. Very sparse (200–700 edges) and fast (torus 80×) — wrong features on 3D/cluster data. Same failure class as I216 witness.
+- **Decision:** `--gic-n` stays experimental/unsafe. Owned `--sparse-eps 0.6` remains the optional approx. Exact default unchanged.
+- **Class:** experiment (reject; invents essential loops)
+
+## 2026-10-13 — I223 high-deg-first prefix (exact)
+
+- **Question:** Does testing the 8 highest-degree vertices in C_now first cut torus shift hits without changing PH?
+- **Hypothesis:** I106 full maxdeg sort was slower. A prefix of 8 needs no sort of C. Hit path (most shift iterations) may find an apex sooner. Fail path still scans all. Exact exists-dominator; final keep time is the first t with no dominator. Shape-agnostic.
+- **Work:** first_dominator_deg / _witness prefix. Wave 84 vs src+Ripser.
 - **Result:** *(wave pending)*
-- **Decision:** Optional only if ess H1 + bn≲0.05 and not dominated by `--sparse-eps 0.6`.
+- **Decision:** Select only if exact and torus collapse <1400 ms without blobs/circle regression.
 - **Class:** experiment
 
 ## 2026-10-13 — I164 collapse live-degree trace

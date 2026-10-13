@@ -151,7 +151,48 @@ inline index_t first_dominator_deg(const DenseTimes& Tm, const std::vector<index
     }
     const size_t need = C_now.size() - 1;
     int tried = 0;
+    index_t pref[8];
+    int np = 0;
+    // I223: try the 8 highest-degree apexes first (no full sort).
+    if (deg && C_now.size() >= 16) {
+        int pdeg[8];
+        for (index_t cand : C_now) {
+            const int d = (*deg)[cand];
+            if (np < 8) {
+                pref[np] = cand;
+                pdeg[np] = d;
+                ++np;
+            } else {
+                int mi = 0;
+                for (int i = 1; i < 8; ++i)
+                    if (pdeg[i] < pdeg[mi]) mi = i;
+                if (d > pdeg[mi]) {
+                    pref[mi] = cand;
+                    pdeg[mi] = d;
+                }
+            }
+        }
+        for (int i = 0; i < np; ++i) {
+            const index_t cand = pref[i];
+            if (static_cast<size_t>((*deg)[cand]) < need) continue;
+            if (ctr) ++ctr->n_collapse_dom_tests;
+            if (dominated_by(Tm, C_now, cand, t)) {
+                if (ctr) ++ctr->n_collapse_dom_hits;
+                return cand;
+            }
+            if (budget > 0 && ++tried >= budget) return -1;
+        }
+    }
     for (index_t cand : C_now) {
+        if (np) {
+            bool skip = false;
+            for (int i = 0; i < np; ++i)
+                if (pref[i] == cand) {
+                    skip = true;
+                    break;
+                }
+            if (skip) continue;
+        }
         const size_t cand_deg = deg ? static_cast<size_t>((*deg)[cand]) : nbr[cand].size();
         if (cand_deg < need) continue;
         if (ctr) ++ctr->n_collapse_dom_tests;
