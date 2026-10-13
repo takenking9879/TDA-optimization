@@ -551,3 +551,22 @@ Do not paste long reasoning here.
 - **Result:** Exact. implicit **6.30×** vs homology 6.32× (collapse-bound, residual 5169).
 - **Decision:** Implicit is not a circle-H1 10× lever. Re-open budgeted collapse (I107 stale).
 - **Class:** reproduced
+
+## 2026-10-13 — I141 auto=implicit
+
+- **Result:** Exact 3/3. Pipeline string `+implicit_coh`.
+- **Decision:** Keep auto → implicit.
+- **Class:** implementation
+
+## 2026-10-13 — I142–I144 budget + implicit
+
+- **Question:** Does `--dom-budget K` plus implicit beat full collapse now that thick residuals are cheap?
+- **Result:** Exact but **reject on clock**. circle2000: full 5.94× / 4.3 s; budget=1 1.32× (collapse 10.4 s + reduce 8.9 s, residual 598k); budget=4 4.31×. No-collapse implicit 0.60× (42 s). circle3000: full **8.11×**; budget=1 **1.49×** (residual 1.51M). Incomplete collapse is *more* collapse work (failed trims keep high degree) plus a thick implicit.
+- **Decision:** I107 rejection stands even with implicit. Do not cap domination search.
+- **Class:** experiment (negative on clock; identity archived)
+
+## 2026-10-13 — I143 dense implicit vs Ripser
+
+- **Result:** Exact. collapse=0 implicit is **0.62×** vs Ripser at n=200/500/1000 T=1.5. Our heap port is correct but slower than Bauer on dense \(G_T\).
+- **Decision:** Collapse remains mandatory for H1 clock. Implicit wins on *collapsed* thick residuals, not on raw \(G_T\).
+- **Class:** reproduced

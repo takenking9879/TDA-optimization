@@ -92,6 +92,25 @@ inline index_t first_dominator_prog(const DenseTimes& Tm, const std::vector<inde
     return S[0];
 }
 
+// I145: keep the cheap "first apex works" path (I102: progressive-only was
+// 136 s vs 4.5 s). After a few failed exact checks, prove emptiness / find
+// a later apex via progressive ∩ — that is the leftover-edge O(k²) tail.
+inline index_t first_dominator_hybrid(const DenseTimes& Tm, const std::vector<index_t>& C_now,
+                                      value_t t, const std::vector<std::vector<index_t>>& nbr,
+                                      std::vector<index_t>& S, int quick = 2) {
+    if (C_now.empty()) return -1;
+    if (C_now.size() == 1) return C_now[0];
+    const size_t need = C_now.size() - 1;
+    int tried = 0;
+    for (index_t cand : C_now) {
+        if (nbr[cand].size() < need) continue;
+        if (dominated_by(Tm, C_now, cand, t)) return cand;
+        if (++tried >= quick) break;
+    }
+    if (tried == 0) return -1;
+    return first_dominator_prog(Tm, C_now, t, nbr, S);
+}
+
 // Fraction of the `samples` youngest (largest-t) edges that are dominated
 // in the static graph. Used as a cheap incompressibility probe (I047).
 inline double probe_domination(const Graph& g, int samples = 64) {
@@ -174,6 +193,8 @@ inline Graph collapse_edges(Graph g, int iterations, Counters& c, int dom_budget
 
         std::vector<Edge> kept;
         kept.reserve(E.size() / 4 + 8);
+        std::vector<index_t> S_prog;
+        S_prog.reserve(static_cast<size_t>(n));
 
         for (const Edge& e_in : E) {
             const index_t u = e_in.u;
@@ -200,7 +221,9 @@ inline Graph collapse_edges(Graph g, int iterations, Counters& c, int dom_budget
             bool ever_shifted = false;
             bool dead = false;
             while (true) {
-                const index_t dominator = first_dominator_deg(Tm, C_now, t, nbr, dom_budget);
+                const index_t dominator = (dom_budget > 0)
+                    ? first_dominator_deg(Tm, C_now, t, nbr, dom_budget)
+                    : first_dominator_hybrid(Tm, C_now, t, nbr, S_prog);
                 if (dominator < 0) break;
                 const value_t* rd = Tm.row(dominator);
                 // Sticky: keep shifting while this apex still dominates newcomers.

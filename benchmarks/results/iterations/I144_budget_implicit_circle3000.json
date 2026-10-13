@@ -1,0 +1,34 @@
+{
+  "id": "budget_implicit_circle3000",
+  "lever": "H01-budget-implicit",
+  "class": "experiment",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "circle3000 budget+implicit vs full collapse",
+  "receipts": [
+    {
+      "n": 3000,
+      "budget": -1,
+      "match": true,
+      "unmatched": 0,
+      "ripser_s": 114.02743317599925,
+      "pith_s": 14.054010595000364,
+      "time_ratio": 8.113515526775245,
+      "collapse_ms": 13885.2,
+      "reduce_ms": 4.977524,
+      "edges_out": 9190
+    },
+    {
+      "n": 3000,
+      "budget": 1,
+      "match": true,
+      "unmatched": 0,
+      "ripser_s": 114.02743317599925,
+      "pith_s": 76.46878959499918,
+      "time_ratio": 1.4911630454715121,
+      "collapse_ms": 39445.936,
+      "reduce_ms": 36854.855,
+      "edges_out": 1509611
+    }
+  ]
+}

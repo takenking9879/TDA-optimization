@@ -1,0 +1,49 @@
+{
+  "id": "dense_implicit_no_collapse",
+  "lever": "H02-heap",
+  "class": "experiment",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "implicit on dense G_T (no collapse) vs Ripser",
+  "receipts": [
+    {
+      "n": 200,
+      "T": 1.5,
+      "collapse": 0,
+      "match": true,
+      "unmatched": 0,
+      "ripser_s": 0.01641654800005199,
+      "pith_s": 0.025592473000870086,
+      "time_ratio": 0.6414600105075373,
+      "reduce_ms": 23.316546,
+      "edges_out": 10880,
+      "cols_apparent": 10661
+    },
+    {
+      "n": 500,
+      "T": 1.5,
+      "collapse": 0,
+      "match": true,
+      "unmatched": 0,
+      "ripser_s": 0.30939724299969384,
+      "pith_s": 0.4997511410001607,
+      "time_ratio": 0.6191026245192591,
+      "reduce_ms": 493.25535,
+      "edges_out": 67370,
+      "cols_apparent": 66788
+    },
+    {
+      "n": 1000,
+      "T": 1.5,
+      "collapse": 0,
+      "match": true,
+      "unmatched": 0,
+      "ripser_s": 2.2884986990011384,
+      "pith_s": 3.708873081999627,
+      "time_ratio": 0.6170334353332203,
+      "reduce_ms": 3688.3781,
+      "edges_out": 270262,
+      "cols_apparent": 269072
+    }
+  ]
+}
