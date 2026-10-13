@@ -161,7 +161,11 @@ static void print_text(const Result& r) {
               << " collapse_first_keep=" << c.n_collapse_first_keep
               << " collapse_tau_late=" << c.n_collapse_tau_late
               << " collapse_tau_late_common=" << c.n_collapse_tau_late_common
-              << " metric_ms=" << c.metric_ms
+              << " collapse_keep_hist=" << c.n_collapse_keep_hist[0];
+    for (int b = 1; b < 16; ++b) std::cout << "," << c.n_collapse_keep_hist[b];
+    std::cout << " collapse_early_keeps=" << c.n_collapse_early_keeps[0];
+    for (int b = 1; b < 8; ++b) std::cout << "," << c.n_collapse_early_keeps[b];
+    std::cout << " metric_ms=" << c.metric_ms
               << " collapse_ms=" << c.collapse_ms
               << " reduce_ms=" << c.reduce_ms
               << " rss=" << c.rss_bytes_peak << "\n";
@@ -342,6 +346,8 @@ int main(int argc, char** argv) {
         r.counters.n_collapse_first_keep = c.n_collapse_first_keep;
         r.counters.n_collapse_tau_late = c.n_collapse_tau_late;
         r.counters.n_collapse_tau_late_common = c.n_collapse_tau_late_common;
+        for (int b = 0; b < 16; ++b) r.counters.n_collapse_keep_hist[b] = c.n_collapse_keep_hist[b];
+        for (int b = 0; b < 8; ++b) r.counters.n_collapse_early_keeps[b] = c.n_collapse_early_keeps[b];
         r.counters.collapse_ms = c.collapse_ms;
         r.counters.metric_ms = c.metric_ms;
         r.counters.n_vertices = g.n;

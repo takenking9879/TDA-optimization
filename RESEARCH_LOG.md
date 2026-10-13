@@ -718,9 +718,16 @@ Do not paste long reasoning here.
 - **Decision:** Do not select yet. I169: confirm every plateau on a strictly larger keep.
 - **Class:** experiment (partial; false plateau)
 
-## 2026-10-13 — I169 confirm-larger (in progress)
+## 2026-10-13 — I169 confirm-larger
 
 - **Question:** Does a 2k / k+m/8 confirm after a plateau fix n=3000/4000 without an oracle?
+- **Result:** circle2000 still exact, **24.2× vs Ripser** (confirm costs extra; 25.4 s / 1.05 s). n=3000/4000 still **2 unmatched** (8325 vs 9190; 11361 vs 12562). **Smoking gun:** circle3000 `first_keep=23559` (young!), circle4000 `first_keep=84682`. Residual is not an oldest suffix at n≥3000 — at least one high-t edge is kept. blobs bails, 0.17× vs Ripser.
+- **Decision:** Reject suffix-stab as default. n=2000 24–42× is real but not scale-invariant. I170: keep-rank histogram.
+- **Class:** experiment (negative as a general alg)
+
+## 2026-10-13 — I170 keep histogram (in progress)
+
+- **Question:** Are n=3000/4000 keeps one early outlier plus an oldest suffix, or scattered?
 - **Class:** experiment running
 
 ## 2026-10-13 — I164 collapse live-degree trace

@@ -349,11 +349,17 @@ inline Graph collapse_edges(Graph g, int iterations, Counters& c, int dom_budget
         kept.reserve(E.size() / 4 + 8);
         const size_t mE = E.size();
         const size_t step = std::max<size_t>(mE / 8, 1);
+        int early_n = 0;
         for (size_t i = 0; i < mE; ++i) {
             Edge out;
             if (process_one_backward(E[i], E[i].t, Tm, nbr, scratch, dom_budget, out, c)) {
                 if (c.n_collapse_first_keep < 0)
                     c.n_collapse_first_keep = static_cast<std::int64_t>(i);
+                if (mE > 0) {
+                    const size_t b = std::min<size_t>(15, i * 16 / mE);
+                    ++c.n_collapse_keep_hist[b];
+                }
+                if (early_n < 8) c.n_collapse_early_keeps[early_n++] = static_cast<std::int64_t>(i);
                 kept.push_back(out);
             }
             if ((i == mE - 1 || (i % step) == 0) && std::getenv("PITH_COLLAPSE_TRACE")) {
