@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-13 — I266 fused H1 leftover loop
+
+- **Question:** Does adding each diam-tie group to rbits once and skipping `ae_prepare`/`advance_rbits` cut figure8 n=4000 reduce (866 ms) without inventing bars?
+- **Hypothesis:** The 866 ms is visit overhead (prepare call + rptr scan), not leftover-coface. Same G_≤r if the whole tie group is in before leftover-coface. Shape-agnostic.
+- **Work:** fused H1 loop. First wave pre-filled rbits for maxdim≥2 and **dropped sphere n=80 H2** (ess2 0 vs 1). Restricted fuse to H1-only. Wave 127 vs Ripser.
+- **Result:** After the H2 fix, **exact 14/14** (figure8 2=2; sphere void 1=1; two_spheres 2=2; blobs H0 3=3). figure8 n=4000 reduce **840 vs 866 ms** (~3%, twice). Dense n=5000 **11.2×**. Sphere H1 10.4×. Sphere H2 56×. Not a leftover-*visit* skip.
+- **Decision:** **Revert.** 3% is not a substantial cut; extra H1-only path is not worth it. First draft broke H2 — incremental rbits are required for generate_stream. Topology loss: **0**. I263 stays. Next: a real visit skip (not loop fusion), or a different complex/representation.
+- **Class:** experiment (hold identity after H2 fix; reject clock; reverted)
+
 ## 2026-10-13 — I265 unique-diam AND on spatial hash
 
 - **Question:** I255 unique-diam leftover-coface ≡ nonempty rbit AND was exact on all-pairs (no pith cut). Does skipping the two SparseDist hash gets on the spatial path cut figure8 n=4000 reduce (866 ms)?

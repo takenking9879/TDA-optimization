@@ -592,7 +592,10 @@ Rips is exact and too slow.
    word-major rbits is exact and reverted (figure8 reduce 866→1118
    ms; dense 9.8×). Do not retry rbit layout. I265 unique-diam AND
    on spatial hash is exact and reverted (figure8 reduce 871≈866).
-   Do not retry leftover-coface inner-loop skips.
+   Do not retry leftover-coface inner-loop skips. I266 fused H1
+   leftover loop is exact after an H2-only fix and reverted (840 vs
+   866 ms). Do not retry ae_prepare fusion. Incremental rbits are
+   required for maxdim≥2.
 6. Owned AE leftover-star walk is still Θ(|leftover|·deg★) — rbit cut
    has_leftover_coface, not seeded probes (circle still 875k). Packed
    annotations / seeded_is_noop are the next owned constants.
