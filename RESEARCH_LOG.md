@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-13 — I253 specialize H1 coface_ready
+
+- **Question:** Other faces of leftover∪{w} are edges. Does replacing `coface_ready` with one `dist()` + `C(lo,1)+C(hi,2)` cut the connected wall without changing H0–H2? Does uniform2 n=8000 stay 10× in under a second?
+- **Hypothesis:** Same youngest-face predicate. Not I247 (no extra `dist()` before the combinatorial filter). Shape-agnostic. Exact if identity holds.
+- **Work:** `coface_ready_h1` on the I252 no-seen path. Wave 114 vs Ripser: H0–H2 + sphere n=2000 H1 + uniform2 n=5000…8000. Remeasured n=5000/6000/7000 standalone after the wave.
+- **Result:** **Exact 15/15** (figure8 2=2; sphere void 1=1; torus ess H1 1=1; blobs H0 3=3). Wave n=5000 **10.1×** (0.36s/3.66s) looked slower; standalone reduce **207 / 208 / 213 ms** equals I252 206 ms. n=6000 11.2× (0.39s). n=7000 11.9× (0.51s). n=8000 **11.9×** (0.59s/7.01s). Sphere H1 **10.6×**. Torus **14.4×**.
+- **Decision:** **Hold identity, revert from the engine.** No pith cut. Do not claim a win from the noisy wave draw. Topology loss: **0**. n=8000 10× in 0.59 s is a scale receipt, not an I253 clock win.
+- **Class:** experiment (hold identity; reject as clock; reverted)
+
 ## 2026-10-13 — I252 leftover-coface no-seen (H1 unroll + H2 skip)
 
 - **Question:** Does specializing leftover-coface on the 97% no-seed path (H1 m=2 unroll, skip the empty `seenbits` mask; H2 no-seed same skip) cut the connected wall without changing H0–H2? Does sphere n=2000 H1 (I227 6.9×) hold 10×, and does uniform2 n=7000 stay 10× in ~0.5 s?
