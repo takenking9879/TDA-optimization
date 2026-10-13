@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-13 — I265 unique-diam AND on spatial hash
+
+- **Question:** I255 unique-diam leftover-coface ≡ nonempty rbit AND was exact on all-pairs (no pith cut). Does skipping the two SparseDist hash gets on the spatial path cut figure8 n=4000 reduce (866 ms)?
+- **Hypothesis:** Spatial leftover_coface pays hash gets; unique leftover diam makes coface_ready redundant. Same VR≤T. Dense stays I238 (no g_sparse). H0/H2 unchanged. Shape-agnostic.
+- **Work:** `leftover_coface_h1_and` when `g_sparse` and this leftover’s diam is unique. Wave 126 vs Ripser: H0–H2 + figure8 n=2000/4000 + dense n=5000.
+- **Result:** **Exact 14/14** (figure8 n=2000/4000 2=2; sphere void 1=1; two_spheres 2=2; blobs H0 3=3). **No pith cut:** figure8 n=4000 reduce **871 vs I263 866 ms** (1.07s / 25.7×). n=2000 100 vs 103 ms. Dense n=5000 **10.0× / 0.34s**. Torus 12.6×. Sphere H1 10.3×. Sphere H2 60×.
+- **Decision:** **Revert.** Hash gets were not the 866 ms wall — visiting ~2M leftovers (advance_rbits + rbit AND) is. Leftover-coface inner-loop constants (I253–I255, I265) are exhausted on both all-pairs and spatial. Topology loss: **0**. I263 gate stays. Next: skip leftover *visits*, not cheaper leftover-coface.
+- **Class:** experiment (hold identity; reject clock; reverted)
+
 ## 2026-10-13 — I264 word-major rbits (H1 leftover)
 
 - **Question:** Does storing rbits word-major (w·n+v) cut leftover AND cache misses on manifold clouds (figure8 n=4000 reduce 866 ms) without inventing bars or losing dense 10×?

@@ -590,7 +590,9 @@ Rips is exact and too slow.
    edge-frac probe is the selected spatial gate. Dense path stays
    I238 all-pairs when volume≥0.2 **and** probe≥0.25. I264
    word-major rbits is exact and reverted (figure8 reduce 866→1118
-   ms; dense 9.8×). Do not retry rbit layout.
+   ms; dense 9.8×). Do not retry rbit layout. I265 unique-diam AND
+   on spatial hash is exact and reverted (figure8 reduce 871≈866).
+   Do not retry leftover-coface inner-loop skips.
 6. Owned AE leftover-star walk is still Θ(|leftover|·deg★) — rbit cut
    has_leftover_coface, not seeded probes (circle still 875k). Packed
    annotations / seeded_is_noop are the next owned constants.
