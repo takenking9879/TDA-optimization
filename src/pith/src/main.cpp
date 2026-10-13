@@ -47,7 +47,8 @@ static void usage() {
         << "  --gic-k K           kNN degree for --gic-n (default 16)\n"
         << "  --reduced-vr        H07 reduced VR 2-complex (exact PH1 claimed; I224)\n"
         << "  --delaunay-vr       flag of Euclidean Delaunay 1-skeleton (I276; not exact VR)\n"
-        << "  --delaunay-alpha A  I277–I286 H1 thicken: A or 'auto'. maxdim≥2 splits H2 onto α=1\n"
+        << "  --delaunay-alpha A  I277–I291 H1 thicken: A or 'auto'. maxdim≥2 splits H2 onto α=1\n"
+        << "                      Fat thicken (|E|≥8n) is collapsed (I291); α=1 stays collapse=0\n"
         << "  --delaunay-adapt    I280: R_v = A·max(r_v, max_nbr r) instead of A·r_v\n"
         << "  --delaunay-floor F  I280: also thicken to F·median(r) (default 0)\n"
         << "  --sparse-only       write residual edges and exit\n"
@@ -495,7 +496,6 @@ int main(int argc, char** argv) {
                     if (!delaunay_vr_skeleton(pts, threshold, a, de, fl, ad)) return fail_dvr();
                     g = graph_from_edge_list(npts, de, threshold);
                 }
-                if (collapse_iters < 0) collapse_iters = 0;
                 c.n_distances = static_cast<std::int64_t>(g.edges.size());
             } else if (engine != "redzed") {
                 g = graph_from_distance(dist, threshold);
@@ -504,7 +504,18 @@ int main(int argc, char** argv) {
         if (reduced_vr) collapse_iters = 0;  // I224: reduced VR is on G_T, not a residual
         if (engine == "redzed") collapse_iters = 0;  // I228: RedZeD is on the metric, not a residual
         if (engine == "active") collapse_iters = 0;  // I231: owned active H1 is on G_T
-        if (delaunay_vr) collapse_iters = 0;  // I276: Delaunay 1-skeleton is already O(n)
+        // I276: α=1 Delaunay-flag is already O(n) — collapse is a tax (I207).
+        // I291: auto-α thicken is fat; collapse preserves that flag PH.
+        if (delaunay_vr) {
+            const bool fat =
+                (delaunay_alpha_auto || delaunay_alpha > 1 || delaunay_adapt ||
+                 delaunay_floor > 0) &&
+                delaunay_thicken_should_collapse(g.n, static_cast<std::int64_t>(g.edges.size()));
+            if (!fat)
+                collapse_iters = 0;
+            else if (collapse_iters < 0)
+                collapse_iters = 1;
+        }
         c.n_vertices = g.n;
         c.n_edges_in = static_cast<std::int64_t>(g.edges.size());
         if (probe_only) {
@@ -673,11 +684,15 @@ int main(int argc, char** argv) {
             r.counters.n_vertices = g.n;
             r.counters.pipeline = delaunay_vr
                                       ? (delaunay_split
-                                             ? std::string("pith:delaunay-vr-split")
+                                             ? std::string(collapse_iters > 0
+                                                               ? "pith:delaunay-vr-split-collapse"
+                                                               : "pith:delaunay-vr-split")
                                              : ((maxdim <= 1 && (delaunay_alpha_auto || delaunay_alpha > 1 ||
                                                                  delaunay_adapt || delaunay_floor > 0))
                                                     ? std::string(delaunay_alpha_auto
-                                                                      ? "pith:delaunay-vr-auto"
+                                                                      ? (collapse_iters > 0
+                                                                             ? "pith:delaunay-vr-auto-collapse"
+                                                                             : "pith:delaunay-vr-auto")
                                                                       : (delaunay_adapt
                                                                              ? "pith:delaunay-vr-adapt"
                                                                              : "pith:delaunay-vr-alpha"))

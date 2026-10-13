@@ -953,6 +953,46 @@ int main() {
         std::cout << "ok I286 split two-octahedra ess H0/H2 |E_thick|=" << thick.size() << "\n";
     }
 
+    // I291: fat thicken (|E|≥8n) + collapse keeps ess H1 on a 64-pt circle.
+    {
+        const int n = 256;
+        const value_t T = 1.4f;
+        std::vector<std::vector<value_t>> pts(static_cast<size_t>(n), std::vector<value_t>(2));
+        for (int i = 0; i < n; ++i) {
+            const float a = 6.2831853f * static_cast<float>(i) / static_cast<float>(n);
+            pts[static_cast<size_t>(i)][0] = std::cos(a);
+            pts[static_cast<size_t>(i)][1] = std::sin(a);
+        }
+        std::vector<Edge> de;
+        if (!delaunay_vr_skeleton(pts, T, delaunay_auto_alpha(n), de)) {
+            std::cerr << "I291 circle thicken failed\n";
+            return 1;
+        }
+        if (!delaunay_thicken_should_collapse(n, static_cast<std::int64_t>(de.size()))) {
+            std::cerr << "I291 expected fat thicken |E|=" << de.size() << " n=" << n << "\n";
+            return 1;
+        }
+        Graph g = graph_from_edge_list(n, de, T);
+        Counters cc;
+        Graph h = collapse_edges(std::move(g), 1, cc);
+        Result r = persist_implicit_coh(h, 1, T, 1);
+        int ess1 = 0;
+        for (const auto& p : r.pairs)
+            if (p.dim == 1 && !std::isfinite(p.death)) ++ess1;
+        if (ess1 != 1) {
+            std::cerr << "I291 circle collapse ess1=" << ess1 << " |E|=" << de.size()
+                      << " residual=" << h.edges.size() << "\n";
+            return 1;
+        }
+        if (h.edges.size() >= de.size()) {
+            std::cerr << "I291 collapse did not thin " << de.size() << " → " << h.edges.size()
+                      << "\n";
+            return 1;
+        }
+        std::cout << "ok I291 thicken-collapse circle ess H1 |E|=" << de.size()
+                  << " residual=" << h.edges.size() << "\n";
+    }
+
     // I239: two octahedra far apart — H0=2 and H2=2 (wedge of voids).
     {
         const value_t T = 1.5f;

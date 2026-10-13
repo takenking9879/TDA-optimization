@@ -48,4 +48,10 @@ inline value_t delaunay_auto_alpha(int n) {
     return static_cast<value_t>(std::min(2.75, 1.75 + 0.125 * std::log2(nn)));
 }
 
+// I291: α=1 Delaunay is ~3n–7n (I207 collapse tax). Auto-α thicken
+// is mean-deg 40–100 and collapses like a circle G_T.
+inline bool delaunay_thicken_should_collapse(int n, std::int64_t n_edges) {
+    return n_edges >= 8 * static_cast<std::int64_t>(std::max(n, 1));
+}
+
 }  // namespace pith
