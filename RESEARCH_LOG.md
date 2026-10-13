@@ -1024,8 +1024,15 @@ Do not paste long reasoning here.
 ## 2026-10-13 — I212 owned sparse-cap min vs max
 
 - **Question:** Does `cap = min(λ_i, λ_j)` thin the owned greedy-net graph toward GUDHI's density without dropping essential H1?
-- **Result:** Pending wave73.
-- **Decision:** Select min as `--sparse-eps` default only if ess H1 holds on the mixed suite and torus is faster than max. Time-bucket later[] is deferred — the default shift path uses Tm, not later[] masks (I198 already rejected AND-eq at shift).
+- **Result:** **Reject as default.** min is faster (torus **62×** / 18k edges vs max 14× / 108k; blobs 13.7×; uniform2 12.2×) but **wrong essential H1** on circle1000 (3 vs 2) and torus (4 vs 2). Over-sparsify invents loops. two_circles/figure8/blobs/uniform2 ess OK. torus bn 0.063 vs max 0.016.
+- **Decision:** Keep `--sparse-cap max` as the owned default. min is unsafe for mixed homology. Time-bucket later[] stays deferred (shift path is Tm). I213: thinner **max(λ)** via larger ε (0.6/0.7), which I208 showed GUDHI can survive.
+- **Class:** experiment (reject min as default; exactness/homology fail)
+
+## 2026-10-13 — I213 owned sparse-eps 0.6/0.7 (max cap)
+
+- **Question:** Can a larger ε thin max(λ) enough to beat I210's 14.5× on torus without inventing essential loops?
+- **Result:** Pending wave74.
+- **Decision:** Select a new default ε only if ess H1 holds on circle/torus/two_circles and torus clock improves.
 - **Class:** experiment (in progress)
 
 ## 2026-10-13 — I164 collapse live-degree trace
