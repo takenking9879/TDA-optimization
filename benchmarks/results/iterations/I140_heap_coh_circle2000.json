@@ -1,0 +1,32 @@
+{
+  "id": "heap_coh_circle2000",
+  "lever": "H02-heap",
+  "class": "experiment",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "circle2000 T=1.5 heap-coh vs homology",
+  "receipts": [
+    {
+      "engine": "homology",
+      "match": true,
+      "unmatched": 0,
+      "ripser_s": 27.013150490000044,
+      "pith_s": 4.271557337000559,
+      "time_ratio": 6.323958303452947,
+      "reduce_ms": 1.649239,
+      "collapse_ms": 4201.5241,
+      "edges_out": 5169
+    },
+    {
+      "engine": "implicit",
+      "match": true,
+      "unmatched": 0,
+      "ripser_s": 27.013150490000044,
+      "pith_s": 4.284984096000699,
+      "time_ratio": 6.304142532340367,
+      "reduce_ms": 2.024002,
+      "collapse_ms": 4211.8959,
+      "edges_out": 5169
+    }
+  ]
+}

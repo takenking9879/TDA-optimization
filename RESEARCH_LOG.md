@@ -525,3 +525,29 @@ Do not paste long reasoning here.
 
 - **Result:** Skipped. They required the progressive binary on n=500–3000 after I102 failed.
 - **Class:** hold
+
+## 2026-10-13 — I137 Ripser-heap implicit
+
+- **Question:** Does a faithful Ripser compute_pairs port (oldest F₂ pivot, same-diameter apparent/emergent, V-matrix) fix leftover-as-cohomology?
+- **Hypothesis:** I045–I126 failed because the pivot was the youngest cofacet and apparent required an equilateral triangle (shortest facet = diameter).
+- **Work:** Rewrote `persist_implicit_coh`. K6 unit test + I137 suite.
+- **Result:** Exact **8/8** including circle80/200 **collapse=0** (I045 killer). circle80 c=0: 1177 apparent, 5 reduced, 0.73 ms.
+- **Decision:** Select heap implicit. `--engine auto` → implicit.
+- **Class:** reproduced / verified
+
+## 2026-10-13 — I138 heap clock n=200
+
+- **Result:** Exact. torus200 c=1 implicit **1.03×** (homology 0.79×). torus200 c=0 implicit **0.75×** (homology 0.10×).
+- **Class:** reproduced
+
+## 2026-10-13 — I139 torus1000 owned E3
+
+- **Result:** Exact. implicit 1-pass **1.31×** (reduce 67 ms / collapse 226 ms) vs Ripser 0.40 s. Homology 0.20× (reduce 1744 ms). E3 1.25× (Ripser-sparse 57 ms). Adaptive implicit 1.04×.
+- **Decision:** We **own** the thick-residual engine. E3 no longer required. persist_sparse stays as H2 fallback / A/B.
+- **Class:** reproduced
+
+## 2026-10-13 — I140 circle2000 implicit
+
+- **Result:** Exact. implicit **6.30×** vs homology 6.32× (collapse-bound, residual 5169).
+- **Decision:** Implicit is not a circle-H1 10× lever. Re-open budgeted collapse (I107 stale).
+- **Class:** reproduced

@@ -278,9 +278,10 @@ int main(int argc, char** argv) {
             return 0;
         }
 
-        bool use_implicit = (engine == "implicit");
-        // auto/homology: triangle-boundary homology. Implicit coh is I045-rejected
-        // on dense G_T and on thick residuals; keep as an explicit experiment flag.
+        // I137: Ripser-heap implicit is exact (8/8) and owns thick residuals
+        // (torus1000 1.31× vs homology 0.20×). auto → implicit. homology stays
+        // available for thin-residual A/B and H2 fallback inside implicit.
+        const bool use_implicit = (engine == "implicit" || engine == "auto");
         Result r = use_implicit ? persist_implicit_coh(g, maxdim, threshold, ratio)
                                 : persist_sparse(g, maxdim, threshold, ratio);
         r.counters.n_distances = c.n_distances;
