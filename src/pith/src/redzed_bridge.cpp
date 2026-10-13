@@ -398,81 +398,6 @@ static void active_enum_lazy(State& st, rank_t xrank, comb_t xidx, const int32_t
     ae_seeded(st, xrank, xidx, verts, sdiam);
 }
 
-// I267: H2 triangle stream only ANDs words in the live rlo/rhi
-// intersection. Vendor generate_stream ANDs all n/64 words per edge.
-// Same emit order: unique diam immediate; ties sorted by comb_index.
-// d>2 stays on vendor generate_stream (need>1 rec).
-template <class F>
-static void generate_stream_h2_tight(const EdgeList& edges, int nv, const BinomialTable& bt, F&& emit) {
-    if (edges.count == 0 || nv <= 0) return;
-    const int words = (nv + 63) / 64;
-    std::vector<uint64_t> g((size_t)words * nv, 0);
-    std::vector<int> glo(nv, words), ghi(nv, -1);
-    std::vector<comb_t> akey;
-    std::vector<int32_t> avert;
-    int32_t tri[3];
-    auto put = [&](int32_t u, int32_t v, int32_t w, value_t diam, bool acc) {
-        int32_t a = u, b = v, c = w;
-        if (a > b) std::swap(a, b);
-        if (b > c) std::swap(b, c);
-        if (a > b) std::swap(a, b);
-        tri[0] = a;
-        tri[1] = b;
-        tri[2] = c;
-        if (acc) {
-            akey.push_back(comb_index(tri, 3, bt));
-            avert.insert(avert.end(), tri, tri + 3);
-        } else {
-            emit(diam, tri);
-        }
-    };
-    size_t i = 0;
-    const size_t E = edges.count;
-    while (i < E) {
-        const value_t r = edges.diam[i];
-        size_t jend = i;
-        while (jend < E && edges.diam[jend] == r) ++jend;
-        const bool acc = (jend != i + 1);
-        for (size_t k = i; k < jend; ++k) {
-            const int u = edges.verts[2 * k], v = edges.verts[2 * k + 1];
-            int wlo = glo[u], whi = ghi[u];
-            if (glo[v] > wlo) wlo = glo[v];
-            if (ghi[v] < whi) whi = ghi[v];
-            if (wlo <= whi) {
-                const uint64_t* gu = g.data() + (size_t)u * words;
-                const uint64_t* gv = g.data() + (size_t)v * words;
-                for (int w = wlo; w <= whi; ++w) {
-                    uint64_t bits = gu[w] & gv[w];
-                    while (bits) {
-                        const int bp = redzed_ctz64(bits);
-                        bits &= bits - 1;
-                        const int x = w * 64 + bp;
-                        if (x >= nv) break;
-                        put(u, v, x, r, acc);
-                    }
-                }
-            }
-            const int wj = v >> 6, wi = u >> 6;
-            g[(size_t)u * words + wj] |= (uint64_t)1 << (v & 63);
-            g[(size_t)v * words + wi] |= (uint64_t)1 << (u & 63);
-            if (glo[u] > wj) glo[u] = wj;
-            if (ghi[u] < wj) ghi[u] = wj;
-            if (glo[v] > wi) glo[v] = wi;
-            if (ghi[v] < wi) ghi[v] = wi;
-        }
-        if (acc && !akey.empty()) {
-            std::vector<uint32_t> ord(akey.size());
-            for (size_t t = 0; t < ord.size(); ++t) ord[t] = (uint32_t)t;
-            std::sort(ord.begin(), ord.end(),
-                      [&](uint32_t a, uint32_t b) { return akey[a] < akey[b]; });
-            for (uint32_t o : ord) emit(r, &avert[(size_t)o * 3]);
-            akey.clear();
-            avert.clear();
-        }
-        i = jend;
-    }
-}
-
 // I244: VR≤T does not need enclosing (cone). Finite T → thr=T is exact.
 // I245: parallel build_edges when no prebuilt EdgeList.
 // I246: lazy R/Ri insert on top-dimension AE.
@@ -592,7 +517,7 @@ redzed_vr(DistanceMatrix& distIn, int n, value_t threshold, EdgeList* prebuilt) 
             Rid.side_vpc = m;
             rank_t next_rank = 0;
 
-            auto on_simplex = [&](value_t sdiam, const int32_t* cv) {
+            generate_stream(st.edges, st.dist, d, st.binom, [&](value_t sdiam, const int32_t* cv) {
                 rank_t sr = ++next_rank;
                 st.bar.clear();
                 for (int omit = 1; omit <= m; ++omit) {
@@ -613,14 +538,7 @@ redzed_vr(DistanceMatrix& distIn, int n, value_t threshold, EdgeList* prebuilt) 
                 } else {
                     resolve_bar(st, d, st.bar, sdiam);
                 }
-            };
-            if (d == 2) generate_stream_h2_tight(st.edges, st.nv, st.binom, on_simplex);
-            else {
-                // vendor EdStream stores F*; an lvalue lambda decays to F&,
-                // which cannot form F*. Pass a temporary wrapper.
-                generate_stream(st.edges, st.dist, d, st.binom,
-                                [&](value_t sdiam, const int32_t* cv) { on_simplex(sdiam, cv); });
-            }
+            });
 
             st.cson = false;
             st.csmap.init(0);
@@ -902,6 +820,85 @@ static bool spatial_edges(const std::vector<std::vector<value_t>>& pts, value_t 
     return true;
 }
 
+// I268: Morton-order vertices so leftover rbit rows/words are local.
+// leftover_coface already ANDs [rlo,rhi]; random IDs make that the
+// full n/64 words. Spatial order is an isometry of VR (same distances).
+// n<256 stays put so unit tests keep their labels.
+static uint64_t morton_split1(uint32_t v) {
+    uint64_t x = v;
+    x = (x | (x << 16)) & 0x0000FFFF0000FFFFULL;
+    x = (x | (x << 8)) & 0x00FF00FF00FF00FFULL;
+    x = (x | (x << 4)) & 0x0F0F0F0F0F0F0F0FULL;
+    x = (x | (x << 2)) & 0x3333333333333333ULL;
+    x = (x | (x << 1)) & 0x5555555555555555ULL;
+    return x;
+}
+
+static uint32_t morton_part1by2(uint32_t n) {
+    n &= 0x000003FFu;
+    n = (n | (n << 16)) & 0x030000FFu;
+    n = (n | (n << 8)) & 0x0300F00Fu;
+    n = (n | (n << 4)) & 0x030C30C3u;
+    n = (n | (n << 2)) & 0x09249249u;
+    return n;
+}
+
+static void morton_permute_points(std::vector<std::vector<value_t>>& pts) {
+    const int n = static_cast<int>(pts.size());
+    if (n < 256) return;
+    const int d = static_cast<int>(pts[0].size());
+    if (d < 2 || d > 3) return;
+    std::vector<double> lo(static_cast<size_t>(d)), hi(static_cast<size_t>(d));
+    for (int k = 0; k < d; ++k) {
+        lo[static_cast<size_t>(k)] = static_cast<double>(pts[0][static_cast<size_t>(k)]);
+        hi[static_cast<size_t>(k)] = lo[static_cast<size_t>(k)];
+    }
+    for (int i = 1; i < n; ++i) {
+        for (int k = 0; k < d; ++k) {
+            const double x = static_cast<double>(pts[static_cast<size_t>(i)][static_cast<size_t>(k)]);
+            if (x < lo[static_cast<size_t>(k)]) lo[static_cast<size_t>(k)] = x;
+            if (x > hi[static_cast<size_t>(k)]) hi[static_cast<size_t>(k)] = x;
+        }
+    }
+    const double qmax = (d == 2) ? 65535.0 : 1023.0;
+    std::vector<std::pair<uint64_t, int>> keys(static_cast<size_t>(n));
+    for (int i = 0; i < n; ++i) {
+        uint32_t q0 = 0, q1 = 0, q2 = 0;
+        for (int k = 0; k < d; ++k) {
+            const double span = hi[static_cast<size_t>(k)] - lo[static_cast<size_t>(k)];
+            double t = (span > 0.0)
+                           ? (static_cast<double>(pts[static_cast<size_t>(i)][static_cast<size_t>(k)]) -
+                              lo[static_cast<size_t>(k)]) /
+                                 span
+                           : 0.0;
+            if (t < 0.0) t = 0.0;
+            if (t > 1.0) t = 1.0;
+            const uint32_t q = static_cast<uint32_t>(t * qmax + 0.5);
+            if (k == 0) q0 = q;
+            else if (k == 1) q1 = q;
+            else q2 = q;
+        }
+        const uint64_t code = (d == 2) ? (morton_split1(q0) | (morton_split1(q1) << 1))
+                                       : (static_cast<uint64_t>(morton_part1by2(q0)) |
+                                          (static_cast<uint64_t>(morton_part1by2(q1)) << 1) |
+                                          (static_cast<uint64_t>(morton_part1by2(q2)) << 2));
+        keys[static_cast<size_t>(i)] = {code, i};
+    }
+    std::sort(keys.begin(), keys.end());
+    bool ident = true;
+    for (int i = 0; i < n; ++i) {
+        if (keys[static_cast<size_t>(i)].second != i) {
+            ident = false;
+            break;
+        }
+    }
+    if (ident) return;
+    std::vector<std::vector<value_t>> nxt(static_cast<size_t>(n));
+    for (int i = 0; i < n; ++i)
+        nxt[static_cast<size_t>(i)] = std::move(pts[static_cast<size_t>(keys[static_cast<size_t>(i)].second)]);
+    pts.swap(nxt);
+}
+
 static double bbox_max_extent(const std::vector<std::vector<value_t>>& pts) {
     const int n = static_cast<int>(pts.size());
     const int d = n ? static_cast<int>(pts[0].size()) : 0;
@@ -1156,14 +1153,29 @@ Result persist_redzed(const std::vector<std::vector<value_t>>& dist, int maxdim,
     return finish_redzed(std::move(D), maxdim, threshold);
 }
 
-Result persist_redzed_from_points(const std::vector<std::vector<value_t>>& pts, int maxdim,
+Result persist_redzed_from_points(const std::vector<std::vector<value_t>>& pts_in, int maxdim,
                                  value_t threshold) {
-    const int n = static_cast<int>(pts.size());
+    const int n = static_cast<int>(pts_in.size());
     if (n <= 0 || maxdim < 0) {
         Result r;
         r.counters.n_vertices = n;
         return r;
     }
+    // I268: Morton-order a local copy so leftover rbit words stay local.
+    // Same VR (isometry). H0 Kruskal does not use rbits — skip.
+    std::vector<std::vector<value_t>> owned;
+    const std::vector<std::vector<value_t>>* ppt = &pts_in;
+    bool morton = false;
+    if (maxdim >= 1 && n >= 256 && !pts_in.empty()) {
+        const int din = static_cast<int>(pts_in[0].size());
+        if (din >= 2 && din <= 3) {
+            owned = pts_in;
+            morton_permute_points(owned);
+            ppt = &owned;
+            morton = true;
+        }
+    }
+    const std::vector<std::vector<value_t>>& pts = *ppt;
     // I241: H0 is Kruskal. Spatial edges when d∈{2,3}; no RedZeD.
     if (maxdim < 1) {
         const auto tm0 = std::chrono::steady_clock::now();
@@ -1189,6 +1201,7 @@ Result persist_redzed_from_points(const std::vector<std::vector<value_t>>& pts, 
         const auto tm1 = std::chrono::steady_clock::now();
         Result r = finish_redzed_from_points(pts, std::move(comps), maxdim, threshold);
         r.counters.metric_ms = std::chrono::duration<double, std::milli>(tm1 - tm0).count();
+        if (morton) r.counters.pipeline += "-morton";
         return r;
     }
 
@@ -1272,6 +1285,7 @@ Result persist_redzed_from_points(const std::vector<std::vector<value_t>>& pts, 
     r.counters.metric_ms = std::chrono::duration<double, std::milli>(tfill1 - tfill0).count();
     r.counters.reduce_ms = std::chrono::duration<double, std::milli>(t1 - t0).count();
     r.counters.pipeline = spatial ? "pith:redzed-spatial" : "pith:redzed-thr";
+    if (morton) r.counters.pipeline += "-morton";
     return r;
 }
 
