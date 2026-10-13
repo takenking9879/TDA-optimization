@@ -150,14 +150,12 @@ inline index_t first_dominator_deg(const DenseTimes& Tm, const std::vector<index
         const size_t cand_deg = deg ? static_cast<size_t>((*deg)[cand]) : nbr[cand].size();
         if (cand_deg < need) continue;
         if (ctr) ++ctr->n_collapse_dom_tests;
-        value_t fail_t = kInf;
-        int fail_i = 0;
         const int from = skip ? skip->resume_at(cand) : 0;
-        if (dominated_by(Tm, C_now, cand, t, &fail_t, &fail_i, from)) {
+        if (dominated_by(Tm, C_now, cand, t, nullptr, nullptr, from)) {
             if (ctr) ++ctr->n_collapse_dom_hits;
             return cand;
         }
-        if (skip) skip->mark(cand, fail_t, fail_i);
+        // I215: do not mark every fail (I214 tax). Only sticky-fail marks.
         if (budget > 0 && ++tried >= budget) return -1;
     }
     return -1;
@@ -186,14 +184,12 @@ inline index_t first_dominator_witness(const DenseTimes& Tm, const std::vector<i
         const size_t cand_deg = deg ? static_cast<size_t>((*deg)[cand]) : nbr[cand].size();
         if (cand_deg < need) continue;
         if (ctr) ++ctr->n_collapse_dom_tests;
-        value_t fail_t = kInf;
-        int fail_i = 0;
         const int from = skip ? skip->resume_at(cand) : 0;
-        if (dominated_by(Tm, C_now, cand, t, &fail_t, &fail_i, from)) {
+        if (dominated_by(Tm, C_now, cand, t, nullptr, nullptr, from)) {
             if (ctr) ++ctr->n_collapse_dom_hits;
             return cand;
         }
-        if (skip) skip->mark(cand, fail_t, fail_i);
+        // I215: sticky-only marks (see first_dominator_deg).
         if (budget > 0 && ++tried >= budget) return -1;
     }
     return -1;
@@ -747,15 +743,6 @@ inline bool process_one_backward(const Edge& e_in, value_t t_in, DenseTimes& Tm,
                         known_dom = cand;
                         ++c.n_collapse_dom_hits;
                         break;
-                    }
-                    // I214: seed obstruction so the shift rescan can skip this
-                    // apex until t reaches the first Tm miss on C_now.
-                    const value_t* row = Tm.row(cand);
-                    for (int i = 0; i < static_cast<int>(S.C_now.size()); ++i) {
-                        if (row[S.C_now[static_cast<size_t>(i)]] > t) {
-                            S.cannot.mark(cand, row[S.C_now[static_cast<size_t>(i)]], i);
-                            break;
-                        }
                     }
                 }
             }

@@ -1040,8 +1040,17 @@ Do not paste long reasoning here.
 - **Question:** Can the shift loop skip retesting apexes that already failed `dominated_by` on a smaller C, without losing exact VR≤T?
 - **Hypothesis:** Boolean `cannot_dom` across a growing t is **inexact** (raising t can lift an obstruction). Store `cannot_until[cand] =` first failing `Tm(cand, C[i])` and resume index. Skip while `t < until`; when t passes, resume the cover check from `i` (C_now only appends). Same residual as I193+I197+I202+I203. Shape-agnostic; 0 topology loss if exact.
 - **Work:** `CannotDom` in `edge_collapse.hpp`; wired into `first_dominator_deg` / `_witness`, I197 fail seeding, sticky-fail mark. Wave 75 vs src+Ripser.
+- **Result:** **Exact 5/5** (0 unmatched vs src and Ripser). Lever fires (torus 1.22M skips / 11.3M tests) but **torus collapse 1714 ms vs I203 1470 ms** (1.35× vs 1.52×). circle 257 ms / 80.9×; blobs 192 ms / 1.72×; sphere 348 ms / 2.01×. Mark-every-fail + I197 Tm seeding is a tax: saved walks do not cover 10.6M stores.
+- **Decision:** **Reject as default.** Keep `CannotDom` for I215 sticky-only marks (drop I197 seeding and per-fail marks). Not a Big-O change. Topology loss: **0**.
+- **Class:** experiment (reject as default; exact but slower on torus)
+
+## 2026-10-13 — I215 sticky-only obstruction mark
+
+- **Question:** Does marking only the sticky-failed dominator (no I197 seed, no per-fail marks) drop torus collapse vs I203 without the I214 tax?
+- **Hypothesis:** After sticky breaks on w, d cannot cover C at tw; skip d until t ≥ Tm(d,w). One mark per sticky break (~113k on torus) vs I214's 10.6M stores. Exact; 0 topology loss. Still not a Big-O change.
+- **Work:** Drop I197 seeding and first_dominator fail-marks; keep CannotDom + sticky mark + blocked/resume. Wave 76 vs src+Ripser.
 - **Result:** *(wave pending)*
-- **Decision:** Select only if exact and torus collapse drops vs I203 (~1470 ms) without blobs <200 ms / circle <280 ms regression. Not a Big-O change — constant-factor on the torus shift heap.
+- **Decision:** Select only if exact and torus collapse <1400 ms without blobs/circle regression. If not, revert CannotDom from the default path.
 - **Class:** experiment
 
 ## 2026-10-13 — I164 collapse live-degree trace
