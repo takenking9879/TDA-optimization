@@ -591,11 +591,12 @@ Rips is exact and too slow.
    d∈{2,3}: flag of the Delaunay 1-skeleton, Θ(n) edges, **essential
    H0/H1/H2 kept** on mixed families (figure8 n=2000 **419× / 6 ms /
    5.9k edges**, 209 unmatched finite; n=8000 **24 ms / ess1=2**).
-   **`--delaunay-alpha 1.5` (I277)** is the H1 thicken: exact H1 on
-   figure8/circle/torus/uniform2, figure8 n=4000 **272× / 94 ms /
-   124k** vs Ripser 25.4 s (I276 dropped 209 finite on n=2000).
-   blobs n=400 still **2 unmatched / bn 0.004**. H2 stays α=1
-   (thicken explodes tets). Not exact VR. Prefer I277 over I276
+   **`--delaunay-alpha 1.75` (I278)** is the recommended H1 thicken:
+   exact on the I277 suite including blobs; figure8 n=4000 **221× /
+   112 ms / 148k** vs Ripser 24.8 s. Hard n=8000 **102× / 256 ms /
+   307k** vs RedZeD, 2 unmatched / bn 4e-4, ess1 2=2. I277 α=1.5
+   was exact on loops but left blobs 2 unmatched. H2 stays α=1
+   (thicken explodes tets). Not exact VR. Prefer I278 over I276
    when the user wants finite H1; prefer I276 for ess-only / H2.
 4. Connected uniform2 is **11.2×** at n=5000 (0.33 s).
    Sphere n=2000 H1 **10.1×**. Torus n=2000 **13.0×**. Mixed
@@ -642,10 +643,11 @@ Rips is exact and too slow.
    retry leftover empty-seed skips. H1 leftover visits remain Θ(|E|).
    **I276 `--delaunay-vr` is the owned optional Euclidean scale path**
    (not default): ess 8/8, figure8 n=2000 **419× / 6 ms**, n=8000
-   **24 ms**. Finite unmatched 3–209. **I277 `--delaunay-alpha 1.5`
-   holds as the H1 thicken**: exact on 8/9 dvr families, figure8
-   n=4000 **272× / 94 ms / 124k** (exact, ess1 2=2). blobs 2
-   unmatched. Do not thicken H2. Do not make either the exact default.
+   **24 ms**. Finite unmatched 3–209. **I277 α=1.5 hold** (blobs 2
+   unmatched). **I278 α=1.75 is the recommended H1 thicken**: exact
+   on 9/10 dvr (blobs closed), figure8 n=4000 **221× / 112 ms**,
+   n=8000 **102× / 256 ms / 307k** vs RedZeD, 2 unmatched / bn 4e-4.
+   Do not thicken H2. Do not make either the exact default.
 6. Owned AE leftover-star walk is still Θ(|leftover|·deg★) — rbit cut
    has_leftover_coface, not seeded probes (circle still 875k). Packed
    annotations / seeded_is_noop are the next owned constants.

@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-13 — I278 Delaunay-VR α=1.75 (H1)
+
+- **Question:** Does α=1.75 zero I277’s blobs unmatched and stay exact on the mixed families, and does figure8 n=8000 stay under a second vs exact RedZeD?
+- **Hypothesis:** Probe 1.75/2.0/2.5 all matched blobs n=400 and figure8 n=2000. 1.75 is the smallest that closed the I277 gap. n=8000 vs Ripser is too slow; RedZeD is the exact oracle.
+- **Work:** Help text + wave 139 α=1.75. n≤4000 vs Ripser; figure8 n=8000 vs `--engine redzed`. H2 α=1. Exact default H0/H1/H2 hold.
+- **Result:** **Hold.** Exact H1 on 9/10 dvr (blobs now 0 unmatched). figure8 n=2000 **45× / 56 ms / 70k**. n=4000 **221× / 112 ms / 148k** vs Ripser 24.8 s (exact, ess1 2=2). Hard n=8000 **102× / 256 ms / 307k** vs RedZeD 26.1 s; ess1 2=2, **2 unmatched / bn 0.0004**. Sphere H2 α=1 ess2 1=1 un=8. Exact default hold: blobs H0 **60×**, uniform2 **11.3×**, sphere H2 **57×**.
+- **Decision:** **Hold as recommended H1 thicken** (`--delaunay-vr --delaunay-alpha 1.75`). Empirically exact on the I277 suite including blobs; n=8000 drops 2 tiny finite bars. Do not switch the exact default. Do not thicken H2. Next: α=2.0 to zero n=8000, clock n=16000. Topology loss: n=8000 unmatched 2 / bn 4e-4; H2 finite 8 on sphere α=1.
+- **Class:** experiment (hold recommended optional H1 scale)
+
 ## 2026-10-13 — I277 Delaunay-VR α thicken (H1)
 
 - **Question:** Can a linear-size local-radius thicken of the Delaunay 1-skeleton recover the finite H1 bars I276 dropped, at a harder mixed scale (figure8 n=4000), without exploding H2?
