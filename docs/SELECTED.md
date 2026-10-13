@@ -148,7 +148,7 @@ torus2000 **24×**, blobs2000 **6.8×**, uniform22000 **7.1×**. Sheehy is
 pipeline; **not** the exact default (0 VR loss). 1-skeleton size
 \(\sim n^{1.1}\) on torus (24k→52k edges, n=1000→2000).
 
-## Next levers (still open after I206)
+## Next levers (still open after I207)
 
 Circle family: **84.4 / 119 / 140×**. Other families ~1.3–2.1×. Default is
 shape-agnostic and **exact** (0 bars lost). Worst-case Big-O is **not**
@@ -158,6 +158,8 @@ better than Ripser (torus residual \(\Theta(n^2)\)).
    early-stop (0 bars lost vs Ripser).
 2. **Optional approx:** Sheehy ε=0.5 1-skeleton → `--edges` → implicit,
    collapse=0 (I207). Bottleneck ≤0.054; first >10× on torus.
-3. **I208:** ε∈{0.3,0.5,0.7} frontier. Then either port Sheehy into PITH
-   or return to exact torus time-buckets (constant-factor only).
-4. GPU later.
+3. **I208 frontier:** ε=0.3 → torus 9.3× / bn 0.017; ε=0.5 → 21× /
+   0.032; ε=0.7 → 40× / 0.075. blobs/uniform2 stay **<10×** at every ε
+   at n=2000 (max 9.8× at ε=0.7). Optional default stays ε=0.5.
+4. Next: in-process Sheehy, or exact torus time-buckets (constant-factor
+   only). GPU later.

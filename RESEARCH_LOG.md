@@ -995,9 +995,9 @@ Do not paste long reasoning here.
 ## 2026-10-13 — I208 Sheehy ε loss/speed frontier
 
 - **Question:** Does tighter (0.3) or looser (0.7) Sheehy ε move bottleneck under 0.02 without losing the torus 10×?
-- **Result:** Pending wave70.
-- **Decision:** Keep ε=0.5 unless a neighbor dominates both loss and clock.
-- **Class:** experiment (in progress)
+- **Result:** Essential H1 correct on all 12 rows. Torus n=2000: ε=0.3 **9.3× / bn 0.017**; ε=0.5 **21.5× / bn 0.032**; ε=0.7 **40× / bn 0.075**. blobs: 3.8 / 7.2 / 9.2×. uniform2: 3.9 / 7.2 / 9.8×. two_circles ess=3 at every ε. ε=0.3 is the only setting with bn<0.02 on torus and it **drops just under 10×**. ε=0.7 approaches 10× on blobs/uniform2 but torus features move by 0.075.
+- **Decision:** Keep optional approx at **ε=0.5** (torus 10× with bn≈0.03). ε=0.3 is the conservative documented alternative (bn≤0.017, torus 9.3×). Do not take ε=0.7 as default. Exact path unchanged. Next exact-path lever is still torus time-buckets (constant-factor); next approx lever is an in-process Sheehy (drop GUDHI Python) or larger-n blobs to see if 10× appears from the exponent.
+- **Class:** experiment (support as frontier; ε=0.5 stays the optional default)
 
 ## 2026-10-13 — I164 collapse live-degree trace
 
