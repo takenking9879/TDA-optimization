@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-13 — I281 harder H2 scale
+
+- **Question:** Does exact auto H2 hold past n=400 (sphere n=800 vs Ripser 30 s), and does optional Delaunay-flag H2 keep the void at n=400/800?
+- **Hypothesis:** Auto τ=0.15 already picks collapse on the sphere (I235). Ripser H2 is tet-heavy so the ratio grows with n. Delaunay-flag (I276) kept ess H2 at n=80; same at more points, finite unmatched grows.
+- **Work:** Wave 142. No new engine. Exact auto sphere n=400/800; `--delaunay-vr` H2 n=80/400/800 + two_spheres n=200. H0/H1 hold (blobs, I279 figure8, uniform2).
+- **Result:** **Support (scale receipt).** Exact H2 n=400 **55× / 18 ms**. Hard n=800 **527× / 56 ms** vs Ripser 29.6 s (ess2 1=1). Delaunay-flag H2: ess2 1=1 at n=400/800 (8 ms / 17 ms, 1934 / 3987 edges); unmatched 52 / 86. two_spheres ess2 2=2 un=28. H0 **60×**. I279 H1 **156×**. uniform2 **11.3×**.
+- **Decision:** **Support as H2 scale receipt**, not a new engine. Exact default H2 is usable at n=800 (56 ms). Optional Delaunay-flag keeps the void at more points with quantified finite loss. 527× is mostly Ripser’s tet tax — pith grew 18→56 ms. Do not thicken H2. Do not mark the goal complete (worst-case H1 Big-O still a portfolio; H2 finite bars still lost on the optional path).
+- **Class:** experiment (support H2 scale; no new algorithm)
+
 ## 2026-10-13 — I280 2-hop adaptive Delaunay thicken
 
 - **Question:** Does R_v = 1.5·max(r_v, max_nbr r) stay exact without raising α to 2.25 as n grows?

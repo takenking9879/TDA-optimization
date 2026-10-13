@@ -1,6 +1,6 @@
 # Selected algorithm (living)
 
-Updated 2026-10-13 after iterations I001–I280. **CLI default `--engine
+Updated 2026-10-13 after iterations I001–I281. **CLI default `--engine
 auto` (I235+I236+I239+I240+I241+I263+I270+I271+I275):** subsample residual-frac dispatch,
 plus I263 edge-frac so hollow/manifold clouds take RedZeD. Fat →
 RedZeD (torus n=2000 **13.0×**). Thin-circle → collapse+implicit
@@ -9,7 +9,7 @@ RedZeD (torus n=2000 **13.0×**). Thin-circle → collapse+implicit
 + parallel RedZeD per component (blobs n=4000 **24×**). **H0** is Kruskal; **I271** 2D and **I275** 3D
 walk-locate Delaunay (MST ⊆ Delaunay) so H0 does not list G_T — blobs n=12000
 **218× / 0.027 s**, sphere n=16000 **147× / 0.112 s**. **H2:** τ=0.15 so sphere void stays collapse
-(**58×** at n=400). Shape-agnostic, 0 bars lost. Circle 140× is a
+(**58×** at n=400; **527× / 56 ms** at n=800 — I281). Shape-agnostic, 0 bars lost. Circle 140× is a
 collapse-friendly regime, **not** the success criterion.
 
 ## Success criteria (goal amendment)
@@ -651,7 +651,10 @@ Rips is exact and too slow.
    vs RedZeD, n=16000 **815 ms / ess1=2**.    Do not thicken H2. Do
    not make it the exact default. **I280 `--delaunay-adapt` is an
    exact alternate at stable α=1.5** (9/9) but ~2× edges / 3× clock
-   vs I279 — hold, do not replace. Next: linear H2 or exact ae_seeded.
+   vs I279 — hold, do not replace. **I281 exact H2 scale:** sphere
+   n=800 **527× / 56 ms** vs Ripser 29.6 s (auto-collapse, 0 unmatched).
+   Optional Delaunay-flag H2 keeps the void at n=800 (17 ms, 86
+   unmatched finite). Next: exact ae_seeded leftover wall.
 6. Owned AE leftover-star walk is still Θ(|leftover|·deg★) — rbit cut
    has_leftover_coface, not seeded probes (circle still 875k). Packed
    annotations / seeded_is_noop are the next owned constants.
