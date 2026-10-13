@@ -34,9 +34,9 @@ double probe_edge_frac_points(const std::vector<std::vector<value_t>>& pts, valu
 // edges is not exact VR; it is the optional `--delaunay-vr` scale path.
 bool delaunay_one_skeleton(const std::vector<std::vector<value_t>>& pts, std::vector<Edge>& out);
 
-// I277: Delaunay plus edges with d≤min(T, α·r_v) from each vertex
+// I277/I278: Delaunay plus edges with d≤min(T, α·r_v) from each vertex
 // (r_v = longest incident Delaunay edge). Spatial query. H1-only;
-// α=1 is I276. α=1.5 recovered exact H1 on the I276 families in probe.
+// α=1 is I276. α=1.5 recovered loops; α=1.75 zeros blobs unmatched.
 bool delaunay_vr_skeleton(const std::vector<std::vector<value_t>>& pts, value_t T, value_t alpha,
                           std::vector<Edge>& out);
 

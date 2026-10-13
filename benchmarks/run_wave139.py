@@ -78,7 +78,7 @@ def main():
             pr, tr = ripser_d(path, T, dim, rto)
             fid = compare(pr, pa, dim)
         elif oracle == "redzed":
-            pr, tr = pith_redzed_d(path, T, dim, rto)
+            pr, _, tr = pith_redzed_d(path, T, dim, rto)
             fid = compare(pr, pa, dim)
         rec = {
             "engine": engine,
