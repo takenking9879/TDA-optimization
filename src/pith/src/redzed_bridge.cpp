@@ -11,6 +11,7 @@
 #include <atomic>
 #include <chrono>
 #include <cmath>
+#include <cstdint>
 #include <functional>
 #include <iterator>
 #include <numeric>
@@ -157,23 +158,43 @@ static void clear_seeds(State& st) {
     st.seedverts.clear();
 }
 
-// I258: lower-tri CSR of d≤T pairs. get() returns VINF on a miss so a
-// leaked far-read cannot invent a diameter-0 edge. Used only on the
-// spatial path; dense keeps the DistanceMatrix.
+// I258: sparse d≤T lookup. Miss → VINF so a leaked far-read cannot
+// invent a diameter-0 edge. Dense keeps the DistanceMatrix.
+// I259: open-address hash (load ≤ 1/2). I258's lower-tri CSR binary
+// search taxed leftover-coface: low-id rows held every higher neighbor.
 struct SparseDist {
+    struct Slot {
+        uint64_t k = 0;
+        value_t v = 0;
+    };
     int n = 0;
-    std::vector<int> off, nbr;
-    std::vector<value_t> w;
+    uint64_t mask = 0;
+    std::vector<Slot> tab;
+
+    static uint64_t pack(int i, int j) {
+        if (i > j) std::swap(i, j);
+        return (static_cast<uint64_t>(static_cast<uint32_t>(i)) << 32) |
+               static_cast<uint32_t>(j);
+    }
+    static uint64_t mix(uint64_t x) {
+        x ^= x >> 30;
+        x *= 0xbf58476d1ce4e5b9ULL;
+        x ^= x >> 27;
+        x *= 0x94d049bb133111ebULL;
+        x ^= x >> 31;
+        return x;
+    }
     value_t get(int i, int j) const {
         if (i == j) return 0;
-        if (i > j) std::swap(i, j);
-        const int a = off[static_cast<size_t>(i)];
-        const int b = off[static_cast<size_t>(i) + 1];
-        const int* lo = nbr.data() + a;
-        const int* hi = nbr.data() + b;
-        const int* it = std::lower_bound(lo, hi, j);
-        if (it == hi || *it != j) return VINF;
-        return w[static_cast<size_t>(it - nbr.data())];
+        const uint64_t k = pack(i, j);
+        uint64_t h = mix(k) & mask;
+        const Slot* t = tab.data();
+        for (;;) {
+            const uint64_t s = t[h].k;
+            if (s == 0) return VINF;
+            if (s == k) return t[h].v;
+            h = (h + 1) & mask;
+        }
     }
 };
 
@@ -837,46 +858,21 @@ static void edgelist_from_spat(const std::vector<SpatEdge>& se, value_t threshol
     finish_buckets_parallel(out.diam, out.verts, 2, starts, nb, bt);
 }
 
-// I258: CSR of spatial d≤T pairs (store under lo, binary-search hi).
-// O(|E|) memory instead of C(n,2). Same pairs as SE.
-static void spat_to_csr(const std::vector<SpatEdge>& se, int n, SparseDist& S) {
+// I259: open-address hash of spatial d≤T pairs. O(|E|) memory, O(1)
+// expected get. Same pairs as SE. Empty key is 0 (i<j so pack ≠ 0).
+static void spat_to_hash(const std::vector<SpatEdge>& se, int n, SparseDist& S) {
     S.n = n;
-    S.off.assign(static_cast<size_t>(n) + 1, 0);
+    size_t cap = 1024;
+    const size_t need = se.size() * 2 + 1;
+    while (cap < need) cap <<= 1;
+    S.tab.assign(cap, SparseDist::Slot{});
+    S.mask = cap - 1;
     for (const SpatEdge& e : se) {
-        const int lo = std::min(e.u, e.v);
-        S.off[static_cast<size_t>(lo) + 1] += 1;
-    }
-    for (int i = 1; i <= n; ++i)
-        S.off[static_cast<size_t>(i)] += S.off[static_cast<size_t>(i) - 1];
-    const int m = S.off[static_cast<size_t>(n)];
-    S.nbr.resize(static_cast<size_t>(m));
-    S.w.resize(static_cast<size_t>(m));
-    std::vector<int> cur = S.off;
-    for (const SpatEdge& e : se) {
-        int lo = e.u, hi = e.v;
-        if (lo > hi) std::swap(lo, hi);
-        const int p = cur[static_cast<size_t>(lo)]++;
-        S.nbr[static_cast<size_t>(p)] = hi;
-        S.w[static_cast<size_t>(p)] = e.t;
-    }
-    std::vector<std::pair<int, value_t>> tmp;
-    for (int i = 0; i < n; ++i) {
-        const int a = S.off[static_cast<size_t>(i)];
-        const int b = S.off[static_cast<size_t>(i) + 1];
-        const int len = b - a;
-        if (len <= 1) continue;
-        tmp.resize(static_cast<size_t>(len));
-        for (int k = 0; k < len; ++k)
-            tmp[static_cast<size_t>(k)] = {S.nbr[static_cast<size_t>(a + k)],
-                                           S.w[static_cast<size_t>(a + k)]};
-        std::sort(tmp.begin(), tmp.end(),
-                  [](const std::pair<int, value_t>& x, const std::pair<int, value_t>& y) {
-                      return x.first < y.first;
-                  });
-        for (int k = 0; k < len; ++k) {
-            S.nbr[static_cast<size_t>(a + k)] = tmp[static_cast<size_t>(k)].first;
-            S.w[static_cast<size_t>(a + k)] = tmp[static_cast<size_t>(k)].second;
-        }
+        const uint64_t k = SparseDist::pack(e.u, e.v);
+        uint64_t h = SparseDist::mix(k) & S.mask;
+        while (S.tab[h].k) h = (h + 1) & S.mask;
+        S.tab[h].k = k;
+        S.tab[h].v = e.t;
     }
 }
 
@@ -1074,9 +1070,9 @@ Result persist_redzed_from_points(const std::vector<std::vector<value_t>>& pts, 
     // distances and pass a prebuilt EdgeList. Dense clouds (π(T/L)²≥0.2)
     // keep I238 parallel all-pairs.
     // I257: do not ∞-fill C(n,2).
-    // I258: do not allocate C(n,2) at all. CSR of d≤T pairs; D.n is set
-    // so generate_stream can read the vertex count. coface_ready_any
-    // uses g_sparse. Miss → VINF (cannot invent a 0-edge).
+    // I258: do not allocate C(n,2) at all. I259: open-address hash of
+    // d≤T pairs. D.n is set so generate_stream can read the vertex
+    // count. coface_ready_any uses g_sparse. Miss → VINF.
     std::vector<SpatEdge> SE;
     bool spatial = false;
     if (std::isfinite(threshold) && threshold > 0 && d >= 2 && d <= 3 && n >= 256) {
@@ -1092,7 +1088,7 @@ Result persist_redzed_from_points(const std::vector<std::vector<value_t>>& pts, 
     SparseDist csr;
     const auto tfill0 = std::chrono::steady_clock::now();
     if (spatial) {
-        spat_to_csr(SE, n, csr);
+        spat_to_hash(SE, n, csr);
         D.n = n;
     } else {
         D.resize_lower(n);
