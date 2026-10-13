@@ -21,6 +21,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
+#include <vector>
 
 // I245: same buckets / finish_buckets as vendor build_edges, but the two
 // n² scans and the per-bucket sorts run on a thread pool. Final order is
@@ -925,7 +926,9 @@ static void spat_to_hash(const std::vector<SpatEdge>& se, int n, SparseDist& S) 
 
 // I270: Euclidean MST ⊆ 2D Delaunay, so VR H0 is Kruskal on Delaunay
 // edges with d≤T. Avoids listing G_T (blobs n=4000: 2.6M pairs).
-// Bowyer–Watson, O(n²) incircle. n≥256, d=2. Fall back on failure.
+// I271: walk-locate + cavity flood (expected O(n log n) incircle)
+// instead of scanning every live triangle. Morton order shortens walks.
+// Scan remains the n≤12000 fallback. n≥256, d=2.
 static double delaunay_orient(double ax, double ay, double bx, double by, double cx, double cy) {
     return (bx - ax) * (cy - ay) - (by - ay) * (cx - ax);
 }
@@ -943,8 +946,17 @@ static bool delaunay_incircle(double ax, double ay, double bx, double by, double
     return det > 0.0;
 }
 
-static bool delaunay_edges_2d(const std::vector<std::vector<value_t>>& pts,
-                              std::vector<SpatEdge>& out) {
+static uint32_t delaunay_morton_part(uint32_t n) {
+    n &= 0x0000ffffu;
+    n = (n | (n << 8)) & 0x00ff00ffu;
+    n = (n | (n << 4)) & 0x0f0f0f0fu;
+    n = (n | (n << 2)) & 0x33333333u;
+    n = (n | (n << 1)) & 0x55555555u;
+    return n;
+}
+
+static bool delaunay_edges_2d_scan(const std::vector<std::vector<value_t>>& pts,
+                                   std::vector<SpatEdge>& out) {
     const int n = static_cast<int>(pts.size());
     if (n < 3 || static_cast<int>(pts[0].size()) != 2) return false;
     std::vector<double> xs(static_cast<size_t>(n) + 3), ys(static_cast<size_t>(n) + 3);
@@ -1045,6 +1057,278 @@ static bool delaunay_edges_2d(const std::vector<std::vector<value_t>>& pts,
         }
     }
     return out.size() >= static_cast<size_t>(n - 1);
+}
+
+// I271: incremental Bowyer–Watson with Lawson walk + adjacency flood.
+// Same Delaunay edges as the scan (unique in general position). Expected
+// O(n log n) incircle tests; Morton order keeps walks local.
+static bool delaunay_edges_2d_walk(const std::vector<std::vector<value_t>>& pts,
+                                   std::vector<SpatEdge>& out) {
+    const int n = static_cast<int>(pts.size());
+    if (n < 3 || static_cast<int>(pts[0].size()) != 2) return false;
+    std::vector<double> xs(static_cast<size_t>(n) + 3), ys(static_cast<size_t>(n) + 3);
+    double xmin = static_cast<double>(pts[0][0]), xmax = xmin;
+    double ymin = static_cast<double>(pts[0][1]), ymax = ymin;
+    for (int i = 0; i < n; ++i) {
+        xs[static_cast<size_t>(i)] = static_cast<double>(pts[static_cast<size_t>(i)][0]);
+        ys[static_cast<size_t>(i)] = static_cast<double>(pts[static_cast<size_t>(i)][1]);
+        if (xs[static_cast<size_t>(i)] < xmin) xmin = xs[static_cast<size_t>(i)];
+        if (xs[static_cast<size_t>(i)] > xmax) xmax = xs[static_cast<size_t>(i)];
+        if (ys[static_cast<size_t>(i)] < ymin) ymin = ys[static_cast<size_t>(i)];
+        if (ys[static_cast<size_t>(i)] > ymax) ymax = ys[static_cast<size_t>(i)];
+    }
+    const double dx = std::max(xmax - xmin, 1e-9);
+    const double dy = std::max(ymax - ymin, 1e-9);
+    const double mid_x = 0.5 * (xmin + xmax);
+    const double mid_y = 0.5 * (ymin + ymax);
+    const double span = 20.0 * (dx + dy);
+    xs[static_cast<size_t>(n)] = mid_x - span;
+    ys[static_cast<size_t>(n)] = mid_y - span;
+    xs[static_cast<size_t>(n) + 1] = mid_x + span;
+    ys[static_cast<size_t>(n) + 1] = mid_y - span;
+    xs[static_cast<size_t>(n) + 2] = mid_x;
+    ys[static_cast<size_t>(n) + 2] = mid_y + span;
+    if (delaunay_orient(xs[static_cast<size_t>(n)], ys[static_cast<size_t>(n)],
+                        xs[static_cast<size_t>(n) + 1], ys[static_cast<size_t>(n) + 1],
+                        xs[static_cast<size_t>(n) + 2], ys[static_cast<size_t>(n) + 2]) <= 0.0)
+        return false;
+
+    struct Tri {
+        int v[3];
+        int nbor[3];
+    };
+    std::vector<Tri> tris;
+    std::vector<int> stamp;
+    tris.push_back({{n, n + 1, n + 2}, {-1, -1, -1}});
+    stamp.push_back(0);
+    int gen = 1;
+
+    auto orient_v = [&](int a, int b, int c) {
+        return delaunay_orient(xs[static_cast<size_t>(a)], ys[static_cast<size_t>(a)],
+                               xs[static_cast<size_t>(b)], ys[static_cast<size_t>(b)],
+                               xs[static_cast<size_t>(c)], ys[static_cast<size_t>(c)]);
+    };
+    auto incircle_t = [&](int t, double px, double py) {
+        const int* v = tris[static_cast<size_t>(t)].v;
+        return delaunay_incircle(xs[static_cast<size_t>(v[0])], ys[static_cast<size_t>(v[0])],
+                                 xs[static_cast<size_t>(v[1])], ys[static_cast<size_t>(v[1])],
+                                 xs[static_cast<size_t>(v[2])], ys[static_cast<size_t>(v[2])], px, py);
+    };
+    auto walk = [&](int hint, double px, double py) -> int {
+        int t = hint;
+        const int guard = n * 4 + 32;
+        for (int step = 0; step < guard; ++step) {
+            const Tri& tr = tris[static_cast<size_t>(t)];
+            bool moved = false;
+            for (int i = 0; i < 3; ++i) {
+                const int a = tr.v[i], b = tr.v[(i + 1) % 3];
+                if (delaunay_orient(xs[static_cast<size_t>(a)], ys[static_cast<size_t>(a)],
+                                    xs[static_cast<size_t>(b)], ys[static_cast<size_t>(b)], px, py) <
+                    0.0) {
+                    const int nb = tr.nbor[i];
+                    if (nb < 0) return -1;
+                    t = nb;
+                    moved = true;
+                    break;
+                }
+            }
+            if (!moved) return t;
+        }
+        return -1;
+    };
+
+    std::vector<int> order(static_cast<size_t>(n));
+    std::iota(order.begin(), order.end(), 0);
+    {
+        std::vector<uint32_t> code(static_cast<size_t>(n));
+        const double invx = 65535.0 / dx, invy = 65535.0 / dy;
+        for (int i = 0; i < n; ++i) {
+            const uint32_t qx = static_cast<uint32_t>(
+                std::lround(std::min(65535.0, std::max(0.0, (xs[static_cast<size_t>(i)] - xmin) * invx))));
+            const uint32_t qy = static_cast<uint32_t>(
+                std::lround(std::min(65535.0, std::max(0.0, (ys[static_cast<size_t>(i)] - ymin) * invy))));
+            code[static_cast<size_t>(i)] = delaunay_morton_part(qx) | (delaunay_morton_part(qy) << 1);
+        }
+        std::sort(order.begin(), order.end(),
+                  [&](int a, int b) { return code[static_cast<size_t>(a)] < code[static_cast<size_t>(b)]; });
+    }
+
+    std::vector<SpatEdge> extra;
+    int hint = 0;
+    std::vector<int> cavity, q, newids;
+    cavity.reserve(16);
+    q.reserve(16);
+    struct BEdge {
+        int a, b, outer, oedge;
+    };
+    std::vector<BEdge> bedges;
+    bedges.reserve(16);
+    std::unordered_map<uint64_t, std::pair<int, int>> pending;
+    pending.reserve(32);
+
+    for (int pi = 0; pi < n; ++pi) {
+        const int p = order[static_cast<size_t>(pi)];
+        const double px = xs[static_cast<size_t>(p)], py = ys[static_cast<size_t>(p)];
+        const int t0 = walk(hint, px, py);
+        if (t0 < 0) return false;
+        if (!incircle_t(t0, px, py)) {
+            const int* v = tris[static_cast<size_t>(t0)].v;
+            int best = -1;
+            double best2 = 1e300;
+            for (int k = 0; k < 3; ++k) {
+                if (v[k] >= n) continue;
+                const double ddx = xs[static_cast<size_t>(v[k])] - px;
+                const double ddy = ys[static_cast<size_t>(v[k])] - py;
+                const double d2 = ddx * ddx + ddy * ddy;
+                if (d2 < best2) {
+                    best2 = d2;
+                    best = v[k];
+                }
+            }
+            if (best >= 0) extra.push_back({point_dist(pts, p, best), std::min(p, best), std::max(p, best)});
+            continue;
+        }
+        ++gen;
+        if (gen == 0x7fffffff) {
+            std::fill(stamp.begin(), stamp.end(), 0);
+            gen = 1;
+        }
+        cavity.clear();
+        q.clear();
+        q.push_back(t0);
+        stamp[static_cast<size_t>(t0)] = gen;
+        cavity.push_back(t0);
+        for (size_t qi = 0; qi < q.size(); ++qi) {
+            const int t = q[qi];
+            for (int i = 0; i < 3; ++i) {
+                const int nb = tris[static_cast<size_t>(t)].nbor[i];
+                if (nb < 0 || stamp[static_cast<size_t>(nb)] == gen) continue;
+                if (!incircle_t(nb, px, py)) continue;
+                stamp[static_cast<size_t>(nb)] = gen;
+                q.push_back(nb);
+                cavity.push_back(nb);
+            }
+        }
+        bedges.clear();
+        for (int t : cavity) {
+            for (int i = 0; i < 3; ++i) {
+                const int nb = tris[static_cast<size_t>(t)].nbor[i];
+                if (nb >= 0 && stamp[static_cast<size_t>(nb)] == gen) continue;
+                int oedge = -1;
+                if (nb >= 0) {
+                    for (int k = 0; k < 3; ++k)
+                        if (tris[static_cast<size_t>(nb)].nbor[k] == t) {
+                            oedge = k;
+                            break;
+                        }
+                    if (oedge < 0) return false;
+                }
+                bedges.push_back({tris[static_cast<size_t>(t)].v[i], tris[static_cast<size_t>(t)].v[(i + 1) % 3],
+                                  nb, oedge});
+            }
+        }
+        if (bedges.size() != cavity.size() + 2) return false;
+
+        newids.clear();
+        newids.reserve(bedges.size());
+        for (size_t i = 0; i < bedges.size(); ++i) {
+            int id;
+            if (i < cavity.size()) {
+                id = cavity[i];
+            } else {
+                id = static_cast<int>(tris.size());
+                tris.push_back({{0, 0, 0}, {-1, -1, -1}});
+                stamp.push_back(0);
+            }
+            newids.push_back(id);
+        }
+        pending.clear();
+        auto ek = [](int u, int v) -> uint64_t {
+            if (u > v) std::swap(u, v);
+            return (static_cast<uint64_t>(static_cast<uint32_t>(u)) << 32) | static_cast<uint32_t>(v);
+        };
+        auto link = [&](int t, int eidx, int u, int v) {
+            const uint64_t k = ek(u, v);
+            const auto it = pending.find(k);
+            if (it == pending.end()) {
+                pending.emplace(k, std::pair<int, int>{t, eidx});
+                return true;
+            }
+            const int t2 = it->second.first, e2 = it->second.second;
+            tris[static_cast<size_t>(t)].nbor[eidx] = t2;
+            tris[static_cast<size_t>(t2)].nbor[e2] = t;
+            pending.erase(it);
+            return true;
+        };
+        for (size_t i = 0; i < bedges.size(); ++i) {
+            int a = bedges[i].a, b = bedges[i].b;
+            if (orient_v(a, b, p) <= 0.0) std::swap(a, b);
+            const int id = newids[i];
+            tris[static_cast<size_t>(id)].v[0] = a;
+            tris[static_cast<size_t>(id)].v[1] = b;
+            tris[static_cast<size_t>(id)].v[2] = p;
+            tris[static_cast<size_t>(id)].nbor[0] = bedges[i].outer;
+            tris[static_cast<size_t>(id)].nbor[1] = -1;
+            tris[static_cast<size_t>(id)].nbor[2] = -1;
+            if (bedges[i].outer >= 0) {
+                int oe = bedges[i].oedge;
+                if (oe < 0) return false;
+                // Boundary was collected as the cavity's (a,b). After a possible
+                // swap the outer still adjoins the same undirected edge.
+                const int ov0 = tris[static_cast<size_t>(bedges[i].outer)].v[oe];
+                const int ov1 = tris[static_cast<size_t>(bedges[i].outer)].v[(oe + 1) % 3];
+                const int lo0 = std::min(a, b), hi0 = std::max(a, b);
+                const int lo1 = std::min(ov0, ov1), hi1 = std::max(ov0, ov1);
+                if (lo0 != lo1 || hi0 != hi1) {
+                    oe = -1;
+                    for (int k = 0; k < 3; ++k) {
+                        const int xa = tris[static_cast<size_t>(bedges[i].outer)].v[k];
+                        const int xb = tris[static_cast<size_t>(bedges[i].outer)].v[(k + 1) % 3];
+                        if (std::min(xa, xb) == lo0 && std::max(xa, xb) == hi0) {
+                            oe = k;
+                            break;
+                        }
+                    }
+                    if (oe < 0) return false;
+                }
+                tris[static_cast<size_t>(bedges[i].outer)].nbor[oe] = id;
+            }
+            if (!link(id, 1, b, p) || !link(id, 2, p, a)) return false;
+        }
+        if (!pending.empty()) return false;
+        hint = newids[0];
+    }
+
+    std::unordered_set<uint64_t> seen;
+    seen.reserve(static_cast<size_t>(n) * 6);
+    out.clear();
+    out.reserve(static_cast<size_t>(n) * 3 + extra.size());
+    for (const Tri& tr : tris) {
+        const int v[3] = {tr.v[0], tr.v[1], tr.v[2]};
+        for (int e = 0; e < 3; ++e) {
+            int a = v[e], b = v[(e + 1) % 3];
+            if (a >= n || b >= n) continue;
+            if (a > b) std::swap(a, b);
+            const uint64_t key = (static_cast<uint64_t>(static_cast<uint32_t>(a)) << 32) |
+                                 static_cast<uint32_t>(b);
+            if (!seen.insert(key).second) continue;
+            out.push_back({point_dist(pts, a, b), a, b});
+        }
+    }
+    for (const SpatEdge& e : extra)
+        if (seen.insert((static_cast<uint64_t>(static_cast<uint32_t>(e.u)) << 32) |
+                        static_cast<uint32_t>(e.v))
+                .second)
+            out.push_back(e);
+    return out.size() >= static_cast<size_t>(n - 1);
+}
+
+static bool delaunay_edges_2d(const std::vector<std::vector<value_t>>& pts,
+                              std::vector<SpatEdge>& out) {
+    if (delaunay_edges_2d_walk(pts, out)) return true;
+    const int n = static_cast<int>(pts.size());
+    if (n <= 12000) return delaunay_edges_2d_scan(pts, out);
+    return false;
 }
 
 static Result kruskal_h0(int n, std::vector<SpatEdge>&& edges) {
@@ -1213,7 +1497,7 @@ Result persist_redzed_from_points(const std::vector<std::vector<value_t>>& pts, 
         std::vector<SpatEdge> E;
         bool delaunay = false;
         const int d0 = n ? static_cast<int>(pts[0].size()) : 0;
-        if (d0 == 2 && n >= 256 && n <= 12000 && std::isfinite(threshold)) {
+        if (d0 == 2 && n >= 256 && n <= 100000 && std::isfinite(threshold)) {
             std::vector<SpatEdge> del;
             if (delaunay_edges_2d(pts, del)) {
                 E.reserve(del.size());

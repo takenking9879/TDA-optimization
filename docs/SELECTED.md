@@ -50,7 +50,8 @@ bottleneck 0.005–0.034.
 hi-walk early-stop** after the zero-pivot / emergent pair.
 `--collapse-alg back` is this stack. `back-src` is the pre-I182 star walk.
 
-- \(H_0\): Kruskal. `--collapse -1` **skips collapse** when `maxdim=0`.
+- \(H_0\): Kruskal. **I270** 2D Delaunay edges when n∈[256,12000] (MST ⊆
+  Delaunay; Θ(n) vs Θ(|E_T|)). `--collapse -1` **skips collapse** when `maxdim=0`.
 - \(H_1\): leftover (non-MST, non-apparent) edges, youngest-first; F₂ heap
   coboundary; oldest remaining pivot; same-diameter apparent/emergent;
   V-matrix re-enumeration. `--engine auto` **is implicit** (I137).
@@ -576,7 +577,7 @@ Rips is exact and too slow.
 
 1. **CLI default:** `--engine auto` (I235+I236+I239+I240+I241+I263). H1 τ=0.04; H2 τ=0.15; hollow edge-frac <0.25 → redzed.
 2. **Forced engines:** `--engine implicit` = I193+I197+I202+I203 only;
-   `--engine redzed` = I228+I239+I240+I244+I245+I246+I250+I251+I252+I256+I257+I258+I259+I260+I261+I263; H0 = Kruskal.
+   `--engine redzed` = I228+I239+I240+I244+I245+I246+I250+I251+I252+I256+I257+I258+I259+I260+I261+I263+I270; H0 = Kruskal / I270 Delaunay.
 3. **Owned optional approx:** `--sparse-eps 0.6 --sparse-cap max` (I213/I218)
    when n grows past exact VR.
 4. Connected uniform2 is **11.2×** at n=5000 (0.33 s).
