@@ -4,12 +4,11 @@
 
 namespace pith {
 
-// I231: owned H1 active enumeration (RedZeD idea, not the vendor copy).
+// I231/I232: owned H1 active enumeration (RedZeD idea, not the vendor copy).
 // Process leftover edges in filtration order. A triangle is generated only
-// when the leftover being processed is a youngest face — that skips most
-// (n+1)-birth columns. Generation stops for that leftover once it is paired.
-// Same leftover-boundary F₂ reduce as persist_sparse. Shape-agnostic: one
-// path on every flag graph.
+// when the leftover being processed is a youngest face. I232: F₂ annotations
+// R / Ri (Kapulkin–Kershaw resolve_bar) skip empty-XOR (H₂-birth) columns
+// instead of running persist_sparse reduce on every triangle. Shape-agnostic.
 inline Result persist_active_h1(const Graph& g, int maxdim, value_t threshold,
                                 value_t ratio) {
     Result r;
@@ -59,10 +58,16 @@ inline Result persist_active_h1(const Graph& g, int maxdim, value_t threshold,
     for (const auto& e : leftover) edge_id[pack2(e.u, e.v)] = e.id;
 
     const int m = static_cast<int>(leftover.size());
-    std::vector<std::vector<int>> reduced;
-    reduced.reserve(static_cast<size_t>(m));
-    std::vector<int> pivot_of(m, -1);
-    std::vector<char> paired(m, 0);
+    // I232: R[x] = annotation of leftover x; Ri[y] = leftovers whose R
+    // contains y. Live birth ⇔ Ri nonempty (RedZeD emit_infinite). R may
+    // stay after pairing so a later triangle can XOR the transferred
+    // annotation — clearing R[j] on pair missed the unit-square death
+    // (I231: 023 after 012 dead still reduces onto the older leftover).
+    std::vector<std::vector<int>> R(static_cast<size_t>(m)), Ri(static_cast<size_t>(m));
+    for (int i = 0; i < m; ++i) {
+        R[static_cast<size_t>(i)] = {i};
+        Ri[static_cast<size_t>(i)] = {i};
+    }
 
     auto xor_sorted = [](std::vector<int>& a, const std::vector<int>& b) {
         std::vector<int> out;
@@ -72,7 +77,7 @@ inline Result persist_active_h1(const Graph& g, int maxdim, value_t threshold,
             if (a[i] == b[j]) {
                 ++i;
                 ++j;
-            } else if (a[i] > b[j]) {
+            } else if (a[i] < b[j]) {
                 out.push_back(a[i++]);
             } else {
                 out.push_back(b[j++]);
@@ -83,17 +88,38 @@ inline Result persist_active_h1(const Graph& g, int maxdim, value_t threshold,
         a.swap(out);
     };
 
-    auto choose_pivot = [&](const std::vector<int>& col) -> int {
-        int best = -1;
-        value_t best_t = -1;
-        for (int id : col) {
-            const value_t t = leftover[static_cast<size_t>(id)].t;
-            if (t > best_t || (t == best_t && id > best)) {
-                best_t = t;
-                best = id;
+    auto remove_elem = [](std::vector<int>& a, int y) {
+        auto it = std::lower_bound(a.begin(), a.end(), y);
+        if (it != a.end() && *it == y) a.erase(it);
+    };
+
+    auto resolve_bar = [&](std::vector<int>& bar, value_t td) {
+        if (bar.empty()) return;
+        const int j = bar.back();
+        if (td > leftover[static_cast<size_t>(j)].t * ratio)
+            r.pairs.push_back({1, leftover[static_cast<size_t>(j)].t, td});
+        ++c.n_columns_reduced;
+        std::vector<int> touched = Ri[static_cast<size_t>(j)];
+        if (bar.size() == 1) {
+            Ri[static_cast<size_t>(j)].clear();
+            for (int z : touched) {
+                remove_elem(R[static_cast<size_t>(z)], j);
+                if (R[static_cast<size_t>(z)].empty()) Ri[static_cast<size_t>(z)].clear();
             }
+            return;
         }
-        return best;
+        std::vector<int> others;
+        others.reserve(bar.size() - 1);
+        for (int y : bar)
+            if (y != j) others.push_back(y);
+        for (int z : touched) {
+            xor_sorted(R[static_cast<size_t>(z)], bar);
+            ++c.n_additions;
+            if (R[static_cast<size_t>(z)].empty()) Ri[static_cast<size_t>(z)].clear();
+        }
+        for (int y : others) xor_sorted(Ri[static_cast<size_t>(y)], touched);
+        Ri[static_cast<size_t>(j)].clear();
+        // R[j] stays if nonempty — annotation carrier for later cofaces.
     };
 
     auto reduce_tri = [&](int e0, int e1, int e2, value_t td) -> bool {
@@ -105,25 +131,17 @@ inline Result persist_active_h1(const Graph& g, int maxdim, value_t threshold,
         if (!n_left) return false;
         ++c.n_simplices_enumerated;
         ++c.n_columns_assembled;
-        std::vector<int> col(ids, ids + n_left);
-        std::sort(col.begin(), col.end(), std::greater<int>());
-        col.erase(std::unique(col.begin(), col.end()), col.end());
-        ++c.n_columns_reduced;
-        int guard = 0;
-        while (!col.empty() && guard++ < 200000) {
-            const int p = choose_pivot(col);
-            if (p < 0 || pivot_of[static_cast<size_t>(p)] < 0) break;
-            xor_sorted(col, reduced[static_cast<size_t>(pivot_of[static_cast<size_t>(p)])]);
-            ++c.n_additions;
+        std::vector<int> bar;
+        for (int k = 0; k < n_left; ++k) {
+            const int f = ids[k];
+            if (f < 0 || R[static_cast<size_t>(f)].empty()) continue;
+            xor_sorted(bar, R[static_cast<size_t>(f)]);
         }
-        if (col.empty()) return false;
-        const int p = choose_pivot(col);
-        if (p < 0) return false;
-        if (td > leftover[static_cast<size_t>(p)].t * ratio)
-            r.pairs.push_back({1, leftover[static_cast<size_t>(p)].t, td});
-        pivot_of[static_cast<size_t>(p)] = static_cast<int>(reduced.size());
-        paired[static_cast<size_t>(p)] = 1;
-        reduced.push_back(std::move(col));
+        if (bar.empty()) {
+            ++c.n_columns_apparent;  // I232: empty XOR = H2 birth, skip
+            return false;
+        }
+        resolve_bar(bar, td);
         return true;
     };
 
@@ -147,7 +165,6 @@ inline Result persist_active_h1(const Graph& g, int maxdim, value_t threshold,
     };
 
     for (const BirthEdge& e : leftover) {
-        if (paired[static_cast<size_t>(e.id)]) continue;
         const auto& nu = g.neighbors[static_cast<size_t>(e.u)];
         const auto& nv = g.neighbors[static_cast<size_t>(e.v)];
         size_t i = 0, j = 0;
@@ -176,7 +193,8 @@ inline Result persist_active_h1(const Graph& g, int maxdim, value_t threshold,
     }
 
     for (int i = 0; i < m; ++i) {
-        if (!paired[static_cast<size_t>(i)]) r.pairs.push_back({1, leftover[static_cast<size_t>(i)].t, kInf});
+        if (!Ri[static_cast<size_t>(i)].empty())
+            r.pairs.push_back({1, leftover[static_cast<size_t>(i)].t, kInf});
     }
 
     const auto t1 = std::chrono::steady_clock::now();
