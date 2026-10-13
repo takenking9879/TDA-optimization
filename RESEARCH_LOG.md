@@ -766,6 +766,11 @@ Do not paste long reasoning here.
 - **Note:** I174 K=0 already does full-walk-to-trim; the missing cut is proving `!any_later` without a full walk (I167: `p.second > t` is too rare on young edges).
 - **Class:** proposal
 
+## 2026-10-13 — I176 Case A/B + suffix-later (in progress)
+
+- **Question:** Are shift-keep `any_later` commons Case A (`p.second > t`) so a tail filter can leave them before K-sample trim?
+- **Class:** experiment running
+
 ## 2026-10-13 — I164 collapse live-degree trace
 
 - **Question:** Does the live 1-skeleton thin early enough to stop the C-walk?
