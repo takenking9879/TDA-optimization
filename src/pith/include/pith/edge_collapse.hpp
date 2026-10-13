@@ -368,6 +368,37 @@ inline Graph collapse_edges(Graph g, int iterations, Counters& c, int dom_budget
     return g;
 }
 
+// I165: keep the oldest mult·n edges (I164 suffix observation). No domination.
+// Exact iff the true residual pairs are among those oldest edges *and* their
+// unshifted times already realize the VR≤T barcode (likely false if deaths
+// need high-t shifts). Cheapest reject: identity vs Ripser.
+inline Graph collapse_edges_oldest_prefix(Graph g, double mult, Counters& c) {
+    const auto t0 = std::chrono::steady_clock::now();
+    if (c.n_edges_in == 0) c.n_edges_in = static_cast<std::int64_t>(g.edges.size());
+    for (Edge& e : g.edges) normalize_edge(e);
+    std::sort(g.edges.begin(), g.edges.end(), [](const Edge& a, const Edge& b) {
+        if (a.t != b.t) return a.t < b.t;
+        if (a.u != b.u) return a.u < b.u;
+        return a.v < b.v;
+    });
+    size_t k = static_cast<size_t>(std::max(0.0, mult) * static_cast<double>(g.n));
+    if (g.n > 0) k = std::max(k, static_cast<size_t>(g.n - 1));
+    if (k > g.edges.size()) k = g.edges.size();
+    c.n_collapse_trims += static_cast<std::int64_t>(g.edges.size() - k);
+    g.edges.resize(k);
+    rebuild_neighbors(g);
+    c.n_edges_out = static_cast<std::int64_t>(g.edges.size());
+    const auto t1 = std::chrono::steady_clock::now();
+    c.collapse_ms += std::chrono::duration<double, std::milli>(t1 - t0).count();
+    return g;
+}
+
+// I166: oldest prefix, then real backward collapse on that subgraph.
+inline Graph collapse_edges_oldest_then_back(Graph g, double mult, Counters& c, int dom_budget) {
+    g = collapse_edges_oldest_prefix(std::move(g), mult, c);
+    return collapse_edges(std::move(g), 1, c, dom_budget);
+}
+
 // I150: Glisse 2022 Lemma 6 — 2-way time-axis D&C. Same output as sequential
 // backward under a strict total order. Parallel schedule, not less work.
 inline Graph collapse_edges_dc(Graph g, int iterations, Counters& c, int dom_budget = -1) {

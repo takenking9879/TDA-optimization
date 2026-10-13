@@ -19,7 +19,8 @@ static void usage() {
         << "  --maxdim K          homology dimension (default 1)\n"
         << "  --threshold T       VR diameter threshold (default inf)\n"
         << "  --collapse N        collapse passes (default -1 adaptive+probe; 0 = off)\n"
-        << "  --collapse-alg back|dc|forward   collapse algorithm (default back)\n"
+        << "  --collapse-alg back|dc|forward|suffix|suffix-back\n"
+        << "  --suffix-mult X     oldest X·n edges for suffix* (default 6; I165)\n"
         << "  --dom-budget K      max domination candidates per edge (-1 = all; I107)\n"
         << "  --engine auto|homology|implicit   residual PH engine (default auto)\n"
         << "  --ratio R           skip pairs with death <= birth*R (default 1)\n"
@@ -210,6 +211,7 @@ int main(int argc, char** argv) {
     std::string format = "text";
     std::string engine = "auto";
     std::string collapse_alg = "back";
+    double suffix_mult = 6;
 
     for (int i = 1; i < argc; ++i) {
         const std::string a = argv[i];
@@ -226,6 +228,7 @@ int main(int argc, char** argv) {
         else if (a == "--threshold") threshold = std::stof(need("--threshold"));
         else if (a == "--collapse") collapse_iters = std::stoi(need("--collapse"));
         else if (a == "--collapse-alg") collapse_alg = need("--collapse-alg");
+        else if (a == "--suffix-mult") suffix_mult = std::stod(need("--suffix-mult"));
         else if (a == "--dom-budget") dom_budget = std::stoi(need("--dom-budget"));
         else if (a == "--engine") engine = need("--engine");
         else if (a == "--ratio") ratio = std::stof(need("--ratio"));
@@ -282,6 +285,9 @@ int main(int argc, char** argv) {
         auto do_collapse = [&](Graph&& h, int iters) -> Graph {
             if (collapse_alg == "dc") return collapse_edges_dc(std::move(h), iters, c, dom_budget);
             if (collapse_alg == "forward") return collapse_edges_forward(std::move(h), iters, c);
+            if (collapse_alg == "suffix") return collapse_edges_oldest_prefix(std::move(h), suffix_mult, c);
+            if (collapse_alg == "suffix-back")
+                return collapse_edges_oldest_then_back(std::move(h), suffix_mult, c, dom_budget);
             return collapse_edges(std::move(h), iters, c, dom_budget);
         };
         if (collapse_iters < 0) {
