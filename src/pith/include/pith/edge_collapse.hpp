@@ -206,8 +206,36 @@ inline void set_live_time(LiveAdj& nbr, index_t a, index_t b, value_t t) {
 struct BwScratch {
     std::vector<index_t> C_now;
     std::vector<std::pair<value_t, index_t>> C_later;
-    std::vector<std::uint64_t> cover;  // I189: bits[first] minus later[first]
+    std::vector<std::uint64_t> cover;   // I189: bits[first] minus later[first]
+    std::vector<std::uint64_t> cwords;  // I191: C = bits[u] & bits[v]
 };
+
+inline void bits_clear_index(std::vector<std::uint64_t>& words, index_t i) {
+    words[static_cast<unsigned>(i) >> 6] &= ~(1ull << (i & 63));
+}
+
+inline bool bits_test(const std::vector<std::uint64_t>& words, index_t i) {
+    return (words[static_cast<unsigned>(i) >> 6] >> (i & 63)) & 1ull;
+}
+
+inline bool bits_nonzero(const std::vector<std::uint64_t>& words) {
+    for (std::uint64_t w : words) {
+        if (w) return true;
+    }
+    return false;
+}
+
+template <class Fn>
+inline void bits_for_each(const std::vector<std::uint64_t>& words, Fn&& fn) {
+    for (size_t w0 = 0; w0 < words.size(); ++w0) {
+        std::uint64_t word = words[w0];
+        while (word) {
+            const int tz = __builtin_ctzll(word);
+            word &= word - 1;
+            fn(static_cast<index_t>(w0 * 64 + tz));
+        }
+    }
+}
 
 // One backward edge (Glisse–Pritam). t_in is the start filtration (may be t_*
 // on a D&C merge replay). Returns true if the edge is kept.
@@ -221,6 +249,7 @@ inline bool process_one_backward(const Edge& e_in, value_t t_in, DenseTimes& Tm,
     value_t t = t_in;
     S.C_now.clear();
     S.C_later.clear();
+    std::int64_t commons = 0;
     const bool walk_u = nbr[u].size() <= nbr[v].size();
     const auto& src = walk_u ? nbr[u] : nbr[v];
     const value_t* r_other = walk_u ? Tm.row(v) : Tm.row(u);
@@ -315,8 +344,115 @@ inline bool process_one_backward(const Edge& e_in, value_t t_in, DenseTimes& Tm,
                 }
             }
         }
+
+        // I191: slow path without the Θ(|C|) Tm consider walk. C_now is
+        // bits[u]&bits[v] minus later-commons; existence-dominators are
+        // the progressive word-AND of those neighborhoods.
+        const int W = bits->W;
+        S.cwords.assign(static_cast<size_t>(W), 0);
+        const std::uint64_t* bu = bits->row(u);
+        const std::uint64_t* bv = bits->row(v);
+        for (int w0 = 0; w0 < W; ++w0) S.cwords[w0] = bu[w0] & bv[w0];
+        bits_clear_index(S.cwords, u);
+        bits_clear_index(S.cwords, v);
+        auto take_later = [&](index_t a, index_t b) {
+            for (const LiveNbr& p : (*later)[a]) {
+                if (p.second <= t) continue;
+                const index_t w = p.first;
+                if (w == u || w == v) continue;
+                if (!bits_test(S.cwords, w)) continue;
+                const value_t tw = Tm(b, w);
+                if (tw >= kInf / 2) continue;
+                const value_t tau = p.second > tw ? p.second : tw;
+                S.C_later.push_back({tau, w});
+                bits_clear_index(S.cwords, w);
+            }
+        };
+        take_later(u, v);
+        take_later(v, u);
+        bits_for_each(S.cwords, [&](index_t w) { S.C_now.push_back(w); });
+        commons = static_cast<std::int64_t>(S.C_now.size() + S.C_later.size());
+        c.n_collapse_c_probes += W;
+        c.n_collapse_c_size_sum += commons;
+        c.n_collapse_last_any_later = S.C_later.empty() ? 0 : 1;
+
+        if (S.C_now.empty() && S.C_later.empty()) {
+            out = e_in;
+            return true;
+        }
+        if (S.C_now.size() == 1 && S.C_later.empty()) {
+            drop_uv();
+            ++c.n_collapse_trims;
+            ++c.n_collapse_dom_hits;
+            return false;
+        }
+
+        // Progressive existence-AND. bits[w] has no self-loop, so restore
+        // bit w (a vertex is adjacent to itself for domination). later[w]
+        // edges with keep-time > t are not in N_t[w].
+        S.cover = S.cwords;
+        bool exist_dom = !S.C_now.empty();
+        auto and_neighborhood = [&](index_t w) {
+            const std::uint64_t* bw = bits->row(w);
+            for (int w0 = 0; w0 < W; ++w0)
+                S.cover[static_cast<size_t>(w0)] &= bw[w0];
+            S.cover[static_cast<unsigned>(w) >> 6] |= 1ull << (w & 63);
+            for (const LiveNbr& p : (*later)[w]) {
+                if (p.second > t) bits_clear_index(S.cover, p.first);
+            }
+            S.cover[static_cast<unsigned>(w) >> 6] |= 1ull << (w & 63);
+            c.n_collapse_c_probes += W;
+            ++c.n_collapse_dom_tests;
+        };
+        // Most-constraining first so the keep-case empties cover sooner.
+        index_t tight = S.C_now[0];
+        if (deg) {
+            int best = (*deg)[tight];
+            for (index_t w : S.C_now) {
+                if ((*deg)[w] < best) {
+                    best = (*deg)[w];
+                    tight = w;
+                }
+            }
+        }
+        and_neighborhood(tight);
+        if (bits_nonzero(S.cover)) {
+            for (index_t w : S.C_now) {
+                if (w == tight) continue;
+                and_neighborhood(w);
+                if (!bits_nonzero(S.cover)) {
+                    exist_dom = false;
+                    break;
+                }
+            }
+        } else {
+            exist_dom = false;
+        }
+        if (!exist_dom && S.C_later.empty()) {
+            out = e_in;
+            return true;
+        }
+        if (exist_dom && S.C_later.empty()) {
+            index_t dom = -1;
+            bits_for_each(S.cover, [&](index_t cand) {
+                if (dom >= 0) return;
+                if (dominated_by(Tm, S.C_now, cand, t)) dom = cand;
+            });
+            if (dom >= 0) {
+                drop_uv();
+                ++c.n_collapse_trims;
+                ++c.n_collapse_dom_hits;
+                return false;
+            }
+            out = e_in;
+            return true;
+        }
+        // C_later nonempty: fall through to the shift heap using C_now/C_later.
     }
 
+    const bool bits_filled = bits && later && (!S.C_now.empty() || !S.C_later.empty());
+
+    if (!bits_filled) {
     // I156: fuse first-apex verify into the C walk. If the first common
     // dominates and there is no C_later, trim without materializing C
     // (I155: 1.07M trims vs 2k shifts on circle2000).
@@ -326,7 +462,6 @@ inline bool process_one_backward(const Edge& e_in, value_t t_in, DenseTimes& Tm,
     bool any_later = false;
     bool later_a = false;
     bool later_b = false;
-    std::int64_t commons = 0;
     std::int64_t fail_at = -1;
     auto consider = [&](index_t w, value_t t_src_w, value_t t_other_w) {
         if (w == u || w == v) return;
@@ -408,6 +543,7 @@ inline bool process_one_backward(const Edge& e_in, value_t t_in, DenseTimes& Tm,
             push_common(p.first, p.second, r_other[p.first]);
         }
     }
+    }  // !bits_filled
 
     const auto later_cmp = [](const std::pair<value_t, index_t>& a,
                               const std::pair<value_t, index_t>& b) {
@@ -529,6 +665,7 @@ inline Graph collapse_edges(Graph g, int iterations, Counters& c, int dom_budget
             deg.assign(static_cast<size_t>(g.n), 0);
             later.assign(static_cast<size_t>(g.n), {});
             scratch.cover.resize(static_cast<size_t>(bits->W));
+            scratch.cwords.resize(static_cast<size_t>(bits->W));
             for (const Edge& e : E) {
                 ++deg[e.u];
                 ++deg[e.v];
