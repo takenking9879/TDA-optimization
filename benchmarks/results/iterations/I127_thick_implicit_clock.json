@@ -1,0 +1,70 @@
+{
+  "id": "thick_implicit_clock",
+  "lever": "H02",
+  "class": "experiment",
+  "fidelity": "exact",
+  "status": "hold",
+  "summary": "torus/high-d implicit after same-diameter apparent",
+  "receipts": [
+    {
+      "dataset": "torus",
+      "engine": "homology",
+      "collapse": 1,
+      "match": true,
+      "time_ratio": 0.7845924635879398,
+      "pith_s": 0.00599585800046043,
+      "ripser_s": 0.004704304999904707,
+      "edges_out": 1304
+    },
+    {
+      "dataset": "torus",
+      "engine": "homology",
+      "collapse": -1,
+      "match": true,
+      "time_ratio": 0.8953355169144194,
+      "pith_s": 0.0052542369994625915,
+      "ripser_s": 0.004704304999904707,
+      "edges_out": 1069
+    },
+    {
+      "dataset": "torus",
+      "engine": "implicit",
+      "collapse": 1,
+      "match": false,
+      "time_ratio": 0.686737998671002,
+      "pith_s": 0.006850218000181485,
+      "ripser_s": 0.004704304999904707,
+      "edges_out": 1304
+    },
+    {
+      "dataset": "uniform10",
+      "engine": "homology",
+      "collapse": 1,
+      "match": true,
+      "time_ratio": 0.04837547564249081,
+      "pith_s": 0.41369982899959723,
+      "ripser_s": 0.02001292600107263,
+      "edges_out": 8237
+    },
+    {
+      "dataset": "uniform10",
+      "engine": "homology",
+      "collapse": -1,
+      "match": true,
+      "time_ratio": 0.11025766258793157,
+      "pith_s": 0.1815105229998153,
+      "ripser_s": 0.02001292600107263,
+      "edges_out": 5358
+    },
+    {
+      "dataset": "uniform10",
+      "engine": "implicit",
+      "collapse": 1,
+      "match": false,
+      "time_ratio": 0.02520042013831647,
+      "pith_s": 0.7941504900009022,
+      "ripser_s": 0.02001292600107263,
+      "edges_out": 8237
+    }
+  ]
+}

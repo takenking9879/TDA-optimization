@@ -467,6 +467,19 @@ Do not paste long reasoning here.
 - **Result:** Exact. uniform10 n=200: 1-pass **0.05×**, adaptive **0.12×**. Still a negative control.
 - **Class:** reproduced
 
+## 2026-10-13 — I121 row pointers
+
+- **Result:** Exact. circle2000 T=1.5 collapse 4137 ms vs I114 4212 ms (~2%). **6.63×**. circle3000 T=1.5 **8.13×** / 13833 ms vs I115 8.0× / 14123 ms.
+- **Decision:** Keep row pointers + degree-reserve. Not a 10× lever.
+- **Class:** implementation
+
+## 2026-10-13 — I126–I127 same-diameter apparent
+
+- **Question:** Does Ripser same-diameter apparent (not globally youngest cofacet) fix leftover-as-cohomology?
+- **Result:** Still 1/7 (only collapsed circle80). Dense unmatched 1147/7913. Torus/sphere collapse=1 still wrong. Thick implicit slower and wrong.
+- **Decision:** Implicit remains rejected. MST edges are short; same-diameter pairs are longest-edge triangles, so the I111 MST story was the wrong pairing class.
+- **Class:** experiment (failure archived)
+
 ## 2026-10-13 — I103–I105
 
 - **Result:** Skipped. They required the progressive binary on n=500–3000 after I102 failed.

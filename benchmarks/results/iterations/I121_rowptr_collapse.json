@@ -1,0 +1,50 @@
+{
+  "id": "rowptr_collapse",
+  "lever": "H01-row",
+  "class": "implementation",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "DenseTimes row pointers vs I114/I115",
+  "receipts": [
+    {
+      "n": 80,
+      "T": 1.2,
+      "match": true,
+      "collapse_ms": 0.240742,
+      "ripser_s": 0.0017254009999305708,
+      "pith_s": 0.0015130699994188035,
+      "time_ratio": 1.1403312474593557,
+      "edges_out": 93
+    },
+    {
+      "n": 200,
+      "T": 1.2,
+      "match": true,
+      "collapse_ms": 2.900343,
+      "ripser_s": 0.008472638999592164,
+      "pith_s": 0.004825894000532571,
+      "time_ratio": 1.755662059435443,
+      "edges_out": 283
+    },
+    {
+      "n": 2000,
+      "T": 1.5,
+      "match": true,
+      "collapse_ms": 4137.0177,
+      "ripser_s": 27.88691833899975,
+      "pith_s": 4.208357587998762,
+      "time_ratio": 6.626556264735351,
+      "edges_out": 5169
+    },
+    {
+      "n": 3000,
+      "T": 1.5,
+      "match": true,
+      "collapse_ms": 13832.58,
+      "ripser_s": 113.73199051099982,
+      "pith_s": 13.993096039999728,
+      "time_ratio": 8.127721712614075,
+      "edges_out": 9190
+    }
+  ]
+}
