@@ -917,6 +917,13 @@ Do not paste long reasoning here.
 - **Decision:** Revert shift loop to Tm. I199: AND-eq a candidate only when |later[cand]| < |C|.
 - **Class:** experiment (reject as clock; exact)
 
+## 2026-10-13 — I199 adaptive shift dominator
+
+- **Question:** Does bits-cover when |later[cand]| < |C| beat Tm on the shift heap?
+- **Result:** **Exact.** No clock win: circle 259 vs 249 ms, blobs 189 vs 178, torus 1865 vs 1771. Hybrid still pays memcpy on the short-later candidates that Tm already handles cheaply.
+- **Decision:** Reject. Default remains I193+I197. I200: remasure remaining I162 families (uniform2) on the selected stack.
+- **Class:** experiment (reject as clock; exact)
+
 ## 2026-10-13 — I164 collapse live-degree trace
 
 - **Question:** Does the live 1-skeleton thin early enough to stop the C-walk?

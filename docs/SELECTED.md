@@ -54,6 +54,8 @@ suite and I137 8/8 (including dense circle80/200 **collapse=0**, the I045 killer
 | escalate-until-keep (I181/I183) | n=3000 still 2 unmatched (8325). Early leave turns escalate off |
 | Progressive word-AND on fused-fail (I191) | Exact; **slower** on losers (blobs 809→1309 ms). Full ∩ cannot early-abort trims |
 | Sticky vertex-dominator (I194) | Exact; **no clock win** (sphere 357→459 ms discovery tax). Static G_T frac ≠ grade-t hits |
+| AND-eq at shift grades (I198) | Exact; torus **1771→2816 ms**. later[] masks dwarf Tm |
+| Adaptive bits/Tm shift (I199) | Exact; **no clock win** (torus 1865 vs 1771) |
 
 I107 (`--dom-budget 1`) **still rejected** with implicit (I142–I144): thicker
 residual makes collapse *and* reduce slower (circle3000 1.49× vs full 8.11×).
@@ -92,11 +94,11 @@ E3 (collapse + Ripser-sparse) is no longer required; we own that residual class.
 **Alpha (I136)** is a different complex: GUDHI Alpha circle3000 0.023 s vs Ripser VR 123 s
 (~5400× empirical) with 2745 \(H_1\) bars. Off the exact-VR 10× board.
 
-## Next levers (still open after I197)
+## Next levers (still open after I199)
 
-Circle family: **83.5 / 119 / 140×** at n=2000/3000/4000. Blobs/sphere beat Ripser (1.85× / 2.03×). Torus is shift-heap bound (113k shifts).
+Circle family: **83.5 / 119 / 140×** at n=2000/3000/4000. Blobs/sphere beat Ripser (1.85× / 2.03×). Torus is shift-heap bound (113k shifts). I198/I199 rejected.
 
 1. **Default:** I193 + I197. Flagship **140×**.
-2. I198: AND-eq / sticky dominator at shift grades (torus 113k shifts).
-3. Second-pass collapse / RedZeD on torus residual 163k.
+2. Remasure uniform2 / off-peak T (I200).
+3. Reduce-side work on torus residual 163k (H09), not extra Morse (cols_reduced already ~4.6k).
 4. GPU later.

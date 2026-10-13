@@ -765,13 +765,8 @@ inline bool process_one_backward(const Edge& e_in, value_t t_in, DenseTimes& Tm,
     bool ever_shifted = false;
     bool dead = false;
     while (true) {
-        // I198 blanket AND-eq here was exact but slower on torus
-        // (1771→2816 ms): later[] masks dwarf Tm walks when C is small.
-        // I199: bits cover only when later[cand] < |C_now|.
-        const index_t dominator = (bits && later)
-            ? first_dominator_adapt(Tm, S.C_now, t, nbr, dom_budget, &c, deg, bits, later,
-                                    S.cover)
-            : first_dominator_deg(Tm, S.C_now, t, nbr, dom_budget, &c, deg);
+        // I198/I199 shift AND-eq variants were exact but not faster on torus.
+        const index_t dominator = first_dominator_deg(Tm, S.C_now, t, nbr, dom_budget, &c, deg);
         if (dominator < 0) break;
         const value_t* rd = Tm.row(dominator);
         bool still = true;
