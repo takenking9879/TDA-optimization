@@ -549,7 +549,7 @@ Sphere H2 **52×**. Topology loss: **0**. Reduce a bit longer
 10×, torus H1 **12.7×**, sphere H1 **10.1×** at n=2000, sphere H2
 **62×** at n=400 / **136×** at n=600, **disconnected blobs 21×**
 at n=4000 on one CLI path. Connected uniform2 H1 is **11.2×** at
-n=5000 (0.31 s). Sparse connected n=20000 **6.0×** (1.04 s, 4.71M
+n=5000 (0.31 s). Sparse connected n=20000 **6.0×** (1.02 s, 4.71M
 vs 200M, no 800 MB matrix). I242/I243 owned AE is exact; rbit is
 ~1.5× on circle AE and still 12× slower than RedZeD. GUDHI explicit
 Rips is exact and too slow.
@@ -561,10 +561,10 @@ Rips is exact and too slow.
    when n grows past exact VR.
 4. Connected uniform2 is **11.4×** at n=5000 after I258 (0.30 s).
    Sphere n=2000 H1 **10.1×**. Torus n=2000 **12.7×**. Sparse
-   n=20000 is **6.0×** (1.04 s, 4.71M vs 200M). Remaining dense
+   n=20000 is **6.0×** (1.02 s, 4.71M vs 200M). Remaining dense
    wall is visiting leftover edges (UF + `advance_rbits` + first
    rbit AND), not `coface_ready`. Spatial metric is O(|E|) memory
-   (I258/I259 hash). I253–I255 leftover-coface inner-loop constants
+   (I258–I260 hash). I253–I255 leftover-coface inner-loop constants
    are exact and reverted. Fill-collect sort, I247 leftover-coface
    fast, I248 fuse-fill histogram, and I249 parallel leftover-coface
    precompute are rejected. Parallel `build_edges`, lazy insert,
