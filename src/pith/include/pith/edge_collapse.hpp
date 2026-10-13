@@ -396,8 +396,7 @@ inline void init_collapse_graph(const std::vector<Edge>& E, int n, DenseTimes& T
                                 LiveAdj& nbr, LiveBits* bits = nullptr,
                                 bool skip_nbr = false) {
     Tm = DenseTimes(n);
-    if (!skip_nbr) nbr.assign(n, {});
-    else nbr.clear();
+    nbr.assign(n, {});
     if (bits) *bits = LiveBits(n);
     std::vector<int> deg(n, 0);
     for (const Edge& e : E) {
