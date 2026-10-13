@@ -1,6 +1,6 @@
 # Selected algorithm (living)
 
-Updated 2026-10-13 after iterations I001–I257. **CLI default `--engine
+Updated 2026-10-13 after iterations I001–I258. **CLI default `--engine
 auto` (I235+I236+I239+I240+I241):** subsample residual-frac dispatch. Fat →
 RedZeD (torus n=2000 **14.2×**). Thin-circle → collapse+implicit
 (n=1000 **28×**; n=4000 still **140×**). Disconnected G_T → spatial UF
@@ -523,41 +523,48 @@ class when the T-ball is small; worst-case G_T still Θ(n²).
 Topology loss: **0**. Remaining spatial tax is the C(n,2) zero-init
 (~450 MB at n=15000).
 
-## Next levers (still open after I257)
+**I258 skip C(n,2) matrix (CSR):** spatial `coface_ready` reads a
+lower-tri CSR of d≤T pairs (miss = +∞). Wave 119 **exact 14/14**.
+Dense n=5000 held **11.4×** (0.30s). n=15000 **5.79×** (0.82s).
+Harder n=20000 T=0.09 **6.18×** (0.99s/6.10s; **4.71M vs 200M** —
+an 800 MB matrix is gone). Torus **11.5×** (CSR lookup tax vs I257
+14.2×). Sphere H2 **57×**. Topology loss: **0**. Justified class:
+O(|E|) metric memory vs O(n²) when the T-ball is small.
+
+## Next levers (still open after I258)
 
 `--engine auto` is a shape-agnostic exact H0–H2 portfolio: circle H1
-10×, torus H1 10×, sphere H1 **10.8×** at n=2000, sphere H2 **60×**
-at n=400 / **136×** at n=600, **disconnected blobs 25×** at n=4000
-on one CLI path. Connected uniform2 H1 is **11.2×** at n=5000 after
-I257 (0.31 s). Sparse connected: n=10000 **6.4×** (0.48 s), n=15000
-**5.6×** (0.83 s, 3.90M vs 112M pairs). Torus n=2000 **14.2×**.
-I242/I243 owned AE is exact; rbit is ~1.5× on circle AE and still 12×
-slower than RedZeD. GUDHI explicit Rips is exact and too slow.
+10×, torus H1 10×, sphere H1 **11.0×** at n=2000, sphere H2 **57×**
+at n=400 / **136×** at n=600, **disconnected blobs 23×** at n=4000
+on one CLI path. Connected uniform2 H1 is **11.4×** at n=5000 after
+I258 (0.30 s). Sparse connected: n=15000 **5.8×** (0.82 s, 3.90M vs
+112M), n=20000 **6.2×** (0.99 s, 4.71M vs 200M, no 800 MB matrix).
+Torus n=2000 **11.5×**. I242/I243 owned AE is exact; rbit is ~1.5×
+on circle AE and still 12× slower than RedZeD. GUDHI explicit Rips
+is exact and too slow.
 
 1. **CLI default:** `--engine auto` (I235+I236+I239+I240+I241). H1 τ=0.04; H2 τ=0.15.
 2. **Forced engines:** `--engine implicit` = I193+I197+I202+I203 only;
-   `--engine redzed` = I228+I239+I240+I244+I245+I246+I250+I251+I252+I256+I257; H0 = Kruskal.
+   `--engine redzed` = I228+I239+I240+I244+I245+I246+I250+I251+I252+I256+I257+I258; H0 = Kruskal.
 3. **Owned optional approx:** `--sparse-eps 0.6 --sparse-cap max` (I213/I218)
    when n grows past exact VR.
-4. Connected uniform2 is **11.2×** at n=5000 after I257 (0.31 s).
-   Sphere n=2000 H1 **10.8×**. Torus n=2000 **14.2×**. Sparse
-   n=10000 / n=15000 are **6.4× / 5.6×** (Ripser is also cheap at
+4. Connected uniform2 is **11.4×** at n=5000 after I258 (0.30 s).
+   Sphere n=2000 H1 **11.0×**. Torus n=2000 **11.5×**. Sparse
+   n=15000 / n=20000 are **5.8× / 6.2×** (Ripser is also cheap at
    those T). Remaining dense wall is visiting leftover edges (UF +
-   `advance_rbits` + first rbit AND), not `coface_ready`. Remaining
-   sparse tax is `resize_lower` zero-init of C(n,2) — I257 skipped the
-   extra ∞-fill. I253–I255 leftover-coface inner-loop constants are
-   exact and reverted. Fill-collect sort, I247 leftover-coface fast,
-   I248 fuse-fill histogram, and I249 parallel leftover-coface
-   precompute are rejected. Parallel `build_edges`, lazy insert,
-   skip-collect, inline skip, leftover-coface no-seen, spatial
-   prebuild, skip ∞-fill, and parallel `spatial_edges` are in.
-   Dense n=5000 stays I238 all-pairs.
-5. **I258 (open):** skip `resize_lower` C(n,2) on the spatial path.
-   `coface_ready` / `generate_stream` only read G_T pairs when T is
-   finite and EdgeList is prebuilt. A sparse (i,j)→d lookup would put
-   the metric in O(|E|) memory (n=15000 is still ~450 MB of zeros).
-   Must not leak a far-0 read (that invents bars). Dense path stays
-   I238 all-pairs.
+   `advance_rbits` + first rbit AND), not `coface_ready`. Spatial
+   metric is now O(|E|) memory (I258 CSR). I253–I255 leftover-coface
+   inner-loop constants are exact and reverted. Fill-collect sort,
+   I247 leftover-coface fast, I248 fuse-fill histogram, and I249
+   parallel leftover-coface precompute are rejected. Parallel
+   `build_edges`, lazy insert, skip-collect, inline skip,
+   leftover-coface no-seen, spatial prebuild, skip ∞-fill, parallel
+   `spatial_edges`, and CSR-no-n² are in. Dense n=5000 stays I238
+   all-pairs.
+5. **I259 (open):** faster CSR `get` (bidirectional rows or open-
+   address hash). Lower-tri binary search taxed torus reduce
+   (174 vs I257 133 ms) because low-id rows are long. Must stay
+   exact (miss = +∞). Dense path stays I238 all-pairs.
 6. Owned AE leftover-star walk is still Θ(|leftover|·deg★) — rbit cut
    has_leftover_coface, not seeded probes (circle still 875k). Packed
    annotations / seeded_is_noop are the next owned constants.

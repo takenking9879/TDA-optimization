@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-13 — I258 skip C(n,2) matrix (CSR of d≤T)
+
+- **Question:** I257 still `resize_lower`s C(n,2) (~450 MB of zeros at n=15000). Can `coface_ready` read a lower-tri CSR of the spatial edges instead, so the spatial path is O(|E|) memory, and does that let n=20000 finish in about a second without inventing bars?
+- **Hypothesis:** generate_stream only needs `dist.n`. leftover-coface only reads G_T pairs (rbit AND). Miss → +∞, so a leaked far-read cannot invent a 0-edge. Dense stays I238. Shape-agnostic. Exact if identity holds.
+- **Work:** `SparseDist` CSR + `coface_ready_any` + thread_local guard. No `resize_lower` on the spatial path. Wave 119 vs Ripser: H0–H2 + dense n=5000 + spatial n=15000/20000.
+- **Result:** **Exact 14/14** (figure8 2=2; sphere void 1=1; two_spheres 2=2; torus ess H1 1=1; blobs H0 3=3). Dense n=5000 **11.4×** (0.30s hold). n=15000 **5.79×** (0.82s; I257 0.83s). Harder n=20000 T=0.09 **6.18×** (0.99s/6.10s; **4.71M vs 200M**; would have been 800 MB). Torus spatial **11.5×** (was 14.2× — CSR binary-search tax, reduce 174 vs 133). Sphere H1 **11.0×**. Blobs H1 **23×**. Sphere H2 **57×**.
+- **Decision:** **Support.** Topology loss: **0**. Justified size class: O(|E|) metric memory vs O(n²) when the T-ball is small. Clock at n=15000 held; n=20000 is newly reachable. Next: faster lookup (bidirectional CSR / open-address hash) to take back the torus reduce tax. Worst-case connected G_T is still Θ(n²).
+- **Class:** experiment (support; exact O(|E|) spatial metric)
+
 ## 2026-10-13 — I257 skip ∞-fill + parallel spatial_edges
 
 - **Question:** I256 still `std::fill`s C(n,2) with +∞ (~200 MB at n=10000). With finite T and a prebuilt EdgeList, do `coface_ready` / `generate_stream` only read d≤T pairs, so we can leave far entries 0 and parallelize `spatial_edges` without changing H0–H2? Does that hold a harder n=15000 case in under a second?
