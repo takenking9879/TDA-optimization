@@ -1,6 +1,6 @@
 # Selected algorithm (living)
 
-Updated 2026-10-13 after iterations I001–I243. **CLI default `--engine
+Updated 2026-10-13 after iterations I001–I244. **CLI default `--engine
 auto` (I235+I236+I239+I240+I241):** subsample residual-frac dispatch. Fat →
 RedZeD (torus n=2000 **12.7×**). Thin-circle → collapse+implicit
 (n=1000 **28×**; n=4000 still **140×**). Disconnected G_T → spatial UF
@@ -29,7 +29,8 @@ circle n=1000 **28×**; sphere n=600 H2 **136×**. Disconnected clouds
 I240 spatial metric (⅓ of the pairs, no n×n matrix). **Worst-case Big-O
 is not improved** on a connected G_T — this is a portfolio, not a new
 complexity class. Torus residual stays \(\Theta(n^2)\) (I204). Connected
-uniform2 n=5000 H1 is still **5.5×** (0.62s/3.42s). **I228 `--engine
+uniform2 n=5000 H1 is **6.8×** after I244 skip-enclosing (0.50s/3.42s).
+**I228 `--engine
 redzed`** (with I239/I240 split) remains the single-engine general exact
 path. **I242 `--engine active`** is exact H1 AE (I236 pairing bug fixed)
 but loses to RedZeD (circle n=500 0.06×; uniform2 n=1000 0.33×).
@@ -111,6 +112,7 @@ suite and I137 8/8 (including dense circle80/200 **collapse=0**, the I045 killer
 | Birth-time leftover-coface AE (I237) | **Not exact** — same unmatched counts as I236. Incremental insert did not change the barcode. Reverted. I242 pairing is exact |
 | Vendor-faithful owned AE as clock (I242) | **Exact 13/13** (figure8 2=2; sphere void 1=1). **Slower** than RedZeD (circle n=500 0.06×; uniform2 n=1000 0.33×). Keep `--engine active` experimental |
 | rbit owned AE as clock (I243) | **Exact 11/11.** Circle AE 0.38→0.26 s (~1.5× vs I242) still **0.08×** vs RedZeD. Probe count unchanged (leftover-star). Default unchanged |
+| Fill-collect + std::sort EdgeList (I244 try) | Exact; **slower** metric (10→460 ms on uniform2 n=5000). Vendor `build_edges` stays |
 | GUDHI 3.13 explicit Rips (I237) | Exact 7/7; **slower** (blobs n=1000 15.9 s / 17.8M simplices vs auto 21 ms) |
 
 I107 (`--dom-budget 1`) **still rejected** with implicit (I142–I144): thicker
@@ -451,21 +453,31 @@ Uniform2 n=5000 auto **5.6×**. Blobs n=4000 H1 **22×**. Sphere n=400
 H2 **61×**. Topology loss: **0**. Constant-factor AE cut, not a better
 Big-O, not a default.
 
-## Next levers (still open after I243)
+**I244 skip enclosing on finite VR≤T:** vendor `redzed()` always computed
+the enclosing radius (n² max). For a finite T that is wasted.
+`redzed_vr` uses thr=T. Wave 105 **exact 10/10** H0–H2. Connected
+uniform2 n=5000 **6.8×** (0.50s/3.42s; I243 was 5.6× / 0.61s). Reduce
+411 vs 484 ms. Blobs n=4000 H1 **20×**. Sphere n=400 H2 **59×**. Circle
+auto-collapse **17×**. Fill-collect EdgeList **rejected** (sort tax).
+Topology loss: **0**. Constant-factor, not 10×, not a better Big-O.
+
+## Next levers (still open after I244)
 
 `--engine auto` is a shape-agnostic exact H0–H2 portfolio: circle H1
 10×, torus H1 10×, sphere H2 **136×** at n=600, **disconnected blobs
 27×** at n=8000 (0.38 s) on one CLI path. Connected uniform2 H1 is
-still **5.5×** at n=5000 (RedZeD reduce on one block). I242/I243 owned
-AE is exact; rbit is ~1.5× on circle AE and still 12× slower than
-RedZeD. GUDHI explicit Rips is exact and too slow.
+still **6.8×** at n=5000 after I244 (RedZeD build_edges 191 ms + AE
+229 ms). I242/I243 owned AE is exact; rbit is ~1.5× on circle AE and
+still 12× slower than RedZeD. GUDHI explicit Rips is exact and too slow.
 
 1. **CLI default:** `--engine auto` (I235+I236+I239+I240+I241). H1 τ=0.04; H2 τ=0.15.
 2. **Forced engines:** `--engine implicit` = I193+I197+I202+I203 only;
    `--engine redzed` = I228+I239+I240; H0 = Kruskal.
 3. **Owned optional approx:** `--sparse-eps 0.6 --sparse-cap max` (I213/I218)
    when n grows past exact VR.
-4. Push **connected** uniform2 from ~5.5× to 10× (RedZeD reduce is the wall).
+4. Push **connected** uniform2 from **6.8×** to 10×. Remaining wall is
+   vendor `build_edges` (~191 ms) + AE (~229 ms) at n=5000. Need ~1.5×
+   on that pair. Fill-collect sort is rejected.
 5. Owned AE leftover-star walk is still Θ(|leftover|·deg★) — rbit cut
    has_leftover_coface, not seeded probes (circle still 875k). Packed
    annotations / seeded_is_noop are the next owned constants.

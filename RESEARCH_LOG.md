@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-13 — I244 skip vendor enclosing on VR≤T
+
+- **Question:** How much of the connected RedZeD reduce is enclosing / `build_edges` / AE, and can we drop the wasted n² cone when T is finite without changing the barcode?
+- **Hypothesis:** Vendor always computes enclosing. For VR≤T, thr=T is exact. Collecting G_T during the fill we already pay might also skip `build_edges`. Shape-agnostic. Exact.
+- **Work:** Profiled uniform2 n=5000: cone 69 ms, build_edges 191 ms, AE 229 ms. `redzed_vr` skips cone. Fill-collect + std::sort smoked then reverted (metric 10→460 ms). Wave 105 vs Ripser. Hard case: uniform2 n=5000 H1.
+- **Result:** **Exact 10/10** (figure8 2=2; sphere void 1=1; two_spheres 2=2; blobs H0 3=3). Uniform2 n=5000 **6.8×** (0.50s/3.42s; I243 5.6× / 0.61s). Reduce 411 vs 484 ms. Blobs n=4000 H1 **20×**. Sphere n=400 H2 **59×**. Circle **17×**.
+- **Decision:** **Hold.** Support skip-enclosing as the RedZeD driver. Do **not** collect+sort. Topology loss: **0**. Connected 10× still open (`build_edges`+AE). Not a better Big-O.
+- **Class:** experiment (hold; exact constant; fill-collect reject)
+
 ## 2026-10-13 — I243 incremental rbit on owned AE
 
 - **Question:** Does RedZeD-style incremental rbit (word-AND neighborhoods at the current leftover diameter) cut I242’s common-neighbor walk without changing the barcode, and does that help connected uniform2 at n=5000?
