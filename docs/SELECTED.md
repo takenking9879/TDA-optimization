@@ -1,13 +1,13 @@
 # Selected algorithm (living)
 
-Updated 2026-10-13 after iterations I001–I239. **CLI default `--engine
-auto` (I235+I236+I239):** subsample residual-frac dispatch. Fat → RedZeD
-(torus n=2000 **12.7×**). Thin-circle → I193+I197+I202+I203 collapse+implicit
-(n=1000 **28×**; n=4000 still **140×**). Disconnected G_T → parallel
-RedZeD per component (blobs n=4000 **18×**, n=6000 **14×**). **H2:**
-τ=0.15 so sphere void stays collapse (**61×** at n=400; **136×** at
-n=600). Shape-agnostic, 0 bars lost. Circle 140× is a collapse-friendly
-regime, **not** the success criterion.
+Updated 2026-10-13 after iterations I001–I240. **CLI default `--engine
+auto` (I235+I236+I239+I240):** subsample residual-frac dispatch. Fat →
+RedZeD (torus n=2000 **12.7×**). Thin-circle → collapse+implicit
+(n=1000 **28×**; n=4000 still **140×**). Disconnected G_T → spatial UF
++ parallel RedZeD per component (blobs n=4000 **22×**, n=6000 **24×**,
+n=8000 **27×** in 0.38 s). **H2:** τ=0.15 so sphere void stays collapse
+(**61×** at n=400; **136×** at n=600). Shape-agnostic, 0 bars lost.
+Circle 140× is a collapse-friendly regime, **not** the success criterion.
 
 ## Success criteria (goal amendment)
 
@@ -19,15 +19,16 @@ justification (residual \(|E'(n)|\) slopes, column counts, or a different
 complex with a proven size bound). Any information loss vs exact VR must be
 quantified (unmatched bars / bottleneck / interleaving).
 
-Current honest status: **`--engine auto` (I235+I236+I238+I239)** is
+Current honest status: **`--engine auto` (I235+I236+I238+I239+I240)** is
 shape-agnostic (0 unmatched) and picks the better exact engine from a
 250-point collapse probe. H1 τ=0.04; H2 τ=0.15. Torus n=2000 H1 **12.7×**;
 circle n=1000 **28×**; sphere n=600 H2 **136×**. Disconnected clouds
-(blobs) now **18×** at n=4000 / **14×** at n=6000 via I239 component
-split. **Worst-case Big-O is not improved** — this is a portfolio, not a
-new complexity class. Torus residual stays \(\Theta(n^2)\) (I204).
-Connected uniform2 n=4000 H1 is still **6.3×**. **I228 `--engine redzed`**
-(with I239 split) remains the single-engine general exact path.
+(blobs) now **22× / 24× / 27×** at n=4000/6000/8000 via I239 split +
+I240 spatial metric (⅓ of the pairs, no n×n matrix). **Worst-case Big-O
+is not improved** on a connected G_T — this is a portfolio, not a new
+complexity class. Torus residual stays \(\Theta(n^2)\) (I204). Connected
+uniform2 n=4000 H1 is still **~6×**. **I228 `--engine redzed`** (with
+I239/I240 split) remains the single-engine general exact path.
 Topology loss: **0**. **I224 reduced VR** is exact with \(O(n^2)\)
 triangles but loses clock. The **optional** `--sparse-eps 0.6` path keeps
 essential \(H_1\) and sits in a better size class (I218) at quantified
@@ -382,10 +383,25 @@ I228 unchanged. **Exact 10/10** H0–H2 (figure8/two_circles 2=2; sphere
 void 1=1; two_spheres void 2=2; blobs H0 3=3). Circle auto-collapse
 **18×**. Sphere n=400 H2 **61×**. Blobs n=2000 **13×** / n=4000
 **18.3×** (0.12s/2.18s, reduce 77 ms, cc=3) / n=6000 **13.5×**
-(0.38s/5.16s). Uniform2 n=4000 stays **6.3×** (cc=1). Topology loss:
-**0**. Justification: RedZeD time is superadditive in n, so k equal
-blocks cost ~k·(n/k)^α with α≈2.3. **Not** a better worst-case class
-(connected G_T is unchanged). Real clustered data is the payoff.
+(0.38s/5.16s) before I240. Uniform2 n=4000 stays **6.3×** (cc=1).
+Topology loss: **0**. Justification: RedZeD time is superadditive in n,
+so k equal blocks cost ~k·(n/k)^α with α≈2.3. **Not** a better
+worst-case class (connected G_T is unchanged). Real clustered data is
+the payoff.
+
+**I240 spatial UF + per-component metric:** cell size T, Moore
+neighborhood (if d≤T then |Δcell|≤1). Components are found without an
+n×n matrix; each block allocates only m×m. **Exact 10/10** H0–H2
+(two_spheres forced redzed-cc: 9900 vs 19900 distances, void 2=2;
+blobs H0 3=3). Circle auto-collapse **17×**. Sphere n=400 H2 **59×**.
+Blobs auto-redzed-cc: n=4000 **21.9×** (2.67M/8.00M pairs), n=6000
+**24.4×** (6.00M/18.0M), n=8000 **27.4×** (0.38s/10.4s, 10.7M/32.0M).
+Uniform2 n=4000 **5.6×** / 1 component / full matrix. Topology loss:
+**0**. Justification: metric and memory are \(\sum_k m_k^2/2\) instead
+of \(n^2/2\). On k equal clusters that is a \(k\times\) cut. Reduce
+still \(\sim(n/k)^{2.3}\) per block — the I239 class, now without the
+n×n tax. Connected G_T is unchanged. This is the first exact path that
+gets **cheaper per point** as a clustered cloud grows.
 
 **I237 GUDHI explicit Rips + scale H0–H2:** GUDHI 3.13
 `RipsComplex`+`SimplexTree` is **exact** (7/7 vs Ripser including
@@ -397,24 +413,23 @@ reverted. Selected `--engine auto` at more points: sphere n=600 H2
 n=600 H2 auto-redzed **4.5×** and **88×** vs collapse (13.9 s). Topology
 loss: **0**. Still not a general H1 10×. Not a better Big-O.
 
-## Next levers (still open after I239)
+## Next levers (still open after I240)
 
 `--engine auto` is a shape-agnostic exact H0–H2 portfolio: circle H1
 10×, torus H1 10×, sphere H2 **136×** at n=600, **disconnected blobs
-18×** at n=4000 on one CLI path. Connected uniform2 H1 is still ~6.3×
-at n=4000 (RedZeD reduce on one block). Owned active H0–H2 is exact
-but not a scale engine. I233/I236/I237 star / leftover-coface
+27×** at n=8000 (0.38 s) on one CLI path. Connected uniform2 H1 is
+still ~6× at n=4000 (RedZeD reduce on one block). Owned active H0–H2
+is exact but not a scale engine. I233/I236/I237 star / leftover-coface
 generation were inexact. GUDHI explicit Rips is exact and too slow.
 
-1. **CLI default:** `--engine auto` (I235+I236+I239). H1 τ=0.04; H2 τ=0.15.
+1. **CLI default:** `--engine auto` (I235+I236+I239+I240). H1 τ=0.04; H2 τ=0.15.
 2. **Forced engines:** `--engine implicit` = I193+I197+I202+I203 only;
-   `--engine redzed` = I228+I239.
+   `--engine redzed` = I228+I239+I240.
 3. **Owned optional approx:** `--sparse-eps 0.6 --sparse-cap max` (I213/I218)
    when n grows past exact VR.
-4. Do not materialize the full n×n metric on disconnected clouds
-   (spatial UF + per-component matrices) — I239 still fills n² then splits.
+4. Push **connected** uniform2 from ~6× to 10× (RedZeD reduce is the wall).
 5. Next owned generation cut needs RedZeD-faithful rbit / active
    enumeration — I233/I236 leftovers were inexact.
-6. Push **connected** uniform2 from ~6× to 10× (RedZeD reduce is the wall).
-7. H07 kd-tree / H08 distilled still open, lower priority.
-8. GPU later.
+6. H07 kd-tree on a connected 1-component fill (T+1 sentinels) — metric
+   only; reduce is the wall.
+7. GPU later.

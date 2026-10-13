@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-13 — I240 spatial UF + per-component RedZeD metric
+
+- **Question:** Can we find I239’s G_T components without an n×n matrix, so clustered clouds keep scaling (more points, H0–H2 exact) without the pairwise tax?
+- **Hypothesis:** Cell size T + Moore neighborhood is exact for Euclidean d≤T. Then each block fills only m×m. Blobs (3 clusters, 2-d) should use ~⅓ of the pairs. Uniform2 is 1 component — no change. Shape-agnostic. Exact.
+- **Work:** `spatial_components` (d=2/3) + `finish_redzed_from_points`. Wave 101 vs Ripser. Hard case: blobs n=8000 (seconds). H2: two_spheres n=200 forced redzed-cc.
+- **Result:** **Exact 10/10** (0 unmatched; figure8/two_circles 2=2; sphere void 1=1; two_spheres H0=2 H2=2, 9900 vs 19900 distances). Circle auto-collapse **17×**. Sphere n=400 H2 **59×**. Blobs auto-redzed-cc cc=3: n=4000 **21.9×** (2.67M/8.00M), n=6000 **24.4×** (6.00M/18.0M), n=8000 **27.4×** (0.38s/10.4s, 10.7M/32.0M). Uniform2 n=4000 **5.6×** / full 8.0M pairs.
+- **Decision:** **Support as the from-points RedZeD path.** Topology loss: **0**. Clustered real data now gets cheaper per point as n grows. **Hold** general 10× — connected G_T still allocates n×n and sits at ~6×. Not a better worst-case class.
+- **Class:** experiment (support spatial cc; hold connected 10×)
+
 ## 2026-10-13 — I239 exact G_T component split + parallel RedZeD
 
 - **Question:** Is VR≤T of a disconnected G_T exactly the direct sum of the components, and does splitting + bounded parallel RedZeD push clustered clouds (blobs) past 10× at more points without losing H0–H2 identity or circle/sphere collapse?
