@@ -842,8 +842,8 @@ static double bbox_max_extent(const std::vector<std::vector<value_t>>& pts) {
 // of G_T density on hollow / manifold supports where π(T/L)^d over-
 // estimates (tight bbox) or under-shoots the I256 volume gate.
 // ~31k distances; not a collapse residual (see probe_residual_frac_points).
-static double probe_edge_frac(const std::vector<std::vector<value_t>>& pts, value_t T,
-                              int sample = 250) {
+double probe_edge_frac_points(const std::vector<std::vector<value_t>>& pts, value_t T,
+                             int sample) {
     const int n = static_cast<int>(pts.size());
     if (n < 8 || !(T > 0) || !std::isfinite(T)) return 1.0;
     const int s = std::min(sample, n);
@@ -1130,7 +1130,7 @@ Result persist_redzed_from_points(const std::vector<std::vector<value_t>>& pts, 
             const double frac = (d == 2) ? (3.141592653589793 * tL * tL)
                                          : (4.188790204786391 * tL * tL * tL);
             const bool vol_sparse = frac < 0.20;
-            const bool probe_sparse = !vol_sparse && probe_edge_frac(pts, threshold) < 0.25;
+            const bool probe_sparse = !vol_sparse && probe_edge_frac_points(pts, threshold) < 0.25;
             if (vol_sparse || probe_sparse) spatial = spatial_edges(pts, threshold, SE);
         }
     }

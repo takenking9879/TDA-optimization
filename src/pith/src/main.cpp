@@ -408,7 +408,13 @@ int main(int argc, char** argv) {
                 c.residual_frac = have_pts ? probe_residual_frac_points(pts, threshold, 250)
                                            : probe_residual_frac(dist, threshold, 250);
                 const double tau = (maxdim >= 2) ? 0.15 : 0.04;
-                if (c.residual_frac > tau) engine = "redzed";
+                // I263: collapse residual on 250 pts can look thin on a
+                // manifold (figure8 subsample collapses) while the full
+                // G_T is still sparse enough for spatial+hash. Prefer
+                // redzed when the edge-frac probe is < 0.25.
+                const bool fat = c.residual_frac > tau;
+                const bool hollow = have_pts && probe_edge_frac_points(pts, threshold) < 0.25;
+                if (fat || hollow) engine = "redzed";
             }
             const bool skip_full_metric = (engine == "redzed" && have_pts && gic_n == 0 &&
                                            knn_k == 0 && witness_n == 0 && !reduced_vr &&

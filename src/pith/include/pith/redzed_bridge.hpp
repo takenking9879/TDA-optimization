@@ -22,4 +22,10 @@ Result persist_redzed(const std::vector<std::vector<value_t>>& dist, int maxdim,
 Result persist_redzed_from_points(const std::vector<std::vector<value_t>>& pts, int maxdim,
                                  value_t threshold);
 
+// I263: 250 evenly spaced points, |{d≤T}| / C(m,2). Used by auto
+// dispatch so hollow/manifold clouds take RedZeD (spatial+hash) even
+// when the collapse residual probe looks thin.
+double probe_edge_frac_points(const std::vector<std::vector<value_t>>& pts, value_t T,
+                              int sample = 250);
+
 }  // namespace pith
