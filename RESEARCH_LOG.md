@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-14 — I307 tet face-sign walk (revert)
+
+- **Question:** Does caching `orient(face, opposite)` at tet birth (and skipping the post-walk `contains` recheck) cut the 80k Delaunay metric wall?
+- **Hypothesis:** Walk did 8 orient3s per tet visit; half are fixed signs. Same mesh.
+- **Work:** `fsign[4]` + skip contains. Wave 167 vs I306.
+- **Result:** **Reject.** Identity held (ess2=1 at 80k, same |E|=403615). Clock lost: sphere n=80000 **1.14 vs I306 1.09 s** (metric 539 vs 507 ms). n=50000 **0.69 vs 0.65 s**. Birth-time sign fill ate the walk savings. The wall is not ov recomputation (insphere / cavity / allocation).
+- **Decision:** **Reject and revert.** Do not retry face-sign caching. Next: live-tet list so extract/locate_scan skip dead tets (I275 no slot reuse).
+- **Class:** experiment (reject; exact, no faster; reverted)
+
 ## 2026-10-14 — I306 share leftover g_adj with H2 stream
 
 - **Question:** Do I301’s H2 stream and I302’s leftover_coface rebuild the same growing \(G_r\), and does streaming into `g_adj` (rptr synced, emit after the diam group) cut 3D Delaunay-flag H2 enough to take n=80k?

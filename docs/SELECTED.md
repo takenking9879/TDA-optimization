@@ -742,7 +742,9 @@ Rips is exact and too slow.
    **0.65 vs 0.68 s** (reduce 273 vs 304 ms); n=80000
    **1.09 s / 404k / ess2=1**. Duplicate \(G_r\) build was a ~10%
    reduce tax. Keep; not a selected pith lever. Metric (Delaunay
-   walk) is the 80k wall.
+   walk) is the 80k wall. **I307 fsign-walk reject/revert:** 80k
+   **1.14 vs 1.09 s** (metric 539 vs 507). Do not retry face-sign
+   caching. Next: live-tet list (I308).
    ae_seeded visits remain the exact-H1 wall.
 6. Owned AE leftover-star walk is still Θ(|leftover|·deg★) — rbit cut
    has_leftover_coface, not seeded probes (circle still 875k). I288
