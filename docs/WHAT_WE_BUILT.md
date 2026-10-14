@@ -77,6 +77,10 @@ leftover_miss_dispatch.json; eval_mode_auto 11/11]**. Held-out
 when \(\lvert E\rvert>16n\) or \(\Delta>24\) (53 ms, unmatched 0)
 **[empirical, fat_h2.json]**. Held-out seed-17 `adversarial.json`:
 **0/11** timeout misses, **0/8** exact-vs-Ripser mismatches.
+Post-freeze seed 23 (`postfreeze.json`): **0/10** timeout misses;
+one thin-circle `|E|>8e6` scale miss (nonuniform_circle \(n=6000\),
+exact 5.67 s) is now overridden when the thin leftover H1 clock is
+under 4 s **[empirical]**.
 
 `--estimate` bands cover **48/48** scored recommended-mode walls
 (`eval_estimate.py`, leftover-miss included). Hollow leftover \(H_1\)
