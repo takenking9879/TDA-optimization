@@ -35,6 +35,8 @@ DORY_LIM_PATH = BENCH / "results" / "consolidation" / "dory_limits.json"
 DORY_LIM = json.loads(DORY_LIM_PATH.read_text()) if DORY_LIM_PATH.exists() else {}
 OINEUS_PATH = BENCH / "results" / "consolidation" / "oineus.json"
 OINEUS = json.loads(OINEUS_PATH.read_text()) if OINEUS_PATH.exists() else {}
+DION_PATH = BENCH / "results" / "consolidation" / "dionysus.json"
+DION = json.loads(DION_PATH.read_text()) if DION_PATH.exists() else {}
 U10_PATH = BENCH / "results" / "consolidation" / "uniform10.json"
 U10 = json.loads(U10_PATH.read_text()) if U10_PATH.exists() else {}
 HIGHD_PATH = BENCH / "results" / "consolidation" / "highd_auto.json"
@@ -1041,6 +1043,58 @@ if OINEUS:
             series,
             "1-thread leftover cells: Oineus vs PITH vs Ripser",
             "cell index (see TABLES.md Oineus section)",
+            "wall seconds",
+            logx=False,
+            logy=True,
+        )
+
+if DION:
+    rows.append("")
+    rows.append("## Dionysus 2.2.3 (`fill_rips` + homology, 1 thread)")
+    rows.append(
+        f"{DION.get('note', '')} Budget {DION.get('budget_s')} s. "
+        f"dionysus {DION.get('dionysus_version')}. Not vendored. "
+        "Explicit VR skeleton. Same pairing class as GUDHI Rips."
+    )
+    rows.append(
+        "| family | n | dim | Dionysus (s) | PITH (s) | Ripser (s) | simplices | Dionysus/PITH | ess H1 |"
+    )
+    rows.append("| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |")
+    dion_bars = []
+    for d in DION.get("receipts") or []:
+        dio = d.get("dionysus") or {}
+        pith = d.get("pith") or {}
+        rip = d.get("ripser") or {}
+        dw = dio.get("wall_s")
+        pw = pith.get("wall_s")
+        rw = rip.get("wall_s")
+        dp = d.get("dionysus_over_pith")
+        rows.append(
+            "| {fam} | {n} | {dim} | {dw} | {pw} | {rw} | {sim} | {dp} | {ess} |".format(
+                fam=d.get("name"),
+                n=d.get("n"),
+                dim=d.get("maxdim"),
+                dw="timeout" if dio.get("timed_out") else ("" if dw is None else f"{dw:.3f}"),
+                pw="" if pw is None else f"{pw:.3f}",
+                rw="" if rw is None else f"{rw:.3f}",
+                sim="" if dio.get("n_simplices") is None else dio.get("n_simplices"),
+                dp="" if dp is None else f"{dp:.1f}×",
+                ess="" if dio.get("ess1") is None else dio.get("ess1"),
+            )
+        )
+        if dw and pw and rw:
+            dion_bars.append((f"{d.get('name')} n={d.get('n')}", dw, pw, rw))
+    if dion_bars:
+        series = [
+            {"name": "Dionysus", "xy": [(i + 1, t[1]) for i, t in enumerate(dion_bars)]},
+            {"name": "PITH exact", "xy": [(i + 1, t[2]) for i, t in enumerate(dion_bars)]},
+            {"name": "Ripser", "xy": [(i + 1, t[3]) for i, t in enumerate(dion_bars)]},
+        ]
+        svg_scatter(
+            FIG / "runtime_dionysus.svg",
+            series,
+            "1-thread leftover cells: Dionysus vs PITH vs Ripser",
+            "cell index (see TABLES.md Dionysus section)",
             "wall seconds",
             logx=False,
             logy=True,
