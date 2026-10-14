@@ -1,6 +1,6 @@
 # Selected algorithm (living)
 
-Updated 2026-10-14 after iterations I001–I312 plus consolidation (phase 3)
+Updated 2026-10-14 after iterations I001–I313 plus consolidation (phase 3)
 and the fused Euclidean sparse constructor.
 **Stable CLI:** `--mode exact|scale|sparse|auto`, `--engine auto|redzed|implicit`,
 `--estimate`, `--threads N`. Public runners import `generate_datasets` /
@@ -20,7 +20,8 @@ Leftover 10× is n-dependent (`leftover_ratio_n.json`): sphere H1
 **11.4×** at \(n=4000\); uniform2 **9.1×** at \(n=7000\). Frozen pack
 stays **3/6**. Held-out leftover (`leftover_heldout.json`, seed 19):
 **4/7 ≥10×** after dropping collapse walls. Leftover-miss n-series
-(`leftover_miss_n.json`): anisotropic 5.3→8.8→6.6× and grid_holes
+(`leftover_miss_n.json`): anisotropic 7.4→8.8→8.6→8.8× (I314 dropped
+the bbox-volume spatial false positive) and grid_holes
 3.0→6.1×, **0/7 ≥10×**. `--mode auto` now stays exact on those
 n=8000 fat leftover cells when `est_exact≤4` s; hollow `|E|>8e6`
 (figure8 n=16000) still goes to scale (`leftover_miss_dispatch.json`,

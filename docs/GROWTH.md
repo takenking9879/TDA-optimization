@@ -67,7 +67,7 @@ Leftover-miss families scaled in n (`leftover_miss_n.json`, seed 19, 1 thread):
 
 | series | n | ratio | local \(p\) PITH / Ripser |
 | --- | ---: | ---: | --- |
-| anisotropic_blob | 2000→4000→6000→8000 | 5.3→6.0→8.8→6.6× | \(p=2.14/2.32\), then \(1.21/2.15\) (`redzed-cc`), then **3.49/2.48** (`redzed-spatial`; ratio recedes) |
+| anisotropic_blob | 2000→4000→6000→8000 | 7.4→8.8→8.6→8.8× | I314: all-pairs (`auto-redzed`); \(p\approx 2.0\)–\(2.2\). No longer recedes from a bbox-volume spatial tax. Still **not** ≥10×. |
 | grid_holes | 1600→4000→8000 | 3.0→5.0→6.1× | \(p=2.03/2.59\) then \(2.76/3.05\) (climbs; both leaving cheap) |
 
 **0/7 ≥10×.** Growing n does not turn these misses into a leftover 10×. Anisotropic peaks then recedes when the representation flips. Grid-holes stays a mid-single-digit factor while both engines enter \(p\approx 3\). Ripser hits the 12 s budget on anisotropic \(n=8000\) (12.1 s); PITH is still 1.83 s.

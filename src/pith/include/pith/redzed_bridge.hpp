@@ -22,7 +22,7 @@ Result persist_redzed(const std::vector<std::vector<value_t>>& dist, int maxdim,
 // I244: finite T skips vendor enclosing (exact for VR≤T).
 // I245: parallel build_edges (same buckets + finish_buckets).
 Result persist_redzed_from_points(const std::vector<std::vector<value_t>>& pts, int maxdim,
-                                 value_t threshold);
+                                 value_t threshold, bool dense_metric = false);
 
 // I263: 250 evenly spaced points, |{d≤T}| / C(m,2). Used by auto
 // dispatch so hollow/manifold clouds take RedZeD (spatial+hash) even

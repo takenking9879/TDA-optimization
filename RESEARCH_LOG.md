@@ -5,6 +5,14 @@ Do not paste long reasoning here.
 
 ---
 
+## 2026-10-14 — I314 spatial gate: probe-only, not bbox volume
+
+- **Question:** Is leftover-miss anisotropic n=8000 a pairing wall (1.83 s) or a bbox-volume spatial false positive? Any new leftover pairing idea that is not a spent skip?
+- **Work:** `--dense-metric` forces all-pairs RedZeD. Live `dense_metric.json` **0 unmatched**. anisotropic edge_frac≈0.31 (not hollow) but I263 `vol_sparse` forced spatial. Default spatial now only if 250-pt edge-frac `<0.25`. τ / leftover skips unchanged. EuclideanPH1 kd-tree lunes not started — I224/I225 already lost the clock to lune membership.
+- **Result:** leftover_10x still **3/6**. leftover_miss_n still **0/7 ≥10×**. anisotropic 7.4→8.8→8.6→8.8× (n=8000 1.22 vs 10.8 s, all-pairs). grid_holes stays spatial (edge_frac≈0.04; dense is slower). figure8 stays spatial **17×**. Not a leftover 10×. Not a new pairing class.
+- **Decision:** Keep the probe-only spatial gate and experimental `--dense-metric`. Do not retune τ. Goal not complete.
+- **Class:** verified (live)
+
 ## 2026-10-14 — I313 implicit cohomology H2
 
 - **Question:** Can `--engine implicit` do exact H2 without `persist_sparse` tet lists (the remaining fat-H2 wall), without leftover-skip hunting?

@@ -31,7 +31,7 @@ def main():
         print("stable --help missing --mode auto", file=sys.stderr)
         return 1
     exp = subprocess.check_output([str(PITH), "--help-experimental"], text=True, stderr=subprocess.STDOUT)
-    if "--delaunay-vr" not in exp:
+    if "--delaunay-vr" not in exp or "--dense-metric" not in exp:
         print("experimental help missing compat flags", file=sys.stderr)
         return 1
 

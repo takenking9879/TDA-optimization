@@ -119,7 +119,8 @@ All of the following, together:
    Ripser on leftover families **and** on held-out families frozen
    after the dispatcher. Live: frozen pack **3/6**, held-out leftover
    **4/7** (`leftover_heldout.json`), leftover-miss n-series **0/7**
-   (`leftover_miss_n.json`; anisotropic recedes after 8.8×).
+   (`leftover_miss_n.json`; anisotropic 7.4→8.8× after I314, still
+   not 10×).
    Post-freeze linked_circles grows 6.6→32.2×; sheared_loops peaks
    9.87× then recedes to 8.53× (`linked_ratio_n.json`, 4/11 ≥10×).
    Post-16× offset_rings grows 15.8→20.6× (`postband.json`, 3/3 timed

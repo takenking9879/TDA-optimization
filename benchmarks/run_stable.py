@@ -36,6 +36,7 @@ RECEIPTS = [
     "reverify_leftover_10x.py",
     "reverify_fat_h2.py",
     "eval_implicit_h2.py",
+    "eval_dense_metric.py",
     "collect_topology_claims.py",
     "plot_consolidation.py",
     "plot_pd.py",

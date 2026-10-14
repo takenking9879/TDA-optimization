@@ -2404,7 +2404,7 @@ Result persist_redzed(const std::vector<std::vector<value_t>>& dist, int maxdim,
 }
 
 Result persist_redzed_from_points(const std::vector<std::vector<value_t>>& pts, int maxdim,
-                                 value_t threshold) {
+                                 value_t threshold, bool dense_metric) {
     const int n = static_cast<int>(pts.size());
     if (n <= 0 || maxdim < 0) {
         Result r;
@@ -2474,12 +2474,13 @@ Result persist_redzed_from_points(const std::vector<std::vector<value_t>>& pts, 
     if (std::isfinite(threshold) && threshold > 0 && d >= 2 && d <= 3 && n >= 256) {
         const double L = bbox_max_extent(pts);
         if (L > 0) {
-            const double tL = static_cast<double>(threshold) / L;
-            const double frac = (d == 2) ? (3.141592653589793 * tL * tL)
-                                         : (4.188790204786391 * tL * tL * tL);
-            const bool vol_sparse = frac < 0.20;
-            const bool probe_sparse = !vol_sparse && probe_edge_frac_points(pts, threshold) < 0.25;
-            if (vol_sparse || probe_sparse) spatial = spatial_edges(pts, threshold, SE);
+            // I314: bbox volume (π(T/L)^d) treats elongated clouds as
+            // hollow (anisotropic edge_frac≈0.31, n=8000 spatial tax).
+            // Spatial only when the 250-pt edge-frac probe is < 0.25
+            // (figure8 / grid_holes). --dense-metric forces all-pairs.
+            // τ / residual_frac unchanged.
+            const bool probe_sparse = probe_edge_frac_points(pts, threshold) < 0.25;
+            if (!dense_metric && probe_sparse) spatial = spatial_edges(pts, threshold, SE);
         }
     }
     DistanceMatrix D;

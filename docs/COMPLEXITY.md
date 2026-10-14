@@ -839,7 +839,7 @@ edge-frac \(<0.25\) → RedZeD; `maxdim=0` → Kruskal / Delaunay.
   **17.0×**; blobs \(n=4000\) H1 **12.9×**; uniform2 \(n=5000\)
   **8.1×**; sphere \(n=2000\) H1 **8.5×**; **3/6 leftover families
   ≥10×** at frozen sizes; held-out leftover **4/7**; leftover-miss
-  n-series **0/7** (anisotropic recedes 8.8→6.6×); post-freeze
+  n-series **0/7** (anisotropic 7.4→8.8× after I314; still not 10×); post-freeze
   linked_circles 6.6→**32.2×** (grows); sheared_loops 2.93→9.87→8.53×
   (never ≥10×; pack **4/11**); post-16× offset_rings 15.8→**20.6×**
   (`postband.json`, estimate 2/4). Circle \(n=1000\)

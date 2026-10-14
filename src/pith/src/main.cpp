@@ -56,6 +56,7 @@ static void usage_experimental() {
         << "  --sparse-eps EPS  --sparse-cap max|min\n"
         << "  --witness-n M  --witness-nu K  --knn K  --gic-n M  --gic-k K\n"
         << "  --reduced-vr  --delaunay-vr  --delaunay-alpha A|auto\n"
+        << "  --dense-metric          force all-pairs RedZeD metric (no spatial G_T)\n"
         << "  --delaunay-adapt  --delaunay-floor F\n"
         << "  --probe-only  --probe-vertex\n"
         << "Iteration numbers live in RESEARCH_LOG.md, not this interface.\n";
@@ -637,6 +638,7 @@ int main(int argc, char** argv) {
     int gic_n = 0;
     int gic_k = 16;
     bool reduced_vr = false;
+    bool dense_metric = false;
     bool delaunay_vr = false;
     value_t delaunay_alpha = 1;
     value_t delaunay_floor = 0;
@@ -669,6 +671,7 @@ int main(int argc, char** argv) {
         else if (a == "--gic-n") gic_n = std::stoi(need("--gic-n"));
         else if (a == "--gic-k") gic_k = std::stoi(need("--gic-k"));
         else if (a == "--reduced-vr") reduced_vr = true;
+        else if (a == "--dense-metric") dense_metric = true;
         else if (a == "--delaunay-vr") delaunay_vr = true;
         else if (a == "--delaunay-alpha") {
             const std::string v = need("--delaunay-alpha");
@@ -996,7 +999,7 @@ int main(int argc, char** argv) {
         Result r;
         if (engine == "redzed") {
             if (have_pts && dist.empty()) {
-                r = persist_redzed_from_points(pts, maxdim, threshold);
+                r = persist_redzed_from_points(pts, maxdim, threshold, dense_metric);
                 c.n_distances = r.counters.n_distances;
                 c.metric_ms = r.counters.metric_ms;
             } else if (dist.empty()) {
