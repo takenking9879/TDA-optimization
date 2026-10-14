@@ -1,6 +1,6 @@
 # Selected algorithm (living)
 
-Updated 2026-10-14 after iterations I001–I313 plus consolidation (phase 3)
+Updated 2026-10-14 after iterations I001–I316 plus consolidation (phase 3)
 and the fused Euclidean sparse constructor.
 **Stable CLI:** `--mode exact|scale|sparse|auto`, `--engine auto|redzed|implicit`,
 `--estimate`, `--threads N`. Public runners import `generate_datasets` /
@@ -338,7 +338,10 @@ distance matrix is present. Same triangles as I224. Construction
 **2.3–3.7×** vs I224 (median 2.7×; circle n=500 2617→701 ms). Still
 **0.42×** vs Ripser there; default collapse+implicit is 15 ms. The
 remaining build cost is finding the lune (neighbor merge), not
-connectivity. Not selected as default. Topology loss: **0**.
+connectivity. **I316 leftover scale:** figure8 \(n=2000\) build 17.9 s
+vs auto RedZeD 0.15 s; uniform2/sphere/anisotropic timeout 20 s.
+kd-tree lunes are not a leftover 10× path. Not selected as default.
+Topology loss: **0**.
 
 ### I227 real RedZeD (H09, MIT, not default)
 
