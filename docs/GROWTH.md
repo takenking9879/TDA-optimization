@@ -112,7 +112,8 @@ The sparse exponent is the FPS \(\Theta(n^2)\) wall, not leftover algebra.
 thin 2.2 / hollow 1.8 / else 2.4), not a per-series fit from this file.
 `eval_estimate.py` scores the recommended-mode wall against
 `[est_runtime_lo, est_runtime_hi]`. After a 5 ms exact overhead and a
-25 ms hi-floor (small-n process tax), **32/32** scored walls sit in band.
+25 ms hi-floor (small-n process tax) and the \(n_{cc}\) fat-H2 band,
+**42/42** scored walls sit in band.
 It does **not** change `engine_rec` or \(\tau\).
 `--estimate` also emits `wall_kind`: `collapse` on thin residuals
 (circle 32× is collapse, not pairing), `leftover` on fat/hollow exact

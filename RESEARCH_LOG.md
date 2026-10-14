@@ -5,6 +5,14 @@ Do not paste long reasoning here.
 
 ---
 
+## 2026-10-14 — Homology fat H2 + estimate re-score
+
+- **Question:** Does `--engine homology` still hang on mixed fat H2, and do the \(n_{cc}\) bands still cover recommended-mode walls?
+- **Work:** Same Δ>24 / `|E|>16n` gate; H0/H1 from `persist_sparse` maxdim=1, H2 from RedZeD-on-edges. `eval_estimate` now reads `fat_h2.json`.
+- **Result:** mixed n=300 homology **0.225 s**, unmatched 0 (pipeline `+homology-redzed-h2`). `eval_estimate` **42/42** in band (was 32/32; mixed n=300 exact 0.033 s now scored). τ frozen.
+- **Decision:** Keep. Goal not complete.
+- **Class:** verified (live)
+
 ## 2026-10-14 — Implicit fat H2 uses RedZeD, not persist_sparse
 
 - **Question:** Can forced `--engine implicit` stop hanging on mixed fat H2 without a leftover skip or τ change?

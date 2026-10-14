@@ -33,7 +33,7 @@ hollow, exact \(H_0\) on the 2D/3D Delaunay skeleton, and an optional
 | Exact VR, same barcode as Ripser | An **automatic engine**: collapse + implicit cohomology when the residual is thin; RedZeD (active enumeration) when it is not. Sparse \(G_T\) when the cloud is hollow. |
 | Exact \(H_0\) in 2D/3D | Kruskal on the Delaunay 1-skeleton (the MST sits inside Delaunay). \(\Theta(n)\) edges instead of all pairs. |
 | Large Euclidean clouds | `--mode scale`: flag of a Delaunay / local-radius graph. **Not** Vietoris–Rips. Essential loops and voids are kept on the tested families; finite bars differ. |
-| Feasibility | `--estimate` guesses graph size, residual regime, `wall_kind` (collapse vs leftover vs construction), and whether exact VR is reasonable (`auto_will_run` is false when the recommended path is known to hang). Runtime lo/hi bands cover **32/32** scored recommended-mode walls (`eval_estimate.py`). `wall_kind` matches measured collapse vs leftover share **20/20**. `--mode auto` follows that probe (default stays `--mode exact` so scripts do not silently change complex). |
+| Feasibility | `--estimate` guesses graph size, residual regime, `wall_kind` (collapse vs leftover vs construction), and whether exact VR is reasonable (`auto_will_run` is false when the recommended path is known to hang). Runtime lo/hi bands cover **42/42** scored recommended-mode walls (`eval_estimate.py`). `wall_kind` matches measured collapse vs leftover share **20/20**. `--mode auto` follows that probe (default stays `--mode exact` so scripts do not silently change complex). |
 | Fair timing | `--threads N` caps workers. Measured 1-thread vs hardware vs Ripser (always 1 thread). |
 
 Internal experiment numbers live in [`RESEARCH_LOG.md`](RESEARCH_LOG.md),
@@ -311,7 +311,7 @@ Full numbers: [`benchmarks/results/consolidation/TABLES.md`](benchmarks/results/
   (exit 3, `auto_will_run=false`). That path hung at 25 s on 4D
   `uniform4` \(n=250\). Explicit `--mode sparse` still runs.
 - `--estimate` is a probe plus conservative cutoffs. Runtime bands covered
-  **32/32** scored walls after a 5 ms exact overhead and 25 ms hi-floor.
+  **42/42** scored walls after a 5 ms exact overhead, 25 ms hi-floor, and the \(n_{cc}\) fat-H2 model.
   It can still pick the slower exact engine (see `heavy_noise_circle`,
   `disconnected_circles`, `two_spheres_apart`).   On high-d `uniform10`
   \(n=4000\) it still marks exact uncomfortable, but `--mode auto` now

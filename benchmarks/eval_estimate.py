@@ -103,6 +103,23 @@ def collect_measured() -> list[dict]:
                         "source": "limits",
                     }
                 )
+    fat = _load("fat_h2.json")
+    for r in fat.get("series") or []:
+        runs = r.get("runs") or {}
+        for mode, key in (("exact", "exact_auto"), ("scale", "scale")):
+            run = runs.get(key) or {}
+            if run.get("ok") and run.get("wall_s"):
+                rows.append(
+                    {
+                        "name": r.get("name"),
+                        "n": r.get("n"),
+                        "T": r.get("T"),
+                        "maxdim": r.get("maxdim", 2),
+                        "mode": mode,
+                        "wall_s": run["wall_s"],
+                        "source": "fat_h2",
+                    }
+                )
     # Prefer later sources (sparse_scale over sparse_limits over baselines).
     best = {}
     for r in rows:

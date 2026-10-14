@@ -1010,7 +1010,7 @@ int main(int argc, char** argv) {
         } else if (delaunay_vr && maxdim >= 1) {
             r = persist_redzed_from_edges(g.n, g.edges, maxdim, threshold);
             used_redzed_thicken = true;
-        } else if (use_implicit && maxdim >= 2 && [&]() {
+        } else if (maxdim >= 2 && (use_implicit || engine == "homology") && [&]() {
                        int max_deg = 0;
                        if (g.neighbors.size() == static_cast<size_t>(std::max(g.n, 0))) {
                            for (const auto& nb : g.neighbors)
@@ -1027,7 +1027,8 @@ int main(int argc, char** argv) {
             // Same flag; RedZeD H2 is exact VR. Thin flags (|E|≤16n)
             // keep persist_sparse — RedZeD generate_stream was a tax on
             // planar Delaunay H2 (figure8 n=16000).
-            Result r1 = persist_implicit_coh(g, 1, threshold, ratio);
+            Result r1 = use_implicit ? persist_implicit_coh(g, 1, threshold, ratio)
+                                     : persist_sparse(g, 1, threshold, ratio);
             Result r2 = persist_redzed_from_edges(g.n, g.edges, maxdim, threshold);
             r.pairs.reserve(r1.pairs.size() + r2.pairs.size());
             for (const auto& p : r1.pairs)

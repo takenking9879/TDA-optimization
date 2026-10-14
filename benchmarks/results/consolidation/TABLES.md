@@ -493,7 +493,7 @@ Agreement 11/11. `refuse` means the probe named sparse but auto exits 3 instead 
 | uniform4 | 250 | 2 | sparse | refuse | True | True |
 
 ## `--estimate` vs measured wall (`eval_estimate.py`)
-Recommended-mode wall inside `[est_runtime_lo, est_runtime_hi]`: 32/32. Empirical bands; τ frozen.
+Recommended-mode wall inside `[est_runtime_lo, est_runtime_hi]`: 42/42. Empirical bands; τ frozen.
 | family | n | maxdim | rec | wall (s) | lo | hi | ratio | in band |
 | --- | ---: | ---: | --- | ---: | ---: | ---: | ---: | --- |
 | circle_noisy | 200 | 1 | exact | 0.005 | 0.003 | 0.026 | 0.78 | True |
@@ -521,7 +521,12 @@ Recommended-mode wall inside `[est_runtime_lo, est_runtime_hi]`: 32/32. Empirica
 | grid_holes | 400 | 1 | exact | 0.004 | 0.002 | 0.025 | 0.70 | True |
 | grid_holes | 800 | 1 | exact | 0.007 | 0.002 | 0.025 | 1.13 | True |
 | many_loops | 400 | 1 | exact | 0.004 | 0.002 | 0.025 | 0.65 | True |
-| mixed_1d2d3d | 300 | 2 | scale | 0.005 | 0.002 | 0.036 | 0.86 | True |
+| mixed_1d2d3d | 300 | 2 | exact | 0.033 | 0.026 | 3.870 | 0.05 | True |
+| mixed_1d2d3d | 600 | 2 | exact | 0.237 | 0.205 | 30.750 | 0.05 | True |
+| mixed_1d2d3d | 1000 | 2 | exact | 1.074 | 0.950 | 142.466 | 0.05 | True |
+| mixed_1d2d3d | 2000 | 2 | scale | 0.051 | 0.002 | 0.240 | 1.26 | True |
+| multi_cavities | 300 | 2 | exact | 0.010 | 0.003 | 0.510 | 0.12 | True |
+| multi_cavities | 600 | 2 | exact | 0.066 | 0.026 | 3.870 | 0.10 | True |
 | nested_loops | 400 | 1 | exact | 0.009 | 0.003 | 0.028 | 1.29 | True |
 | nested_loops | 1000 | 1 | exact | 0.037 | 0.007 | 0.071 | 2.10 | True |
 | nested_loops | 2000 | 1 | exact |  | 0.023 | 0.227 |  | None |
@@ -530,11 +535,16 @@ Recommended-mode wall inside `[est_runtime_lo, est_runtime_hi]`: 32/32. Empirica
 | nonuniform_circle | 400 | 1 | exact | 0.012 | 0.005 | 0.046 | 1.02 | True |
 | sphere | 200 | 2 | exact | 0.007 | 0.003 | 0.026 | 1.10 | True |
 | sphere | 400 | 2 | exact | 0.017 | 0.005 | 0.046 | 1.53 | True |
+| sphere_complete | 80 | 2 | exact | 0.013 | 0.002 | 0.276 | 0.29 | True |
+| sphere_complete | 150 | 2 | exact | 0.085 | 0.011 | 1.650 | 0.31 | True |
+| sphere_complete | 250 | 2 | exact | 0.468 | 0.050 | 7.530 | 0.37 | True |
 | torus | 400 | 1 | exact | 0.009 | 0.003 | 0.028 | 1.29 | True |
 | torus | 1000 | 1 | exact | 0.040 | 0.007 | 0.067 | 2.39 | True |
 | two_spheres_apart | 300 | 2 | exact | 0.019 | 0.002 | 0.025 | 3.11 | True |
 | uniform2 | 500 | 1 | exact | 0.008 | 0.003 | 0.034 | 0.91 | True |
 | uniform2 | 1000 | 1 | exact | 0.018 | 0.007 | 0.073 | 0.96 | True |
+| uniform3 | 200 | 2 | exact | 0.010 | 0.003 | 0.026 | 1.55 | True |
+| uniform3 | 300 | 2 | exact | 0.019 | 0.003 | 0.034 | 2.19 | True |
 | uniform4 | 400 | 1 | exact |  | 0.005 | 0.046 |  | None |
 | uniform4 | 800 | 1 | exact |  | 0.012 | 0.121 |  | None |
 | uniform4 | 1600 | 1 | exact |  | 0.043 | 0.429 |  | None |
