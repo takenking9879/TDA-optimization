@@ -100,21 +100,26 @@ flags kept for old scripts.
 On **this** hardware (4 CPUs, 16 GB, no GPU), under a **12 s** wall budget.
 1-thread PITH vs 1-thread Ripser unless noted.
 
-| Task | Ripser VR | PITH exact (1 thr) | PITH scale |
-| --- | --- | --- | --- |
-| Noisy circle \(H_1\), \(n=1000\) | 2.21 s | **0.070 s (31×)** | not needed |
-| Noisy circle \(H_1\), \(n=2000\) | timeout (>12 s) | 0.43 s (phase 2) | not needed |
-| Figure-8 \(H_1\), \(n=4000\) | timeout (>12 s) | **1.03 s** | 0.09 s, ess \(H_1=2\) |
-| Figure-8 \(H_1\), \(n=24000\) | impractical | leftover wall | **0.79 s**, ess \(H_1=2\) |
-| Sphere \(H_2\), \(n=400\) | 1.02 s | **0.017 s (60×)** | 6 ms, ess \(H_2=1\) |
-| Sphere \(H_2\), \(n=800\) | timeout (>12 s) | **0.057 s** | small |
-| Sphere \(H_0{+}H_1{+}H_2\), \(n=80000\) | impractical | impractical as dense VR | **1.08 s**, ess \(H_2=1\) |
-| Nested loops \(H_1\), \(n=2000\) | 6.44 s | **0.29 s** | 0.036 s |
-| Blobs \(H_0\), \(n=25000\) | tens of seconds | **0.053 s** (Delaunay) | n/a |
-| Mixed 1D/2D/3D, \(n=300\), `maxdim=2` | 0.13 s | **timeout** (fat H2) | **5 ms** |
+| Task | Ripser | giotto-ph t1 | giotto-ph t4 | GUDHI Rips | PITH exact (1 thr) | PITH scale |
+| --- | --- | --- | --- | --- | --- | --- |
+| Noisy circle \(H_1\), \(n=1000\) | 2.16 s | 2.47 s | 2.44 s | timeout | **0.068 s (32× / 36× giotto)** | not needed |
+| Noisy circle \(H_1\), \(n=2000\) | timeout | — | — | — | 0.43 s (phase 2) | not needed |
+| Figure-8 \(H_1\), \(n=2000\) | 2.51 s | 2.81 s | 2.78 s | timeout | **0.152 s (16×)** | 34 ms, ess \(H_1=2\) |
+| Figure-8 \(H_1\), \(n=4000\) | timeout | — | — | — | **1.03 s** | 0.09 s, ess \(H_1=2\) |
+| Figure-8 \(H_1\), \(n=24000\) | impractical | — | — | — | leftover wall | **0.79 s**, ess \(H_1=2\) |
+| Sphere \(H_2\), \(n=400\) | 1.02 s | 1.12 s | 0.62 s | timeout | **0.017 s (60×; 36× vs giotto-4)** | 7 ms, ess \(H_2=1\) |
+| Sphere \(H_2\), \(n=800\) | timeout | — | — | — | **0.057 s** | small |
+| Sphere, \(n=80000\) | impractical | — | — | — | impractical as dense VR | **1.08 s**, ess \(H_2=1\) |
+| Nested loops \(H_1\), \(n=2000\) | 6.44 s | — | — | — | **0.29 s** | 0.036 s |
+| Blobs \(H_0\), \(n=25000\) | tens of seconds | — | — | — | **0.053 s** (Delaunay) | n/a |
+| Mixed 1D/2D/3D, \(n=300\), `maxdim=2` | 0.13 s | — | — | — | **timeout** (fat H2) | **5 ms** |
 
-The headline exact ratios **hold at 1 thread**. Hardware threads (4) change
-circle \(n=1000\) from 0.070 s to 0.069 s — not the source of the 31×.
+The headline exact ratios **hold at 1 thread**, and they still hold against
+**4-thread giotto-ph**. Hardware threads (4) change circle \(n=1000\) from
+0.068 s to 0.069 s — not the source of the 32×. giotto-ph’s 4 threads help
+sphere \(H_2\) (1.12→0.62 s) and do **not** speed up \(H_1\).
+
+![Exact VR vs Ripser / giotto-ph / GUDHI](benchmarks/results/consolidation/figures/runtime_baselines.svg)
 
 ![Exact VR runtime](benchmarks/results/consolidation/figures/runtime_exact.svg)
 
@@ -142,9 +147,14 @@ figure-8, five on `many_loops`, one void on a sphere, three voids on
 | sphere | match | 52 | 0.024 | 0.21 | ess \(H_2=1\) kept |
 | multi_cavities | match | 52 | 0.041 | — | ess \(H_2=3\) kept |
 | mixed 1D/2D/3D | exact timed out | 35 | 0.030 | — | `--mode auto` → scale |
+| disconnected circles (held-out) | match | 0 | \(\sim 10^{-6}\) | \(\sim 10^{-6}\) | ess \(H_0=2,H_1=2\) |
+| grid holes (post-freeze) | match | 0 | \(\sim 10^{-6}\) | \(\sim 10^{-6}\) | ess \(H_1=2\) |
+| two spheres apart (post-freeze) | match | 45 | 0.028 | 0.21 | ess \(H_2=2\); \(W_1(H_2)=0.026\) |
 
-GUDHI Alpha on the same clouds reports ess \(H_1=H_2=0\). Sparse Rips
-kept essential 2D loops; it failed / was slow on some 3D clouds.
+GUDHI Alpha on the same clouds reports ess \(H_1=H_2=0\) and merges far
+components into one \(H_0\). Sparse Rips kept essential 2D loops; it
+failed / was slow on some 3D clouds. giotto-ph diagrams match Ripser
+(6/6, including post-freeze families).
 
 Persistence diagrams at \(n=400\) (filled = essential; scale is **not** VR):
 
@@ -155,18 +165,19 @@ Persistence diagrams at \(n=400\) (filled = essential; scale is **not** VR):
 ## Dispatcher: when it is right, and when it is wrong
 
 `--estimate` and `--engine auto` share a 250-point residual / edge-fraction
-probe. A **1-thread oracle** (run both exact engines) on held-out families:
+probe. A **1-thread oracle** (run both exact engines):
 
-| Result | Count |
-| --- | --- |
-| Recommended engine was the faster one | 7 / 8 |
-| Wrong: `heavy_noise_circle` \(n=400\) (thin residual → implicit) | waste **2.1×** (11 ms vs 5 ms RedZeD) |
+| Suite | Recommended engine was faster | Misses |
+| --- | ---: | --- |
+| Phase-2 (incl. `heavy_noise_circle`) | 7 / 8 | thin → implicit; waste **2.1×** (11 vs 5 ms) |
+| Phase-3 held-out / post-freeze | 5 / 9 | `disconnected_circles`, `nonuniform_circle` (thin → implicit, 1.3–1.6×); `two_spheres_apart` (hollow → RedZeD, **2.75×**, 16 vs 6 ms) |
 
-A second miss, caught by the adversarial suite: mixed 1D/2D/3D at
-`maxdim=2` is a **fat H2** residual. Exact timed out at \(n=300\); `--estimate`
-now marks exact infeasible and recommends `--mode scale`. Auto-dispatch now
-probes from \(n\ge 64\) (was 400), so a 200-point L1 matrix uses RedZeD
-instead of paying for collapse.
+`--mode auto` (exact vs scale vs sparse) matched the probe **8/8** then
+**9/9** on the new families. \(\tau\) was **not** retuned after the
+post-freeze misses — they cost tens of milliseconds, not a change of
+regime. Mixed 1D/2D/3D at `maxdim=2` is a **fat H2** residual: exact
+timed out at \(n=300\); `--estimate` marks exact infeasible and
+recommends `--mode scale`. Auto-dispatch probes from \(n\ge 64\).
 
 ![Dispatcher regime](benchmarks/results/consolidation/figures/dispatcher.svg)
 
@@ -178,11 +189,15 @@ Full numbers: [`benchmarks/results/consolidation/TABLES.md`](benchmarks/results/
   the same complexity class as Ripser (active leftover visits).
 - Exact \(H_2\) on a **fat** residual can time out at a few hundred points
   (mixed 1D/2D/3D). Use `--estimate` or `--mode scale`.
-- `--estimate` is a probe plus conservative cutoffs. It can still be wrong
-  (see `heavy_noise_circle`).
+- `--estimate` is a probe plus conservative cutoffs. It can still pick the
+  slower exact engine (see `heavy_noise_circle`, `disconnected_circles`,
+  `two_spheres_apart`).
 - `--mode scale` requires Euclidean \(d\in\{2,3\}\) and is not a VR barcode.
-- giotto-ph is not installed here. GUDHI Rips is a slow exact baseline;
-  GUDHI Wasserstein was skipped (POT missing). Ripser++ was not built (no GPU).
+- GUDHI Rips (explicit) times out by \(n\sim 10^3\) on these \(H_1\)
+  clouds. GUDHI Alpha is fast and **not** a VR stand-in.
+- giotto-ph 0.2.4 is an AGPL **oracle**, not a vendored engine. On this
+  4-core box it tracks Ripser; 4 threads help \(H_2\) only.
+- Ripser++ was not built (no GPU).
 - `--threads 1` is the fair comparison. Default PITH may use every core for
   a few scans; that is **not** where the 30–60× exact ratios come from.
 

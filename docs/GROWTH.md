@@ -56,3 +56,23 @@ Hardware: 4 CPU / 16 GB. Phase-2 exact times are 1-thread unless noted.
 
 The feasibility probe uses these regimes: fat `maxdim≥2` or conservative `|E|>8e6`
 means exact VR is marked impractical.
+
+## Phase-3 baselines (giotto-ph / GUDHI, local \(p\) only)
+
+Two-point slopes from `baselines.json`. Same hardware. Not theorems.
+
+| series | n0→n1 | p_time |
+| --- | --- | ---: |
+| circle PITH exact | 500→1000 | 1.98 |
+| circle Ripser | 500→1000 | 2.85 |
+| circle giotto t1 | 500→1000 | 2.82 |
+| circle GUDHI Rips | 200→500 | 3.28 (then timeout at 1000) |
+| figure8 PITH exact | 1000→2000 | 2.74 |
+| figure8 Ripser | 1000→2000 | 4.00 |
+| figure8 giotto t1 | 1000→2000 | 3.87 |
+| sphere Ripser / giotto t1 | 200→400 | 3.03 / 2.98 |
+| disconnected_circles Ripser / giotto | 400→1000 | 2.96 / 2.87 |
+| dense RGG GUDHI Rips | 400→800 | 3.32 |
+
+giotto-ph tracks Ripser’s slope. 4 threads do not change the \(H_1\)
+exponent. GUDHI’s explicit tree is the first to leave the 12 s budget.

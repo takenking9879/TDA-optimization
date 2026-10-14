@@ -1,7 +1,7 @@
 # Consolidation tables (this hardware: 4 CPU, 16 GB)
 
 Ripser is 1 thread. Phase-2 PITH times use `--threads 1` unless noted.
-giotto-ph was not installed. GUDHI Rips/Alpha used where n is small enough.
+giotto-ph 0.2.4 (AGPL oracle) and GUDHI 3.13.0 are compared at equal hardware in the phase-3 tables below.
 
 ## Exact VR wall time (phase 1, PITH may use 4 threads)
 | family | n | T | dim | PITH exact (s) | Ripser (s) | ratio | pipeline |
@@ -165,7 +165,6 @@ giotto-ph was not installed. GUDHI Rips/Alpha used where n is small enough.
 | uniform2 | 1 | ripser | 4000 | 1.990 | None |
 
 ## Non-Euclidean L1 (exact engine only)
-Receipt below is from the frozen suite (`n=200` auto still used collapse because dispatch required `n≥400`). After the suite, auto probes at `n≥64`; re-timed `n=200` auto-redzed **0.018 s** (was 0.042 s).
 | n | PITH auto (s) | PITH redzed (s) | Ripser (s) | exact match |
 | ---: | ---: | ---: | ---: | --- |
 | 200 | 0.04181634899578057 | 0.005313154004397802 | 0.013901921003707685 | True |
@@ -229,3 +228,148 @@ Receipt below is from the frozen suite (`n=200` auto still used collapse because
 | multi_cavities | exact_auto | 300 | 600 | 3.65 |  |
 | multi_cavities | ripser | 300 | 600 | 3.16 |  |
 | multi_cavities | scale | 300 | 600 | 1.06 |  |
+
+## Phase-3 equal-hardware baselines (giotto-ph + GUDHI)
+PITH `--threads 1`. Ripser 1 thread. giotto-ph `n_threads=1` and `n_threads=4` (no edge collapse unless noted). GUDHI Rips is explicit (1 thread). giotto-ph 0.2.4 is AGPLv3 — oracle only.
+| family | n | T | dim | PITH 1-thr | Ripser | giotto t1 | giotto t4 | GUDHI Rips |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| circle_noisy | 200 | 1.5 | 1 | 0.005 | 0.015 | 0.022 | 0.036 | 0.082 |
+| circle_noisy | 500 | 1.5 | 1 | 0.017 | 0.299 | 0.349 | 0.358 | 1.658 |
+| circle_noisy | 1000 | 1.5 | 1 | 0.068 | 2.158 | 2.469 | 2.436 | timeout |
+| figure8 | 500 | 1.1 | 1 | 0.010 | 0.031 | 0.041 | 0.052 | 0.335 |
+| figure8 | 1000 | 1.1 | 1 | 0.023 | 0.157 | 0.192 | 0.148 | 3.154 |
+| figure8 | 2000 | 1.1 | 1 | 0.152 | 2.513 | 2.810 | 2.782 | timeout |
+| sphere | 200 | 1.4 | 2 | 0.007 | 0.125 | 0.142 | 0.090 | 1.191 |
+| sphere | 400 | 1.4 | 2 | 0.017 | 1.020 | 1.119 | 0.620 | timeout |
+| uniform2 | 500 | 0.35 | 1 | 0.008 | 0.022 | 0.030 | 0.039 | 0.398 |
+| uniform2 | 1000 | 0.35 | 1 | 0.018 | 0.079 | 0.103 | 0.096 | 3.780 |
+| nested_loops | 400 | 1.6 | 1 | 0.009 | 0.046 | 0.055 | 0.068 | 0.155 |
+| nested_loops | 1000 | 1.6 | 1 | 0.037 | 0.544 | 0.626 | 0.607 | 3.169 |
+| many_loops | 400 | 1.2 | 1 | 0.004 | 0.005 | 0.009 | 0.022 | 0.016 |
+| torus | 400 | 1.6 | 1 | 0.009 | 0.025 | 0.034 | 0.043 | 0.137 |
+| torus | 1000 | 1.6 | 1 | 0.040 | 0.381 | 0.461 | 0.417 | 2.848 |
+| disconnected_circles | 400 | 1.5 | 1 | 0.008 | 0.028 | 0.036 | 0.049 | 0.173 |
+| disconnected_circles | 1000 | 1.5 | 1 | 0.037 | 0.429 | 0.499 | 0.506 | 3.902 |
+| random_geometric_sparse | 500 | 0.15 | 1 | 0.006 | 0.007 | 0.012 | 0.023 | 0.017 |
+| random_geometric_sparse | 1000 | 0.15 | 1 | 0.009 | 0.023 | 0.031 | 0.037 | 0.143 |
+| random_geometric_dense | 400 | 0.5 | 1 | 0.009 | 0.020 | 0.030 | 0.039 | 0.644 |
+| random_geometric_dense | 800 | 0.5 | 1 | 0.018 | 0.089 | 0.119 | 0.107 | 6.443 |
+| grid_holes | 400 | 0.12 | 1 | 0.004 | 0.004 | 0.008 | 0.021 | 0.004 |
+| grid_holes | 800 | 0.12 | 1 | 0.007 | 0.012 | 0.017 | 0.027 | 0.025 |
+| two_spheres_apart | 300 | 1.4 | 2 | 0.018 | 0.087 | 0.098 | 0.054 | 0.782 |
+| nonuniform_circle | 400 | 1.5 | 1 | 0.012 | 0.032 | 0.042 | 0.055 | 0.622 |
+| mixed_1d2d3d | 300 | 1.4 | 2 |  |  |  |  |  |
+
+## Phase-3 topology (exact engines vs Ripser; scale unmatched)
+| family | n | PITH match | giotto match | GUDHI match | scale unmatched | scale bn H1 |
+| --- | ---: | --- | --- | --- | ---: | ---: |
+| circle_noisy | 400 | True | True | True | 0 | 4.6e-07 |
+| figure8 | 400 | True | True | True | 0 | 5e-07 |
+| disconnected_circles | 400 | True | True | True | 0 | 4.9e-07 |
+| grid_holes | 400 | True | True | True | 0 | 4.1e-07 |
+| nonuniform_circle | 400 | True | True | True | 0 | 4.7e-07 |
+| two_spheres_apart | 300 | True | True | None | 45 | 0.0275 |
+
+## Phase-3 held-out / post-freeze dispatcher
+| family | n | recommended | auto | oracle | wrong | waste | regime |
+| --- | ---: | --- | --- | --- | --- | ---: | --- |
+| disconnected_circles | 400 | implicit | implicit | redzed | True | 1.28 | thin |
+| disconnected_circles | 1000 | implicit | implicit | redzed | True | 1.37 | thin |
+| random_geometric_sparse | 500 | redzed | redzed | redzed | False | 1.00 | hollow |
+| random_geometric_dense | 400 | redzed | redzed | redzed | False | 1.00 | fat |
+| grid_holes | 400 | redzed | redzed | redzed | False | 1.00 | hollow |
+| grid_holes | 800 | redzed | redzed | redzed | False | 1.00 | hollow |
+| two_spheres_apart | 300 | redzed | redzed | implicit | True | 2.75 | hollow |
+| nonuniform_circle | 400 | implicit | implicit | redzed | True | 1.62 | thin |
+| nested_loops | 1000 | redzed | redzed | redzed | False | 1.00 | fat |
+
+## Phase-3 `--mode auto` vs probe
+| family | n | selected | probe | match |
+| --- | ---: | --- | --- | --- |
+| disconnected_circles | 400 | exact | exact | True |
+| disconnected_circles | 1000 | exact | exact | True |
+| random_geometric_sparse | 500 | exact | exact | True |
+| random_geometric_dense | 400 | exact | exact | True |
+| grid_holes | 400 | exact | exact | True |
+| grid_holes | 800 | exact | exact | True |
+| two_spheres_apart | 300 | exact | exact | True |
+| nonuniform_circle | 400 | exact | exact | True |
+| nested_loops | 1000 | exact | exact | True |
+
+## Phase-3 local exponents (new series)
+| family | method | n0 | n1 | p_time |
+| --- | --- | ---: | ---: | ---: |
+| circle_noisy | pith_exact_t1 | 200 | 500 | 1.32 |
+| circle_noisy | pith_exact_t1 | 500 | 1000 | 1.98 |
+| circle_noisy | pith_redzed_t1 | 200 | 500 | 1.83 |
+| circle_noisy | pith_redzed_t1 | 500 | 1000 | 2.29 |
+| circle_noisy | ripser | 200 | 500 | 3.23 |
+| circle_noisy | ripser | 500 | 1000 | 2.85 |
+| circle_noisy | giotto_t1 | 200 | 500 | 3.02 |
+| circle_noisy | giotto_t1 | 500 | 1000 | 2.82 |
+| circle_noisy | giotto_t4 | 200 | 500 | 2.51 |
+| circle_noisy | giotto_t4 | 500 | 1000 | 2.77 |
+| circle_noisy | gudhi_rips | 200 | 500 | 3.28 |
+| circle_noisy | pith_scale_t1 | 200 | 500 | 1.03 |
+| circle_noisy | pith_scale_t1 | 500 | 1000 | 1.11 |
+| figure8 | pith_exact_t1 | 500 | 1000 | 1.19 |
+| figure8 | pith_exact_t1 | 1000 | 2000 | 2.74 |
+| figure8 | pith_redzed_t1 | 500 | 1000 | 1.69 |
+| figure8 | pith_redzed_t1 | 1000 | 2000 | 2.72 |
+| figure8 | ripser | 500 | 1000 | 2.34 |
+| figure8 | ripser | 1000 | 2000 | 4.00 |
+| figure8 | giotto_t1 | 500 | 1000 | 2.24 |
+| figure8 | giotto_t1 | 1000 | 2000 | 3.87 |
+| figure8 | giotto_t4 | 500 | 1000 | 1.50 |
+| figure8 | giotto_t4 | 1000 | 2000 | 4.23 |
+| figure8 | gudhi_rips | 500 | 1000 | 3.24 |
+| sphere | pith_exact_t1 | 200 | 400 | 1.25 |
+| sphere | pith_redzed_t1 | 200 | 400 | 3.40 |
+| sphere | ripser | 200 | 400 | 3.03 |
+| sphere | giotto_t1 | 200 | 400 | 2.98 |
+| sphere | giotto_t4 | 200 | 400 | 2.78 |
+| sphere | pith_scale_t1 | 200 | 400 | 1.03 |
+| uniform2 | pith_exact_t1 | 500 | 1000 | 1.16 |
+| uniform2 | pith_redzed_t1 | 500 | 1000 | 1.48 |
+| uniform2 | ripser | 500 | 1000 | 1.87 |
+| uniform2 | giotto_t1 | 500 | 1000 | 1.76 |
+| uniform2 | giotto_t4 | 500 | 1000 | 1.29 |
+| uniform2 | gudhi_rips | 500 | 1000 | 3.25 |
+| nested_loops | pith_exact_t1 | 400 | 1000 | 1.56 |
+| nested_loops | pith_redzed_t1 | 400 | 1000 | 1.81 |
+| nested_loops | ripser | 400 | 1000 | 2.69 |
+| nested_loops | giotto_t1 | 400 | 1000 | 2.65 |
+| nested_loops | giotto_t4 | 400 | 1000 | 2.39 |
+| nested_loops | gudhi_rips | 400 | 1000 | 3.30 |
+| torus | pith_exact_t1 | 400 | 1000 | 1.65 |
+| torus | pith_redzed_t1 | 400 | 1000 | 1.97 |
+| torus | ripser | 400 | 1000 | 2.96 |
+| torus | giotto_t1 | 400 | 1000 | 2.85 |
+| torus | giotto_t4 | 400 | 1000 | 2.48 |
+| torus | gudhi_rips | 400 | 1000 | 3.31 |
+| disconnected_circles | pith_exact_t1 | 400 | 1000 | 1.70 |
+| disconnected_circles | pith_redzed_t1 | 400 | 1000 | 1.81 |
+| disconnected_circles | ripser | 400 | 1000 | 2.96 |
+| disconnected_circles | giotto_t1 | 400 | 1000 | 2.87 |
+| disconnected_circles | giotto_t4 | 400 | 1000 | 2.54 |
+| disconnected_circles | gudhi_rips | 400 | 1000 | 3.40 |
+| disconnected_circles | pith_scale_t1 | 400 | 1000 | 1.10 |
+| random_geometric_sparse | pith_exact_t1 | 500 | 1000 | 0.66 |
+| random_geometric_sparse | pith_redzed_t1 | 500 | 1000 | 0.69 |
+| random_geometric_sparse | ripser | 500 | 1000 | 1.68 |
+| random_geometric_sparse | giotto_t1 | 500 | 1000 | 1.35 |
+| random_geometric_sparse | giotto_t4 | 500 | 1000 | 0.67 |
+| random_geometric_sparse | gudhi_rips | 500 | 1000 | 3.06 |
+| random_geometric_dense | pith_exact_t1 | 400 | 800 | 1.06 |
+| random_geometric_dense | pith_redzed_t1 | 400 | 800 | 1.55 |
+| random_geometric_dense | ripser | 400 | 800 | 2.12 |
+| random_geometric_dense | giotto_t1 | 400 | 800 | 2.00 |
+| random_geometric_dense | giotto_t4 | 400 | 800 | 1.44 |
+| random_geometric_dense | gudhi_rips | 400 | 800 | 3.32 |
+| grid_holes | pith_exact_t1 | 400 | 800 | 0.86 |
+| grid_holes | pith_redzed_t1 | 400 | 800 | 1.06 |
+| grid_holes | ripser | 400 | 800 | 1.62 |
+| grid_holes | giotto_t1 | 400 | 800 | 1.12 |
+| grid_holes | giotto_t4 | 400 | 800 | 0.39 |
+| grid_holes | gudhi_rips | 400 | 800 | 2.84 |
+| grid_holes | pith_scale_t1 | 400 | 800 | 1.11 |

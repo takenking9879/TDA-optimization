@@ -46,6 +46,11 @@ Phase-2 measurements (GUDHI bottleneck + Hera Wasserstein \(W_1\)):
 | mixed 1D/2D/3D \(n=300\) | 35 | 0.030 | \(H_1=1\) kept; exact VR timed out |
 
 GUDHI Alpha on the same clouds dropped essential \(H_1/H_2\) to 0.
+Phase-3 post-freeze: `grid_holes` scale unmatched 0 / ess \(H_1=2\);
+`disconnected_circles` unmatched 0 / ess \(H_0=2,H_1=2\);
+`two_spheres_apart` unmatched 45 / ess \(H_2=2\) (\(W_1(H_2)=0.026\)).
+Alpha on those three reports ess \(H_1=H_2=0\) and merges the two
+far circles / spheres into one \(H_0\).
 
 ## What is lost
 

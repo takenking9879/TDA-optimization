@@ -5,6 +5,14 @@ Do not paste long reasoning here.
 
 ---
 
+## 2026-10-14 — consolidation phase 3 (giotto-ph + GUDHI + post-freeze)
+
+- **Question:** On this hardware, how do exact auto / RedZeD / Ripser / giotto-ph / GUDHI / scale compare, and does the frozen dispatcher survive held-out families?
+- **Work:** pip `giotto-ph==0.2.4` (AGPL oracle). `run_baseline_pack.py` + generators `disconnected_circles`, `random_geometric`, `grid_holes`, `two_spheres_apart`. Equal hardware, 12 s, PITH `--threads 1`, giotto `n_threads=1` and `4`.
+- **Result:** giotto t1 ≈ Ripser (slightly slower). giotto t4 helps H2 only (sphere n=400 1.12→0.62 s); H1 4-thread often slower. GUDHI Rips times out by circle n=1000 / figure8 n=2000 / sphere H2 n=400. PITH 1-thr circle n=1000 **0.068 s vs Ripser 2.16 / giotto 2.47 / GUDHI timeout (32× / 36×)**. Sphere n=400 **0.017 vs 1.02 / 1.12 / timeout (60×)**; vs giotto-4 still **36×**. Topology: PITH and giotto match Ripser on 6/6 (incl. post-freeze `grid_holes`, `two_spheres_apart`). Scale keeps ess; Alpha drops ess H1/H2 and merges disconnected components. Engine oracle on new families **5/9** (4 misses, waste 1.3–2.75×, tens of ms). `--mode auto` **9/9** vs probe. Did **not** retune τ.
+- **Decision:** Hold frozen dispatcher. Document giotto/GUDHI as baselines, not as a new algorithm. Goal not complete.
+- **Class:** verified (measurements)
+
 ## 2026-10-13 — methodology transfer
 
 - **Question:** What of CrocSwap/integer-mult-bounds applies to TDA PH?

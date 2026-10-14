@@ -46,7 +46,10 @@ collapse). **[empirical, I235+I263 + consolidation]**
 
 `--mode auto` runs the same probe and then **executes** the recommended
 path (`exact` / `scale` / `sparse`). Default remains `--mode exact` so
-existing scripts do not silently change complex. Held-out check: **8/8**.
+existing scripts do not silently change complex. Held-out check: **8/8**
+(phase 2) and **9/9** vs probe on post-freeze families (phase 3).
+Engine choice inside exact can still be wrong (phase-3 oracle **5/9**;
+waste 1.3–2.75×, tens of milliseconds). \(\tau\) was **not** retuned.
 
 `--estimate` exposes that probe as a feasibility guess with a
 **conservative |E| band** (probe fraction ×1.25), a residual-size band,
@@ -72,7 +75,7 @@ combinations** of known complexes and known reductions.
 
 | Kind | Where |
 | --- | --- |
-| Constant-factor exact H1 | RedZeD vs Ripser on connected \(G_T\): measured \(5\)–\(14\times\) **[empirical]**. Worst-case class unchanged. |
+| Constant-factor exact H1 | RedZeD vs Ripser on connected \(G_T\): measured \(5\)–\(14\times\) **[empirical]**. vs giotto-ph 0.2.4 (1 thread) the same families are \(\sim 6\)–\(36\times\) **[empirical]**; giotto 4-thread does not close that gap on \(H_1\). Worst-case class unchanged. |
 | Better size class, exact | \(H_0\) in \(d\in\{2,3\}\): Kruskal on Delaunay, \(\Theta(n)\) edges **[citation + derivation]**. |
 | Better size class, **not** exact VR | `--mode scale`: \(\Theta(n)\)–\(O(n)\) flag of a Delaunay / thicken graph **[derivation of size; empirical topology]**. |
 | Approx with a theorem | `--mode sparse` (Sheehy-style greedy net) **[citation]**; owned \(\varepsilon=0.6\) defaults are **[empirical]**. |

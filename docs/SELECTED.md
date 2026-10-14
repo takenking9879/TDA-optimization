@@ -1,10 +1,13 @@
 # Selected algorithm (living)
 
-Updated 2026-10-14 after iterations I001–I312 plus consolidation.
+Updated 2026-10-14 after iterations I001–I312 plus consolidation (phase 3).
 **Stable CLI:** `--mode exact|scale|sparse`, `--engine auto|redzed|implicit`,
 `--estimate`, `--threads N`, `--mode auto`. Auto-dispatch probes at \(n\ge 64\).
 `--estimate` marks fat `maxdim≥2` residuals as exact-infeasible.
-`--mode auto` follows that recommendation (8/8 on the held-out check).
+`--mode auto` follows that recommendation (phase-2 8/8; phase-3 post-freeze 9/9 vs probe).
+Engine oracle on new held-out families is **5/9** (do not retune \(\tau\)).
+Equal-hardware: PITH `--threads 1` still beats Ripser, giotto-ph 0.2.4
+(`n_threads=1` and `4`), and GUDHI 3.13 Rips on the measured suite.
 Iteration numbers stay in this file and `RESEARCH_LOG.md`.
 **CLI default `--engine`
 auto` (I235+I236+I239+I240+I241+I263+I270+I271+I275):** subsample residual-frac dispatch,
