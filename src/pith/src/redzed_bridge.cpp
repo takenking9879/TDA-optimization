@@ -216,6 +216,66 @@ struct SparseDist {
 
 static thread_local const SparseDist* g_sparse = nullptr;
 
+// I302: growing 1-skeleton adj for leftover_coface on sparse flags
+// (|E|≤16n). Skips the n×n rbit matrix (n=50000 → 313 MB).
+static thread_local std::vector<std::vector<int>> g_adj;
+static thread_local bool g_use_adj = false;
+
+static void adj_add_undirected(int u, int v) {
+    auto ins = [](std::vector<int>& a, int x) {
+        auto it = std::lower_bound(a.begin(), a.end(), x);
+        if (it == a.end() || *it != x) a.insert(it, x);
+    };
+    ins(g_adj[static_cast<size_t>(u)], v);
+    ins(g_adj[static_cast<size_t>(v)], u);
+}
+
+static bool adj_has(int a, int b) {
+    const auto& row = g_adj[static_cast<size_t>(a)];
+    return std::binary_search(row.begin(), row.end(), b);
+}
+
+static void advance_adj(State& st, value_t r) {
+    const EdgeList& lv = st.edges;
+    size_t p = st.rptr;
+    const size_t cnt = lv.count;
+    while (p <= cnt && lv.diam[p - 1] <= r) {
+        adj_add_undirected(lv.verts[2 * (p - 1)], lv.verts[2 * (p - 1) + 1]);
+        ++p;
+    }
+    st.rptr = p;
+}
+
+// Vendor collect_candidates, but G_r is the growing adj (not rbit).
+static void collect_candidates_adj(State& st, const int32_t* xverts) {
+    for (int32_t w : st.seedverts) {
+        st.seen[w] = 0;
+        st.seedlists[w].clear();
+        st.seenbits[w >> 6] = 0;
+    }
+    st.seedverts.clear();
+    ActiveReg& ar = st.act;
+    const int m = ar.m;
+    for (int omit = 1; omit <= m; ++omit) {
+        const comb_t f = face_index_without(xverts, m, omit, st.binom);
+        const slot_t lsx = ar.face_slot.get(f);
+        if (!lsx) continue;
+        const int xextra = xverts[omit - 1];
+        const auto& lw = ar.lw[lsx - 1];
+        const auto& lsl = ar.ls[lsx - 1];
+        for (size_t t = 0; t < lw.size(); ++t) {
+            const int w = lw[t];
+            if (!adj_has(xextra, w)) continue;
+            if (!st.seen[w]) {
+                st.seen[w] = 1;
+                st.seedverts.push_back(w);
+                st.seenbits[w >> 6] |= (uint64_t)1 << (w & 63);
+            }
+            st.seedlists[w].push_back(lsl[t]);
+        }
+    }
+}
+
 static value_t face_diam_any(const int32_t* v, int m, int omit, const State& st) {
     value_t diam = 0;
     for (int a = 1; a <= m; ++a) {
@@ -243,6 +303,63 @@ static bool coface_ready_any(int32_t* cand, const int32_t* xverts, int m, int32_
     return true;
 }
 
+// Common neighbors via sorted-adj intersection. Same G_r as rbit AND.
+static bool leftover_coface_h1_adj(State& st, const int32_t* xv, comb_t xidx, value_t r,
+                                   bool skip_seen) {
+    const auto& au = g_adj[static_cast<size_t>(xv[0])];
+    const auto& av = g_adj[static_cast<size_t>(xv[1])];
+    int32_t* cbuf = st.coface_buf.data();
+    size_t i = 0, j = 0;
+    while (i < au.size() && j < av.size()) {
+        if (au[i] < av[j]) {
+            ++i;
+        } else if (av[j] < au[i]) {
+            ++j;
+        } else {
+            const int cand = au[i];
+            ++i;
+            ++j;
+            if (skip_seen && st.seen[static_cast<size_t>(cand)]) continue;
+            if (coface_ready_any(cbuf, xv, 2, static_cast<int32_t>(cand), xidx, r, st))
+                return true;
+        }
+    }
+    return false;
+}
+
+// m≥3 leftover-coface: drive from the shortest adj row, probe the rest.
+static bool leftover_coface_adj(State& st, const int32_t* xverts, int m, comb_t xidx, value_t r,
+                                bool skip_seen) {
+    if (m == 2) return leftover_coface_h1_adj(st, xverts, xidx, r, skip_seen);
+    if (m < 2) return false;
+    int best = 0;
+    size_t best_sz = g_adj[static_cast<size_t>(xverts[0])].size();
+    for (int i = 1; i < m; ++i) {
+        const size_t sz = g_adj[static_cast<size_t>(xverts[i])].size();
+        if (sz < best_sz) {
+            best = i;
+            best_sz = sz;
+        }
+    }
+    const auto& drive = g_adj[static_cast<size_t>(xverts[best])];
+    int32_t* cbuf = st.coface_buf.data();
+    for (int cand : drive) {
+        if (skip_seen && st.seen[static_cast<size_t>(cand)]) continue;
+        bool ok = true;
+        for (int i = 0; i < m; ++i) {
+            if (i == best) continue;
+            if (!adj_has(xverts[i], cand)) {
+                ok = false;
+                break;
+            }
+        }
+        if (!ok) continue;
+        if (coface_ready_any(cbuf, xverts, m, static_cast<int32_t>(cand), xidx, r, st))
+            return true;
+    }
+    return false;
+}
+
 // Vendor has_leftover_coface always masks ~seenbits. On the 97% no-seed
 // skip that mask is a no-op memory tax. Same coface_ready, same rbit AND.
 // I253 coface_ready_h1 was exact but no pith cut (wave n=5000 0.36s was
@@ -251,6 +368,7 @@ static bool coface_ready_any(int32_t* cand, const int32_t* xverts, int m, int32_
 // (n=5000 reduce 211 vs I252 206 ms). Reverted.
 // I258: coface_ready_any so the spatial path can omit the C(n,2) matrix.
 static bool leftover_coface_h1_noseen(State& st, const int32_t* xv, comb_t xidx, value_t r) {
+    if (g_use_adj) return leftover_coface_h1_adj(st, xv, xidx, r, false);
     const uint64_t* rb = st.rbits.data();
     const int words = st.words, nv = st.nv;
     const int u = xv[0], v = xv[1];
@@ -275,6 +393,7 @@ static bool leftover_coface_h1_noseen(State& st, const int32_t* xv, comb_t xidx,
 // H2+ no-seed leftover-coface: same skip of the empty seenbits mask.
 static bool leftover_coface_noseen(State& st, const int32_t* xverts, int m, comb_t xidx,
                                     value_t r) {
+    if (g_use_adj) return leftover_coface_adj(st, xverts, m, xidx, r, false);
     if (m == 2) return leftover_coface_h1_noseen(st, xverts, xidx, r);
     const uint64_t* rb = st.rbits.data();
     const int words = st.words, nv = st.nv;
@@ -309,6 +428,7 @@ static bool leftover_coface_noseen(State& st, const int32_t* xverts, int m, comb
 // through coface_ready_any so a CSR spatial matrix is enough.
 static bool has_leftover_coface_any(State& st, const int32_t* xverts, int m, comb_t xidx,
                                     value_t r) {
+    if (g_use_adj) return leftover_coface_adj(st, xverts, m, xidx, r, true);
     if (!g_sparse) return has_leftover_coface(st, xverts, m, xidx, r);
     const uint64_t* rb = st.rbits.data();
     const int words = st.words, nv = st.nv;
@@ -340,8 +460,10 @@ static bool has_leftover_coface_any(State& st, const int32_t* xverts, int m, com
 }
 
 static void ae_prepare(State& st, const int32_t* verts, value_t sdiam) {
-    advance_rbits(st, sdiam);
+    if (g_use_adj) advance_adj(st, sdiam);
+    else advance_rbits(st, sdiam);
     if (st.act.slot_of.count == 0) clear_seeds(st);
+    else if (g_use_adj) collect_candidates_adj(st, verts);
     else collect_candidates(st, verts);
 }
 
@@ -523,9 +645,28 @@ redzed_vr(DistanceMatrix& distIn, int n, value_t threshold, EdgeList* prebuilt) 
     st.seen.assign(nv, 0);
     st.seenbits.assign(st.words, 0);
     st.seedlists.assign(nv, {});
-    st.rbits.assign((size_t)st.words * nv, 0);
-    st.rlo.assign(nv, st.words);
-    st.rhi.assign(nv, -1);
+    // I302: sparse flags skip the n×n rbit matrix. G_r is the growing adj.
+    const bool use_adj = (st.edges.count <= static_cast<size_t>(nv) * 16 && nv >= 1);
+    struct AdjGuard {
+        bool on;
+        explicit AdjGuard(int nverts, bool use) : on(use) {
+            g_use_adj = use;
+            if (use) {
+                g_adj.assign(static_cast<size_t>(nverts), {});
+                for (auto& a : g_adj) a.reserve(16);
+            }
+        }
+        ~AdjGuard() {
+            g_use_adj = false;
+            g_adj.clear();
+        }
+    };
+    const AdjGuard adj_guard(nv, use_adj);
+    if (!use_adj) {
+        st.rbits.assign((size_t)st.words * nv, 0);
+        st.rlo.assign(nv, st.words);
+        st.rhi.assign(nv, -1);
+    }
     st.coface_buf.assign(n + 2, 0);
     st.top_buf.assign(n + 1, 0);
 
