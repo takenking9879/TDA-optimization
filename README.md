@@ -30,7 +30,7 @@ hollow, exact \(H_0\) on the 2D/3D Delaunay skeleton, and an optional
 | Exact VR, same barcode as Ripser | An **automatic engine**: collapse + implicit cohomology when the residual is thin; RedZeD (active enumeration) when it is not. Sparse \(G_T\) when the cloud is hollow. |
 | Exact \(H_0\) in 2D/3D | Kruskal on the Delaunay 1-skeleton (the MST sits inside Delaunay). \(\Theta(n)\) edges instead of all pairs. |
 | Large Euclidean clouds | `--mode scale`: flag of a Delaunay / local-radius graph. **Not** Vietoris–Rips. Essential loops and voids are kept on the tested families; finite bars differ. |
-| Feasibility | `--estimate` guesses graph size, residual regime, and whether exact VR is reasonable. Heuristic, with a conservative \(\lvert E\rvert\) band. |
+| Feasibility | `--estimate` guesses graph size, residual regime, and whether exact VR is reasonable. `--mode auto` follows that probe (default stays `--mode exact` so scripts do not silently change complex). |
 | Fair timing | `--threads N` caps workers. Measured 1-thread vs hardware vs Ripser (always 1 thread). |
 
 Internal experiment numbers live in [`RESEARCH_LOG.md`](RESEARCH_LOG.md),
@@ -75,6 +75,9 @@ cmake --build src/pith/build -j
 
 # Feasibility guess (no persistence)
 ./src/pith/build/pith --estimate --points cloud.csv --maxdim 1 --threshold 1.1 --format json
+
+# Follow the probe: exact if feasible, else scale (d=2,3) or sparse
+./src/pith/build/pith --points cloud.csv --mode auto --maxdim 2 --threshold 1.4
 ```
 
 `--help` is the stable interface. `--help-experimental` lists research
@@ -85,6 +88,7 @@ flags kept for old scripts.
 | Situation | Mode |
 | --- | --- |
 | You need the VR barcode (including finite bars) | `--mode exact` |
+| You want the probe to choose exact / scale / sparse | `--mode auto` |
 | Euclidean \(d\in\{2,3\}\), \(n\) in the tens of thousands, essential loops/voids | `--mode scale` |
 | You only need \(H_0\) in 2D/3D | `--mode exact --maxdim 0` (Delaunay Kruskal) |
 | Abstract / non-Euclidean distances | `--distances FILE --mode exact` |
@@ -132,12 +136,12 @@ Essential topology on the measured families matches exact VR (two loops on a
 figure-8, five on `many_loops`, one void on a sphere, three voids on
 `multi_cavities`). Finite bars **do not** match VR.
 
-| Family (\(n=300\)–\(400\)) | Exact vs Ripser | Scale unmatched | Scale bottleneck \(H_1\) | Notes |
-| --- | --- | ---: | ---: | --- |
-| figure8, circle, nested, many_loops, bridges, multi_scale | match | 0 | \(\sim 10^{-6}\) | 2D loops |
-| sphere | match | 52 | 0.024 | ess \(H_2=1\) kept |
-| multi_cavities | match | 52 | 0.041 | ess \(H_2=3\) kept |
-| mixed 1D/2D/3D | exact timed out | 35 | 0.030 | scale keeps ess \(H_1=1\) |
+| Family (\(n=300\)–\(400\)) | Exact vs Ripser | Scale unmatched | Scale bottleneck \(H_1\) | Scale \(W_1\) \(H_1\) | Notes |
+| --- | --- | ---: | ---: | ---: | --- |
+| figure8, circle, nested, many_loops | match | 0 | \(\sim 10^{-6}\) | \(\sim 10^{-6}\) | 2D loops ≈ VR |
+| sphere | match | 52 | 0.024 | 0.21 | ess \(H_2=1\) kept |
+| multi_cavities | match | 52 | 0.041 | — | ess \(H_2=3\) kept |
+| mixed 1D/2D/3D | exact timed out | 35 | 0.030 | — | `--mode auto` → scale |
 
 GUDHI Alpha on the same clouds reports ess \(H_1=H_2=0\). Sparse Rips
 kept essential 2D loops; it failed / was slow on some 3D clouds.
@@ -190,6 +194,7 @@ Full numbers: [`benchmarks/results/consolidation/TABLES.md`](benchmarks/results/
 | `docs/WHAT_WE_BUILT.md` | Contribution, exact vs approx |
 | `docs/SCALE_PATH.md` | Euclidean alternative complex |
 | `docs/COMPLEXITY.md` | Worst-case / regime / empirical |
+| `docs/GROWTH.md` | Fitted \(t\\approx Cn^p\) slopes (empirical) |
 | `docs/SELECTED.md` | Living selected path (research) |
 | `RESEARCH_LOG.md` | Iteration ledger |
 | `third_party/ripser` | Unmodified Ripser `01add51` |
@@ -202,5 +207,7 @@ python3 benchmarks/generate_datasets.py --list
 python3 benchmarks/test_cli_stable.py
 python3 benchmarks/run_consolidation.py
 python3 benchmarks/run_consolidation_limits.py
+python3 benchmarks/eval_mode_auto.py
+python3 benchmarks/fit_growth.py
 python3 benchmarks/plot_consolidation.py
 ```

@@ -28,10 +28,11 @@ static void usage() {
         << "Stable options:\n"
         << "  --maxdim K              homology dimension (default 1)\n"
         << "  --threshold T           VR diameter threshold (default inf)\n"
-        << "  --mode exact|scale|sparse\n"
+        << "  --mode exact|scale|sparse|auto\n"
         << "                          exact  = exact VR≤T (default)\n"
         << "                          scale  = Euclidean Delaunay-flag path (d=2,3; not exact VR)\n"
         << "                          sparse = greedy-net sparse Rips (approx; default eps=0.6)\n"
+        << "                          auto   = follow the feasibility probe (exact/scale/sparse)\n"
         << "  --engine auto|redzed|implicit\n"
         << "                          exact-mode engine (default auto: pick redzed or collapse)\n"
         << "  --estimate              feasibility estimate only (no persistence)\n"
@@ -291,121 +292,154 @@ static void print_json(const Result& r) {
 // residual / edge-frac oracles as --engine auto, plus conservative
 // |E| / residual cutoffs measured on the I227–I312 suite. Probe
 // fractions are inflated (×1.25) before feasibility cuts.
-static int print_estimate(const std::vector<std::vector<value_t>>* pts,
-                          const std::vector<std::vector<value_t>>* dist, int maxdim, value_t T,
-                          const std::string& format) {
-    const int n = pts ? static_cast<int>(pts->size())
-                      : (dist ? static_cast<int>(dist->size()) : 0);
-    const int dim = (pts && !pts->empty()) ? static_cast<int>((*pts)[0].size()) : -1;
+struct Feasibility {
+    int n = 0;
+    int dim = -1;
+    int maxdim = 1;
+    value_t T = kInf;
     double edge_frac = -1;
     double residual_frac = -1;
-    if (pts && n >= 8 && std::isfinite(T) && T > 0)
-        edge_frac = probe_edge_frac_points(*pts, T, 250);
-    if (n >= 8) {
-        residual_frac = pts ? probe_residual_frac_points(*pts, T, 250)
-                            : (dist ? probe_residual_frac(*dist, T, 250) : -1);
+    double est_e = 0;
+    double est_e_lo = 0;
+    double est_e_hi = 0;
+    double est_r = -1;
+    double est_r_hi = -1;
+    double est_del = -1;
+    double est_runtime = -1;
+    std::string regime = "unknown";
+    std::string engine_rec = "implicit";
+    std::string mode_rec = "exact";
+    std::string reason;
+    std::string runtime_class;
+    std::string confidence = "low";
+    bool exact_ok = true;
+};
+
+static Feasibility compute_feasibility(const std::vector<std::vector<value_t>>* pts,
+                                       const std::vector<std::vector<value_t>>* dist, int maxdim,
+                                       value_t T) {
+    Feasibility f;
+    f.maxdim = maxdim;
+    f.T = T;
+    f.n = pts ? static_cast<int>(pts->size())
+              : (dist ? static_cast<int>(dist->size()) : 0);
+    f.dim = (pts && !pts->empty()) ? static_cast<int>((*pts)[0].size()) : -1;
+    if (pts && f.n >= 8 && std::isfinite(T) && T > 0)
+        f.edge_frac = probe_edge_frac_points(*pts, T, 250);
+    if (f.n >= 8) {
+        f.residual_frac = pts ? probe_residual_frac_points(*pts, T, 250)
+                              : (dist ? probe_residual_frac(*dist, T, 250) : -1);
     }
+    const int n = f.n;
+    const int dim = f.dim;
+    const double edge_frac = f.edge_frac;
+    const double residual_frac = f.residual_frac;
     const double all_pairs = (n > 1) ? 0.5 * static_cast<double>(n) * (n - 1) : 0;
-    const double est_e = (edge_frac >= 0) ? edge_frac * all_pairs : all_pairs;
+    f.est_e = (edge_frac >= 0) ? edge_frac * all_pairs : all_pairs;
     const double edge_frac_hi = (edge_frac >= 0) ? std::min(1.0, edge_frac * 1.25) : 1.0;
-    const double est_e_hi = edge_frac_hi * all_pairs;
-    const double est_e_lo = (edge_frac >= 0) ? std::max(0.0, edge_frac * 0.80) * all_pairs : 0;
-    const double est_r = (residual_frac >= 0 && edge_frac >= 0) ? residual_frac * est_e : -1;
-    const double est_r_hi = (residual_frac >= 0) ? residual_frac * est_e_hi : -1;
-    const double est_del = (dim == 2) ? 3.0 * n : (dim == 3) ? 7.0 * n : -1;
+    f.est_e_hi = edge_frac_hi * all_pairs;
+    f.est_e_lo = (edge_frac >= 0) ? std::max(0.0, edge_frac * 0.80) * all_pairs : 0;
+    f.est_r = (residual_frac >= 0 && edge_frac >= 0) ? residual_frac * f.est_e : -1;
+    f.est_r_hi = (residual_frac >= 0) ? residual_frac * f.est_e_hi : -1;
+    f.est_del = (dim == 2) ? 3.0 * n : (dim == 3) ? 7.0 * n : -1;
     const double tau = (maxdim >= 2) ? 0.15 : 0.04;
     const bool hollow = edge_frac >= 0 && edge_frac < 0.25;
     const bool fat = residual_frac >= 0 && residual_frac > tau;
     const bool thin = residual_frac >= 0 && residual_frac <= tau && !hollow;
-    std::string regime = "unknown";
-    if (maxdim < 1) regime = "h0";
-    else if (hollow) regime = "hollow";
-    else if (fat) regime = "fat";
-    else if (thin) regime = "thin";
-    std::string engine_rec = "implicit";
-    if (maxdim < 1) engine_rec = "redzed";  // Kruskal / Delaunay H0
-    else if (fat || hollow) engine_rec = "redzed";
-    bool exact_ok = true;
-    std::string reason = "exact VR looks feasible on the 250-pt probe (conservative |E| band)";
+    if (maxdim < 1) f.regime = "h0";
+    else if (hollow) f.regime = "hollow";
+    else if (fat) f.regime = "fat";
+    else if (thin) f.regime = "thin";
+    f.engine_rec = "implicit";
+    if (maxdim < 1) f.engine_rec = "redzed";
+    else if (fat || hollow) f.engine_rec = "redzed";
+    f.exact_ok = true;
+    f.reason = "exact VR looks feasible on the 250-pt probe (conservative |E| band)";
     if (maxdim >= 2 && fat && n >= 200) {
-        exact_ok = false;
+        f.exact_ok = false;
         if (dim >= 2 && dim <= 3)
-            reason = "fat residual at maxdim>=2: exact H2 on G_T is often impractical; Euclidean scale is safer";
+            f.reason = "fat residual at maxdim>=2: exact H2 on G_T is often impractical; Euclidean scale is safer";
         else
-            reason = "fat residual at maxdim>=2 on a non-scaleable metric; lower T or use sparse";
-    } else if (maxdim >= 1 && est_e_hi > 8.0e6) {
-        exact_ok = false;
-        reason = "conservative |E| band exceeds 8e6; exact H1 on G_T is likely impractical";
-    } else if (maxdim >= 1 && fat && est_r_hi > 1.5e6) {
-        exact_ok = false;
-        reason = "fat residual band exceeds 1.5e6 leftover edges; exact leftover visits explode";
+            f.reason = "fat residual at maxdim>=2 on a non-scaleable metric; lower T or use sparse";
+    } else if (maxdim >= 1 && f.est_e_hi > 8.0e6) {
+        f.exact_ok = false;
+        f.reason = "conservative |E| band exceeds 8e6; exact H1 on G_T is likely impractical";
+    } else if (maxdim >= 1 && fat && f.est_r_hi > 1.5e6) {
+        f.exact_ok = false;
+        f.reason = "fat residual band exceeds 1.5e6 leftover edges; exact leftover visits explode";
     } else if (maxdim >= 1 && n > 20000 && !thin && edge_frac > 0.15) {
-        exact_ok = false;
-        reason = "dense G_T at n>20000 with a non-thin residual; exact H1 leaves the low-polynomial regime";
+        f.exact_ok = false;
+        f.reason = "dense G_T at n>20000 with a non-thin residual; exact H1 leaves the low-polynomial regime";
     } else if (maxdim >= 1 && fat && n > 6000 && dim >= 2 && dim <= 3) {
-        reason = "fat Euclidean residual at n>6000: exact may still finish, scale is the safer option";
+        f.reason = "fat Euclidean residual at n>6000: exact may still finish, scale is the safer option";
     } else if (maxdim >= 1 && thin && n > 8000 && dim >= 2 && dim <= 3) {
-        reason = "thin residual: exact collapse+implicit is still the intended path; scale is optional";
+        f.reason = "thin residual: exact collapse+implicit is still the intended path; scale is optional";
     }
-    std::string mode_rec = "exact";
-    if (!exact_ok && dim >= 2 && dim <= 3) mode_rec = "scale";
-    else if (!exact_ok) mode_rec = "sparse";
-    else if (fat && n > 6000 && dim >= 2 && dim <= 3) mode_rec = "scale";
+    f.mode_rec = "exact";
+    if (!f.exact_ok && dim >= 2 && dim <= 3) f.mode_rec = "scale";
+    else if (!f.exact_ok) f.mode_rec = "sparse";
+    else if (fat && n > 6000 && dim >= 2 && dim <= 3) f.mode_rec = "scale";
     const bool near_tau =
         residual_frac >= 0 && std::fabs(residual_frac - tau) < 0.02;
-    const char* confidence =
-        (n <= 400 && !near_tau) ? "medium" : "low";
-    double est_runtime = -1;
+    f.confidence = (n <= 400 && !near_tau) ? "medium" : "low";
     if (maxdim < 1 && n > 0) {
-        est_runtime = 2.0e-6 * static_cast<double>(n) * std::max(1.0, std::log2(static_cast<double>(n)));
-    } else if (mode_rec == "scale" && n > 0) {
-        est_runtime = (dim == 3 ? 2.0e-5 : 3.5e-5) * static_cast<double>(n);
+        f.est_runtime = 2.0e-6 * static_cast<double>(n) * std::max(1.0, std::log2(static_cast<double>(n)));
+    } else if (f.mode_rec == "scale" && n > 0) {
+        f.est_runtime = (dim == 3 ? 2.0e-5 : 3.5e-5) * static_cast<double>(n);
     } else if (maxdim >= 2 && fat && n > 0) {
-        est_runtime = 5.0e-7 * static_cast<double>(n) * static_cast<double>(n) * static_cast<double>(n);
+        f.est_runtime = 5.0e-7 * static_cast<double>(n) * static_cast<double>(n) * static_cast<double>(n);
     } else if (thin && n > 0) {
-        est_runtime = 4.0e-8 * static_cast<double>(n) * static_cast<double>(n);
-    } else if (est_e_hi > 0) {
-        est_runtime = 8.0e-8 * est_e_hi;
+        f.est_runtime = 4.0e-8 * static_cast<double>(n) * static_cast<double>(n);
+    } else if (f.est_e_hi > 0) {
+        f.est_runtime = 8.0e-8 * f.est_e_hi;
     }
-    const char* runtime = !exact_ok ? "impractical-or-scale"
-                                    : (est_runtime > 1.0 || (n >= 4000 && maxdim >= 1) ? "seconds"
-                                                                                       : "sub-second");
+    f.runtime_class = !f.exact_ok ? "impractical-or-scale"
+                                  : (f.est_runtime > 1.0 || (n >= 4000 && maxdim >= 1) ? "seconds"
+                                                                                      : "sub-second");
+    return f;
+}
+
+static int print_estimate(const std::vector<std::vector<value_t>>* pts,
+                          const std::vector<std::vector<value_t>>* dist, int maxdim, value_t T,
+                          const std::string& format) {
+    const Feasibility f = compute_feasibility(pts, dist, maxdim, T);
     if (format == "json") {
         std::cout << std::setprecision(6);
         std::cout << "{\n"
                   << "  \"kind\": \"estimate\",\n"
                   << "  \"empirical\": true,\n"
-                  << "  \"n\": " << n << ",\n"
-                  << "  \"dim\": " << dim << ",\n"
-                  << "  \"maxdim\": " << maxdim << ",\n"
-                  << "  \"threshold\": " << T << ",\n"
-                  << "  \"edge_frac_probe\": " << edge_frac << ",\n"
-                  << "  \"residual_frac_probe\": " << residual_frac << ",\n"
-                  << "  \"residual_regime\": \"" << regime << "\",\n"
-                  << "  \"est_edges\": " << est_e << ",\n"
-                  << "  \"est_edges_lo\": " << est_e_lo << ",\n"
-                  << "  \"est_edges_hi\": " << est_e_hi << ",\n"
-                  << "  \"est_residual_edges\": " << est_r << ",\n"
-                  << "  \"est_residual_edges_hi\": " << est_r_hi << ",\n"
-                  << "  \"est_delaunay_edges\": " << est_del << ",\n"
-                  << "  \"est_runtime_s\": " << est_runtime << ",\n"
-                  << "  \"engine_recommended\": \"" << engine_rec << "\",\n"
-                  << "  \"mode_recommended\": \"" << mode_rec << "\",\n"
-                  << "  \"exact_feasible\": " << (exact_ok ? "true" : "false") << ",\n"
-                  << "  \"runtime_class\": \"" << runtime << "\",\n"
-                  << "  \"confidence\": \"" << confidence << "\",\n"
+                  << "  \"n\": " << f.n << ",\n"
+                  << "  \"dim\": " << f.dim << ",\n"
+                  << "  \"maxdim\": " << f.maxdim << ",\n"
+                  << "  \"threshold\": " << f.T << ",\n"
+                  << "  \"edge_frac_probe\": " << f.edge_frac << ",\n"
+                  << "  \"residual_frac_probe\": " << f.residual_frac << ",\n"
+                  << "  \"residual_regime\": \"" << f.regime << "\",\n"
+                  << "  \"est_edges\": " << f.est_e << ",\n"
+                  << "  \"est_edges_lo\": " << f.est_e_lo << ",\n"
+                  << "  \"est_edges_hi\": " << f.est_e_hi << ",\n"
+                  << "  \"est_residual_edges\": " << f.est_r << ",\n"
+                  << "  \"est_residual_edges_hi\": " << f.est_r_hi << ",\n"
+                  << "  \"est_delaunay_edges\": " << f.est_del << ",\n"
+                  << "  \"est_runtime_s\": " << f.est_runtime << ",\n"
+                  << "  \"engine_recommended\": \"" << f.engine_rec << "\",\n"
+                  << "  \"mode_recommended\": \"" << f.mode_rec << "\",\n"
+                  << "  \"exact_feasible\": " << (f.exact_ok ? "true" : "false") << ",\n"
+                  << "  \"runtime_class\": \"" << f.runtime_class << "\",\n"
+                  << "  \"confidence\": \"" << f.confidence << "\",\n"
                   << "  \"threads\": " << nthreads() << ",\n"
-                  << "  \"reason\": \"" << reason << "\"\n"
+                  << "  \"reason\": \"" << f.reason << "\"\n"
                   << "}\n";
     } else {
-        std::cout << "# ESTIMATE empirical=true n=" << n << " dim=" << dim << " maxdim=" << maxdim
-                  << " T=" << T << " edge_frac=" << edge_frac << " residual_frac=" << residual_frac
-                  << " regime=" << regime << " est_edges=" << est_e << " est_edges_hi=" << est_e_hi
-                  << " est_residual=" << est_r << " est_delaunay=" << est_del
-                  << " engine=" << engine_rec << " mode=" << mode_rec
-                  << " exact_feasible=" << (exact_ok ? 1 : 0) << " runtime=" << runtime
-                  << " est_runtime_s=" << est_runtime << " confidence=" << confidence
-                  << " threads=" << nthreads() << "\n# " << reason << "\n";
+        std::cout << "# ESTIMATE empirical=true n=" << f.n << " dim=" << f.dim
+                  << " maxdim=" << f.maxdim << " T=" << f.T << " edge_frac=" << f.edge_frac
+                  << " residual_frac=" << f.residual_frac << " regime=" << f.regime
+                  << " est_edges=" << f.est_e << " est_edges_hi=" << f.est_e_hi
+                  << " est_residual=" << f.est_r << " est_delaunay=" << f.est_del
+                  << " engine=" << f.engine_rec << " mode=" << f.mode_rec
+                  << " exact_feasible=" << (f.exact_ok ? 1 : 0) << " runtime=" << f.runtime_class
+                  << " est_runtime_s=" << f.est_runtime << " confidence=" << f.confidence
+                  << " threads=" << nthreads() << "\n# " << f.reason << "\n";
     }
     return 0;
 }
@@ -526,8 +560,8 @@ int main(int argc, char** argv) {
         delaunay_alpha_auto = true;
     } else if (mode == "sparse") {
         if (!(sparse_eps > 0 && sparse_eps < 1)) sparse_eps = static_cast<value_t>(0.6);
-    } else if (mode != "exact") {
-        std::cerr << "unknown --mode " << mode << " (use exact|scale|sparse)\n";
+    } else if (mode != "exact" && mode != "auto") {
+        std::cerr << "unknown --mode " << mode << " (use exact|scale|sparse|auto)\n";
         return 2;
     }
     if (engine != "auto" && engine != "redzed" && engine != "implicit" && engine != "homology" &&
@@ -571,6 +605,21 @@ int main(int argc, char** argv) {
             if (estimate_only) {
                 return print_estimate(have_pts ? &pts : nullptr, dist.empty() ? nullptr : &dist,
                                       maxdim, threshold, format);
+            }
+            if (mode == "auto") {
+                const Feasibility rec =
+                    compute_feasibility(have_pts ? &pts : nullptr, dist.empty() ? nullptr : &dist,
+                                        maxdim, threshold);
+                mode = rec.mode_rec;
+                if (mode == "scale") {
+                    delaunay_vr = true;
+                    delaunay_alpha_auto = true;
+                } else if (mode == "sparse") {
+                    if (!(sparse_eps > 0 && sparse_eps < 1)) sparse_eps = static_cast<value_t>(0.6);
+                }
+                std::cerr << "# MODE auto selected " << mode << " engine=" << rec.engine_rec
+                          << " exact_feasible=" << (rec.exact_ok ? 1 : 0) << " regime=" << rec.regime
+                          << " confidence=" << rec.confidence << "\n# " << rec.reason << "\n";
             }
             // I235/I236/I238: --engine auto. Probe first. Fat residual →
             // RedZeD without building the n×n vector<vector> (I238). Thin

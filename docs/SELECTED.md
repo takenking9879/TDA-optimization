@@ -2,8 +2,9 @@
 
 Updated 2026-10-14 after iterations I001–I312 plus consolidation.
 **Stable CLI:** `--mode exact|scale|sparse`, `--engine auto|redzed|implicit`,
-`--estimate`, `--threads N`. Auto-dispatch probes at \(n\ge 64\).
+`--estimate`, `--threads N`, `--mode auto`. Auto-dispatch probes at \(n\ge 64\).
 `--estimate` marks fat `maxdim≥2` residuals as exact-infeasible.
+`--mode auto` follows that recommendation (8/8 on the held-out check).
 Iteration numbers stay in this file and `RESEARCH_LOG.md`.
 **CLI default `--engine`
 auto` (I235+I236+I239+I240+I241+I263+I270+I271+I275):** subsample residual-frac dispatch,

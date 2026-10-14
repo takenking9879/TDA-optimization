@@ -44,6 +44,10 @@ oracle, then picks **RedZeD** (fat or hollow) or **collapse + implicit**
 \(n\ge 64\) (was 400; the higher cutoff left small abstract metrics on
 collapse). **[empirical, I235+I263 + consolidation]**
 
+`--mode auto` runs the same probe and then **executes** the recommended
+path (`exact` / `scale` / `sparse`). Default remains `--mode exact` so
+existing scripts do not silently change complex. Held-out check: **8/8**.
+
 `--estimate` exposes that probe as a feasibility guess with a
 **conservative |E| band** (probe fraction ×1.25), a residual-size band,
 and a residual regime (`thin` / `fat` / `hollow` / `h0`). Confidence is

@@ -27,6 +27,9 @@ def main():
     if "--mode" not in help_txt or "--estimate" not in help_txt or "--threads" not in help_txt:
         print("stable --help missing --mode/--estimate/--threads", file=sys.stderr)
         return 1
+    if "exact|scale|sparse|auto" not in help_txt:
+        print("stable --help missing --mode auto", file=sys.stderr)
+        return 1
     exp = subprocess.check_output([str(PITH), "--help-experimental"], text=True, stderr=subprocess.STDOUT)
     if "--delaunay-vr" not in exp:
         print("experimental help missing compat flags", file=sys.stderr)
@@ -74,6 +77,31 @@ def main():
     )
     if "threads=1" not in out1:
         print(" --threads 1 did not appear in counters", file=sys.stderr)
+        return 1
+    auto = subprocess.run(
+        [
+            str(PITH),
+            "--points",
+            str(path),
+            "--mode",
+            "auto",
+            "--maxdim",
+            "1",
+            "--threshold",
+            "1.5",
+            "--no-enclosing",
+            "--threads",
+            "1",
+        ],
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    if auto.returncode != 0 or "persistence intervals in dim 1" not in auto.stdout:
+        print("mode auto failed", auto.stderr, file=sys.stderr)
+        return 1
+    if "MODE auto selected" not in auto.stderr:
+        print("mode auto did not report the selected path", auto.stderr, file=sys.stderr)
         return 1
     print("ok stable CLI")
     return 0

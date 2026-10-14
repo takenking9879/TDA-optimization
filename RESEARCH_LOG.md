@@ -1134,6 +1134,14 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-14 — `--mode auto` + growth fits + Wasserstein
+
+- **Question:** Can the feasibility probe actually drive the run, and can we report \(t\approx Cn^p\) plus Wasserstein without going back to micro-opts?
+- **Work:** `--mode exact|scale|sparse|auto`. `fit_growth.py` → `docs/GROWTH.md`. Hera Wasserstein on n=400 scale vs Ripser. `eval_mode_auto.py` on held-out + large Euclidean clouds.
+- **Result:** `--mode auto` **8/8** (mixed n=300 and figure8/sphere n=16000 → scale; small exact families stay exact). Scale W1 on 2D loops \(\sim 10^{-6}\); sphere W1 \(H_1=0.21\), \(H_2=0.039\). Growth: scale \(p\approx 0.95\)–\(1.16\); exact leftover figure8 2k→4k \(p=2.79\); Ripser circle \(p\approx 3.05\).
+- **Decision:** Keep `--mode auto` as opt-in. Default stays exact. Do not mark the goal complete.
+- **Class:** experiment (usable dispatcher + measured growth)
+
 ## 2026-10-14 — consolidation phase 2 (limits + dispatcher)
 
 - **Question:** What are the practical limits, 1-thread ratios, topology distances, and dispatcher mistakes?
