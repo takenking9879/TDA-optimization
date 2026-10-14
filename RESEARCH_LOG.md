@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-14 — I295 R-cache with full emergent coboundary
+
+- **Question:** Does storing reduced \(R\) on non-emergent columns, and replaying full \(D(e_j)\) on emergent adds, cut thicken persist (sphere n=16000 reduce 2.96 s / 199k cols) without I290’s collapse=1 identity break?
+- **Hypothesis:** I290 invented H1 because emergent \(R\) was only the pivot. Full \(D(e_j)\) restores the V-empty add. Gate mean deg≤400 so dense collapse=0 keeps V (I290 27 vs 24 s).
+- **Work:** `use_rcol` + `emergent_col` in `persist_implicit_coh`. Wave 155 vs Ripser. Reverted after the clock miss.
+- **Result:** **Collapse=1 identity held** (figure8 n=200/2000 and circle n=500 exact; I290’s 117 vs 2 is gone). Thicken edges unchanged. **Slower:** figure8 n=16000 reduce **563 vs I294 443 ms**; sphere n=8000 **1.68 vs 1.20 s**; n=16000 **5.26 vs 3.95 s** (reduce 4.25 vs 2.96 s). Dumping fat \(R\) still costs more than re-walking \(V\). Exact default held except a 9.74× uniform2 noise draw (not this lever).
+- **Decision:** **Reject and revert.** Emergent-full \(R\) is the identity fix, not a clock lever. Do not retry add-\(R\) on implicit. Do not mark the goal complete.
+- **Class:** experiment (reject clock; identity lemma kept in the log)
+
 ## 2026-10-14 — I294 parallel Delaunay thicken scan
 
 - **Question:** Does scanning thicken extra-edges per vertex in parallel cut I293’s 1.13 s construction at sphere n=16000, with the same edge set?

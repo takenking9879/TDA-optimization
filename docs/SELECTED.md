@@ -1,6 +1,6 @@
 # Selected algorithm (living)
 
-Updated 2026-10-14 after iterations I001–I294. **CLI default `--engine
+Updated 2026-10-14 after iterations I001–I295. **CLI default `--engine
 auto` (I235+I236+I239+I240+I241+I263+I270+I271+I275):** subsample residual-frac dispatch,
 plus I263 edge-frac so hollow/manifold clouds take RedZeD. Fat →
 RedZeD (torus n=2000 **13.0×**). Thin-circle → collapse+implicit
@@ -140,6 +140,7 @@ suite and I137 8/8 (including dense circle80/200 **collapse=0**, the I045 killer
 | Thicken-collapse (I291) | Flag identity held (figure8 n=2000 exact H1, 256-pt circle 2857→256). **Slower** at n≥4000: figure8 n=8000 1.16 vs 0.43 s; n=16000 collapse 4.05 s. Reverted. Do not collapse thicken at scale. |
 | Thicken cell skip (I292) | Same edges as I286. No pith cut (figure8 n=16000 1.03≈1.01 s). Keep as correct range query. Persist on the thicken is the wall (sphere n=16000 reduce 3.46 s / 2.28M). |
 | Parallel thicken scan (I294) | Same edges. Metric 1131→955 ms; pith 4.12→3.95 s. Keep. Reduce (2.96 s / 199k cols) remains the wall. |
+| R-cache + full emergent (I295) | Collapse=1 exact (I290’s invent-H1 fixed). **Slower** thicken (sphere n=16000 5.26 vs 3.95 s). Reverted. Do not retry add-\(R\). |
 
 I107 (`--dom-budget 1`) **still rejected** with implicit (I142–I144): thicker
 residual makes collapse *and* reduce slower (circle3000 1.49× vs full 8.11×).
@@ -672,7 +673,7 @@ Rips is exact and too slow.
    recommended H1 thicken CLI** (exact 9/9, n=8000 65×). **I286
    split** makes auto work at maxdim≥2 (figure8 n=4000 158 ms;
    sphere n=2000 H0+H1+H2 203 ms). **I287 split scale:** sphere
-   n=8000 H0+H1+H2 **1.42 s / ess2=1**; n=16000 **4.12 s** (I293);
+   n=8000 H0+H1+H2 **1.42 s / ess2=1**; n=16000 **3.95 s** (I294);
    figure8 n=8000 **430 ms**.
    **I283
    Delaunay 2-complex hold:** ess kept, sphere n=400 un 52→33, but
@@ -696,7 +697,9 @@ Rips is exact and too slow.
    4.73 s / ess2=1**. 199k surviving columns remain the thicken
    persist wall. **I294 parallel thicken:** same edges, metric
    1131→955 ms, pith 4.12→3.95 s — keep, not a selected pith lever.
-   ae_seeded visits remain the exact-H1 wall.
+   **I295 R-cache + full emergent \(D(e_j)\):** collapse=1 identity
+   held; slower on thicken (sphere n=16000 5.26 vs 3.95 s). Reverted.
+   Do not retry add-\(R\). ae_seeded visits remain the exact-H1 wall.
 6. Owned AE leftover-star walk is still Θ(|leftover|·deg★) — rbit cut
    has_leftover_coface, not seeded probes (circle still 875k). I288
    equal-set seeded_is_noop is exact and reverted (848≈866). Packed

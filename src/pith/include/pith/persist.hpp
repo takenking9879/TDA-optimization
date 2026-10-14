@@ -790,13 +790,6 @@ inline Result persist_implicit_coh(const Graph& g, int maxdim, value_t threshold
     std::unordered_map<std::uint64_t, int> pivot;
     pivot.reserve(cols.size() * 2);
     std::vector<std::vector<LEdge>> red(cols.size());
-    // I295: replay reduced R on later adds. I290 stored only the
-    // emergent pivot; later adds need full D(e_j). Dense G_T (mean
-    // deg>400) keeps the V-matrix — R was fatter there (I290 27 vs 24 s).
-    const double mean_deg = g.n ? 2.0 * static_cast<double>(g.edges.size()) / g.n : 0;
-    const bool use_rcol = mean_deg <= 400.0 && cols.size() >= 256;
-    std::vector<std::vector<CohEntry>> rcol(use_rcol ? cols.size() : 0);
-    std::vector<char> emergent_col(use_rcol ? cols.size() : 0, 0);
 
     auto add_simplex_coboundary = [&](const LEdge& e, std::vector<LEdge>& vred, CohHeap& cob) {
         vred.push_back(e);
@@ -821,28 +814,6 @@ inline Result persist_implicit_coh(const Graph& g, int maxdim, value_t threshold
                 out.push_back(e);
         }
         v.swap(out);
-    };
-
-    auto dump_rcol = [](CohHeap& cob) {
-        std::vector<CohEntry> out;
-        for (;;) {
-            const CohEntry x = pop_pivot_ripser(cob);
-            if (x.t == kNegInf) break;
-            out.push_back(x);
-        }
-        return out;
-    };
-
-    auto add_rcol = [&](int j, CohHeap& cob) {
-        if (emergent_col[static_cast<size_t>(j)]) {
-            for_cofacets_edge(g, cols[static_cast<size_t>(j)].u, cols[static_cast<size_t>(j)].v,
-                              cols[static_cast<size_t>(j)].t, threshold, [&](CohEntry x) {
-                                  ++c.n_cofacet_probes;
-                                  cob.push(x);
-                              });
-        } else {
-            for (const CohEntry& x : rcol[static_cast<size_t>(j)]) cob.push(x);
-        }
     };
 
     for (int i = 0; i < static_cast<int>(cols.size()); ++i) {
@@ -895,13 +866,8 @@ inline Result persist_implicit_coh(const Graph& g, int maxdim, value_t threshold
             auto it = pivot.find(piv.key);
             if (it != pivot.end()) {
                 const int j = it->second;
-                if (use_rcol) {
-                    add_rcol(j, working_cob);
-                } else {
-                    add_simplex_coboundary(cols[j], working_red, working_cob);
-                    for (const LEdge& e : red[static_cast<size_t>(j)])
-                        add_simplex_coboundary(e, working_red, working_cob);
-                }
+                add_simplex_coboundary(cols[j], working_red, working_cob);
+                for (const LEdge& e : red[j]) add_simplex_coboundary(e, working_red, working_cob);
                 ++c.n_additions;
                 piv = peek_pivot_ripser(working_cob);
                 continue;
@@ -916,17 +882,8 @@ inline Result persist_implicit_coh(const Graph& g, int maxdim, value_t threshold
             }
             if (piv.t > cols[i].t * ratio) r.pairs.push_back({1, cols[i].t, piv.t});
             pivot[piv.key] = i;
-            if (use_rcol) {
-                if (have_emergent) {
-                    emergent_col[static_cast<size_t>(i)] = 1;
-                } else {
-                    if (working_cob.empty()) working_cob.push(piv);
-                    rcol[static_cast<size_t>(i)] = dump_rcol(working_cob);
-                }
-            } else {
-                compress_vedges(working_red);
-                red[static_cast<size_t>(i)] = std::move(working_red);
-            }
+            compress_vedges(working_red);
+            red[i] = std::move(working_red);
             break;
         }
     }
