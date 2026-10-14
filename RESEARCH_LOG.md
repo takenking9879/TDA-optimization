@@ -5,6 +5,14 @@ Do not paste long reasoning here.
 
 ---
 
+## 2026-10-14 — I318 young-cap collapse then RedZeD
+
+- **Question:** Can an *exact subset* of flag-edge-collapses (newest K edges only) cut leftover RedZeD AE without I317’s full-collapse tax?
+- **Work:** `--collapse-alg young-cap --suffix-keep K` + `--engine collapse-redzed`. K∈{4096,16384,65536}. Live `young_cap.json` vs auto. 1 thread. τ frozen.
+- **Result:** **0 unmatched**. Best young-cap faster than auto **0/8**. DenseTimes init is the new tax (anisotropic n=8000 collapse 2.65 s even at K=4096; reduce 1018→427 ms does not pay for it). figure8 young-65536 12× vs auto 17×.
+- **Decision:** Reject as a leftover 10× engine. Keep the experimental alg. Do not change `--engine auto`. Goal not complete.
+- **Class:** verified (live)
+
 ## 2026-10-14 — I317 collapse then RedZeD on the residual
 
 - **Question:** Does flag-edge-collapse + RedZeD AE on the residual 1-skeleton beat metric RedZeD on leftover cells? (I315 was collapse+implicit.)

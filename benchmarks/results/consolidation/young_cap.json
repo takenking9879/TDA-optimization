@@ -1,0 +1,1024 @@
+{
+  "note": "I318 young-cap collapse+RedZeD. Exact subset of collapses. \u03c4 frozen.",
+  "unmatched_vs_ripser": 0,
+  "any_young_ge10_families": 1,
+  "best_young_faster_than_auto": "0/7",
+  "series": [
+    {
+      "name": "figure8",
+      "n": 2000,
+      "T": 1.1,
+      "runs": {
+        "auto": {
+          "method": "pith:exact:auto:t1",
+          "ok": true,
+          "error": null,
+          "timed_out": false,
+          "oom": false,
+          "wall_s": 0.14822725900739897,
+          "cpu_s": 0.147843,
+          "threads_claimed": 1,
+          "threads_pith": 1,
+          "rss_delta": 132743168,
+          "rss_pith": 42721280,
+          "n_dist": 481757,
+          "n_edges_in": 0,
+          "n_edges_out": 0,
+          "metric_ms": 9.931288,
+          "collapse_ms": 0,
+          "reduce_ms": 96.030533,
+          "pipeline": "pith:auto-redzed-spatial",
+          "residual_frac": 0.037981408,
+          "n_pairs": 2348,
+          "ess0": 1,
+          "ess1": 2,
+          "ess2": 0
+        },
+        "young4096": {
+          "method": "pith:young-cap-4096",
+          "ok": true,
+          "error": null,
+          "timed_out": false,
+          "wall_s": 0.24864017999789212,
+          "collapse_ms": 91.900742,
+          "reduce_ms": 94.016081,
+          "n_edges_in": 481757,
+          "n_edges_out": 0,
+          "pipeline": "pith:collapse+redzed-edges",
+          "n_pairs": 2348
+        },
+        "young16384": {
+          "method": "pith:young-cap-16384",
+          "ok": true,
+          "error": null,
+          "timed_out": false,
+          "wall_s": 0.24062834100914188,
+          "collapse_ms": 92.512762,
+          "reduce_ms": 86.622114,
+          "n_edges_in": 481757,
+          "n_edges_out": 0,
+          "pipeline": "pith:collapse+redzed-edges",
+          "n_pairs": 2348
+        },
+        "young65536": {
+          "method": "pith:young-cap-65536",
+          "ok": true,
+          "error": null,
+          "timed_out": false,
+          "wall_s": 0.2062528660026146,
+          "collapse_ms": 92.170207,
+          "reduce_ms": 60.386369,
+          "n_edges_in": 481757,
+          "n_edges_out": 0,
+          "pipeline": "pith:collapse+redzed-edges",
+          "n_pairs": 2348
+        },
+        "ripser": {
+          "method": "ripser",
+          "ok": true,
+          "error": null,
+          "wall_s": 2.5065200310054934,
+          "threads_claimed": 1,
+          "rss_delta": 655360,
+          "n_pairs": 2348,
+          "ess0": 1,
+          "ess1": 2,
+          "ess2": 0
+        }
+      },
+      "vs_ripser": {
+        "auto": {
+          "exact_match_tol": true,
+          "unmatched": 0,
+          "n_finite_a": 2345,
+          "n_finite_b": 2345,
+          "n_essential_a": 3,
+          "n_essential_b": 3,
+          "class": "exact"
+        },
+        "young4096": {
+          "exact_match_tol": true,
+          "unmatched": 0,
+          "n_finite_a": 2345,
+          "n_finite_b": 2345,
+          "n_essential_a": 3,
+          "n_essential_b": 3,
+          "class": "exact"
+        },
+        "young16384": {
+          "exact_match_tol": true,
+          "unmatched": 0,
+          "n_finite_a": 2345,
+          "n_finite_b": 2345,
+          "n_essential_a": 3,
+          "n_essential_b": 3,
+          "class": "exact"
+        },
+        "young65536": {
+          "exact_match_tol": true,
+          "unmatched": 0,
+          "n_finite_a": 2345,
+          "n_finite_b": 2345,
+          "n_essential_a": 3,
+          "n_essential_b": 3,
+          "class": "exact"
+        }
+      },
+      "ratio": {
+        "auto": 16.909980308550242,
+        "young4096": 10.080913032747736,
+        "young16384": 10.416561991383494,
+        "young65536": 12.15265552224481
+      }
+    },
+    {
+      "name": "torus",
+      "n": 2000,
+      "T": 1.6,
+      "runs": {
+        "auto": {
+          "method": "pith:exact:auto:t1",
+          "ok": true,
+          "error": null,
+          "timed_out": false,
+          "oom": false,
+          "wall_s": 0.20365596299234312,
+          "cpu_s": 3.551771,
+          "threads_claimed": 1,
+          "threads_pith": 1,
+          "rss_delta": 786432,
+          "rss_pith": 40669184,
+          "n_dist": 478860,
+          "n_edges_in": 0,
+          "n_edges_out": 0,
+          "metric_ms": 9.335586,
+          "collapse_ms": 0,
+          "reduce_ms": 148.65396,
+          "pipeline": "pith:auto-redzed-spatial",
+          "residual_frac": 0.27993506,
+          "n_pairs": 2525,
+          "ess0": 1,
+          "ess1": 1,
+          "ess2": 0
+        },
+        "young4096": {
+          "method": "pith:young-cap-4096",
+          "ok": true,
+          "error": null,
+          "timed_out": false,
+          "wall_s": 0.3009375169931445,
+          "collapse_ms": 91.163398,
+          "reduce_ms": 148.44319,
+          "n_edges_in": 478860,
+          "n_edges_out": 0,
+          "pipeline": "pith:collapse+redzed-edges",
+          "n_pairs": 2525
+        },
+        "young16384": {
+          "method": "pith:young-cap-16384",
+          "ok": true,
+          "error": null,
+          "timed_out": false,
+          "wall_s": 0.2976309080113424,
+          "collapse_ms": 91.957392,
+          "reduce_ms": 143.98849,
+          "n_edges_in": 478860,
+          "n_edges_out": 0,
+          "pipeline": "pith:collapse+redzed-edges",
+          "n_pairs": 2525
+        },
+        "young65536": {
+          "method": "pith:young-cap-65536",
+          "ok": true,
+          "error": null,
+          "timed_out": false,
+          "wall_s": 0.2670475579943741,
+          "collapse_ms": 91.333905,
+          "reduce_ms": 120.97422,
+          "n_edges_in": 478860,
+          "n_edges_out": 0,
+          "pipeline": "pith:collapse+redzed-edges",
+          "n_pairs": 2525
+        },
+        "ripser": {
+          "method": "ripser",
+          "ok": true,
+          "error": null,
+          "wall_s": 2.5023265500058187,
+          "threads_claimed": 1,
+          "rss_delta": 62300160,
+          "n_pairs": 2525,
+          "ess0": 1,
+          "ess1": 1,
+          "ess2": 0
+        }
+      },
+      "vs_ripser": {
+        "auto": {
+          "exact_match_tol": true,
+          "unmatched": 0,
+          "n_finite_a": 2523,
+          "n_finite_b": 2523,
+          "n_essential_a": 2,
+          "n_essential_b": 2,
+          "class": "exact"
+        },
+        "young4096": {
+          "exact_match_tol": true,
+          "unmatched": 0,
+          "n_finite_a": 2523,
+          "n_finite_b": 2523,
+          "n_essential_a": 2,
+          "n_essential_b": 2,
+          "class": "exact"
+        },
+        "young16384": {
+          "exact_match_tol": true,
+          "unmatched": 0,
+          "n_finite_a": 2523,
+          "n_finite_b": 2523,
+          "n_essential_a": 2,
+          "n_essential_b": 2,
+          "class": "exact"
+        },
+        "young65536": {
+          "exact_match_tol": true,
+          "unmatched": 0,
+          "n_finite_a": 2523,
+          "n_finite_b": 2523,
+          "n_essential_a": 2,
+          "n_essential_b": 2,
+          "class": "exact"
+        }
+      },
+      "ratio": {
+        "auto": 12.287028149035336,
+        "young4096": 8.3151033311105,
+        "young16384": 8.407482162136393,
+        "young65536": 9.370340507133697
+      }
+    },
+    {
+      "name": "uniform2",
+      "n": 2000,
+      "T": 0.35,
+      "runs": {
+        "auto": {
+          "method": "pith:exact:auto:t1",
+          "ok": true,
+          "error": null,
+          "timed_out": false,
+          "oom": false,
+          "wall_s": 0.06184082200343255,
+          "cpu_s": 6.979405999999999,
+          "threads_claimed": 1,
+          "threads_pith": 1,
+          "rss_delta": 0,
+          "rss_pith": 20942848,
+          "n_dist": 1999000,
+          "n_edges_in": 0,
+          "n_edges_out": 0,
+          "metric_ms": 7.360655,
+          "collapse_ms": 0,
+          "reduce_ms": 38.813372,
+          "pipeline": "pith:auto-redzed",
+          "residual_frac": 0.072345651,
+          "n_pairs": 2505,
+          "ess0": 1,
+          "ess1": 0,
+          "ess2": 0
+        },
+        "young4096": {
+          "method": "pith:young-cap-4096",
+          "ok": true,
+          "error": null,
+          "timed_out": false,
+          "wall_s": 0.20254785499128047,
+          "collapse_ms": 109.22764,
+          "reduce_ms": 15.441254,
+          "n_edges_in": 571692,
+          "n_edges_out": 0,
+          "pipeline": "pith:collapse+redzed-edges",
+          "n_pairs": 2505
+        },
+        "young16384": {
+          "method": "pith:young-cap-16384",
+          "ok": true,
+          "error": null,
+          "timed_out": false,
+          "wall_s": 0.19053469800564926,
+          "collapse_ms": 106.0092,
+          "reduce_ms": 15.206033,
+          "n_edges_in": 571692,
+          "n_edges_out": 0,
+          "pipeline": "pith:collapse+redzed-edges",
+          "n_pairs": 2505
+        },
+        "young65536": {
+          "method": "pith:young-cap-65536",
+          "ok": true,
+          "error": null,
+          "timed_out": false,
+          "wall_s": 0.1892151470092358,
+          "collapse_ms": 110.17635,
+          "reduce_ms": 14.4842,
+          "n_edges_in": 571692,
+          "n_edges_out": 0,
+          "pipeline": "pith:collapse+redzed-edges",
+          "n_pairs": 2505
+        },
+        "ripser": {
+          "method": "ripser",
+          "ok": true,
+          "error": null,
+          "wall_s": 0.4244394909910625,
+          "threads_claimed": 1,
+          "rss_delta": 0,
+          "n_pairs": 2505,
+          "ess0": 1,
+          "ess1": 0,
+          "ess2": 0
+        }
+      },
+      "vs_ripser": {
+        "auto": {
+          "exact_match_tol": true,
+          "unmatched": 0,
+          "n_finite_a": 2504,
+          "n_finite_b": 2504,
+          "n_essential_a": 1,
+          "n_essential_b": 1,
+          "class": "exact"
+        },
+        "young4096": {
+          "exact_match_tol": true,
+          "unmatched": 0,
+          "n_finite_a": 2504,
+          "n_finite_b": 2504,
+          "n_essential_a": 1,
+          "n_essential_b": 1,
+          "class": "exact"
+        },
+        "young16384": {
+          "exact_match_tol": true,
+          "unmatched": 0,
+          "n_finite_a": 2504,
+          "n_finite_b": 2504,
+          "n_essential_a": 1,
+          "n_essential_b": 1,
+          "class": "exact"
+        },
+        "young65536": {
+          "exact_match_tol": true,
+          "unmatched": 0,
+          "n_finite_a": 2504,
+          "n_finite_b": 2504,
+          "n_essential_a": 1,
+          "n_essential_b": 1,
+          "class": "exact"
+        }
+      },
+      "ratio": {
+        "auto": 6.863419295550494,
+        "young4096": 2.095502275298518,
+        "young16384": 2.2276230809071746,
+        "young65536": 2.24315810705337
+      }
+    },
+    {
+      "name": "sphere",
+      "n": 2000,
+      "T": 1.4,
+      "runs": {
+        "auto": {
+          "method": "pith:exact:auto:t1",
+          "ok": true,
+          "error": null,
+          "timed_out": false,
+          "oom": false,
+          "wall_s": 0.09252974801347591,
+          "cpu_s": 8.076898,
+          "threads_claimed": 1,
+          "threads_pith": 1,
+          "rss_delta": 0,
+          "rss_pith": 25894912,
+          "n_dist": 1999000,
+          "n_edges_in": 0,
+          "n_edges_out": 0,
+          "metric_ms": 7.91852,
+          "collapse_ms": 0,
+          "reduce_ms": 61.53453,
+          "pipeline": "pith:auto-redzed",
+          "residual_frac": 0.057086485,
+          "n_pairs": 2569,
+          "ess0": 1,
+          "ess1": 0,
+          "ess2": 0
+        },
+        "young4096": {
+          "method": "pith:young-cap-4096",
+          "ok": true,
+          "error": null,
+          "timed_out": false,
+          "wall_s": 0.32347461899917107,
+          "collapse_ms": 186.31496,
+          "reduce_ms": 23.937328,
+          "n_edges_in": 979816,
+          "n_edges_out": 0,
+          "pipeline": "pith:collapse+redzed-edges",
+          "n_pairs": 2569
+        },
+        "young16384": {
+          "method": "pith:young-cap-16384",
+          "ok": true,
+          "error": null,
+          "timed_out": false,
+          "wall_s": 0.3216217770095682,
+          "collapse_ms": 189.60194,
+          "reduce_ms": 23.527049,
+          "n_edges_in": 979816,
+          "n_edges_out": 0,
+          "pipeline": "pith:collapse+redzed-edges",
+          "n_pairs": 2569
+        },
+        "young65536": {
+          "method": "pith:young-cap-65536",
+          "ok": true,
+          "error": null,
+          "timed_out": false,
+          "wall_s": 0.3224555600027088,
+          "collapse_ms": 198.26045,
+          "reduce_ms": 22.575486,
+          "n_edges_in": 979816,
+          "n_edges_out": 0,
+          "pipeline": "pith:collapse+redzed-edges",
+          "n_pairs": 2569
+        },
+        "ripser": {
+          "method": "ripser",
+          "ok": true,
+          "error": null,
+          "wall_s": 0.7929524610080989,
+          "threads_claimed": 1,
+          "rss_delta": 0,
+          "n_pairs": 2569,
+          "ess0": 1,
+          "ess1": 0,
+          "ess2": 0
+        }
+      },
+      "vs_ripser": {
+        "auto": {
+          "exact_match_tol": true,
+          "unmatched": 0,
+          "n_finite_a": 2568,
+          "n_finite_b": 2568,
+          "n_essential_a": 1,
+          "n_essential_b": 1,
+          "class": "exact"
+        },
+        "young4096": {
+          "exact_match_tol": true,
+          "unmatched": 0,
+          "n_finite_a": 2568,
+          "n_finite_b": 2568,
+          "n_essential_a": 1,
+          "n_essential_b": 1,
+          "class": "exact"
+        },
+        "young16384": {
+          "exact_match_tol": true,
+          "unmatched": 0,
+          "n_finite_a": 2568,
+          "n_finite_b": 2568,
+          "n_essential_a": 1,
+          "n_essential_b": 1,
+          "class": "exact"
+        },
+        "young65536": {
+          "exact_match_tol": true,
+          "unmatched": 0,
+          "n_finite_a": 2568,
+          "n_finite_b": 2568,
+          "n_essential_a": 1,
+          "n_essential_b": 1,
+          "class": "exact"
+        }
+      },
+      "ratio": {
+        "auto": 8.56970302018562,
+        "young4096": 2.451359131240312,
+        "young16384": 2.4654812506197574,
+        "young65536": 2.459106181953996
+      }
+    },
+    {
+      "name": "anisotropic_blob",
+      "n": 4000,
+      "T": 2.5,
+      "runs": {
+        "auto": {
+          "method": "pith:exact:auto:t1",
+          "ok": true,
+          "error": null,
+          "timed_out": false,
+          "oom": false,
+          "wall_s": 0.30811229000391904,
+          "cpu_s": 10.143557,
+          "threads_claimed": 1,
+          "threads_pith": 1,
+          "rss_delta": 0,
+          "rss_pith": 72507392,
+          "n_dist": 7998000,
+          "n_edges_in": 0,
+          "n_edges_out": 0,
+          "metric_ms": 31.911127,
+          "collapse_ms": 0,
+          "reduce_ms": 228.60532,
+          "pipeline": "pith:auto-redzed",
+          "residual_frac": 0.061408504,
+          "n_pairs": 5071,
+          "ess0": 1,
+          "ess1": 0,
+          "ess2": 0
+        },
+        "young4096": {
+          "method": "pith:young-cap-4096",
+          "ok": true,
+          "error": null,
+          "timed_out": false,
+          "wall_s": 1.0914974699990125,
+          "collapse_ms": 588.17506,
+          "reduce_ms": 82.468935,
+          "n_edges_in": 2719935,
+          "n_edges_out": 0,
+          "pipeline": "pith:collapse+redzed-edges",
+          "n_pairs": 5071
+        },
+        "young16384": {
+          "method": "pith:young-cap-16384",
+          "ok": true,
+          "error": null,
+          "timed_out": false,
+          "wall_s": 1.0565756089927163,
+          "collapse_ms": 574.80522,
+          "reduce_ms": 81.731281,
+          "n_edges_in": 2719935,
+          "n_edges_out": 0,
+          "pipeline": "pith:collapse+redzed-edges",
+          "n_pairs": 5071
+        },
+        "young65536": {
+          "method": "pith:young-cap-65536",
+          "ok": true,
+          "error": null,
+          "timed_out": false,
+          "wall_s": 1.0452053940098267,
+          "collapse_ms": 580.84522,
+          "reduce_ms": 80.274189,
+          "n_edges_in": 2719935,
+          "n_edges_out": 0,
+          "pipeline": "pith:collapse+redzed-edges",
+          "n_pairs": 5071
+        },
+        "ripser": {
+          "method": "ripser",
+          "ok": true,
+          "error": null,
+          "wall_s": 2.350759445995209,
+          "threads_claimed": 1,
+          "rss_delta": 0,
+          "n_pairs": 5071,
+          "ess0": 1,
+          "ess1": 0,
+          "ess2": 0
+        }
+      },
+      "vs_ripser": {
+        "auto": {
+          "exact_match_tol": true,
+          "unmatched": 0,
+          "n_finite_a": 5070,
+          "n_finite_b": 5070,
+          "n_essential_a": 1,
+          "n_essential_b": 1,
+          "class": "exact"
+        },
+        "young4096": {
+          "exact_match_tol": true,
+          "unmatched": 0,
+          "n_finite_a": 5070,
+          "n_finite_b": 5070,
+          "n_essential_a": 1,
+          "n_essential_b": 1,
+          "class": "exact"
+        },
+        "young16384": {
+          "exact_match_tol": true,
+          "unmatched": 0,
+          "n_finite_a": 5070,
+          "n_finite_b": 5070,
+          "n_essential_a": 1,
+          "n_essential_b": 1,
+          "class": "exact"
+        },
+        "young65536": {
+          "exact_match_tol": true,
+          "unmatched": 0,
+          "n_finite_a": 5070,
+          "n_finite_b": 5070,
+          "n_essential_a": 1,
+          "n_essential_b": 1,
+          "class": "exact"
+        }
+      },
+      "ratio": {
+        "auto": 7.62955429647194,
+        "young4096": 2.1537012321222653,
+        "young16384": 2.224885210284477,
+        "young65536": 2.249088513576029
+      }
+    },
+    {
+      "name": "grid_holes",
+      "n": 4000,
+      "T": 0.12,
+      "runs": {
+        "auto": {
+          "method": "pith:exact:auto:t1",
+          "ok": true,
+          "error": null,
+          "timed_out": false,
+          "oom": false,
+          "wall_s": 0.11224180599674582,
+          "cpu_s": 15.797146,
+          "threads_claimed": 1,
+          "threads_pith": 1,
+          "rss_delta": 0,
+          "rss_pith": 36687872,
+          "n_dist": 320307,
+          "n_edges_in": 0,
+          "n_edges_out": 0,
+          "metric_ms": 7.555963,
+          "collapse_ms": 0,
+          "reduce_ms": 67.784392,
+          "pipeline": "pith:auto-redzed-spatial",
+          "residual_frac": 0.35231023,
+          "n_pairs": 5399,
+          "ess0": 1,
+          "ess1": 2,
+          "ess2": 0
+        },
+        "young4096": {
+          "method": "pith:young-cap-4096",
+          "ok": true,
+          "error": null,
+          "timed_out": false,
+          "wall_s": 0.2664859070064267,
+          "collapse_ms": 96.974533,
+          "reduce_ms": 68.575549,
+          "n_edges_in": 320307,
+          "n_edges_out": 0,
+          "pipeline": "pith:collapse+redzed-edges",
+          "n_pairs": 5399
+        },
+        "young16384": {
+          "method": "pith:young-cap-16384",
+          "ok": true,
+          "error": null,
+          "timed_out": false,
+          "wall_s": 0.2593686579930363,
+          "collapse_ms": 95.136974,
+          "reduce_ms": 63.21681,
+          "n_edges_in": 320307,
+          "n_edges_out": 0,
+          "pipeline": "pith:collapse+redzed-edges",
+          "n_pairs": 5399
+        },
+        "young65536": {
+          "method": "pith:young-cap-65536",
+          "ok": true,
+          "error": null,
+          "timed_out": false,
+          "wall_s": 0.2529886590054957,
+          "collapse_ms": 110.18823,
+          "reduce_ms": 49.29548,
+          "n_edges_in": 320307,
+          "n_edges_out": 0,
+          "pipeline": "pith:collapse+redzed-edges",
+          "n_pairs": 5399
+        },
+        "ripser": {
+          "method": "ripser",
+          "ok": true,
+          "error": null,
+          "wall_s": 0.5854171050013974,
+          "threads_claimed": 1,
+          "rss_delta": 0,
+          "n_pairs": 5399,
+          "ess0": 1,
+          "ess1": 2,
+          "ess2": 0
+        }
+      },
+      "vs_ripser": {
+        "auto": {
+          "exact_match_tol": true,
+          "unmatched": 0,
+          "n_finite_a": 5396,
+          "n_finite_b": 5396,
+          "n_essential_a": 3,
+          "n_essential_b": 3,
+          "class": "exact"
+        },
+        "young4096": {
+          "exact_match_tol": true,
+          "unmatched": 0,
+          "n_finite_a": 5396,
+          "n_finite_b": 5396,
+          "n_essential_a": 3,
+          "n_essential_b": 3,
+          "class": "exact"
+        },
+        "young16384": {
+          "exact_match_tol": true,
+          "unmatched": 0,
+          "n_finite_a": 5396,
+          "n_finite_b": 5396,
+          "n_essential_a": 3,
+          "n_essential_b": 3,
+          "class": "exact"
+        },
+        "young65536": {
+          "exact_match_tol": true,
+          "unmatched": 0,
+          "n_finite_a": 5396,
+          "n_finite_b": 5396,
+          "n_essential_a": 3,
+          "n_essential_b": 3,
+          "class": "exact"
+        }
+      },
+      "ratio": {
+        "auto": 5.215677882253339,
+        "young4096": 2.1968032440352623,
+        "young16384": 2.2570849906510873,
+        "young65536": 2.314005328549847
+      }
+    },
+    {
+      "name": "anisotropic_blob",
+      "n": 8000,
+      "T": 2.5,
+      "runs": {
+        "auto": {
+          "method": "pith:exact:auto:t1",
+          "ok": true,
+          "error": null,
+          "timed_out": false,
+          "oom": false,
+          "wall_s": 1.2929265999991912,
+          "cpu_s": 18.451940999999998,
+          "threads_claimed": 1,
+          "threads_pith": 1,
+          "rss_delta": 0,
+          "rss_pith": 274395136,
+          "n_dist": 31996000,
+          "n_edges_in": 0,
+          "n_edges_out": 0,
+          "metric_ms": 119.62869,
+          "collapse_ms": 0,
+          "reduce_ms": 1017.5929,
+          "pipeline": "pith:auto-redzed",
+          "residual_frac": 0.063952293,
+          "n_pairs": 10192,
+          "ess0": 1,
+          "ess1": 0,
+          "ess2": 0
+        },
+        "young4096": {
+          "method": "pith:young-cap-4096",
+          "ok": true,
+          "error": null,
+          "timed_out": false,
+          "wall_s": 4.882159529995988,
+          "collapse_ms": 2651.5553,
+          "reduce_ms": 427.04107,
+          "n_edges_in": 10931123,
+          "n_edges_out": 0,
+          "pipeline": "pith:collapse+redzed-edges",
+          "n_pairs": 10192
+        },
+        "young16384": {
+          "method": "pith:young-cap-16384",
+          "ok": true,
+          "error": null,
+          "timed_out": false,
+          "wall_s": 4.8962205610005185,
+          "collapse_ms": 2664.2284,
+          "reduce_ms": 425.14973,
+          "n_edges_in": 10931123,
+          "n_edges_out": 0,
+          "pipeline": "pith:collapse+redzed-edges",
+          "n_pairs": 10192
+        },
+        "young65536": {
+          "method": "pith:young-cap-65536",
+          "ok": true,
+          "error": null,
+          "timed_out": false,
+          "wall_s": 5.116886924995924,
+          "collapse_ms": 2820.1677,
+          "reduce_ms": 463.63157,
+          "n_edges_in": 10931123,
+          "n_edges_out": 0,
+          "pipeline": "pith:collapse+redzed-edges",
+          "n_pairs": 10192
+        },
+        "ripser": {
+          "method": "ripser",
+          "ok": true,
+          "error": null,
+          "wall_s": 12.324435685994104,
+          "threads_claimed": 1,
+          "rss_delta": 0,
+          "n_pairs": 10192,
+          "ess0": 1,
+          "ess1": 0,
+          "ess2": 0
+        }
+      },
+      "vs_ripser": {
+        "auto": {
+          "exact_match_tol": true,
+          "unmatched": 0,
+          "n_finite_a": 10191,
+          "n_finite_b": 10191,
+          "n_essential_a": 1,
+          "n_essential_b": 1,
+          "class": "exact"
+        },
+        "young4096": {
+          "exact_match_tol": true,
+          "unmatched": 0,
+          "n_finite_a": 10191,
+          "n_finite_b": 10191,
+          "n_essential_a": 1,
+          "n_essential_b": 1,
+          "class": "exact"
+        },
+        "young16384": {
+          "exact_match_tol": true,
+          "unmatched": 0,
+          "n_finite_a": 10191,
+          "n_finite_b": 10191,
+          "n_essential_a": 1,
+          "n_essential_b": 1,
+          "class": "exact"
+        },
+        "young65536": {
+          "exact_match_tol": true,
+          "unmatched": 0,
+          "n_finite_a": 10191,
+          "n_finite_b": 10191,
+          "n_essential_a": 1,
+          "n_essential_b": 1,
+          "class": "exact"
+        }
+      },
+      "ratio": {
+        "auto": 9.532200579678547,
+        "young4096": 2.5243820096973013,
+        "young16384": 2.5171324560337345,
+        "young65536": 2.4085808161578477
+      }
+    },
+    {
+      "name": "uniform2",
+      "n": 5000,
+      "T": 0.35,
+      "runs": {
+        "auto": {
+          "method": "pith:exact:auto:t1",
+          "ok": true,
+          "error": null,
+          "timed_out": false,
+          "oom": false,
+          "wall_s": 0.40627461500116624,
+          "cpu_s": 46.072041,
+          "threads_claimed": 1,
+          "threads_pith": 1,
+          "rss_delta": 0,
+          "rss_pith": 101429248,
+          "n_dist": 12497500,
+          "n_edges_in": 0,
+          "n_edges_out": 0,
+          "metric_ms": 48.535904,
+          "collapse_ms": 0,
+          "reduce_ms": 291.09716,
+          "pipeline": "pith:auto-redzed",
+          "residual_frac": 0.075171587,
+          "n_pairs": 6309,
+          "ess0": 1,
+          "ess1": 0,
+          "ess2": 0
+        },
+        "young4096": {
+          "method": "pith:young-cap-4096",
+          "ok": true,
+          "error": null,
+          "timed_out": false,
+          "wall_s": 1.53620791999856,
+          "collapse_ms": 820.33244,
+          "reduce_ms": 144.48048,
+          "n_edges_in": 3466504,
+          "n_edges_out": 0,
+          "pipeline": "pith:collapse+redzed-edges",
+          "n_pairs": 6309
+        },
+        "young16384": {
+          "method": "pith:young-cap-16384",
+          "ok": true,
+          "error": null,
+          "timed_out": false,
+          "wall_s": 1.6609056430024793,
+          "collapse_ms": 895.93123,
+          "reduce_ms": 148.88932,
+          "n_edges_in": 3466504,
+          "n_edges_out": 0,
+          "pipeline": "pith:collapse+redzed-edges",
+          "n_pairs": 6309
+        },
+        "young65536": {
+          "method": "pith:young-cap-65536",
+          "ok": true,
+          "error": null,
+          "timed_out": false,
+          "wall_s": 1.595000733010238,
+          "collapse_ms": 875.86845,
+          "reduce_ms": 130.06897,
+          "n_edges_in": 3466504,
+          "n_edges_out": 0,
+          "pipeline": "pith:collapse+redzed-edges",
+          "n_pairs": 6309
+        },
+        "ripser": {
+          "method": "ripser",
+          "ok": true,
+          "error": null,
+          "wall_s": 3.494012348004617,
+          "threads_claimed": 1,
+          "rss_delta": 0,
+          "n_pairs": 6309,
+          "ess0": 1,
+          "ess1": 0,
+          "ess2": 0
+        }
+      },
+      "vs_ripser": {
+        "auto": {
+          "exact_match_tol": true,
+          "unmatched": 0,
+          "n_finite_a": 6308,
+          "n_finite_b": 6308,
+          "n_essential_a": 1,
+          "n_essential_b": 1,
+          "class": "exact"
+        },
+        "young4096": {
+          "exact_match_tol": true,
+          "unmatched": 0,
+          "n_finite_a": 6308,
+          "n_finite_b": 6308,
+          "n_essential_a": 1,
+          "n_essential_b": 1,
+          "class": "exact"
+        },
+        "young16384": {
+          "exact_match_tol": true,
+          "unmatched": 0,
+          "n_finite_a": 6308,
+          "n_finite_b": 6308,
+          "n_essential_a": 1,
+          "n_essential_b": 1,
+          "class": "exact"
+        },
+        "young65536": {
+          "exact_match_tol": true,
+          "unmatched": 0,
+          "n_finite_a": 6308,
+          "n_finite_b": 6308,
+          "n_essential_a": 1,
+          "n_essential_b": 1,
+          "class": "exact"
+        }
+      },
+      "ratio": {
+        "auto": 8.600124691508444,
+        "young4096": 2.2744397438127333,
+        "young16384": 2.103679015557057,
+        "young65536": 2.1906023462512034
+      }
+    }
+  ]
+}

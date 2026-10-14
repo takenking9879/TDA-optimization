@@ -1,6 +1,6 @@
 # Selected algorithm (living)
 
-Updated 2026-10-14 after iterations I001–I317 plus consolidation (phase 3)
+Updated 2026-10-14 after iterations I001–I318 plus consolidation (phase 3)
 and the fused Euclidean sparse constructor.
 **Stable CLI:** `--mode exact|scale|sparse|auto`, `--engine auto|redzed|implicit`,
 `--estimate`, `--threads N`. Public runners import `generate_datasets` /
@@ -349,6 +349,12 @@ Flag-edge-collapse then `persist_redzed_from_edges` (`--engine collapse-redzed`)
 Exact (**0 unmatched**). Residual AE is cheap (1–12 ms). Collapse is the
 tax. Faster than `--engine auto` **0/8** (`collapse_redzed.json`). GUDHI
 `collapse_edges` is slower (anisotropic \(n=8000\) 254 s). Not selected.
+
+### I318 young-cap collapse + RedZeD (not default)
+
+Exact subset of backward collapses (newest \(K\) edges). Live
+`young_cap.json`: **0 unmatched**, faster than auto **0/8**. DenseTimes
+init dominates (anisotropic \(n=8000\) 2.65 s at \(K=4096\)). Not selected.
 
 ### I227 real RedZeD (H09, MIT, not default)
 
