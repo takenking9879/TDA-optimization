@@ -52,6 +52,11 @@ Phase-3 post-freeze: `grid_holes` scale unmatched 0 / ess \(H_1=2\);
 Alpha on those three reports ess \(H_1=H_2=0\) and merges the two
 far circles / spheres into one \(H_0\).
 
+Persistence-diagram overlays at \(n=400\) (`plot_pd.py`): exact sits on
+Ripser; scale keeps essential bars on the 2D loops and the sphere void;
+sparse keeps 2D ess with extra finite bars; GUDHI Alpha drops essential
+\(H_1/H_2\). See `benchmarks/results/consolidation/figures/pd_*.svg`.
+
 ## What is lost
 
 Short finite loops that need a denser 1-skeleton than Delaunay+\(\alpha r_v\).

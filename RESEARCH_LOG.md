@@ -5,6 +5,13 @@ Do not paste long reasoning here.
 
 ---
 
+## 2026-10-14 — PD figures include sparse and Alpha
+
+- **Work:** `plot_pd.py` — Ripser / exact / scale / sparse / GUDHI Alpha at \(n=400\).
+- **Result:** Exact overlays Ripser (same finite counts). Scale matches ess on figure8 / circle / nested / sphere void. Sparse keeps 2D ess with extra finite bars (figure8 27 vs 21); sphere H2 timed out. Alpha drops ess \(H_1\) and the sphere void.
+- **Decision:** Hold. Visual accuracy/speed tradeoff is now in `pd_*.svg`. Goal not complete.
+- **Class:** verified
+
 ## 2026-10-14 — sparse scaling figures + auto 9/9 with 4D
 
 - **Work:** `plot_consolidation.py` reads `sparse_scale.json`. New `runtime_sparse.svg`. `--mode auto` re-eval including `uniform4`.

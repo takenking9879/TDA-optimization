@@ -175,10 +175,14 @@ components into one \(H_0\). Sparse Rips kept essential 2D loops; it
 failed / was slow on some 3D clouds. giotto-ph diagrams match Ripser
 (6/6, including post-freeze families).
 
-Persistence diagrams at \(n=400\) (filled = essential; scale is **not** VR):
+Persistence diagrams at \(n=400\) (filled = essential). Exact overlays Ripser.
+Scale keeps the same essential bars on these 2D loops. Sparse keeps them
+with extra finite bars. Alpha **drops** essential \(H_1\). On the sphere,
+sparse \(H_2\) timed out and Alpha drops the void.
 
 ![figure8 PD](benchmarks/results/consolidation/figures/pd_figure8.svg)
 ![circle PD](benchmarks/results/consolidation/figures/pd_circle_noisy.svg)
+![nested loops PD](benchmarks/results/consolidation/figures/pd_nested_loops.svg)
 ![sphere PD](benchmarks/results/consolidation/figures/pd_sphere.svg)
 
 ## Dispatcher: when it is right, and when it is wrong
@@ -249,4 +253,5 @@ python3 benchmarks/run_sparse_limits.py
 python3 benchmarks/run_sparse_scale.py
 python3 benchmarks/fit_growth.py
 python3 benchmarks/plot_consolidation.py
+python3 benchmarks/plot_pd.py
 ```
