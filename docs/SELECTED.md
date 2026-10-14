@@ -1,6 +1,6 @@
 # Selected algorithm (living)
 
-Updated 2026-10-14 after iterations I001–I295. **CLI default `--engine
+Updated 2026-10-14 after iterations I001–I296. **CLI default `--engine
 auto` (I235+I236+I239+I240+I241+I263+I270+I271+I275):** subsample residual-frac dispatch,
 plus I263 edge-frac so hollow/manifold clouds take RedZeD. Fat →
 RedZeD (torus n=2000 **13.0×**). Thin-circle → collapse+implicit
@@ -141,6 +141,7 @@ suite and I137 8/8 (including dense circle80/200 **collapse=0**, the I045 killer
 | Thicken cell skip (I292) | Same edges as I286. No pith cut (figure8 n=16000 1.03≈1.01 s). Keep as correct range query. Persist on the thicken is the wall (sphere n=16000 reduce 3.46 s / 2.28M). |
 | Parallel thicken scan (I294) | Same edges. Metric 1131→955 ms; pith 4.12→3.95 s. Keep. Reduce (2.96 s / 199k cols) remains the wall. |
 | R-cache + full emergent (I295) | Collapse=1 exact (I290’s invent-H1 fixed). **Slower** thicken (sphere n=16000 5.26 vs 3.95 s). Reverted. Do not retry add-\(R\). |
+| D(e) coboundary memo (I296) | Exact collapse=0/1. figure8 n=4000 collapse=0 still **25.6 s / 103M probes**. Adds are unique apparent-facet edges. Reverted. Do not retry \(D(e)\) memo. |
 
 I107 (`--dom-budget 1`) **still rejected** with implicit (I142–I144): thicker
 residual makes collapse *and* reduce slower (circle3000 1.49× vs full 8.11×).
@@ -698,8 +699,10 @@ Rips is exact and too slow.
    persist wall. **I294 parallel thicken:** same edges, metric
    1131→955 ms, pith 4.12→3.95 s — keep, not a selected pith lever.
    **I295 R-cache + full emergent \(D(e_j)\):** collapse=1 identity
-   held; slower on thicken (sphere n=16000 5.26 vs 3.95 s). Reverted.
-   Do not retry add-\(R\). ae_seeded visits remain the exact-H1 wall.
+   held; slower on thicken. Reverted. **I296 \(D(e)\) memo:** exact,
+   collapse=0 still 103M probes (unique apparent-facet adds). Reverted.
+   Do not retry add-\(R\) or \(D(e)\) memo. ae_seeded visits remain
+   the exact-H1 wall.
 6. Owned AE leftover-star walk is still Θ(|leftover|·deg★) — rbit cut
    has_leftover_coface, not seeded probes (circle still 875k). I288
    equal-set seeded_is_noop is exact and reverted (848≈866). Packed

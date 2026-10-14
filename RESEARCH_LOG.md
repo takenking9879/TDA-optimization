@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-14 — I296 D(e) coboundary memo
+
+- **Question:** Does memoizing \(D(e)\) for implicit V-adds cut the I289 collapse=0 wall (24 s / 103M probes) or thicken persist (199k cols), without I295’s fat-\(R\) dump?
+- **Hypothesis:** Same heap pushes as re-walking. First full leftover walk fills the cache; later `add_simplex_coboundary(cols[j])` hits. Apparent-facet edges cache on first add. Exact.
+- **Work:** `edge_cob` in `persist_implicit_coh` when |cols|≥256. Wave 156 vs Ripser. Reverted after no pith cut.
+- **Result:** **Exact** (collapse=0/1 figure8 and circle; thicken ess; auto hold). **No probe cut:** figure8 n=4000 collapse=0 **25.6 s / 103M probes** (I289 24.5 s / 103M). n=2000 **2.53 s / 12.6M**. Sphere n=16000 **3.80 vs I294 3.95 s** (noise). 170k additions are almost all *new* apparent-facet edges — the memo never hits.
+- **Decision:** **Hold / revert.** Exact, not a clock lever. Do not retry \(D(e)\) memo. The collapse=0 wall is unique coboundary walks, not repeat V-edges. Do not mark the goal complete.
+- **Class:** experiment (hold identity; revert clock)
+
 ## 2026-10-14 — I295 R-cache with full emergent coboundary
 
 - **Question:** Does storing reduced \(R\) on non-emergent columns, and replaying full \(D(e_j)\) on emergent adds, cut thicken persist (sphere n=16000 reduce 2.96 s / 199k cols) without I290’s collapse=1 identity break?
