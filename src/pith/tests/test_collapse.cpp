@@ -1405,6 +1405,56 @@ int main() {
                   << " thin=" << thin.size() << "\n";
     }
 
+    // I334: k-nearest extras cap. Circle keeps ess H1; |E| between thin and
+    // unlimited auto-α thicken. k=0 matches unlimited.
+    {
+        const int n = 64;
+        const value_t T = 1.4f;
+        std::vector<std::vector<value_t>> pts(static_cast<size_t>(n), std::vector<value_t>(2));
+        for (int i = 0; i < n; ++i) {
+            const float a = 6.2831853f * static_cast<float>(i) / static_cast<float>(n);
+            pts[static_cast<size_t>(i)][0] = std::cos(a);
+            pts[static_cast<size_t>(i)][1] = std::sin(a);
+        }
+        std::vector<Edge> thin, unlimited, capped, k0;
+        if (!delaunay_one_skeleton(pts, thin) ||
+            !delaunay_vr_skeleton(pts, T, delaunay_auto_alpha(n), unlimited)) {
+            std::cerr << "I334 circle skeletons failed\n";
+            return 1;
+        }
+        set_thicken_k(2);
+        if (!delaunay_vr_skeleton(pts, T, delaunay_auto_alpha(n), capped)) {
+            set_thicken_k(0);
+            std::cerr << "I334 k=2 thicken failed\n";
+            return 1;
+        }
+        set_thicken_k(0);
+        if (!delaunay_vr_skeleton(pts, T, delaunay_auto_alpha(n), k0)) {
+            std::cerr << "I334 k=0 thicken failed\n";
+            return 1;
+        }
+        if (capped.size() <= thin.size() || capped.size() >= unlimited.size()) {
+            std::cerr << "I334 |E| thin=" << thin.size() << " k2=" << capped.size()
+                      << " unlimited=" << unlimited.size() << "\n";
+            return 1;
+        }
+        if (k0.size() != unlimited.size()) {
+            std::cerr << "I334 k=0 |E|=" << k0.size() << " vs " << unlimited.size() << "\n";
+            return 1;
+        }
+        Graph g = graph_from_edge_list(n, capped, T);
+        Result r = persist_implicit_coh(g, 1, T, 1);
+        int ess1 = 0;
+        for (const auto& p : r.pairs)
+            if (p.dim == 1 && !std::isfinite(p.death)) ++ess1;
+        if (ess1 != 1) {
+            std::cerr << "I334 circle k=2 ess1=" << ess1 << "\n";
+            return 1;
+        }
+        std::cout << "ok I334 thicken-k=2 circle ess H1 |E|=" << capped.size()
+                  << " thin=" << thin.size() << " unlimited=" << unlimited.size() << "\n";
+    }
+
     // I300: RedZeD on the α=1 Delaunay flag keeps two octahedra voids.
     {
         const value_t T = 1.5f;

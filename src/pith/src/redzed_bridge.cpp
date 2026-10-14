@@ -31,11 +31,13 @@ namespace {
 thread_local bool g_deljump = false;
 thread_local bool g_delhier = false;
 thread_local bool g_deldev = false;
+thread_local int g_thicken_k = 0;
 }
 
 void pith::set_delaunay_jump(bool on) { g_deljump = on; }
 void pith::set_delaunay_hier(bool on) { g_delhier = on; }
 void pith::set_delaunay_devillers(bool on) { g_deldev = on; }
+void pith::set_thicken_k(int k) { g_thicken_k = (k > 0) ? k : 0; }
 
 // I245: same buckets / finish_buckets as vendor build_edges, but the two
 // n² scans and the per-bucket sorts run on a thread pool. Final order is
@@ -2984,6 +2986,10 @@ bool delaunay_thicken_extras(const std::vector<std::vector<value_t>>& pts, value
         cell_of(i, c0);
         int c[3] = {0, 0, 0};
         const double R2 = R * R;
+        const int kkeep = g_thicken_k;
+        std::vector<Edge> capped;
+        std::vector<Edge>* dest = &local;
+        if (kkeep > 0) dest = &capped;
         for (int dx = -reach; dx <= reach; ++dx)
             for (int dy = -reach; dy <= reach; ++dy)
                 for (int dz = (d == 3 ? -reach : 0); dz <= (d == 3 ? reach : 0); ++dz) {
@@ -3004,11 +3010,25 @@ bool delaunay_thicken_extras(const std::vector<std::vector<value_t>>& pts, value
                         // Query both ends: d≤α·r_i from i plus d≤α·r_j from j
                         // is d≤α·max(r_i,r_j). Merge dedups.
                         if (j == i) continue;
+                        if (kkeep > 0 && have.find(ek(i, j)) != have.end()) continue;
                         const value_t dist = point_dist(pts, i, j);
                         if (dist > T || static_cast<double>(dist) > R) continue;
-                        local.push_back({i, j, dist});
+                        dest->push_back({i, j, dist});
                     }
                 }
+        // I334: optional per-vertex k-nearest extras. 0 = keep the full α-ball.
+        if (kkeep > 0) {
+            if (static_cast<int>(capped.size()) > kkeep) {
+                std::nth_element(capped.begin(), capped.begin() + kkeep, capped.end(),
+                                 [](const Edge& a, const Edge& b) {
+                                     if (a.t != b.t) return a.t < b.t;
+                                     if (a.u != b.u) return a.u < b.u;
+                                     return a.v < b.v;
+                                 });
+                capped.resize(static_cast<size_t>(kkeep));
+            }
+            local.insert(local.end(), capped.begin(), capped.end());
+        }
     };
     // I294: per-vertex thicken queries are independent. Dedup on merge.
     const int nth = pith::nthreads();

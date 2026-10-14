@@ -63,6 +63,7 @@ static void usage_experimental() {
         << "  --seed-incident         skip non-Del leftover unless it touches an active\n"
         << "  --delaunay-adapt  --delaunay-floor F  --delaunay-jump  --delaunay-hier\n"
         << "  --delaunay-devillers    3-level Devillers stack (coarse tets + downward)\n"
+        << "  --thicken-k K           keep K nearest extras / vertex (0=unlimited)\n"
         << "  --probe-only  --probe-vertex\n"
         << "Iteration numbers live in RESEARCH_LOG.md, not this interface.\n";
 }
@@ -652,6 +653,7 @@ int main(int argc, char** argv) {
     bool delaunay_jump = false;
     bool delaunay_hier = false;
     bool delaunay_devillers = false;
+    int thicken_k = 0;
     bool delaunay_vr = false;
     value_t delaunay_alpha = 1;
     value_t delaunay_floor = 0;
@@ -698,6 +700,7 @@ int main(int argc, char** argv) {
         else if (a == "--delaunay-jump") delaunay_jump = true;
         else if (a == "--delaunay-hier") delaunay_hier = true;
         else if (a == "--delaunay-devillers") delaunay_devillers = true;
+        else if (a == "--thicken-k") thicken_k = std::stoi(need("--thicken-k"));
         else if (a == "--delaunay-vr") delaunay_vr = true;
         else if (a == "--delaunay-alpha") {
             const std::string v = need("--delaunay-alpha");
@@ -783,6 +786,7 @@ int main(int argc, char** argv) {
     set_delaunay_jump(delaunay_jump);
     set_delaunay_hier(delaunay_hier);
     set_delaunay_devillers(delaunay_devillers);
+    set_thicken_k(thicken_k);
     if (points_path.empty() && dist_path.empty() && edges_path.empty()) {
         usage();
         return 2;
@@ -1249,6 +1253,7 @@ int main(int argc, char** argv) {
             if (used_redzed_h2) r.counters.pipeline += "-redzed-h2";
             if (delaunay_jump && delaunay_vr) r.counters.pipeline += "-jump";
             if (delaunay_hier && delaunay_vr) r.counters.pipeline += "-hier";
+            if (thicken_k > 0 && delaunay_vr) r.counters.pipeline += "-k" + std::to_string(thicken_k);
         }
         std::sort(r.pairs.begin(), r.pairs.end(), [](const PersistencePair& a, const PersistencePair& b) {
             if (a.dim != b.dim) return a.dim < b.dim;

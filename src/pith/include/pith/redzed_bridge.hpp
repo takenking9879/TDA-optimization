@@ -45,6 +45,9 @@ void set_delaunay_hier(bool on);
 // I332: full Devillers stack — separate coarse triangulations + downward
 // links, not I328/I329 vertex hashes. Default off.
 void set_delaunay_devillers(bool on);
+// I334: keep at most K nearest non-Delaunay extras per vertex inside the
+// existing α-ball. 0 = unlimited (default). Experimental; not exact VR.
+void set_thicken_k(int k);
 
 // I277–I280: Delaunay plus edges with d≤min(T, R_v) from each vertex.
 // r_v = longest incident Delaunay edge. Default R_v = α·r_v (I279 α=2.25).
