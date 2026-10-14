@@ -9,7 +9,7 @@ Do not paste long reasoning here.
 
 - **Question:** Do `--estimate` runtime bands cover measured walls, and what is the sparse topology loss vs VR?
 - **Work:** `eval_estimate.py` compares recommended-mode walls to `est_runtime_{lo,hi}`. TABLES now print sparse bn/\(W_1\) from `sparse_limits.json` and construct/reduce on fused sparse. README/SCALE_PATH/SELECTED no longer claim `nested_loops` n=400 ess H1=4 as the published receipt.
-- **Result:** Published nested_loops n=400 sparse ess \(H_1=1\), unmatched 52, \(W_1\approx 1.05\). 2D loops bn \(H_1\approx 0.006\)–\(0.028\). Phase-3b “does not thin” line marked superseded. τ unchanged.
+- **Result:** Published nested_loops n=400 sparse ess \(H_1=1\), unmatched 52, \(W_1\approx 1.05\). 2D loops bn \(H_1\approx 0.006\)–\(0.028\). Phase-3b “does not thin” line marked superseded. After a 5 ms exact overhead and 25 ms hi-floor, `eval_estimate` **32/32** recommended-mode walls sit in band. τ unchanged.
 - **Decision:** Keep estimate bands empirical. Do not retune τ. Goal not complete.
 - **Class:** verified (receipts)
 

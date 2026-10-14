@@ -403,16 +403,16 @@ PITH `--threads 1`. Ripser 1 thread. giotto-ph `n_threads=1` and `n_threads=4` (
 ## Sparse Rips (ε=0.6 greedy net) vs VR / scale
 Not exact VR. Sheehy-style interleaving is the literature guarantee; numbers are measured.
 `distances` is pairwise construction; report `edges_in` as |E| (do not use distances).
-| family | n | exact (s) | scale (s) | sparse (s) | sparse |E| | sparse unmatched | sparse ess | scale unmatched |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- | ---: |
-| figure8 | 400 | 0.007 | 0.005 | 0.004 | 5563 | 14 | H1=2 H2=None | 0 |
-| circle_noisy | 400 | 0.014 | 0.005 | 0.006 | 7689 | 30 | H1=1 H2=None | 0 |
-| nested_loops | 400 | 0.009 | 0.007 | 0.006 | 5061 | 52 | H1=1 H2=None | 0 |
-| many_loops | 400 | 0.004 | 0.005 | 0.003 | 3318 | 8 | H1=5 H2=None | 0 |
-| disconnected_circles | 400 | 0.008 | 0.006 | 0.004 | 5605 | 18 | H1=2 H2=None | 0 |
-| grid_holes | 400 | 0.004 | 0.004 | 0.003 | 2672 | 0 | H1=2 H2=None | 0 |
-| sphere | 400 | 0.017 | 0.006 |  | None | None | H1=None H2=None | 52 |
-| two_spheres_apart | 300 | 0.019 | 0.005 | 3.708 | 5730 | 41 | H1=0 H2=2 | 45 |
+| family | n | exact (s) | scale (s) | sparse (s) | sparse |E| | unmatched | bn H1 | W1 H1 | sparse ess |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| figure8 | 400 | 0.007 | 0.005 | 0.004 | 5563 | 14 | 0.007142 | 0.02282 | H1=2 H2=None |
+| circle_noisy | 400 | 0.014 | 0.005 | 0.006 | 7689 | 30 | 0.006245 | 0.03413 | H1=1 H2=None |
+| nested_loops | 400 | 0.009 | 0.007 | 0.006 | 5061 | 52 | 0.1109 | 1.047 | H1=1 H2=None |
+| many_loops | 400 | 0.004 | 0.005 | 0.003 | 3318 | 8 | 0.02809 | 0.04283 | H1=5 H2=None |
+| disconnected_circles | 400 | 0.008 | 0.006 | 0.004 | 5605 | 18 | 0.01729 | 0.05858 | H1=2 H2=None |
+| grid_holes | 400 | 0.004 | 0.004 | 0.003 | 2672 | 0 | 4.1e-07 | 7.507e-06 | H1=2 H2=None |
+| sphere | 400 | 0.017 | 0.006 |  | None | None |  |  | H1=None H2=None |
+| two_spheres_apart | 300 | 0.019 | 0.005 | 3.708 | 5730 | 41 | 0.03888 | 0.314 | H1=0 H2=2 |
 
 ## Failure pushes (12 s)
 | family | n | PITH exact | Ripser | giotto t1 |
@@ -424,27 +424,27 @@ Not exact VR. Sheehy-style interleaving is the literature guarantee; numbers are
 
 ## Fused sparse scaling (1 thread, no n×n matrix)
 Same greedy-net flag as the matrix path. `distances` is FPS + T-ball evals. Local p is empirical, not a theorem.
-| family | n | sparse (s) | scale (s) | sparse |E| | sparse RSS | local p | ess H1 |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| figure8 | 2000 | 0.049 | 0.035 | 57625 | 8 MB |  | 2 |
-| figure8 | 4000 | 0.163 | 0.084 | 150916 | 14 MB | 1.73 | 2 |
-| figure8 | 8000 | 0.645 | 0.219 | 382584 | 30 MB | 1.98 | 2 |
-| figure8 | 12000 | 1.456 | 0.361 | 645603 | 47 MB | 2.01 | 2 |
-| figure8 | 16000 | 2.588 | 0.498 | 928616 | 66 MB | 2.00 | 2 |
-| figure8 | 24000 | 5.558 | 0.816 | 1559003 | 106 MB | 1.89 | 2 |
-| circle_noisy | 2000 | 0.072 | 0.036 | 76625 | 10 MB |  | 1 |
-| circle_noisy | 4000 | 0.250 | 0.092 | 192862 | 17 MB | 1.79 | 1 |
-| circle_noisy | 8000 | 0.977 | 0.231 | 477475 | 38 MB | 1.96 | 1 |
-| circle_noisy | 12000 | 1.928 | 0.361 | 792854 | 60 MB | 1.68 | 1 |
-| nested_loops | 2000 | 0.059 | 0.038 | 47964 | 8 MB |  | 1 |
-| nested_loops | 4000 | 0.168 | 0.076 | 127154 | 14 MB | 1.51 | 1 |
-| nested_loops | 8000 | 0.758 | 0.203 | 325874 | 39 MB | 2.17 | 1 |
-| disconnected_circles | 2000 | 0.053 | 0.035 | 58960 | 8 MB |  | 2 |
-| disconnected_circles | 4000 | 0.167 | 0.085 | 151599 | 14 MB | 1.66 | 2 |
-| disconnected_circles | 8000 | 0.635 | 0.225 | 382936 | 29 MB | 1.93 | 2 |
-| uniform4 | 400 | 0.026 |  | 32217 | 7 MB |  | 0 |
-| uniform4 | 800 | 0.072 |  | 93659 | 13 MB | 1.44 | 0 |
-| uniform4 | 1600 | 0.268 |  | 266831 | 38 MB | 1.91 | 0 |
+| family | n | sparse (s) | scale (s) | construct (s) | reduce (s) | sparse |E| | sparse RSS | local p | ess H1 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| figure8 | 2000 | 0.049 | 0.035 | 0.022 | 0.024 | 57625 | 8 MB |  | 2 |
+| figure8 | 4000 | 0.163 | 0.084 | 0.083 | 0.074 | 150916 | 14 MB | 1.73 | 2 |
+| figure8 | 8000 | 0.645 | 0.219 | 0.369 | 0.263 | 382584 | 30 MB | 1.98 | 2 |
+| figure8 | 12000 | 1.456 | 0.361 | 0.952 | 0.489 | 645603 | 47 MB | 2.01 | 2 |
+| figure8 | 16000 | 2.588 | 0.498 | 1.781 | 0.787 | 928616 | 66 MB | 2.00 | 2 |
+| figure8 | 24000 | 5.558 | 0.816 | 4.245 | 1.284 | 1559003 | 106 MB | 1.89 | 2 |
+| circle_noisy | 2000 | 0.072 | 0.036 | 0.029 | 0.040 | 76625 | 10 MB |  | 1 |
+| circle_noisy | 4000 | 0.250 | 0.092 | 0.108 | 0.136 | 192862 | 17 MB | 1.79 | 1 |
+| circle_noisy | 8000 | 0.977 | 0.231 | 0.482 | 0.484 | 477475 | 38 MB | 1.96 | 1 |
+| circle_noisy | 12000 | 1.928 | 0.361 | 1.155 | 0.758 | 792854 | 60 MB | 1.68 | 1 |
+| nested_loops | 2000 | 0.059 | 0.038 | 0.021 | 0.035 | 47964 | 8 MB |  | 1 |
+| nested_loops | 4000 | 0.168 | 0.076 | 0.079 | 0.084 | 127154 | 14 MB | 1.51 | 1 |
+| nested_loops | 8000 | 0.758 | 0.203 | 0.348 | 0.400 | 325874 | 39 MB | 2.17 | 1 |
+| disconnected_circles | 2000 | 0.053 | 0.035 | 0.020 | 0.030 | 58960 | 8 MB |  | 2 |
+| disconnected_circles | 4000 | 0.167 | 0.085 | 0.075 | 0.085 | 151599 | 14 MB | 1.66 | 2 |
+| disconnected_circles | 8000 | 0.635 | 0.225 | 0.348 | 0.274 | 382936 | 29 MB | 1.93 | 2 |
+| uniform4 | 400 | 0.026 |  | 0.003 | 0.022 | 32217 | 7 MB |  | 0 |
+| uniform4 | 800 | 0.072 |  | 0.010 | 0.059 | 93659 | 13 MB | 1.44 | 0 |
+| uniform4 | 1600 | 0.268 |  | 0.034 | 0.229 | 266831 | 38 MB | 1.91 | 0 |
 
 ## `--mode auto` vs probe (`eval_mode_auto.py`)
 Agreement 10/10. `refuse` means the probe named sparse but auto exits 3 instead of starting fat H2 outside d∈{2,3}.
@@ -460,3 +460,50 @@ Agreement 10/10. `refuse` means the probe named sparse but auto exits 3 instead 
 | sphere | 16000 | 2 | scale | scale | False | True |
 | uniform4 | 5000 | 1 | sparse | sparse | False | True |
 | uniform4 | 250 | 2 | sparse | refuse | True | True |
+
+## `--estimate` vs measured wall (`eval_estimate.py`)
+Recommended-mode wall inside `[est_runtime_lo, est_runtime_hi]`: 32/32. Empirical bands; τ frozen.
+| family | n | maxdim | rec | wall (s) | lo | hi | ratio | in band |
+| --- | ---: | ---: | --- | ---: | ---: | ---: | ---: | --- |
+| circle_noisy | 200 | 1 | exact | 0.005 | 0.003 | 0.026 | 0.78 | True |
+| circle_noisy | 400 | 1 | exact | 0.014 | 0.005 | 0.046 | 1.26 | True |
+| circle_noisy | 500 | 1 | exact | 0.017 | 0.006 | 0.060 | 1.15 | True |
+| circle_noisy | 1000 | 1 | exact | 0.068 | 0.018 | 0.180 | 1.52 | True |
+| circle_noisy | 2000 | 1 | exact |  | 0.066 | 0.660 |  | None |
+| circle_noisy | 4000 | 1 | exact |  | 0.258 | 2.580 |  | None |
+| circle_noisy | 8000 | 1 | scale | 0.231 | 0.112 | 1.120 | 0.83 | True |
+| circle_noisy | 12000 | 1 | scale | 0.361 | 0.168 | 1.680 | 0.86 | True |
+| disconnected_circles | 400 | 1 | exact | 0.008 | 0.005 | 0.046 | 0.67 | True |
+| disconnected_circles | 1000 | 1 | exact | 0.037 | 0.018 | 0.180 | 0.82 | True |
+| disconnected_circles | 2000 | 1 | exact |  | 0.066 | 0.660 |  | None |
+| disconnected_circles | 4000 | 1 | exact |  | 0.258 | 2.580 |  | None |
+| disconnected_circles | 8000 | 1 | scale | 0.225 | 0.112 | 1.120 | 0.80 | True |
+| figure8 | 400 | 1 | exact | 0.007 | 0.003 | 0.028 | 1.03 | True |
+| figure8 | 500 | 1 | exact | 0.010 | 0.006 | 0.060 | 0.67 | True |
+| figure8 | 1000 | 1 | exact | 0.023 | 0.007 | 0.069 | 1.32 | True |
+| figure8 | 2000 | 1 | exact | 0.152 | 0.021 | 0.213 | 2.85 | True |
+| figure8 | 4000 | 1 | exact |  | 0.080 | 0.801 |  | None |
+| figure8 | 8000 | 1 | scale | 0.219 | 0.112 | 1.120 | 0.78 | True |
+| figure8 | 12000 | 1 | scale | 0.361 | 0.168 | 1.680 | 0.86 | True |
+| figure8 | 16000 | 1 | scale | 0.498 | 0.224 | 2.240 | 0.89 | True |
+| figure8 | 24000 | 1 | scale | 0.816 | 0.336 | 3.360 | 0.97 | True |
+| grid_holes | 400 | 1 | exact | 0.004 | 0.002 | 0.025 | 0.70 | True |
+| grid_holes | 800 | 1 | exact | 0.007 | 0.002 | 0.025 | 1.13 | True |
+| many_loops | 400 | 1 | exact | 0.004 | 0.002 | 0.025 | 0.65 | True |
+| mixed_1d2d3d | 300 | 2 | scale | 0.005 | 0.002 | 0.036 | 0.86 | True |
+| nested_loops | 400 | 1 | exact | 0.009 | 0.003 | 0.028 | 1.29 | True |
+| nested_loops | 1000 | 1 | exact | 0.037 | 0.007 | 0.071 | 2.10 | True |
+| nested_loops | 2000 | 1 | exact |  | 0.023 | 0.227 |  | None |
+| nested_loops | 4000 | 1 | exact |  | 0.083 | 0.831 |  | None |
+| nested_loops | 8000 | 1 | scale | 0.203 | 0.112 | 1.120 | 0.73 | True |
+| nonuniform_circle | 400 | 1 | exact | 0.012 | 0.005 | 0.046 | 1.02 | True |
+| sphere | 200 | 2 | exact | 0.007 | 0.003 | 0.026 | 1.10 | True |
+| sphere | 400 | 2 | exact | 0.017 | 0.005 | 0.046 | 1.53 | True |
+| torus | 400 | 1 | exact | 0.009 | 0.003 | 0.028 | 1.29 | True |
+| torus | 1000 | 1 | exact | 0.040 | 0.007 | 0.067 | 2.39 | True |
+| two_spheres_apart | 300 | 2 | exact | 0.019 | 0.002 | 0.025 | 3.11 | True |
+| uniform2 | 500 | 1 | exact | 0.008 | 0.003 | 0.034 | 0.91 | True |
+| uniform2 | 1000 | 1 | exact | 0.018 | 0.007 | 0.073 | 0.96 | True |
+| uniform4 | 400 | 1 | exact |  | 0.005 | 0.046 |  | None |
+| uniform4 | 800 | 1 | exact |  | 0.012 | 0.121 |  | None |
+| uniform4 | 1600 | 1 | exact |  | 0.043 | 0.429 |  | None |
