@@ -1049,7 +1049,8 @@ if EST:
     rows.append("## `--estimate` vs measured wall (`eval_estimate.py`)")
     rows.append(
         f"Recommended-mode wall inside `[est_runtime_lo, est_runtime_hi]`: "
-        f"{EST.get('n_in_band')}/{EST.get('n_scored')}. Empirical bands; τ frozen."
+        f"{EST.get('n_in_band')}/{EST.get('n_scored')}. Empirical bands; τ frozen. "
+        f"{EST.get('note', '')}"
     )
     rows.append("| family | n | maxdim | rec | wall (s) | lo | hi | ratio | in band |")
     rows.append("| --- | ---: | ---: | --- | ---: | ---: | ---: | ---: | --- |")

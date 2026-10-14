@@ -84,11 +84,12 @@ one thin-circle `|E|>8e6` scale miss (nonuniform_circle \(n=6000\),
 exact 5.67 s) is now overridden when the thin leftover H1 clock is
 under 4 s **[empirical]**.
 
-`--estimate` bands cover **48/48** scored recommended-mode walls
-(`eval_estimate.py`, leftover-miss included). Hollow leftover \(H_1\)
-uses a 6× hi band (grid_holes \(n=8000\) was 4.56× mid). Mixed
-\(n=300\) exact matches Ripser (unmatched 0, 355 bars)
-**[empirical]**. `--estimate` exposes that probe as a feasibility guess with a
+`--estimate` bands cover **80/82** scored recommended-mode walls
+(`eval_estimate.py`, leftover / post-freeze packs included)
+**[empirical]**. Two leftover \(H_1\) explosions sit outside the band
+(figure8 \(n=3000\); nested_loops \(n=2000\)). τ was not retuned.
+Hollow leftover \(H_1\) still uses a 6× hi band. Mixed \(n=300\) exact
+matches Ripser (unmatched 0, 355 bars) **[empirical]**. `--estimate` exposes that probe as a feasibility guess with a
 **conservative |E| band** (probe fraction ×1.25), a residual-size band,
 and a residual regime (`thin` / `fat` / `hollow` / `h0`). Confidence is
 `medium` only when \(n\le 400\) and the residual is not near \(\tau\);

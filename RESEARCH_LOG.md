@@ -5,13 +5,21 @@ Do not paste long reasoning here.
 
 ---
 
+## 2026-10-14 — Estimate ingest of leftover/post-freeze (80/82)
+
+- **Question:** Do `--estimate` bands still cover recommended-mode walls after leftover_10x / leftover_ratio_n / leftover_heldout / linked_ratio_n / postfreeze ingest?
+- **Work:** Live `eval_estimate.py`. τ / hi_mult / mode_rec unchanged. Did not widen the band after seeing the misses.
+- **Result:** **80/82** in band. Misses: figure8 n=3000 leftover explosion (wall 1.72 s / hi 0.70 s); nested_loops n=2000 (0.236 vs 0.227, 4.14× mid). The 250-pt leftover clock underestimates pairing explosions. Scorecard otherwise unchanged. Not a pairing algorithm.
+- **Decision:** Keep the receipt. Do not retune τ. Goal not complete.
+- **Class:** verified (live)
+
 ## 2026-10-14 — Consolidation: scorecard + leftover estimate ingest
 
 - **Question:** Can the public story name a single dispatcher evaluation and ingest the leftover / post-freeze receipts without retuning τ?
 - **Work:** `eval_estimate.py` now also reads leftover_10x / leftover_ratio_n / leftover_heldout / linked_ratio_n / postfreeze. `plot_consolidation.py` writes a dispatcher scorecard plus memory_scale / memory_sparse / runtime_vs_dimension / pd_comparison. `growth_p` documented as a regime bucket, not a fitted exponent. WHAT_WE_BUILT opening no longer leads with I-numbers. `--help` stays I-number free.
-- **Result:** Scorecard: mode_auto 11/11, estimate 48/48 (pre-ingest), engine 5/9, wall_kind 20/20, adversarial 0/11 / 0/8, ncc 0/11, highd 0/8, postfreeze 0/10. sheared_loops 2.93→9.87→8.53× kept. Not a pairing algorithm.
-- **Decision:** Keep. Re-run estimate after this commit. Goal not complete.
-- **Class:** experiment
+- **Result:** Scorecard written. Live estimate follow-up is **80/82**. Not a pairing algorithm.
+- **Decision:** Keep. Goal not complete.
+- **Class:** verified (live)
 
 ## 2026-10-14 — sheared_loops leftover n-series (peaks at 9.87×)
 

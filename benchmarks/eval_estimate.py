@@ -225,7 +225,7 @@ def main() -> int:
         "receipts": recs,
         "n_scored": len(scored),
         "n_in_band": n_in,
-        "note": "in_band compares the recommended-mode wall to est_runtime_lo/hi. τ unchanged.",
+        "note": "in_band compares the recommended-mode wall to est_runtime_lo/hi. τ unchanged. Includes leftover_10x / leftover_ratio_n / leftover_heldout / leftover_miss_n / linked_ratio_n / postfreeze.",
     }
     path = OUT / "estimate_accuracy.json"
     path.write_text(json.dumps(out, indent=2))

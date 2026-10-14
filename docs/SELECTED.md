@@ -31,7 +31,10 @@ Post-freeze leftover n-series (`linked_ratio_n.json`): linked_circles
 never ≥10×). Pack **4/11 ≥10×**. Not a new pairing algorithm.
 Equal-hardware: PITH `--threads 1` still beats Ripser, giotto-ph 0.2.4
 (`n_threads=1` and `4`), and GUDHI 3.13 Rips on the measured suite.
-`--estimate` reports empirical `growth_p` and a runtime band; τ is frozen.
+`--estimate` reports a regime-bucket `growth_p` and a runtime band
+(**80/82** in band after leftover / post-freeze ingest; figure8
+\(n=3000\) and nested_loops \(n=2000\) leftover explosions sit
+outside). τ is frozen.
 `--mode sparse` (ε=0.6 Max) thins the flag (figure-8 \(n=8000\): 380k vs 32M pairs)
 and **skips the n×n matrix** on Euclidean `--points` (on-the-fly FPS + T-ball
 emit). FPS is still \(\Theta(n^2)\). An earlier note that \(\lvert E\rvert=C(n,2)\)

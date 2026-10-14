@@ -89,6 +89,28 @@
       "ratio_actual_over_mid": 1.821728025911225
     },
     {
+      "name": "blobs",
+      "n": 4000,
+      "T": 1.0,
+      "maxdim": 1,
+      "mode_recommended": "exact",
+      "engine_recommended": "redzed",
+      "auto_will_run": true,
+      "est_runtime_s": 0.265099,
+      "est_runtime_lo_s": 0.10604,
+      "est_runtime_hi_s": 1.0604,
+      "growth_p": 2.4,
+      "leaving_cheap_regime": true,
+      "exact_feasible": true,
+      "residual_regime": "fat",
+      "walls": {
+        "exact": 0.16465937599423341
+      },
+      "measured_recommended_wall_s": 0.16465937599423341,
+      "in_band": true,
+      "ratio_actual_over_mid": 0.621124093241519
+    },
+    {
       "name": "circle_noisy",
       "n": 200,
       "T": 1.5,
@@ -230,23 +252,22 @@
       "n": 8000,
       "T": 1.5,
       "maxdim": 1,
-      "mode_recommended": "scale",
+      "mode_recommended": "exact",
       "engine_recommended": "implicit",
       "auto_will_run": true,
-      "est_runtime_s": 0.28,
-      "est_runtime_lo_s": 0.112,
-      "est_runtime_hi_s": 1.12,
-      "growth_p": 1.2,
+      "est_runtime_s": 2.565,
+      "est_runtime_lo_s": 1.026,
+      "est_runtime_hi_s": 10.26,
+      "growth_p": 2.2,
       "leaving_cheap_regime": false,
-      "exact_feasible": false,
+      "exact_feasible": true,
       "residual_regime": "thin",
       "walls": {
         "sparse": 0.9771775159897516,
         "scale": 0.23114341299515218
       },
-      "measured_recommended_wall_s": 0.23114341299515218,
-      "in_band": true,
-      "ratio_actual_over_mid": 0.8255121892684005
+      "measured_recommended_wall_s": null,
+      "in_band": null
     },
     {
       "name": "circle_noisy",
@@ -270,6 +291,28 @@
       "measured_recommended_wall_s": 0.36144756599969696,
       "in_band": true,
       "ratio_actual_over_mid": 0.8605894428564214
+    },
+    {
+      "name": "clustered",
+      "n": 5000,
+      "T": 0.55,
+      "maxdim": 1,
+      "mode_recommended": "exact",
+      "engine_recommended": "redzed",
+      "auto_will_run": true,
+      "est_runtime_s": 0.159266,
+      "est_runtime_lo_s": 0.0637065,
+      "est_runtime_hi_s": 0.955598,
+      "growth_p": 1.8,
+      "leaving_cheap_regime": true,
+      "exact_feasible": true,
+      "residual_regime": "hollow",
+      "walls": {
+        "exact": 0.09563083801185712
+      },
+      "measured_recommended_wall_s": 0.09563083801185712,
+      "in_band": true,
+      "ratio_actual_over_mid": 0.600447289514756
     },
     {
       "name": "disconnected_circles",
@@ -311,12 +354,12 @@
       "exact_feasible": true,
       "residual_regime": "thin",
       "walls": {
-        "exact": 0.03679377099615522,
+        "exact": 0.037113292986759916,
         "scale": 0.014698612998472527
       },
-      "measured_recommended_wall_s": 0.03679377099615522,
+      "measured_recommended_wall_s": 0.037113292986759916,
       "in_band": true,
-      "ratio_actual_over_mid": 0.817639355470116
+      "ratio_actual_over_mid": 0.8247398441502204
     },
     {
       "name": "disconnected_circles",
@@ -335,10 +378,12 @@
       "residual_regime": "thin",
       "walls": {
         "sparse": 0.0530291040049633,
-        "scale": 0.03453435099800117
+        "scale": 0.03453435099800117,
+        "exact": 0.18266878300346434
       },
-      "measured_recommended_wall_s": null,
-      "in_band": null
+      "measured_recommended_wall_s": 0.18266878300346434,
+      "in_band": true,
+      "ratio_actual_over_mid": 1.1070835333543292
     },
     {
       "name": "disconnected_circles",
@@ -367,23 +412,22 @@
       "n": 8000,
       "T": 1.5,
       "maxdim": 1,
-      "mode_recommended": "scale",
+      "mode_recommended": "exact",
       "engine_recommended": "implicit",
       "auto_will_run": true,
-      "est_runtime_s": 0.28,
-      "est_runtime_lo_s": 0.112,
-      "est_runtime_hi_s": 1.12,
-      "growth_p": 1.2,
+      "est_runtime_s": 2.565,
+      "est_runtime_lo_s": 1.026,
+      "est_runtime_hi_s": 10.26,
+      "growth_p": 2.2,
       "leaving_cheap_regime": false,
-      "exact_feasible": false,
+      "exact_feasible": true,
       "residual_regime": "thin",
       "walls": {
         "sparse": 0.6345432700036326,
         "scale": 0.22481588200025726
       },
-      "measured_recommended_wall_s": 0.22481588200025726,
-      "in_band": true,
-      "ratio_actual_over_mid": 0.802913864286633
+      "measured_recommended_wall_s": null,
+      "in_band": null
     },
     {
       "name": "figure8",
@@ -447,11 +491,11 @@
       "exact_feasible": true,
       "residual_regime": "hollow",
       "walls": {
-        "exact": 0.0228622440045001
+        "exact": 0.02424397401046008
       },
-      "measured_recommended_wall_s": 0.0228622440045001,
+      "measured_recommended_wall_s": 0.02424397401046008,
       "in_band": true,
-      "ratio_actual_over_mid": 1.3192445385694065
+      "ratio_actual_over_mid": 1.39897598416947
     },
     {
       "name": "figure8",
@@ -469,13 +513,35 @@
       "exact_feasible": true,
       "residual_regime": "hollow",
       "walls": {
-        "exact": 0.15226221000193618,
+        "exact": 0.1474470879911678,
         "sparse": 0.04925973899662495,
         "scale": 0.035116834988002665
       },
-      "measured_recommended_wall_s": 0.15226221000193618,
+      "measured_recommended_wall_s": 0.1474470879911678,
       "in_band": true,
-      "ratio_actual_over_mid": 2.8534201753318635
+      "ratio_actual_over_mid": 2.7631839552478628
+    },
+    {
+      "name": "figure8",
+      "n": 3000,
+      "T": 1.1,
+      "maxdim": 1,
+      "mode_recommended": "exact",
+      "engine_recommended": "redzed",
+      "auto_will_run": true,
+      "est_runtime_s": 0.116028,
+      "est_runtime_lo_s": 0.0464112,
+      "est_runtime_hi_s": 0.696168,
+      "growth_p": 1.8,
+      "leaving_cheap_regime": true,
+      "exact_feasible": true,
+      "residual_regime": "hollow",
+      "walls": {
+        "exact": 1.7159125539910747
+      },
+      "measured_recommended_wall_s": 1.7159125539910747,
+      "in_band": false,
+      "ratio_actual_over_mid": 14.788779897878742
     },
     {
       "name": "figure8",
@@ -705,6 +771,160 @@
       "ratio_actual_over_mid": 4.558215890274655
     },
     {
+      "name": "linked_circles",
+      "n": 800,
+      "T": 1.3,
+      "maxdim": 1,
+      "mode_recommended": "exact",
+      "engine_recommended": "redzed",
+      "auto_will_run": true,
+      "est_runtime_s": 0.018663,
+      "est_runtime_lo_s": 0.00746519,
+      "est_runtime_hi_s": 0.0746519,
+      "growth_p": 2.4,
+      "leaving_cheap_regime": false,
+      "exact_feasible": true,
+      "residual_regime": "fat",
+      "walls": {
+        "exact": 0.019164170997100882
+      },
+      "measured_recommended_wall_s": 0.019164170997100882,
+      "in_band": true,
+      "ratio_actual_over_mid": 1.026853721111337
+    },
+    {
+      "name": "linked_circles",
+      "n": 1200,
+      "T": 1.3,
+      "maxdim": 1,
+      "mode_recommended": "exact",
+      "engine_recommended": "redzed",
+      "auto_will_run": true,
+      "est_runtime_s": 0.035565,
+      "est_runtime_lo_s": 0.014226,
+      "est_runtime_hi_s": 0.14226,
+      "growth_p": 2.4,
+      "leaving_cheap_regime": false,
+      "exact_feasible": true,
+      "residual_regime": "fat",
+      "walls": {
+        "exact": 0.04443899400939699
+      },
+      "measured_recommended_wall_s": 0.04443899400939699,
+      "in_band": true,
+      "ratio_actual_over_mid": 1.2495148041444395
+    },
+    {
+      "name": "linked_circles",
+      "n": 2000,
+      "T": 1.3,
+      "maxdim": 1,
+      "mode_recommended": "exact",
+      "engine_recommended": "redzed",
+      "auto_will_run": true,
+      "est_runtime_s": 0.0933478,
+      "est_runtime_lo_s": 0.0373391,
+      "est_runtime_hi_s": 0.373391,
+      "growth_p": 2.4,
+      "leaving_cheap_regime": true,
+      "exact_feasible": true,
+      "residual_regime": "fat",
+      "walls": {
+        "exact": 0.10875419199874159
+      },
+      "measured_recommended_wall_s": 0.10875419199874159,
+      "in_band": true,
+      "ratio_actual_over_mid": 1.165042904050675
+    },
+    {
+      "name": "linked_circles",
+      "n": 3000,
+      "T": 1.3,
+      "maxdim": 1,
+      "mode_recommended": "exact",
+      "engine_recommended": "redzed",
+      "auto_will_run": true,
+      "est_runtime_s": 0.199595,
+      "est_runtime_lo_s": 0.0798381,
+      "est_runtime_hi_s": 0.798381,
+      "growth_p": 2.4,
+      "leaving_cheap_regime": true,
+      "exact_feasible": true,
+      "residual_regime": "fat",
+      "walls": {
+        "exact": 0.26738795399433
+      },
+      "measured_recommended_wall_s": 0.26738795399433,
+      "in_band": true,
+      "ratio_actual_over_mid": 1.3396525664186478
+    },
+    {
+      "name": "linked_circles",
+      "n": 4000,
+      "T": 1.3,
+      "maxdim": 1,
+      "mode_recommended": "exact",
+      "engine_recommended": "redzed",
+      "auto_will_run": true,
+      "est_runtime_s": 0.359199,
+      "est_runtime_lo_s": 0.14368,
+      "est_runtime_hi_s": 1.4368,
+      "growth_p": 2.4,
+      "leaving_cheap_regime": true,
+      "exact_feasible": true,
+      "residual_regime": "fat",
+      "walls": {
+        "exact": 0.5314986140001565
+      },
+      "measured_recommended_wall_s": 0.5314986140001565,
+      "in_band": true,
+      "ratio_actual_over_mid": 1.4796773209283893
+    },
+    {
+      "name": "loops_with_bridges",
+      "n": 1000,
+      "T": 1.3,
+      "maxdim": 1,
+      "mode_recommended": "exact",
+      "engine_recommended": "implicit",
+      "auto_will_run": true,
+      "est_runtime_s": 0.045,
+      "est_runtime_lo_s": 0.018,
+      "est_runtime_hi_s": 0.18,
+      "growth_p": 2.2,
+      "leaving_cheap_regime": false,
+      "exact_feasible": true,
+      "residual_regime": "thin",
+      "walls": {
+        "exact": 0.045911163004348055
+      },
+      "measured_recommended_wall_s": 0.045911163004348055,
+      "in_band": true,
+      "ratio_actual_over_mid": 1.02024806676329
+    },
+    {
+      "name": "loops_with_bridges",
+      "n": 2000,
+      "T": 1.3,
+      "maxdim": 1,
+      "mode_recommended": "exact",
+      "engine_recommended": "implicit",
+      "auto_will_run": true,
+      "est_runtime_s": 0.165,
+      "est_runtime_lo_s": 0.066,
+      "est_runtime_hi_s": 0.66,
+      "growth_p": 2.2,
+      "leaving_cheap_regime": false,
+      "exact_feasible": true,
+      "residual_regime": "thin",
+      "walls": {
+        "exact": 0.21843060199171305
+      },
+      "measured_recommended_wall_s": 0.21843060199171305,
+      "in_band": true,
+      "ratio_actual_over_mid": 1.3238218302528062
+    },
+    {
       "name": "many_loops",
       "n": 400,
       "T": 1.2,
@@ -727,6 +947,50 @@
       "measured_recommended_wall_s": 0.003668953009764664,
       "in_band": true,
       "ratio_actual_over_mid": 0.6472643091109773
+    },
+    {
+      "name": "many_loops",
+      "n": 1000,
+      "T": 1.2,
+      "maxdim": 1,
+      "mode_recommended": "exact",
+      "engine_recommended": "redzed",
+      "auto_will_run": true,
+      "est_runtime_s": 0.00901365,
+      "est_runtime_lo_s": 0.00360546,
+      "est_runtime_hi_s": 0.0540819,
+      "growth_p": 1.8,
+      "leaving_cheap_regime": false,
+      "exact_feasible": true,
+      "residual_regime": "hollow",
+      "walls": {
+        "exact": 0.008663087006425485
+      },
+      "measured_recommended_wall_s": 0.008663087006425485,
+      "in_band": true,
+      "ratio_actual_over_mid": 0.9611075431623688
+    },
+    {
+      "name": "many_loops",
+      "n": 2000,
+      "T": 1.2,
+      "maxdim": 1,
+      "mode_recommended": "exact",
+      "engine_recommended": "redzed",
+      "auto_will_run": true,
+      "est_runtime_s": 0.0210626,
+      "est_runtime_lo_s": 0.00842506,
+      "est_runtime_hi_s": 0.126376,
+      "growth_p": 1.8,
+      "leaving_cheap_regime": true,
+      "exact_feasible": true,
+      "residual_regime": "hollow",
+      "walls": {
+        "exact": 0.026832061994355172
+      },
+      "measured_recommended_wall_s": 0.026832061994355172,
+      "in_band": true,
+      "ratio_actual_over_mid": 1.273919743733213
     },
     {
       "name": "mixed_1d2d3d",
@@ -867,6 +1131,28 @@
       "ratio_actual_over_mid": 0.1030594139592722
     },
     {
+      "name": "multi_scale_loops",
+      "n": 1000,
+      "T": 2.8,
+      "maxdim": 1,
+      "mode_recommended": "exact",
+      "engine_recommended": "redzed",
+      "auto_will_run": true,
+      "est_runtime_s": 0.02217,
+      "est_runtime_lo_s": 0.00886798,
+      "est_runtime_hi_s": 0.0886798,
+      "growth_p": 2.4,
+      "leaving_cheap_regime": false,
+      "exact_feasible": true,
+      "residual_regime": "fat",
+      "walls": {
+        "exact": 0.026430660000187345
+      },
+      "measured_recommended_wall_s": 0.026430660000187345,
+      "in_band": true,
+      "ratio_actual_over_mid": 1.192181326124824
+    },
+    {
       "name": "nested_loops",
       "n": 400,
       "T": 1.6,
@@ -906,11 +1192,11 @@
       "exact_feasible": true,
       "residual_regime": "fat",
       "walls": {
-        "exact": 0.03728467600012664
+        "exact": 0.03568322499631904
       },
-      "measured_recommended_wall_s": 0.03728467600012664,
+      "measured_recommended_wall_s": 0.03568322499631904,
       "in_band": true,
-      "ratio_actual_over_mid": 2.103935129285871
+      "ratio_actual_over_mid": 2.0135669301702483
     },
     {
       "name": "nested_loops",
@@ -929,10 +1215,12 @@
       "residual_regime": "fat",
       "walls": {
         "sparse": 0.05890393300796859,
-        "scale": 0.037569862994132563
+        "scale": 0.037569862994132563,
+        "exact": 0.23558312600653153
       },
-      "measured_recommended_wall_s": null,
-      "in_band": null
+      "measured_recommended_wall_s": 0.23558312600653153,
+      "in_band": false,
+      "ratio_actual_over_mid": 4.1421573113879075
     },
     {
       "name": "nested_loops",
@@ -1001,6 +1289,247 @@
       "ratio_actual_over_mid": 1.0150731574404952
     },
     {
+      "name": "nonuniform_circle",
+      "n": 1000,
+      "T": 1.5,
+      "maxdim": 1,
+      "mode_recommended": "exact",
+      "engine_recommended": "implicit",
+      "auto_will_run": true,
+      "est_runtime_s": 0.045,
+      "est_runtime_lo_s": 0.018,
+      "est_runtime_hi_s": 0.18,
+      "growth_p": 2.2,
+      "leaving_cheap_regime": false,
+      "exact_feasible": true,
+      "residual_regime": "thin",
+      "walls": {
+        "exact": 0.061637842998607084
+      },
+      "measured_recommended_wall_s": 0.061637842998607084,
+      "in_band": true,
+      "ratio_actual_over_mid": 1.3697298444134909
+    },
+    {
+      "name": "nonuniform_circle",
+      "n": 6000,
+      "T": 1.5,
+      "maxdim": 1,
+      "mode_recommended": "exact",
+      "engine_recommended": "implicit",
+      "auto_will_run": true,
+      "est_runtime_s": 1.445,
+      "est_runtime_lo_s": 0.578,
+      "est_runtime_hi_s": 5.78,
+      "growth_p": 2.2,
+      "leaving_cheap_regime": false,
+      "exact_feasible": true,
+      "residual_regime": "thin",
+      "walls": {
+        "exact": 5.672216306993505
+      },
+      "measured_recommended_wall_s": 5.672216306993505,
+      "in_band": true,
+      "ratio_actual_over_mid": 3.9254092089920447
+    },
+    {
+      "name": "outliers_sphere",
+      "n": 400,
+      "T": 1.4,
+      "maxdim": 2,
+      "mode_recommended": "exact",
+      "engine_recommended": "implicit",
+      "auto_will_run": true,
+      "est_runtime_s": 0.0114,
+      "est_runtime_lo_s": 0.00456,
+      "est_runtime_hi_s": 0.0456,
+      "growth_p": 2.2,
+      "leaving_cheap_regime": false,
+      "exact_feasible": true,
+      "residual_regime": "thin",
+      "walls": {
+        "exact": 0.016522863996215165
+      },
+      "measured_recommended_wall_s": 0.016522863996215165,
+      "in_band": true,
+      "ratio_actual_over_mid": 1.4493740347557162
+    },
+    {
+      "name": "random_geometric",
+      "n": 6000,
+      "T": 0.08,
+      "maxdim": 1,
+      "mode_recommended": "exact",
+      "engine_recommended": "redzed",
+      "auto_will_run": true,
+      "est_runtime_s": 0.0394039,
+      "est_runtime_lo_s": 0.0157616,
+      "est_runtime_hi_s": 0.236423,
+      "growth_p": 1.8,
+      "leaving_cheap_regime": true,
+      "exact_feasible": true,
+      "residual_regime": "hollow",
+      "walls": {
+        "exact": 0.0883830829989165
+      },
+      "measured_recommended_wall_s": 0.0883830829989165,
+      "in_band": true,
+      "ratio_actual_over_mid": 2.243003433642774
+    },
+    {
+      "name": "sheared_loops",
+      "n": 800,
+      "T": 1.3,
+      "maxdim": 1,
+      "mode_recommended": "exact",
+      "engine_recommended": "redzed",
+      "auto_will_run": true,
+      "est_runtime_s": 0.0130955,
+      "est_runtime_lo_s": 0.0052382,
+      "est_runtime_hi_s": 0.052382,
+      "growth_p": 2.4,
+      "leaving_cheap_regime": false,
+      "exact_feasible": true,
+      "residual_regime": "fat",
+      "walls": {
+        "exact": 0.013814036996336654
+      },
+      "measured_recommended_wall_s": 0.013814036996336654,
+      "in_band": true,
+      "ratio_actual_over_mid": 1.0548690005220613
+    },
+    {
+      "name": "sheared_loops",
+      "n": 1200,
+      "T": 1.3,
+      "maxdim": 1,
+      "mode_recommended": "exact",
+      "engine_recommended": "redzed",
+      "auto_will_run": true,
+      "est_runtime_s": 0.0236015,
+      "est_runtime_lo_s": 0.00944062,
+      "est_runtime_hi_s": 0.0944062,
+      "growth_p": 2.4,
+      "leaving_cheap_regime": false,
+      "exact_feasible": true,
+      "residual_regime": "fat",
+      "walls": {
+        "exact": 0.025441870995564386
+      },
+      "measured_recommended_wall_s": 0.025441870995564386,
+      "in_band": true,
+      "ratio_actual_over_mid": 1.077976865689231
+    },
+    {
+      "name": "sheared_loops",
+      "n": 2000,
+      "T": 1.3,
+      "maxdim": 1,
+      "mode_recommended": "exact",
+      "engine_recommended": "redzed",
+      "auto_will_run": true,
+      "est_runtime_s": 0.0596297,
+      "est_runtime_lo_s": 0.0238519,
+      "est_runtime_hi_s": 0.238519,
+      "growth_p": 2.4,
+      "leaving_cheap_regime": true,
+      "exact_feasible": true,
+      "residual_regime": "fat",
+      "walls": {
+        "exact": 0.06774878500436898
+      },
+      "measured_recommended_wall_s": 0.06774878500436898,
+      "in_band": true,
+      "ratio_actual_over_mid": 1.1361584077124147
+    },
+    {
+      "name": "sheared_loops",
+      "n": 3000,
+      "T": 1.3,
+      "maxdim": 1,
+      "mode_recommended": "exact",
+      "engine_recommended": "redzed",
+      "auto_will_run": true,
+      "est_runtime_s": 0.122532,
+      "est_runtime_lo_s": 0.0490128,
+      "est_runtime_hi_s": 0.490128,
+      "growth_p": 2.4,
+      "leaving_cheap_regime": true,
+      "exact_feasible": true,
+      "residual_regime": "fat",
+      "walls": {
+        "exact": 0.14891754899872467
+      },
+      "measured_recommended_wall_s": 0.14891754899872467,
+      "in_band": true,
+      "ratio_actual_over_mid": 1.215335985691286
+    },
+    {
+      "name": "sheared_loops",
+      "n": 4000,
+      "T": 1.3,
+      "maxdim": 1,
+      "mode_recommended": "exact",
+      "engine_recommended": "redzed",
+      "auto_will_run": true,
+      "est_runtime_s": 0.194922,
+      "est_runtime_lo_s": 0.0779688,
+      "est_runtime_hi_s": 1.16953,
+      "growth_p": 1.8,
+      "leaving_cheap_regime": true,
+      "exact_feasible": true,
+      "residual_regime": "hollow",
+      "walls": {
+        "exact": 0.29464642600214574
+      },
+      "measured_recommended_wall_s": 0.29464642600214574,
+      "in_band": true,
+      "ratio_actual_over_mid": 1.5116119576145624
+    },
+    {
+      "name": "sheared_loops",
+      "n": 5000,
+      "T": 1.3,
+      "maxdim": 1,
+      "mode_recommended": "exact",
+      "engine_recommended": "redzed",
+      "auto_will_run": true,
+      "est_runtime_s": 0.313493,
+      "est_runtime_lo_s": 0.125397,
+      "est_runtime_hi_s": 1.88096,
+      "growth_p": 1.8,
+      "leaving_cheap_regime": true,
+      "exact_feasible": true,
+      "residual_regime": "hollow",
+      "walls": {
+        "exact": 0.4692434940079693
+      },
+      "measured_recommended_wall_s": 0.4692434940079693,
+      "in_band": true,
+      "ratio_actual_over_mid": 1.4968228764532836
+    },
+    {
+      "name": "sheared_loops",
+      "n": 8000,
+      "T": 1.3,
+      "maxdim": 1,
+      "mode_recommended": "scale",
+      "engine_recommended": "redzed",
+      "auto_will_run": true,
+      "est_runtime_s": 0.28,
+      "est_runtime_lo_s": 0.112,
+      "est_runtime_hi_s": 1.68,
+      "growth_p": 1.2,
+      "leaving_cheap_regime": true,
+      "exact_feasible": false,
+      "residual_regime": "hollow",
+      "walls": {
+        "exact": 1.4189939669886371
+      },
+      "measured_recommended_wall_s": null,
+      "in_band": null
+    },
+    {
       "name": "sphere",
       "n": 200,
       "T": 1.4,
@@ -1045,6 +1574,94 @@
       "measured_recommended_wall_s": 0.017468650999944657,
       "in_band": true,
       "ratio_actual_over_mid": 1.5323378070126892
+    },
+    {
+      "name": "sphere",
+      "n": 1000,
+      "T": 1.4,
+      "maxdim": 1,
+      "mode_recommended": "exact",
+      "engine_recommended": "redzed",
+      "auto_will_run": true,
+      "est_runtime_s": 0.0294141,
+      "est_runtime_lo_s": 0.0117656,
+      "est_runtime_hi_s": 0.117656,
+      "growth_p": 2.4,
+      "leaving_cheap_regime": false,
+      "exact_feasible": true,
+      "residual_regime": "fat",
+      "walls": {
+        "exact": 0.0307226709992392
+      },
+      "measured_recommended_wall_s": 0.0307226709992392,
+      "in_band": true,
+      "ratio_actual_over_mid": 1.044487881636331
+    },
+    {
+      "name": "sphere",
+      "n": 2000,
+      "T": 1.4,
+      "maxdim": 1,
+      "mode_recommended": "exact",
+      "engine_recommended": "redzed",
+      "auto_will_run": true,
+      "est_runtime_s": 0.102654,
+      "est_runtime_lo_s": 0.0410616,
+      "est_runtime_hi_s": 0.410616,
+      "growth_p": 2.4,
+      "leaving_cheap_regime": true,
+      "exact_feasible": true,
+      "residual_regime": "fat",
+      "walls": {
+        "exact": 0.09083724601077847
+      },
+      "measured_recommended_wall_s": 0.09083724601077847,
+      "in_band": true,
+      "ratio_actual_over_mid": 0.884887544672185
+    },
+    {
+      "name": "sphere",
+      "n": 3000,
+      "T": 1.4,
+      "maxdim": 1,
+      "mode_recommended": "exact",
+      "engine_recommended": "redzed",
+      "auto_will_run": true,
+      "est_runtime_s": 0.223978,
+      "est_runtime_lo_s": 0.089591,
+      "est_runtime_hi_s": 0.89591,
+      "growth_p": 2.4,
+      "leaving_cheap_regime": true,
+      "exact_feasible": true,
+      "residual_regime": "fat",
+      "walls": {
+        "exact": 0.21195967598760035
+      },
+      "measured_recommended_wall_s": 0.21195967598760035,
+      "in_band": true,
+      "ratio_actual_over_mid": 0.9463414977703183
+    },
+    {
+      "name": "sphere",
+      "n": 4000,
+      "T": 1.4,
+      "maxdim": 1,
+      "mode_recommended": "exact",
+      "engine_recommended": "redzed",
+      "auto_will_run": true,
+      "est_runtime_s": 0.39651,
+      "est_runtime_lo_s": 0.158604,
+      "est_runtime_hi_s": 1.58604,
+      "growth_p": 2.4,
+      "leaving_cheap_regime": true,
+      "exact_feasible": true,
+      "residual_regime": "fat",
+      "walls": {
+        "exact": 0.38093218399444595
+      },
+      "measured_recommended_wall_s": 0.38093218399444595,
+      "in_band": true,
+      "ratio_actual_over_mid": 0.9607126781025598
     },
     {
       "name": "sphere_complete",
@@ -1116,6 +1733,50 @@
       "ratio_actual_over_mid": 0.37274979442437794
     },
     {
+      "name": "swiss_roll",
+      "n": 2000,
+      "T": 2.2,
+      "maxdim": 1,
+      "mode_recommended": "exact",
+      "engine_recommended": "redzed",
+      "auto_will_run": true,
+      "est_runtime_s": 0.015231,
+      "est_runtime_lo_s": 0.00609241,
+      "est_runtime_hi_s": 0.0913862,
+      "growth_p": 1.8,
+      "leaving_cheap_regime": true,
+      "exact_feasible": true,
+      "residual_regime": "hollow",
+      "walls": {
+        "exact": 0.020066331009729765
+      },
+      "measured_recommended_wall_s": 0.020066331009729765,
+      "in_band": true,
+      "ratio_actual_over_mid": 1.3174664178143107
+    },
+    {
+      "name": "swiss_roll",
+      "n": 8000,
+      "T": 2.2,
+      "maxdim": 1,
+      "mode_recommended": "exact",
+      "engine_recommended": "redzed",
+      "auto_will_run": true,
+      "est_runtime_s": 0.177907,
+      "est_runtime_lo_s": 0.0711628,
+      "est_runtime_hi_s": 1.06744,
+      "growth_p": 1.8,
+      "leaving_cheap_regime": true,
+      "exact_feasible": true,
+      "residual_regime": "hollow",
+      "walls": {
+        "exact": 0.318668420004542
+      },
+      "measured_recommended_wall_s": 0.318668420004542,
+      "in_band": true,
+      "ratio_actual_over_mid": 1.79120787829901
+    },
+    {
       "name": "torus",
       "n": 400,
       "T": 1.6,
@@ -1158,6 +1819,28 @@
       "measured_recommended_wall_s": 0.040296526000020094,
       "in_band": true,
       "ratio_actual_over_mid": 2.3928485071625434
+    },
+    {
+      "name": "torus",
+      "n": 2000,
+      "T": 1.6,
+      "maxdim": 1,
+      "mode_recommended": "exact",
+      "engine_recommended": "redzed",
+      "auto_will_run": true,
+      "est_runtime_s": 0.0524686,
+      "est_runtime_lo_s": 0.0209874,
+      "est_runtime_hi_s": 0.314812,
+      "growth_p": 1.8,
+      "leaving_cheap_regime": true,
+      "exact_feasible": true,
+      "residual_regime": "hollow",
+      "walls": {
+        "exact": 0.20616494100249838
+      },
+      "measured_recommended_wall_s": 0.20616494100249838,
+      "in_band": true,
+      "ratio_actual_over_mid": 3.929301353619086
     },
     {
       "name": "two_spheres_apart",
@@ -1226,6 +1909,94 @@
       "measured_recommended_wall_s": 0.017563191999215633,
       "in_band": true,
       "ratio_actual_over_mid": 0.9611290666383359
+    },
+    {
+      "name": "uniform2",
+      "n": 2000,
+      "T": 0.35,
+      "maxdim": 1,
+      "mode_recommended": "exact",
+      "engine_recommended": "redzed",
+      "auto_will_run": true,
+      "est_runtime_s": 0.0625262,
+      "est_runtime_lo_s": 0.0250105,
+      "est_runtime_hi_s": 0.250105,
+      "growth_p": 2.4,
+      "leaving_cheap_regime": true,
+      "exact_feasible": true,
+      "residual_regime": "fat",
+      "walls": {
+        "exact": 0.06095943599939346
+      },
+      "measured_recommended_wall_s": 0.06095943599939346,
+      "in_band": true,
+      "ratio_actual_over_mid": 0.9749422801864412
+    },
+    {
+      "name": "uniform2",
+      "n": 3500,
+      "T": 0.35,
+      "maxdim": 1,
+      "mode_recommended": "exact",
+      "engine_recommended": "redzed",
+      "auto_will_run": true,
+      "est_runtime_s": 0.173028,
+      "est_runtime_lo_s": 0.0692112,
+      "est_runtime_hi_s": 0.692112,
+      "growth_p": 2.4,
+      "leaving_cheap_regime": true,
+      "exact_feasible": true,
+      "residual_regime": "fat",
+      "walls": {
+        "exact": 0.1789238150086021
+      },
+      "measured_recommended_wall_s": 0.1789238150086021,
+      "in_band": true,
+      "ratio_actual_over_mid": 1.0340743406188717
+    },
+    {
+      "name": "uniform2",
+      "n": 5000,
+      "T": 0.35,
+      "maxdim": 1,
+      "mode_recommended": "exact",
+      "engine_recommended": "redzed",
+      "auto_will_run": true,
+      "est_runtime_s": 0.373561,
+      "est_runtime_lo_s": 0.149424,
+      "est_runtime_hi_s": 1.49424,
+      "growth_p": 2.4,
+      "leaving_cheap_regime": true,
+      "exact_feasible": true,
+      "residual_regime": "fat",
+      "walls": {
+        "exact": 0.39149768100469373
+      },
+      "measured_recommended_wall_s": 0.39149768100469373,
+      "in_band": true,
+      "ratio_actual_over_mid": 1.0480154004424813
+    },
+    {
+      "name": "uniform2",
+      "n": 7000,
+      "T": 0.35,
+      "maxdim": 1,
+      "mode_recommended": "exact",
+      "engine_recommended": "redzed",
+      "auto_will_run": true,
+      "est_runtime_s": 0.670518,
+      "est_runtime_lo_s": 0.268207,
+      "est_runtime_hi_s": 2.68207,
+      "growth_p": 2.4,
+      "leaving_cheap_regime": true,
+      "exact_feasible": true,
+      "residual_regime": "fat",
+      "walls": {
+        "exact": 0.7925589869992109
+      },
+      "measured_recommended_wall_s": 0.7925589869992109,
+      "in_band": true,
+      "ratio_actual_over_mid": 1.1820100086786798
     },
     {
       "name": "uniform3",
@@ -1337,7 +2108,7 @@
       "in_band": null
     }
   ],
-  "n_scored": 48,
-  "n_in_band": 48,
-  "note": "in_band compares the recommended-mode wall to est_runtime_lo/hi. \u03c4 unchanged."
+  "n_scored": 82,
+  "n_in_band": 80,
+  "note": "in_band compares the recommended-mode wall to est_runtime_lo/hi. \u03c4 unchanged. Includes leftover_10x / leftover_ratio_n / leftover_heldout / leftover_miss_n / linked_ratio_n / postfreeze. Misses: figure8 n=3000 leftover explosion; nested_loops n=2000 just past hi_mult=4."
 }
