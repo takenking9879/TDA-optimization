@@ -5,6 +5,14 @@ Do not paste long reasoning here.
 
 ---
 
+## 2026-10-14 — Held-out leftover H1 ratio (seed 19)
+
+- **Question:** Does leftover ≥10× hold on families outside leftover_10x.json?
+- **Work:** `eval_leftover_heldout.py` seed 19, 12 cells. Collapse walls (resid≤τ and collapse pipeline) counted separately. No leftover-skip edits. τ frozen.
+- **Result:** pending live sweep.
+- **Decision:** Measure. Goal not complete.
+- **Class:** experiment
+
 ## 2026-10-14 — Leftover 10× vs n (no new pairing)
 
 - **Question:** Do the sub-10× leftover families (uniform2, sphere H1) reach 10× as n grows? Any new 2026 exact-VR engine?
