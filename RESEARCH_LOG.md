@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-14 — I311 entered-face Lawson walk (revert)
+
+- **Question:** Does skipping the face just entered (3 orients/step after the first hop) cut 80k Delaunay metric without changing the mesh?
+- **Hypothesis:** After a hop the query is already on the correct side of the shared face. Same predicates as I275. No cached signs (I307), no new insphere (I310).
+- **Work:** `skip_face` + reverse-nbor lookup. Wave 171 vs I306. Hard: sphere n=100000, figure8 n=24000.
+- **Result:** **Reject.** Identity held (sphere n=16000 |E|=80641, ess2=1 through n=100000; figure8 n=24000 ess1=2; exact auto 5/5, uniform2 10.5×). Clock lost: sphere n=80000 **1.28 vs 1.09 s** (metric 616 vs 507); n=50000 **0.75 vs 0.65 s**; n=100000 **1.64 s / 505k / ess2=1**. Reverse-nbor scan ate the skipped orient.
+- **Decision:** **Reject and revert.** Do not retry entered-face skip without a stored reverse-face index (and that is I307-style bookkeeping). Walk orients are not the 80k wall. 100k H0+H1+H2 is in reach on the I306 path (~1.6 s). Do not mark the goal complete.
+- **Class:** experiment (reject; exact, no faster; reverted)
+
 ## 2026-10-14 — I310 circumball insphere (revert)
 
 - **Question:** Does replacing the 4×4 `insphere` det with cached circumcenter+\(r^2\) (`||p-c||^2 < r^2`, sliver-det fallback, parallel array so Tet stays compact) cut the 80k Delaunay wall?

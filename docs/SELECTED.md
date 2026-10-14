@@ -1,6 +1,6 @@
 # Selected algorithm (living)
 
-Updated 2026-10-14 after iterations I001–I310. **CLI default `--engine`
+Updated 2026-10-14 after iterations I001–I311. **CLI default `--engine`
 auto` (I235+I236+I239+I240+I241+I263+I270+I271+I275):** subsample residual-frac dispatch,
 plus I263 edge-frac so hollow/manifold clouds take RedZeD. Fat →
 RedZeD (torus n=2000 **13.0×**). Thin-circle → collapse+implicit
@@ -754,7 +754,11 @@ Rips is exact and too slow.
    exact** (sphere n=16000 |E| 80659 vs 80641; n=50000 ess2 2 vs 1;
    n=100000 15 s / ess2=3). Do not retry a non-conservative
    circumcenter predicate. 2D thicken still holds (figure8 n=24000
-   **0.86 s / ess1=2**).
+   **0.86 s / ess1=2**). **I311 entered-face walk reject/revert:**
+   identity held (80k/100k ess2=1, |E| 80641 at 16k) but 80k
+   **1.28 vs 1.09 s**. Reverse-nbor scan ate the skipped orient.
+   Do not retry without a stored reverse-face index. n=100000
+   H0+H1+H2 is **~1.6 s / 505k / ess2=1** on the I306 path.
    ae_seeded visits remain the exact-H1 wall.
 6. Owned AE leftover-star walk is still Θ(|leftover|·deg★) — rbit cut
    has_leftover_coface, not seeded probes (circle still 875k). I288
