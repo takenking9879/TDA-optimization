@@ -31,6 +31,8 @@ AXIS_PATH = BENCH / "results" / "consolidation" / "axis_scaling.json"
 AXIS = json.loads(AXIS_PATH.read_text()) if AXIS_PATH.exists() else {}
 DORY_PATH = BENCH / "results" / "consolidation" / "dory.json"
 DORY = json.loads(DORY_PATH.read_text()) if DORY_PATH.exists() else {}
+DORY_LIM_PATH = BENCH / "results" / "consolidation" / "dory_limits.json"
+DORY_LIM = json.loads(DORY_LIM_PATH.read_text()) if DORY_LIM_PATH.exists() else {}
 FIG = BENCH / "results" / "consolidation" / "figures"
 FIG.mkdir(parents=True, exist_ok=True)
 
@@ -946,6 +948,42 @@ if DORY:
             "wall seconds",
             logx=False,
             logy=True,
+        )
+
+if DORY_LIM:
+    rows.append("")
+    rows.append("## Dory first-timeout sweep (12 s, 1 thread)")
+    rows.append(
+        f"{DORY_LIM.get('note', '')} Complements leftover cells in dory.json."
+    )
+    ff = DORY_LIM.get("first_fail") or {}
+    if ff:
+        rows.append("| family | first Dory fail n | timed out |")
+        rows.append("| --- | ---: | --- |")
+        for fam, info in ff.items():
+            rows.append(
+                f"| {fam} | {info.get('n')} | {info.get('timed_out')} |"
+            )
+    rows.append("| family | n | dim | Dory (s) | PITH (s) | Ripser (s) | Dory ok | Ripser ok |")
+    rows.append("| --- | ---: | ---: | ---: | ---: | ---: | --- | --- |")
+    for d in DORY_LIM.get("receipts") or []:
+        dor = d.get("dory") or {}
+        pith = d.get("pith") or {}
+        rip = d.get("ripser") or {}
+        dw = dor.get("wall_s")
+        pw = pith.get("wall_s")
+        rw = rip.get("wall_s")
+        rows.append(
+            "| {fam} | {n} | {dim} | {dw} | {pw} | {rw} | {dok} | {rok} |".format(
+                fam=d.get("name"),
+                n=d.get("n"),
+                dim=d.get("maxdim"),
+                dw="timeout" if dor.get("timed_out") else ("" if dw is None else f"{dw:.3f}"),
+                pw="timeout" if pith.get("timed_out") else ("" if pw is None else f"{pw:.3f}"),
+                rw="timeout" if rip.get("timed_out") else ("" if rw is None else f"{rw:.3f}"),
+                dok=dor.get("ok"),
+                rok=rip.get("ok"),
+            )
         )
 
 (BENCH / "results" / "consolidation" / "TABLES.md").write_text("\n".join(rows) + "\n")
