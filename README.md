@@ -148,6 +148,8 @@ PITH **0.30 s** vs giotto **7.23 s** (24×).
 
 ![Scale path vs exact](benchmarks/results/consolidation/figures/runtime_scale.svg)
 
+![Fused sparse vs scale](benchmarks/results/consolidation/figures/runtime_sparse.svg)
+
 Local time exponents (empirical, not theorems): scale stays \(p\approx 1.0\)–\(1.3\);
 exact figure-8 / nested-loop \(H_1\) leaves that regime around a few thousand
 points (\(p\approx 2.8\)–\(3.0\)); Ripser on the same series is \(p\approx 2.7\)–\(3.5\).

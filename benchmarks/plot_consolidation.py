@@ -15,6 +15,8 @@ BASE_PATH = BENCH / "results" / "consolidation" / "baselines.json"
 BASE = json.loads(BASE_PATH.read_text()) if BASE_PATH.exists() else {}
 SPARSE_PATH = BENCH / "results" / "consolidation" / "sparse_limits.json"
 SPARSE = json.loads(SPARSE_PATH.read_text()) if SPARSE_PATH.exists() else {}
+SSCALE_PATH = BENCH / "results" / "consolidation" / "sparse_scale.json"
+SSCALE = json.loads(SSCALE_PATH.read_text()) if SSCALE_PATH.exists() else {}
 FIG = BENCH / "results" / "consolidation" / "figures"
 FIG.mkdir(parents=True, exist_ok=True)
 
@@ -107,6 +109,19 @@ def collect(name, method_key, rss=False):
     return sorted(by.items())
 
 
+def collect_sscale(name, mode, rss=False):
+    by = {}
+    for r in SSCALE.get("series") or []:
+        if r.get("name") != name or r.get("mode") != mode:
+            continue
+        if not r.get("ok") or not r.get("wall_s"):
+            continue
+        y = r.get("rss") if rss else r.get("wall_s")
+        if y:
+            by[r["n"]] = y
+    return sorted(by.items())
+
+
 svg_scatter(
     FIG / "runtime_exact.svg",
     [
@@ -130,8 +145,25 @@ svg_scatter(
         {"name": "figure8 exact (small n)", "xy": collect("figure8", "pith_exact")},
         {"name": "figure8 Ripser (small n)", "xy": collect("figure8", "ripser")},
         {"name": "many_loops scale", "xy": collect("many_loops", "pith_scale")},
+        {"name": "figure8 sparse", "xy": collect_sscale("figure8", "sparse")},
+        {"name": "circle sparse", "xy": collect_sscale("circle_noisy", "sparse")},
     ],
-    "Runtime vs n (scale path vs exact, log-log)",
+    "Runtime vs n (scale path vs exact vs sparse, log-log)",
+    "n",
+    "wall seconds",
+)
+
+svg_scatter(
+    FIG / "runtime_sparse.svg",
+    [
+        {"name": "figure8 sparse", "xy": collect_sscale("figure8", "sparse")},
+        {"name": "figure8 scale", "xy": collect_sscale("figure8", "scale") or collect("figure8", "pith_scale")},
+        {"name": "circle sparse", "xy": collect_sscale("circle_noisy", "sparse")},
+        {"name": "circle scale", "xy": collect_sscale("circle_noisy", "scale")},
+        {"name": "nested sparse", "xy": collect_sscale("nested_loops", "sparse")},
+        {"name": "uniform4 sparse", "xy": collect_sscale("uniform4", "sparse")},
+    ],
+    "Runtime vs n (fused sparse vs scale, 1 thread, log-log)",
     "n",
     "wall seconds",
 )
@@ -144,13 +176,26 @@ svg_scatter(
         {"name": "figure8 scale", "xy": collect("figure8", "pith_scale", rss=True)},
         {"name": "sphere scale", "xy": collect("sphere", "pith_scale", rss=True)},
         {"name": "blobs H0 PITH", "xy": collect("blobs", "pith_exact", rss=True)},
+        {"name": "figure8 sparse", "xy": collect_sscale("figure8", "sparse", rss=True)},
     ],
     "Peak RSS vs n (PITH VmHWM, log-log)",
     "n",
     "bytes",
 )
 
-exp = list(REP.get("exponents") or []) + list(LIM.get("exponents") or [])
+exp = []
+for e in SSCALE.get("exponents") or []:
+    exp.append(
+        {
+            "name": e.get("name"),
+            "method": f"pith_{e.get('mode')}",
+            "n0": e.get("n0"),
+            "n1": e.get("n1"),
+            "p_time": e.get("p_wall"),
+            "p_edges": e.get("p_edges"),
+        }
+    )
+exp.extend(list(REP.get("exponents") or []) + list(LIM.get("exponents") or []))
 lines = [
     "<svg xmlns='http://www.w3.org/2000/svg' width='760' height='520' font-family='sans-serif'>",
     "<rect width='760' height='520' fill='white'/>",
@@ -175,11 +220,27 @@ lines.append("</svg>")
 # max practical N bars
 mp = LIM.get("max_practical") or []
 # collapse to method x family max
-want = ["pith_exact", "pith_redzed", "ripser", "pith_scale"]
+want = ["pith_exact", "pith_redzed", "ripser", "pith_scale", "pith_sparse"]
 families = []
 for row in mp:
     if row.get("method") in want and row.get("max_n_ok"):
         families.append(row)
+# fused sparse: largest n that finished under the 12 s budget
+by_sparse = {}
+for r in SSCALE.get("series") or []:
+    if r.get("mode") != "sparse" or not r.get("ok") or not r.get("n"):
+        continue
+    key = (r["name"], r.get("maxdim", 1))
+    prev = by_sparse.get(key)
+    if prev is None or r["n"] > prev["max_n_ok"]:
+        by_sparse[key] = {
+            "name": r["name"],
+            "maxdim": r.get("maxdim", 1),
+            "method": "pith_sparse",
+            "max_n_ok": r["n"],
+            "wall_at_max": r.get("wall_s"),
+        }
+families.extend(by_sparse.values())
 h = max(220, 36 + 16 * min(len(families), 24))
 out = [
     f"<svg xmlns='http://www.w3.org/2000/svg' width='760' height='{h}' font-family='sans-serif'>",
@@ -188,7 +249,13 @@ out = [
 ]
 ymax_n = max((r["max_n_ok"] for r in families), default=1)
 y = 44
-colors = {"pith_exact": "#1f77b4", "pith_redzed": "#9467bd", "ripser": "#d62728", "pith_scale": "#2ca02c"}
+colors = {
+    "pith_exact": "#1f77b4",
+    "pith_redzed": "#9467bd",
+    "ripser": "#d62728",
+    "pith_scale": "#2ca02c",
+    "pith_sparse": "#ff7f0e",
+}
 for r in families[:24]:
     n = r["max_n_ok"]
     bar = 20 + 480 * (math.log10(n) / math.log10(max(ymax_n, 10)))
@@ -522,6 +589,31 @@ if SPARSE:
             return run.get("error") or ""
 
         rows.append(f"| {r['name']} | {r['n']} | {w('pith_exact')} | {w('ripser')} | {w('giotto_t1')} |")
+
+if SSCALE:
+    rows.append("")
+    rows.append("## Fused sparse scaling (1 thread, no n×n matrix)")
+    rows.append(
+        "Same greedy-net flag as the matrix path. `distances` is FPS + T-ball evals. "
+        "Local p is empirical, not a theorem."
+    )
+    rows.append("| family | n | sparse (s) | scale (s) | sparse |E| | sparse RSS | local p | ess H1 |")
+    rows.append("| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |")
+    scale_by = {(r.get("name"), r.get("n")): r for r in SSCALE.get("series") or [] if r.get("mode") == "scale"}
+    for r in SSCALE.get("series") or []:
+        if r.get("mode") != "sparse":
+            continue
+        sc = scale_by.get((r.get("name"), r.get("n"))) or {}
+        rss = r.get("rss")
+        rss_s = f"{rss/1e6:.0f} MB" if isinstance(rss, (int, float)) and rss else ""
+        p = r.get("local_p")
+        rows.append(
+            f"| {r.get('name')} | {r.get('n')} | "
+            f"{'' if r.get('wall_s') is None else f'{r['wall_s']:.3f}'} | "
+            f"{'' if sc.get('wall_s') is None else f'{sc['wall_s']:.3f}'} | "
+            f"{r.get('n_edges_in') or ''} | {rss_s} | "
+            f"{'' if p is None else f'{p:.2f}'} | {r.get('ess1')} |"
+        )
 
 (BENCH / "results" / "consolidation" / "TABLES.md").write_text("\n".join(rows) + "\n")
 print("wrote figures and TABLES.md")

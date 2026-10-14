@@ -41,4 +41,12 @@
 <circle cx='495.9' cy='329.2' r='3.2' fill='#ff7f0e'/>
 <circle cx='573.3' cy='297.1' r='3.2' fill='#ff7f0e'/>
 <text x='688' y='104' text-anchor='end' font-size='11' fill='#ff7f0e'>blobs H0 PITH</text>
+<path d='M 306.9 328.7 L 380.0 285.3 L 453.1 227.9 L 495.9 193.1 L 526.2 166.0 L 569.0 129.6' fill='none' stroke='#8c564b' stroke-width='1.6'/>
+<circle cx='306.9' cy='328.7' r='3.2' fill='#8c564b'/>
+<circle cx='380.0' cy='285.3' r='3.2' fill='#8c564b'/>
+<circle cx='453.1' cy='227.9' r='3.2' fill='#8c564b'/>
+<circle cx='495.9' cy='193.1' r='3.2' fill='#8c564b'/>
+<circle cx='526.2' cy='166.0' r='3.2' fill='#8c564b'/>
+<circle cx='569.0' cy='129.6' r='3.2' fill='#8c564b'/>
+<text x='688' y='120' text-anchor='end' font-size='11' fill='#8c564b'>figure8 sparse</text>
 </svg>

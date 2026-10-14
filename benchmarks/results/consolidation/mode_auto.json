@@ -103,8 +103,21 @@
       "maxdim": 2,
       "expect": "scale",
       "agree": true
+    },
+    {
+      "ok": true,
+      "selected": "sparse",
+      "stderr": "# MODE auto selected sparse engine=redzed exact_feasible=0 regime=fat confidence=low\n# conservative |E| band exceeds 8e6; exact H1 on G_T is likely impractical\n",
+      "has_h1": true,
+      "pipeline": "pith:sparse",
+      "name": "uniform4",
+      "n": 5000,
+      "T": 1.0,
+      "maxdim": 1,
+      "expect": "sparse",
+      "agree": true
     }
   ],
-  "n_agree": 8,
-  "n": 8
+  "n_agree": 9,
+  "n": 9
 }

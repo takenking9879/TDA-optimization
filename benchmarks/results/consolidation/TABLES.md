@@ -173,6 +173,32 @@ giotto-ph 0.2.4 (AGPL oracle) and GUDHI 3.13.0 are compared at equal hardware in
 ## Local time exponents (empirical slopes, not theorems)
 | family | method | n0 | n1 | p_time | p_edges |
 | --- | --- | ---: | ---: | ---: | ---: |
+| figure8 | pith_sparse | 2000 | 4000 | 1.73 | 1.39 |
+| figure8 | pith_scale | 2000 | 4000 | 1.26 | 1.18 |
+| figure8 | pith_sparse | 4000 | 8000 | 1.98 | 1.34 |
+| figure8 | pith_scale | 4000 | 8000 | 1.38 | 1.21 |
+| figure8 | pith_sparse | 8000 | 12000 | 2.01 | 1.29 |
+| figure8 | pith_scale | 8000 | 12000 | 1.24 | 1.04 |
+| figure8 | pith_sparse | 12000 | 16000 | 2.00 | 1.26 |
+| figure8 | pith_scale | 12000 | 16000 | 1.11 | 1.02 |
+| figure8 | pith_sparse | 16000 | 24000 | 1.89 | 1.28 |
+| figure8 | pith_scale | 16000 | 24000 | 1.22 | 0.95 |
+| circle_noisy | pith_sparse | 2000 | 4000 | 1.79 | 1.33 |
+| circle_noisy | pith_scale | 2000 | 4000 | 1.37 | 1.27 |
+| circle_noisy | pith_sparse | 4000 | 8000 | 1.96 | 1.31 |
+| circle_noisy | pith_scale | 4000 | 8000 | 1.34 | 1.11 |
+| circle_noisy | pith_sparse | 8000 | 12000 | 1.68 | 1.25 |
+| circle_noisy | pith_scale | 8000 | 12000 | 1.10 | 0.91 |
+| nested_loops | pith_sparse | 2000 | 4000 | 1.51 | 1.41 |
+| nested_loops | pith_scale | 2000 | 4000 | 1.02 | 1.05 |
+| nested_loops | pith_sparse | 4000 | 8000 | 2.17 | 1.36 |
+| nested_loops | pith_scale | 4000 | 8000 | 1.42 | 1.23 |
+| disconnected_circles | pith_sparse | 2000 | 4000 | 1.66 | 1.36 |
+| disconnected_circles | pith_scale | 2000 | 4000 | 1.30 | 1.29 |
+| disconnected_circles | pith_sparse | 4000 | 8000 | 1.93 | 1.34 |
+| disconnected_circles | pith_scale | 4000 | 8000 | 1.41 | 1.17 |
+| uniform4 | pith_sparse | 400 | 800 | 1.44 | 1.54 |
+| uniform4 | pith_sparse | 800 | 1600 | 1.91 | 1.51 |
 | circle_noisy | pith_exact | 200 | 500 | 0.77 | 2.00 |
 | circle_noisy | pith_exact | 500 | 1000 | 2.01 | 2.00 |
 | circle_noisy | ripser | 200 | 500 | 3.17 |  |
@@ -376,11 +402,7 @@ PITH `--threads 1`. Ripser 1 thread. giotto-ph `n_threads=1` and `n_threads=4` (
 
 ## Sparse Rips (ε=0.6 greedy net) vs VR / scale
 Not exact VR. Sheehy-style interleaving is the literature guarantee; numbers are measured.
-\(\lvert E\rvert\) below is `edges_in`. After the fused Euclidean constructor,
-`--points` no longer stores an n×n matrix; `distances` counts FPS + T-ball
-evals (still \(\Theta(n^2)\)). Re-timed figure-8 \(n=8000\): **0.75 s / 28 MB /
-380k edges / ess \(H_1=2\)** (was 1.01 s with a dense matrix on a different
-draw). The table rows below are the earlier matrix-path suite.
+`distances` is pairwise construction; report `edges_in` as |E| (do not use distances).
 | family | n | exact (s) | scale (s) | sparse (s) | sparse |E| | sparse unmatched | sparse ess | scale unmatched |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- | ---: |
 | figure8 | 400 | 0.007 | 0.005 | 0.004 | 5563 | 14 | H1=2 H2=None | 0 |
@@ -389,22 +411,8 @@ draw). The table rows below are the earlier matrix-path suite.
 | many_loops | 400 | 0.004 | 0.005 | 0.003 | 3318 | 8 | H1=5 H2=None | 0 |
 | disconnected_circles | 400 | 0.008 | 0.006 | 0.004 | 5605 | 18 | H1=2 H2=None | 0 |
 | grid_holes | 400 | 0.004 | 0.004 | 0.003 | 2672 | 0 | H1=2 H2=None | 0 |
-| sphere | 400 | 0.017 | 0.006 |  | timeout |  | H1=None H2=None | 52 |
+| sphere | 400 | 0.017 | 0.006 |  | None | None | H1=None H2=None | 52 |
 | two_spheres_apart | 300 | 0.019 | 0.005 | 3.708 | 5730 | 41 | H1=0 H2=2 | 45 |
-| figure8 | 2000 |  | 0.034 | 0.055 | 56626 |  |  |  |
-| figure8 | 8000 |  | 0.229 | 1.013 | 381386 |  |  |  |
-
-Fused constructor re-timed (1 thread, 12 s budget, `sparse_scale.json`):
-
-| family | n | sparse (s) | scale (s) | sparse \|E\| | sparse RSS | local p (sparse) | ess H1 |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| figure8 | 8000 | 0.65 | 0.22 | 383k | 28 MB | 1.98 | 2 |
-| figure8 | 16000 | 2.59 | 0.50 | 929k | 63 MB | 2.00 | 2 |
-| figure8 | 24000 | 5.56 | 0.82 | 1.56M | 101 MB | 1.89 | 2 |
-| circle_noisy | 12000 | 1.93 | 0.36 | 793k | 58 MB | 1.68 | 1 |
-| nested_loops | 8000 | 0.76 | 0.20 | 326k | 37 MB | 2.17 | 1 |
-| disconnected_circles | 8000 | 0.63 | 0.22 | 383k | 28 MB | 1.93 | 2 |
-| uniform4 (d=4) | 1600 | 0.27 | n/a | 267k | 36 MB | 1.91 | 0 |
 
 ## Failure pushes (12 s)
 | family | n | PITH exact | Ripser | giotto t1 |
@@ -413,3 +421,27 @@ Fused constructor re-timed (1 thread, 12 s budget, `sparse_scale.json`):
 | figure8 | 4000 | 1.022 |  | timeout |
 | sphere | 800 | 0.058 |  | timeout |
 | nested_loops | 2000 | 0.303 |  | 7.225 |
+
+## Fused sparse scaling (1 thread, no n×n matrix)
+Same greedy-net flag as the matrix path. `distances` is FPS + T-ball evals. Local p is empirical, not a theorem.
+| family | n | sparse (s) | scale (s) | sparse |E| | sparse RSS | local p | ess H1 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| figure8 | 2000 | 0.049 | 0.035 | 57625 | 8 MB |  | 2 |
+| figure8 | 4000 | 0.163 | 0.084 | 150916 | 14 MB | 1.73 | 2 |
+| figure8 | 8000 | 0.645 | 0.219 | 382584 | 30 MB | 1.98 | 2 |
+| figure8 | 12000 | 1.456 | 0.361 | 645603 | 47 MB | 2.01 | 2 |
+| figure8 | 16000 | 2.588 | 0.498 | 928616 | 66 MB | 2.00 | 2 |
+| figure8 | 24000 | 5.558 | 0.816 | 1559003 | 106 MB | 1.89 | 2 |
+| circle_noisy | 2000 | 0.072 | 0.036 | 76625 | 10 MB |  | 1 |
+| circle_noisy | 4000 | 0.250 | 0.092 | 192862 | 17 MB | 1.79 | 1 |
+| circle_noisy | 8000 | 0.977 | 0.231 | 477475 | 38 MB | 1.96 | 1 |
+| circle_noisy | 12000 | 1.928 | 0.361 | 792854 | 60 MB | 1.68 | 1 |
+| nested_loops | 2000 | 0.059 | 0.038 | 47964 | 8 MB |  | 1 |
+| nested_loops | 4000 | 0.168 | 0.076 | 127154 | 14 MB | 1.51 | 1 |
+| nested_loops | 8000 | 0.758 | 0.203 | 325874 | 39 MB | 2.17 | 1 |
+| disconnected_circles | 2000 | 0.053 | 0.035 | 58960 | 8 MB |  | 2 |
+| disconnected_circles | 4000 | 0.167 | 0.085 | 151599 | 14 MB | 1.66 | 2 |
+| disconnected_circles | 8000 | 0.635 | 0.225 | 382936 | 29 MB | 1.93 | 2 |
+| uniform4 | 400 | 0.026 |  | 32217 | 7 MB |  | 0 |
+| uniform4 | 800 | 0.072 |  | 93659 | 13 MB | 1.44 | 0 |
+| uniform4 | 1600 | 0.268 |  | 266831 | 38 MB | 1.91 | 0 |
