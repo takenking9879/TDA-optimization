@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-14 — I300 3D α=1 RedZeD (no thicken)
+
+- **Question:** Does skipping H1 thicken on 3D `maxdim≥2` (α=1 Delaunay flag) and persisting that flag with RedZeD make H0+H1+H2 usable at 20k–30k points, without dropping ess H2 or 2D finite H1?
+- **Hypothesis:** Sphere thicken reduce stayed ~1.9 s from α=auto down to 1.75 — the wall is finite H1 noise, not extra edges. α=1 implicit H2 on 80k edges was still 1.71 s (flag tet tax). RedZeD on the same O(n) flag should cut it. 2D still thickens (figure8).
+- **Work:** Dispatch: 3D+maxdim≥2 → α=1, `persist_redzed_from_edges` for all `delaunay-vr` maxdim≥1. 2D split r2 stays implicit (RedZeD H2 was a figure8 tax). Wave 160 vs Ripser + I297 clocks.
+- **Result:** **Support.** figure8 n=2000 **exact H1 46×**. n=16000 **0.67 s / ess1=2** (thicken kept). sphere n=400 ess2 1=1, unmatched 52 (I276 flag). n=16000 **0.27 s / 80k / ess2=1** (I297 thicken 3.02 s; α=1 implicit 1.83 s). n=20000 **0.41 s**. n=30000 **0.62 s / 151k / ess2=1**. two_spheres ess2 2=2. Exact default held (H0 47×, figure8 16×, uniform2 11.1×, sphere H2 58×, circle 17×). Finite 3D H1 on this path is I276-flag (not thicken).
+- **Decision:** **Support / select** for 3D Euclidean H0+H1+H2. 2D finite H1 remains I286/I297 thicken. Do not thicken 3D maxdim≥2. Do not switch exact default. Do not mark the goal complete.
+- **Class:** experiment (support; selected 3D scale path)
+
 ## 2026-10-14 — I299 RCM relabel fat thicken
 
 - **Question:** Does reverse Cuthill–McKee on the fat thicken 1-skeleton tighten rbit word ranges enough to cut RedZeD leftover at n=16k–20k, without changing flag PH?

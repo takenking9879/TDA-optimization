@@ -631,8 +631,10 @@ int main(int argc, char** argv) {
             } else {
                 r1 = persist_implicit_coh(g, std::min(maxdim, 1), threshold, ratio);
             }
-            Result r2 = persist_redzed_from_edges(g_h2.n, g_h2.edges, maxdim, threshold);
-            used_redzed_thicken = true;
+            // 2D split only (3D maxdim≥2 no longer thickens). H2 on a
+            // planar α=1 flag is cheap implicit; RedZeD H2 generate_stream
+            // was a tax on figure8 n=16000 (0.76 vs 0.62 s).
+            Result r2 = persist_implicit_coh(g_h2, maxdim, threshold, ratio);
             r.pairs.reserve(r1.pairs.size() + r2.pairs.size());
             for (const auto& p : r1.pairs)
                 if (p.dim <= 1) r.pairs.push_back(p);

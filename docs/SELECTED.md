@@ -1,6 +1,6 @@
 # Selected algorithm (living)
 
-Updated 2026-10-14 after iterations I001–I299. **CLI default `--engine
+Updated 2026-10-14 after iterations I001–I300. **CLI default `--engine`
 auto` (I235+I236+I239+I240+I241+I263+I270+I271+I275):** subsample residual-frac dispatch,
 plus I263 edge-frac so hollow/manifold clouds take RedZeD. Fat →
 RedZeD (torus n=2000 **13.0×**). Thin-circle → collapse+implicit
@@ -612,8 +612,8 @@ Rips is exact and too slow.
    n=2000 maxdim=2 **exact H1 33× / 75 ms**; n=4000 **158 ms /
    186k / ess1=2**; n=8000 **430 ms / ess1=2**. sphere n=2000
    H0+H1+H2 **203 ms / ess2=1**; n=4000 **621 ms**; n=8000
-   **1.42 s / 1.07M / ess2=1** (I287);    n=16000 **3.02 s / 2.28M /
-   ess2=1** (I297 RedZeD-on-thicken; I294 was 3.95 s). n=400 unmatched 3 vs I276
+   **1.42 s / 1.07M / ess2=1** (I287);    n=16000 **0.27 s / 80k / ess2=1** (I300 3D α=1 RedZeD; I297 thicken was 3.02 s).
+   n=30000 **0.62 s**. n=400 unmatched 52 (I276 flag; I286 split was 3).
    flag 52. two_spheres n=400 ess2 2=2, unmatched 2.
    I279 fixed 2.25 is the measured H1 constant. Default α=1 stays
    I276 ess-only. Not a VR identity.
@@ -715,7 +715,11 @@ Rips is exact and too slow.
    walk); metric 916→905 ms — not a pith cut. **I299 RCM-on-thicken:**
    exact, figure8 reduce 195→164 ms, pith worse (0.67 vs 0.62 s).
    Reverted. Do not retry bandwidth/Morton orders on thicken.
-   ae_seeded visits remain the exact-H1 wall.
+   **I300 3D α=1 RedZeD is selected** for Euclidean maxdim≥2 in \(d=3\):
+   no H1 thicken (noise loops). sphere n=16000 **0.27 s / ess2=1**
+   (I297 thicken 3.02 s); n=30000 **0.62 s / 151k**. 2D still
+   thickens (figure8 n=16000 **0.67 s / ess1=2**). Finite 3D H1 on
+   this path is I276-flag. ae_seeded visits remain the exact-H1 wall.
 6. Owned AE leftover-star walk is still Θ(|leftover|·deg★) — rbit cut
    has_leftover_coface, not seeded probes (circle still 875k). I288
    equal-set seeded_is_noop is exact and reverted (848≈866). Packed
