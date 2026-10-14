@@ -679,7 +679,8 @@ Rips is exact and too slow.
    n=8000 H0+H1+H2 **0.865 s / ess2=1** (I297 thicken). **I300 3D
    α=1 RedZeD** is the selected H0+H1+H2 path in \(d=3\): sphere
    n=16000 **0.20 s / 80k / ess2=1** (I302); n=30000 **0.39 s**;
-   n=50000 **0.68 s / 252k**. figure8 (2D) still thickens: n=16000
+   n=50000 **0.65 s / 252k** (I306); n=80000 **1.09 s / 404k /
+   ess2=1**. figure8 (2D) still thickens: n=16000
    **0.54 s / 878k / ess1=2** (I305 α≤2.25); n=24000 **0.82 s**.
    **I297 RedZeD-on-thicken is selected** for fat 2D / maxdim=1
    thicken H1 (`|E|≥8n`). H2 on 2D split stays implicit.
