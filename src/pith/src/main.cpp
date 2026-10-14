@@ -47,7 +47,8 @@ static void usage() {
         << "  --gic-k K           kNN degree for --gic-n (default 16)\n"
         << "  --reduced-vr        H07 reduced VR 2-complex (exact PH1 claimed; I224)\n"
         << "  --delaunay-vr       flag of Euclidean Delaunay 1-skeleton (I276; not exact VR)\n"
-        << "  --delaunay-alpha A  I277–I297 H1 thicken: A or 'auto'. maxdim≥2 splits H2 onto α=1\n"
+        << "  --delaunay-alpha A  I277–I300 H1 thicken: A or 'auto'. 2D maxdim≥2 splits H2 onto α=1;\n"
+        << "                      3D maxdim≥2 stays α=1 (thicken H1 is noise vs the void)\n"
         << "  --delaunay-adapt    I280: R_v = A·max(r_v, max_nbr r) instead of A·r_v\n"
         << "  --delaunay-floor F  I280: also thicken to F·median(r) (default 0)\n"
         << "  --sparse-only       write residual edges and exit\n"
@@ -471,16 +472,22 @@ int main(int argc, char** argv) {
                 // thicken. I286: maxdim≥2 + thicken → H1 on the thick
                 // graph, H2 on the α=1 flag (H2 thicken explodes tets).
                 std::vector<Edge> de;
-                const bool want_thicken = delaunay_alpha_auto || delaunay_alpha > 1 ||
-                                          delaunay_adapt || delaunay_floor > 0;
-                value_t a = delaunay_alpha;
-                if (delaunay_alpha_auto)
-                    a = delaunay_auto_alpha(static_cast<int>(pts.size()));
-                const int npts = static_cast<int>(pts.size());
                 auto fail_dvr = []() {
                     std::cerr << "--delaunay-vr requires Euclidean d=2 or d=3\n";
                     return 2;
                 };
+                if (pts.empty() || pts[0].empty()) return fail_dvr();
+                const int dim_pts = static_cast<int>(pts[0].size());
+                // I300: 3D + maxdim≥2 keeps the α=1 Delaunay flag. Thicken
+                // H1 on a sphere is ~2 s of noise loops; the void is in H2.
+                // 2D still thickens so figure8 finite H1 stays (I286).
+                const bool want_thicken = (dim_pts < 3 || maxdim < 2) &&
+                                          (delaunay_alpha_auto || delaunay_alpha > 1 ||
+                                           delaunay_adapt || delaunay_floor > 0);
+                value_t a = delaunay_alpha;
+                if (delaunay_alpha_auto)
+                    a = delaunay_auto_alpha(static_cast<int>(pts.size()));
+                const int npts = static_cast<int>(pts.size());
                 const auto t_dvr0 = std::chrono::steady_clock::now();
                 if (maxdim >= 2 && want_thicken) {
                     // I298: one Delaunay; α=1 flag is that 1-skeleton;
@@ -614,8 +621,9 @@ int main(int argc, char** argv) {
             r = persist_triangles(g, rtris, maxdim, threshold, ratio);
         } else if (delaunay_split) {
             // I286: H0/H1 from the thickened 1-skeleton; H2 from the α=1
-            // Delaunay flag. I297: fat thicken H1 via RedZeD (AE), not
-            // implicit V-adds (I296: those are unique apparent-facet walks).
+            // Delaunay flag. I297: fat thicken H1 via RedZeD (AE).
+            // I300: H2 also RedZeD on the thin flag (implicit H2 on 80k
+            // Delaunay edges was 1.7 s — flag tet tax).
             Result r1;
             if (delaunay_thicken_should_collapse(g.n, static_cast<std::int64_t>(g.edges.size()))) {
                 r1 = persist_redzed_from_edges(g.n, g.edges, std::min(maxdim, 1), threshold);
@@ -623,7 +631,8 @@ int main(int argc, char** argv) {
             } else {
                 r1 = persist_implicit_coh(g, std::min(maxdim, 1), threshold, ratio);
             }
-            Result r2 = persist_implicit_coh(g_h2, maxdim, threshold, ratio);
+            Result r2 = persist_redzed_from_edges(g_h2.n, g_h2.edges, maxdim, threshold);
+            used_redzed_thicken = true;
             r.pairs.reserve(r1.pairs.size() + r2.pairs.size());
             for (const auto& p : r1.pairs)
                 if (p.dim <= 1) r.pairs.push_back(p);
@@ -637,8 +646,7 @@ int main(int argc, char** argv) {
             r.counters.n_cofacet_probes += r2.counters.n_cofacet_probes;
             r.counters.reduce_ms += r2.counters.reduce_ms;
             r.counters.n_vertices = g.n;
-        } else if (delaunay_vr && maxdim <= 1 &&
-                   delaunay_thicken_should_collapse(g.n, static_cast<std::int64_t>(g.edges.size()))) {
+        } else if (delaunay_vr && maxdim >= 1) {
             r = persist_redzed_from_edges(g.n, g.edges, maxdim, threshold);
             used_redzed_thicken = true;
         } else {

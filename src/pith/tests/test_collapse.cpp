@@ -1076,6 +1076,36 @@ int main() {
                   << " thin=" << thin.size() << "\n";
     }
 
+    // I300: RedZeD on the α=1 Delaunay flag keeps two octahedra voids.
+    {
+        const value_t T = 1.5f;
+        const value_t oct[6][3] = {
+            {1, 0, 0}, {-1, 0, 0}, {0, 1, 0}, {0, -1, 0}, {0, 0, 1}, {0, 0, -1},
+        };
+        std::vector<std::vector<value_t>> pts;
+        pts.reserve(12);
+        for (int i = 0; i < 6; ++i) pts.push_back({oct[i][0], oct[i][1], oct[i][2]});
+        for (int i = 0; i < 6; ++i) pts.push_back({oct[i][0] + 8, oct[i][1], oct[i][2]});
+        std::vector<Edge> de;
+        if (!delaunay_one_skeleton(pts, de)) {
+            std::cerr << "I300 octahedra Delaunay failed\n";
+            return 1;
+        }
+        Result rz = persist_redzed_from_edges(12, de, 2, T);
+        int ess0 = 0, ess2 = 0;
+        for (const auto& p : rz.pairs) {
+            if (!std::isfinite(p.death)) {
+                if (p.dim == 0) ++ess0;
+                if (p.dim == 2) ++ess2;
+            }
+        }
+        if (ess0 != 2 || ess2 != 2) {
+            std::cerr << "I300 redzed-edges octahedra ess0/ess2=" << ess0 << "/" << ess2 << "\n";
+            return 1;
+        }
+        std::cout << "ok I300 redzed-from-edges two-octahedra ess H0/H2 |E|=" << de.size() << "\n";
+    }
+
     // I239: two octahedra far apart — H0=2 and H2=2 (wedge of voids).
     {
         const value_t T = 1.5f;
