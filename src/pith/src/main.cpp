@@ -47,7 +47,7 @@ static void usage() {
 static void usage_experimental() {
     std::cerr
         << "Experimental / compatibility flags (research ledger; not the stable API):\n"
-        << "  --engine homology|active\n"
+        << "  --engine homology|active|collapse-redzed\n"
         << "  --collapse N            collapse passes (default -1 adaptive; 0 = off)\n"
         << "  --collapse-alg back|back-src|back-bits|dc|forward|suffix*\n"
         << "  --suffix-mult X  --suffix-keep N  --suffix-k K\n"
@@ -734,7 +734,7 @@ int main(int argc, char** argv) {
         return 2;
     }
     if (engine != "auto" && engine != "redzed" && engine != "implicit" && engine != "homology" &&
-        engine != "active") {
+        engine != "active" && engine != "collapse-redzed") {
         std::cerr << "unknown --engine " << engine << "\n";
         return 2;
     }
@@ -997,13 +997,19 @@ int main(int argc, char** argv) {
         // and reduces those triangles (not the flag of G_T).
         const bool use_implicit = (engine == "implicit" || engine == "auto");
         Result r;
-        if (engine == "redzed") {
+        if (engine == "collapse-redzed") {
+            // I317: collapse the 1-skeleton, then RedZeD AE on the residual
+            // flag (not collapse+implicit). Exact VR if collapse is exact.
+            r = persist_redzed_from_edges(g.n, g.edges, maxdim, threshold);
+        } else if (engine == "redzed") {
             if (have_pts && dist.empty()) {
                 r = persist_redzed_from_points(pts, maxdim, threshold, dense_metric);
                 c.n_distances = r.counters.n_distances;
                 c.metric_ms = r.counters.metric_ms;
+            } else if (!edges_path.empty()) {
+                r = persist_redzed_from_edges(g.n, g.edges, maxdim, threshold);
             } else if (dist.empty()) {
-                std::cerr << "--engine redzed requires --points or --distances\n";
+                std::cerr << "--engine redzed requires --points, --distances, or --edges\n";
                 return 2;
             } else {
                 r = persist_redzed(dist, maxdim, threshold);
@@ -1134,6 +1140,9 @@ int main(int argc, char** argv) {
         } else if (engine == "active") {
             r.counters.n_vertices = g.n;
             if (r.counters.pipeline.empty()) r.counters.pipeline = "pith:active-h1";
+        } else if (engine == "collapse-redzed") {
+            r.counters.n_vertices = g.n;
+            r.counters.pipeline = "pith:collapse+redzed-edges";
         } else {
             r.counters.n_vertices = g.n;
             r.counters.pipeline = (sparse_eps > 0 && sparse_eps < 1)
