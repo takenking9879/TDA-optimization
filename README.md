@@ -155,6 +155,13 @@ those leftover \(H_1\) cells (figure-8 \(n=2000\) 2.84 vs 2.72 s; circle
 next \(n\) as Ripser; sphere \(H_2\) times out at \(n=600\) while Ripser
 still finishes (5.3 s). PITH exact is \(16\)–\(39\times\) faster than
 Dory on the leftover cells. Same pairing class; not a 10× engine.
+**Oineus** (`oineus` 0.9.39, 1 thread, not vendored) is **slower than
+Ripser** on leftover \(H_1\) (circle \(n=400\) 1.54 vs 0.13 s; figure-8
+\(n=1000\) 4.68 vs 0.61 s; torus \(n=1000\) 4.27 vs 0.40 s) and times
+out at 20 s where Ripser still finishes (circle \(n=1000\), figure-8
+\(n=2000\), sphere \(H_2\) \(n=400\)). Lock-free reduction + in-order
+VR generation; the published win is multi-core. giotto-ph is that
+family already timed at 4 threads on \(H_1\) (no win). Not a 10× engine.
 Hardware threads (4) change circle \(n=1000\) from 0.068 s to 0.069 s —
 not the source of the 32×. giotto-ph’s 4 threads help sphere \(H_2\)
 (1.12→0.62 s) and do **not** speed up \(H_1\).
@@ -167,6 +174,8 @@ PITH **0.30 s** vs giotto **7.23 s** (24×).
 ![Exact VR vs Ripser / giotto-ph / GUDHI](benchmarks/results/consolidation/figures/runtime_baselines.svg)
 
 ![Dory vs PITH vs Ripser, 1 thread](benchmarks/results/consolidation/figures/runtime_dory.svg)
+
+![Oineus vs PITH vs Ripser, 1 thread](benchmarks/results/consolidation/figures/runtime_oineus.svg)
 
 ![Exact VR runtime](benchmarks/results/consolidation/figures/runtime_exact.svg)
 
@@ -291,6 +300,9 @@ Full numbers: [`benchmarks/results/consolidation/TABLES.md`](benchmarks/results/
   4-core box it tracks Ripser; 4 threads help \(H_2\) only.
 - Dory (`pydory` 1.1.137) is a **1-thread oracle**, not vendored. It
   tracks Ripser on leftover \(H_1\) and loses on sphere \(H_2\) \(n=400\).
+- Oineus (`oineus` 0.9.39) is a **1-thread oracle**, not vendored. It
+  is slower than Ripser on leftover \(H_1\) and times out earlier
+  than both Ripser and Dory.
 - Ripser++ was not built (no GPU).
 - `--threads 1` is the fair comparison. Default PITH may use every core for
   a few scans; that is **not** where the 30–60× exact ratios come from.
@@ -330,6 +342,8 @@ python3 benchmarks/run_axis_scaling.py
 # optional oracle: pip install pydory  (not vendored; needs Python.h)
 python3 benchmarks/reverify_dory.py
 python3 benchmarks/run_dory_limits.py
+# optional oracle: pip install oineus  (BSD wheel; not vendored)
+python3 benchmarks/reverify_oineus.py
 python3 benchmarks/run_uniform10.py
 python3 benchmarks/eval_highd_auto.py
 python3 benchmarks/collect_topology_claims.py

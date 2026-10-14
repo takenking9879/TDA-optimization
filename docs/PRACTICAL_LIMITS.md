@@ -6,7 +6,7 @@
 This is the single “how far can each method go” table. Receipts:
 `leftover_10x.json`, `baselines.json`, `limits.json`, `sparse_scale.json`,
 `axis_scaling.json`, `headline_reverify.json`, `dory.json`,
-`dory_limits.json`, `uniform10.json`.
+`dory_limits.json`, `oineus.json`, `uniform10.json`.
 
 ## Exact VR (barcode must match Ripser)
 
@@ -18,6 +18,7 @@ This is the single “how far can each method go” table. Receipts:
 | giotto-ph 0.2.4 | tracks Ripser on this suite | same n as Ripser on \(H_1\); 4 threads help sphere \(H_2\) only (1.12→0.62 s) | 1 or 4 | AGPL oracle. |
 | GUDHI 3.13 Rips (explicit) | circle \(n=400\) \(T=2.0\) 3.2 s; figure-8 \(n=800\) \(T=1.4\) 3.0 s | circle \(n=1000\) \(H_1\); uniform2 \(n=800\) \(T=0.55\) (8 s axis budget) | 1 | First to leave the budget as \(T\) or \(n\) grows. |
 | Dory (`pydory` 1.1.137 oracle) | leftover \(H_1\): circle \(n=1500\) 9.45 s, figure-8 \(n=3000\) 5.70 s; sphere \(H_2\) \(n=400\) 4.13 s (20 s receipt) | circle \(n=2000\) (same as Ripser); figure-8 \(n=4000\) (same as Ripser); sphere \(H_2\) \(n=600\) (Ripser still 5.3 s) | 1 | Tracks Ripser on leftover \(H_1\). Fails \(H_2\) **earlier** than Ripser. Not vendored. 12 s budget (`dory_limits.json`). |
+| Oineus 0.9.39 oracle | leftover \(H_1\): circle \(n=400\) 1.54 s; figure-8 \(n=1000\) 4.68 s; torus \(n=1000\) 4.27 s | circle \(n=1000\); figure-8 \(n=2000\); uniform2 \(n=2000\); blobs \(n=2000\); sphere \(H_2\) \(n=400\) (Ripser still 0.42–2.73 s) | 1 | **Slower than Ripser** on finished cells (7.7–11.7×). Fails **earlier** than Ripser and Dory. Lock-free + in-order VR. Not vendored. 20 s (`oineus.json`). |
 
 ## Not exact VR
 

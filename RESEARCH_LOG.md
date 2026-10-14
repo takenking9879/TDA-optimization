@@ -5,6 +5,14 @@ Do not paste long reasoning here.
 
 ---
 
+## 2026-10-14 — Oineus 1-thread leftover oracle
+
+- **Question:** Is Oineus 0.9.39 (`compute_diagrams_vr`, lock-free reduce + in-order VR generation) a better exact-VR engine than PITH / Ripser at 1 thread?
+- **Work:** `reverify_oineus.py`. `n_threads=1`, `OMP_NUM_THREADS=1`, 20 s budget. `max_dim` = homology+1. Not vendored. Literature: Morozov–Nigmetov SPAA 2020; Vejdemo-Johansson–Matuszewski–Bauer arXiv:2411.05495.
+- **Result:** Oineus is **slower than Ripser** on every finished leftover cell: circle \(n=400\) 1.54 vs 0.13 s; figure-8 \(n=1000\) 4.68 vs 0.61 s; torus \(n=1000\) 4.27 vs 0.40 s (7.7–11.7× slower). Timeouts at circle \(n=1000\), figure-8 \(n=2000\), uniform2 \(n=2000\), blobs \(n=2000\), sphere \(H_2\) \(n=400\) — all cells Ripser still finishes (0.42–2.73 s). Dory finished sphere \(H_2\) \(n=400\) in 4.13 s; Oineus did not. PITH is \(89\)–\(112\times\) faster on the three finished cells. 2026 search still names RedZeD as the published exact-VR alternative; Oineus/giotto/Dory are the same pairing class (lock-free / sparse-index Ripser line).
+- **Decision:** Keep as an oracle receipt (`oineus.json`). Do not vendor. Do not reopen leftover pairing. Goal not complete.
+- **Class:** verified (live)
+
 ## 2026-10-14 — Held-out high-d auto sweep
 
 - **Question:** Does the exact-vs-sparse clock-compare overfit uniform4/10?

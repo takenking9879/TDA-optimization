@@ -882,6 +882,19 @@ pydory 1.1.137 oracle, 1 thread, 12 s budget, not vendored. Stops a family after
 | figure8 | 4000 | 1 | timeout | 3.663 | timeout | False | False |
 | sphere | 600 | 2 | timeout | 0.034 | 5.305 | False | True |
 
+## Oineus (`oineus` 0.9.39 oracle, 1 thread)
+oineus 0.9.39 oracle, 1 thread, not vendored. In-order VR generation + lock-free reduce. Budget 20 s. oineus 0.9.39. Not vendored. Lock-free reduction + in-order VR generation. Same pairing class.
+| family | n | dim | Oineus (s) | PITH (s) | Ripser (s) | Ripser/Oineus | Oineus/PITH | ess H1 | pipeline |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| circle_noisy | 400 | 1 | 1.541 | 0.014 | 0.132 | 0.09 | 111.6× | 1 | pith:auto-collapse |
+| circle_noisy | 1000 | 1 | timeout | 0.072 | 2.730 |  |  |  | pith:auto-collapse |
+| figure8 | 1000 | 1 | 4.680 | 0.053 | 0.607 | 0.13 | 88.9× | 2 | pith:auto-redzed-spatial |
+| figure8 | 2000 | 1 | timeout | 0.177 | 2.723 |  |  |  | pith:auto-collapse |
+| torus | 1000 | 1 | 4.273 | 0.043 | 0.396 | 0.09 | 99.9× | 1 | pith:auto-redzed-spatial |
+| uniform2 | 2000 | 1 | timeout | 0.061 | 0.445 |  |  |  | pith:auto-redzed |
+| sphere | 400 | 2 | timeout | 0.018 | 1.498 |  |  |  | pith:auto-collapse |
+| blobs | 2000 | 1 | timeout | 0.045 | 0.417 |  |  |  | pith:auto-redzed-cc |
+
 ## High-d control `uniform10` (d=10, T=1.8, 12 s, 1 thread)
 High-d Euclidean control, d=10. No --mode scale. 12 s, 1 thread. T=1.8 H1 and fat-H2 refuse. Conservative exact_ok can still be false; --mode auto now stays exact unless sparse is clearly cheaper. Live auto n=4000: 0.74 s exact (was 18.3 s sparse). τ not retuned.
 | n | exact (s) | sparse (s) | Ripser (s) | estimate mode | exact feasible |

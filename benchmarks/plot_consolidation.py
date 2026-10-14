@@ -33,6 +33,8 @@ DORY_PATH = BENCH / "results" / "consolidation" / "dory.json"
 DORY = json.loads(DORY_PATH.read_text()) if DORY_PATH.exists() else {}
 DORY_LIM_PATH = BENCH / "results" / "consolidation" / "dory_limits.json"
 DORY_LIM = json.loads(DORY_LIM_PATH.read_text()) if DORY_LIM_PATH.exists() else {}
+OINEUS_PATH = BENCH / "results" / "consolidation" / "oineus.json"
+OINEUS = json.loads(OINEUS_PATH.read_text()) if OINEUS_PATH.exists() else {}
 U10_PATH = BENCH / "results" / "consolidation" / "uniform10.json"
 U10 = json.loads(U10_PATH.read_text()) if U10_PATH.exists() else {}
 HIGHD_PATH = BENCH / "results" / "consolidation" / "highd_auto.json"
@@ -988,6 +990,60 @@ if DORY_LIM:
                 dok=dor.get("ok"),
                 rok=rip.get("ok"),
             )
+        )
+
+if OINEUS:
+    rows.append("")
+    rows.append("## Oineus (`oineus` 0.9.39 oracle, 1 thread)")
+    rows.append(
+        f"{OINEUS.get('note', '')} Budget {OINEUS.get('budget_s')} s. "
+        f"oineus {OINEUS.get('oineus_version')}. Not vendored. "
+        "Lock-free reduction + in-order VR generation. Same pairing class."
+    )
+    rows.append(
+        "| family | n | dim | Oineus (s) | PITH (s) | Ripser (s) | Ripser/Oineus | Oineus/PITH | ess H1 | pipeline |"
+    )
+    rows.append("| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |")
+    oineus_bars = []
+    for d in OINEUS.get("receipts") or []:
+        oin = d.get("oineus") or {}
+        pith = d.get("pith") or {}
+        rip = d.get("ripser") or {}
+        ow = oin.get("wall_s")
+        pw = pith.get("wall_s")
+        rw = rip.get("wall_s")
+        ro = d.get("ripser_over_oineus")
+        op = d.get("oineus_over_pith")
+        rows.append(
+            "| {fam} | {n} | {dim} | {ow} | {pw} | {rw} | {ro} | {op} | {ess} | {pipe} |".format(
+                fam=d.get("name"),
+                n=d.get("n"),
+                dim=d.get("maxdim"),
+                ow="timeout" if oin.get("timed_out") else ("" if ow is None else f"{ow:.3f}"),
+                pw="" if pw is None else f"{pw:.3f}",
+                rw="" if rw is None else f"{rw:.3f}",
+                ro="" if ro is None else f"{ro:.2f}",
+                op="" if op is None else f"{op:.1f}×",
+                ess="" if oin.get("ess1") is None else oin.get("ess1"),
+                pipe=pith.get("pipeline") or "",
+            )
+        )
+        if ow and pw and rw:
+            oineus_bars.append((f"{d.get('name')} n={d.get('n')}", ow, pw, rw))
+    if oineus_bars:
+        series = [
+            {"name": "Oineus", "xy": [(i + 1, t[1]) for i, t in enumerate(oineus_bars)]},
+            {"name": "PITH exact", "xy": [(i + 1, t[2]) for i, t in enumerate(oineus_bars)]},
+            {"name": "Ripser", "xy": [(i + 1, t[3]) for i, t in enumerate(oineus_bars)]},
+        ]
+        svg_scatter(
+            FIG / "runtime_oineus.svg",
+            series,
+            "1-thread leftover cells: Oineus vs PITH vs Ripser",
+            "cell index (see TABLES.md Oineus section)",
+            "wall seconds",
+            logx=False,
+            logy=True,
         )
 
 if U10:

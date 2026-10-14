@@ -635,7 +635,12 @@ Dory (`pydory` 1.1.137, 1 thread, `dory.json`) **tracks Ripser** on leftover
 \(H_1\) and is slower on sphere \(H_2\) \(n=400\) (4.13 vs 1.49 s). 12 s
 first-fail (`dory_limits.json`): circle \(n=2000\) and figure-8 \(n=4000\)
 timeout with Ripser; sphere \(n=600\) Dory timeouts while Ripser still
-finishes (5.3 s). Not vendored. Not a 10× class. No new leftover skip.
+finishes (5.3 s). Not vendored. Not a 10× class.
+Oineus 0.9.39 (`oineus.json`, 1 thread) is **slower than Ripser**
+(7.7–11.7× on finished leftover cells) and times out earlier (circle
+\(n=1000\), figure-8 \(n=2000\), sphere \(H_2\) \(n=400\)). Lock-free
++ in-order VR; published win is multi-core. Not vendored. Not a 10×
+class. No new leftover skip.
 
 High-d `uniform10` (\(T=1.8\), 12 s): exact last-OK \(n=8000\) 2.79 s;
 Ripser / sparse first-fail \(n=4000\). `--mode auto` now stays exact on

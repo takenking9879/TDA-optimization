@@ -62,6 +62,18 @@ Search on 2026-10-14:
   sphere \(H_2\) \(n=600\) Dory timeouts while Ripser still finishes
   (5.3 s) and PITH is 34 ms. Not a 10× class. Literature parallel
   \(\sim 2\times\) does not change the 1-thread pairing class.
+- **Oineus** (`oineus` 0.9.39 oracle, **not vendored**). Lock-free
+  reduction (Morozov–Nigmetov, SPAA 2020) + in-order VR generation
+  (Vejdemo-Johansson–Matuszewski–Bauer, arXiv:2411.05495). Live
+  1-thread leftover (`oineus.json`): **slower than Ripser** on every
+  finished cell (circle \(n=400\) 1.54 vs 0.13 s; figure-8 \(n=1000\)
+  4.68 vs 0.61 s; torus \(n=1000\) 4.27 vs 0.40 s). 20 s timeouts at
+  circle \(n=1000\), figure-8 \(n=2000\), uniform2 \(n=2000\), blobs
+  \(n=2000\), and sphere \(H_2\) \(n=400\) — all cells Ripser still
+  finishes. Sphere \(H_2\) \(n=400\) is **earlier** than Dory (Dory
+  4.13 s). Same pairing class; the published win is multi-core, not a
+  1-thread 10×. giotto-ph is the same lock-free family already timed
+  at 4 threads on \(H_1\) (no win).
 - No 2026 paper we found claims a better **worst-case** pairing class
   than Ripser/RedZeD on a connected dense flag.
 
@@ -100,10 +112,11 @@ All of the following, together:
 4. Living docs state the 3/6 leftover 10× result and do not claim a
    general exact-\(H_1\) 10×.
 
-(1)–(4) hold for the leftover / collapse / RedZeD / giotto / Dory
-oracles timed on this box. This is **not** a completion certificate:
-a genuinely new pairing idea would reopen the exact path. Dory is
-now timed at 1 thread and is not a 10× engine.
+(1)–(4) hold for the leftover / collapse / RedZeD / giotto / Dory /
+Oineus oracles timed on this box. This is **not** a completion
+certificate: a genuinely new pairing idea would reopen the exact path.
+Dory tracks Ripser; Oineus is slower than Ripser at 1 thread. Neither
+is a 10× engine.
 
 ## What a user should do instead of waiting for a general 10×
 

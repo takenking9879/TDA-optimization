@@ -901,13 +901,13 @@ thread. giotto-ph 0.2.4 `n_threads=1` and `4` (AGPL oracle; collapse
 off unless noted). GUDHI 3.13 Rips is an explicit simplex tree (1 thread).
 **[empirical]**
 
-| Family | \(n\) | PITH 1-thr | Ripser | giotto t1 | giotto t4 | GUDHI Rips | Dory 1-thr |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| circle \(H_1\) | 1000 | 0.068 s | 2.16 s | 2.47 s | 2.44 s | timeout | 2.79 s |
-| figure-8 \(H_1\) | 2000 | 0.152 s | 2.51 s | 2.81 s | 2.78 s | timeout | 2.84 s |
-| sphere \(H_2\) | 400 | 0.017 s | 1.02 s | 1.12 s | 0.62 s | timeout | 4.13 s |
-| torus \(H_1\) | 1000 | 0.040 s | 0.381 s | 0.461 s | 0.417 s | 2.85 s | 0.43 s |
-| dense RGG \(H_1\) | 800 | 0.018 s | 0.089 s | 0.119 s | 0.107 s | 6.44 s | — |
+| Family | \(n\) | PITH 1-thr | Ripser | giotto t1 | giotto t4 | GUDHI Rips | Dory 1-thr | Oineus 1-thr |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| circle \(H_1\) | 1000 | 0.068 s | 2.16 s | 2.47 s | 2.44 s | timeout | 2.79 s | timeout (20 s) |
+| figure-8 \(H_1\) | 2000 | 0.152 s | 2.51 s | 2.81 s | 2.78 s | timeout | 2.84 s | timeout (20 s) |
+| sphere \(H_2\) | 400 | 0.017 s | 1.02 s | 1.12 s | 0.62 s | timeout | 4.13 s | timeout (20 s) |
+| torus \(H_1\) | 1000 | 0.040 s | 0.381 s | 0.461 s | 0.417 s | 2.85 s | 0.43 s | 4.27 s |
+| dense RGG \(H_1\) | 800 | 0.018 s | 0.089 s | 0.119 s | 0.107 s | 6.44 s | — | — |
 
 Local slopes on the same windows: Ripser / giotto \(p\approx 2.8\)–\(4.0\);
 GUDHI Rips \(p\approx 3.2\)–\(3.4\) until timeout; PITH exact \(p\approx 1.2\)–\(2.7\)
@@ -923,6 +923,14 @@ first-fail (`dory_limits.json`): circle \(n=2000\) and figure-8
 Ripser still finishes (5.30 s). Same pairing class. Dory leftover column
 is from `dory.json`; other columns from `baselines.json`. Same box,
 different process.
+Oineus 0.9.39 (`oineus.json`, 1 thread, not vendored) is **slower than
+Ripser** on leftover \(H_1\): circle \(n=400\) 1.54 vs 0.13 s; figure-8
+\(n=1000\) 4.68 vs 0.61 s; torus \(n=1000\) 4.27 vs 0.40 s
+(7.7–11.7× slower). 20 s first-fail is **earlier** than Ripser and
+Dory (circle \(n=1000\), figure-8 \(n=2000\), sphere \(H_2\) \(n=400\)).
+Lock-free reduction + in-order VR generation; the published win is
+multi-core. giotto-ph is that family already timed at 4 threads on
+\(H_1\) (no win). Same pairing class.
 
 GUDHI Rips becomes impractical (timeout) by \(n\sim 10^3\) on a noisy
 circle \(H_1\) and by \(n=400\) on sphere \(H_2\). That is the explicit
@@ -976,6 +984,9 @@ worst-case Big-O theorem versus Ripser on connected \(G_T\).
 | Kapulkin–Kershaw, *RedZeD*, arXiv:2606.06310 | Zero-differential reduction; active enumeration; Prop. 3.2 |
 | Burella Pérez et al., *giotto-ph*, arXiv:2107.05412 | Parallel CPU VR + collapse; AGPL oracle only (not vendored) |
 | Aggarwal–Periwal, *Dory*, *J. Comput. Sci.* 2024; doi:10.1016/j.jocs.2024.102290 | VR up to dim 2; `pydory` 1.1.137 1-thread oracle (not vendored); tracks Ripser on leftover \(H_1\) |
+| Morozov–Nigmetov, *Towards lockfree persistent homology*, SPAA 2020; doi:10.1145/3350755.3400244 | Lock-free reduction inside Oineus / giotto-ph |
+| Vejdemo-Johansson–Matuszewski–Bauer, *In-order generation of Vietoris–Rips complexes*, arXiv:2411.05495 | Oineus VR constructor; not a cheaper pairing class |
+| Nigmetov–Morozov, *Oineus* 0.9.39 | 1-thread leftover oracle (not vendored); slower than Ripser (`oineus.json`) |
 | Bauer–Edelsbrunner, *Morse theory of Čech and Delaunay*, 2017 | Alpha / Čech / Del–Čech \(\neq\) VR |
 | Bauer–Roll, *Gromov hyperbolicity… and apparent pairs*, SoCG 2022 | Apparent-pair rate is geometric |
 | Shamos–Hoey 1975; Preparata–Shamos | Euclidean MST \(\subseteq\) Delaunay |
