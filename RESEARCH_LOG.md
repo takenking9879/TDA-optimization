@@ -5,13 +5,13 @@ Do not paste long reasoning here.
 
 ---
 
-## 2026-10-14 — sheared_loops leftover n-series (pending live)
+## 2026-10-14 — sheared_loops leftover n-series (peaks at 9.87×)
 
 - **Question:** Does sheared_loops leftover 6.5× at n=2000 reach 10× as n grows? Any new 2026 exact-VR batch engine?
-- **Work:** Literature: still only RedZeD as published batch exact-VR pairing alternative. incremental-ph is streaming insert/remove vs rebuild, not a leftover 10× class. `eval_linked_n.py sheared_loops` seed 23 n=3000–5000. τ frozen.
-- **Result:** pending live sweep (script committed first).
-- **Decision:** Measurement, not leftover-skip hunting. Goal not complete.
-- **Class:** experiment (pending)
+- **Work:** Literature: still only RedZeD as published batch exact-VR pairing alternative. incremental-ph is streaming insert/remove vs rebuild, not a leftover 10× class. `eval_linked_n.py sheared_loops` seed 23 n=800–5000. τ frozen.
+- **Result:** 2.93→4.06→6.51→6.97→**9.87→8.53×**. Never ≥10×. Peaks at n=4000 then recedes (PITH \(p=2.09\), Ripser \(p=1.43\)). Pack is **4/11 ≥10×** (all four are linked_circles). Not a general leftover 10×.
+- **Decision:** Keep the receipt. Do not hunt leftover skips. Goal not complete.
+- **Class:** verified (live)
 
 ## 2026-10-14 — Post-freeze leftover n-series (linked_circles grows)
 

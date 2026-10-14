@@ -79,9 +79,9 @@ Post-freeze leftover n-series (`linked_ratio_n.json`, seed 23, 1 thread):
 | series | n | ratio | local \(p\) PITH / Ripser |
 | --- | ---: | ---: | --- |
 | linked_circles | 800→1200→2000→3000→4000 | 6.6→13.7→19.1→27.1→**32.2×** | \(p\approx 1.7\)–\(2.4\) / \(2.7\)–\(3.5\) (ratio grows; Ripser 17.1 s at \(n=4000\)) |
-| sheared_loops | 800→1200→2000 | 3.0→4.3→6.5× | \(p\approx 1.5\)–\(1.8\) / \(2.4\)–\(2.6\) (climbs; still <10×) |
+| sheared_loops | 800→1200→2000→3000→4000→5000 | 2.93→4.06→6.51→6.97→**9.87→8.53×** | \(p\approx 1.5\)–\(2.4\) / \(1.4\)–\(3.6\); peaks just under 10× at \(n=4000\), then recedes (PITH \(p=2.09\), Ripser \(p=1.43\)) |
 
-**4/8 ≥10×.** This is a post-freeze family where leftover 10× **grows** with \(n\), unlike anisotropic (recedes) or sheared_loops (mid-single-digit). Still not a general leftover 10×.
+**4/11 ≥10×** (all four are linked_circles). Linked leftover 10× **grows** with \(n\); sheared_loops never crosses 10× (peaks then recedes, like anisotropic). Still not a general leftover 10×.
 
 This is **not** a general leftover 10×. It is an n-dependent constant factor in the RedZeD class.
 

@@ -835,7 +835,8 @@ edge-frac \(<0.25\) → RedZeD; `maxdim=0` → Kruskal / Delaunay.
   **8.1×**; sphere \(n=2000\) H1 **8.5×**; **3/6 leftover families
   ≥10×** at frozen sizes; held-out leftover **4/7**; leftover-miss
   n-series **0/7** (anisotropic recedes 8.8→6.6×); post-freeze
-  linked_circles 6.6→**32.2×** (grows). Circle \(n=1000\)
+  linked_circles 6.6→**32.2×** (grows); sheared_loops 2.93→9.87→8.53×
+  (never ≥10×; pack **4/11**). Circle \(n=1000\)
   **31×** is collapse, not leftover.
   I-wave mixed figure8 \(n=4000\) **27× / 1.07 s**; sphere \(n=400\)
   H2 **58×**; sphere \(n=800\) H2 **527× / 56 ms** (Ripser tet tax);

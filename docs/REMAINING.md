@@ -120,8 +120,8 @@ All of the following, together:
    after the dispatcher. Live: frozen pack **3/6**, held-out leftover
    **4/7** (`leftover_heldout.json`), leftover-miss n-series **0/7**
    (`leftover_miss_n.json`; anisotropic recedes after 8.8×).
-   Post-freeze linked_circles grows 6.6→32.2×; sheared_loops stays
-   <10× (`linked_ratio_n.json`).
+   Post-freeze linked_circles grows 6.6→32.2×; sheared_loops peaks
+   9.87× then recedes to 8.53× (`linked_ratio_n.json`, 4/11 ≥10×).
 3. A complexity justification that is not “circle collapse”.
 4. Reproduced on this hardware with `--threads 1`.
 

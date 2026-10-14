@@ -161,7 +161,9 @@ selects scale. A post-freeze pack (seed 23, new families) had
 **0/10** exact timeouts and one thin-circle scale miss, now
 overridden. Post-freeze leftover vs n (`linked_ratio_n.json`):
 linked_circles 6.6→13.7→**32.2×** (grows; Ripser 17 s at \(n=4000\));
-sheared_loops 3.0→6.5×. Along n
+sheared_loops 2.93→6.97→**9.87→8.53×** (peaks just under 10× at \(n=4000\),
+then recedes; **never ≥10×**). Pack **4/11 ≥10×** (all four are
+linked_circles). Along n
 (`leftover_ratio_n.json`): sphere H1 crosses 10× near \(n=4000\)
 (**11.4×**); uniform2 is still **9.1×** at \(n=7000\); figure8
 plateaus ~16× once both engines explode.
