@@ -223,6 +223,35 @@ static thread_local const SparseDist* g_sparse = nullptr;
 // (I272 invented bars). g_delskip == nullptr disables the path.
 static thread_local const std::unordered_set<uint64_t>* g_delskip = nullptr;
 static thread_local bool g_delonly = false;
+static thread_local bool g_seed_inc = false;
+static thread_local std::vector<uint8_t> g_act_vert;
+
+static void refresh_act_verts(State& st) {
+    if (g_act_vert.size() != static_cast<size_t>(st.nv))
+        g_act_vert.assign(static_cast<size_t>(st.nv), 0);
+    else
+        std::fill(g_act_vert.begin(), g_act_vert.end(), 0);
+    const ActiveReg& ar = st.act;
+    if (ar.slot_of.count == 0 || ar.m < 1 || ar.nslots == 0) return;
+    std::vector<char> live(ar.nslots + 1, 1);
+    for (slot_t s : ar.freelist) {
+        if (s >= 1 && s <= static_cast<slot_t>(ar.nslots)) live[s] = 0;
+    }
+    for (size_t s = 1; s <= ar.nslots; ++s) {
+        if (!live[s]) continue;
+        const int32_t* v = &ar.verts[(s - 1) * static_cast<size_t>(ar.m)];
+        for (int i = 0; i < ar.m; ++i) {
+            const int x = v[i];
+            if (x >= 0 && x < st.nv) g_act_vert[static_cast<size_t>(x)] = 1;
+        }
+    }
+}
+
+static bool leftover_touches_active(int u, int v) {
+    if (g_act_vert.empty()) return false;
+    return (u >= 0 && u < static_cast<int>(g_act_vert.size()) && g_act_vert[static_cast<size_t>(u)]) ||
+           (v >= 0 && v < static_cast<int>(g_act_vert.size()) && g_act_vert[static_cast<size_t>(v)]);
+}
 
 static bool delskip_is_delaunay(int u, int v) {
     if (!g_delskip) return true;
@@ -850,7 +879,8 @@ redzed_vr(DistanceMatrix& distIn, int n, value_t threshold, EdgeList* prebuilt,
                         // (pairing on leftover intersect Del only). I272 says
                         // this invents bars; measure identity first.
                         if (g_delskip && !del_edge &&
-                            (g_delonly || st.act.slot_of.count == 0)) {
+                            (g_delonly || st.act.slot_of.count == 0 ||
+                             (g_seed_inc && !leftover_touches_active(lo, hi)))) {
                             ++g_alg.empty_skip;
                             ++g_alg.knn_mark;
                             continue;
@@ -870,11 +900,13 @@ redzed_vr(DistanceMatrix& distIn, int n, value_t threshold, EdgeList* prebuilt,
                             }
                             ++g_alg.keep_singleton;
                             ae_keep_singleton(st, er, st.top_buf.data(), ediam);
+                            if (g_seed_inc) refresh_act_verts(st);
                         } else {
                             const comb_t xidx = comb_index(xv, 2, st.binom);
                             ++g_alg.ae_seeded;
                             ++g_alg.coface;
                             ae_seeded(st, er, xidx, st.top_buf.data(), ediam);
+                            if (g_seed_inc) refresh_act_verts(st);
                         }
                     } else {
                         R1->singleton(er, er);
@@ -2607,7 +2639,7 @@ Result persist_redzed(const std::vector<std::vector<value_t>>& dist, int maxdim,
 
 Result persist_redzed_from_points(const std::vector<std::vector<value_t>>& pts, int maxdim,
                                  value_t threshold, bool dense_metric, bool knn_mark,
-                                 bool delaunay_skip, bool delaunay_only) {
+                                 bool delaunay_skip, bool delaunay_only, bool seed_incident) {
     const int n = static_cast<int>(pts.size());
     if (n <= 0 || maxdim < 0) {
         Result r;
@@ -2732,13 +2764,17 @@ Result persist_redzed_from_points(const std::vector<std::vector<value_t>>& pts, 
     const SparseGuard guard(spatial ? &csr : nullptr);
     std::unordered_set<uint64_t> delset;
     struct DelGuard {
-        explicit DelGuard(const std::unordered_set<uint64_t>* p, bool only) {
+        explicit DelGuard(const std::unordered_set<uint64_t>* p, bool only, bool incident) {
             g_delskip = p;
             g_delonly = only && p != nullptr;
+            g_seed_inc = incident && p != nullptr;
+            g_act_vert.clear();
         }
         ~DelGuard() {
             g_delskip = nullptr;
             g_delonly = false;
+            g_seed_inc = false;
+            g_act_vert.clear();
         }
     };
     const std::unordered_set<uint64_t>* del_ptr = nullptr;
@@ -2750,7 +2786,7 @@ Result persist_redzed_from_points(const std::vector<std::vector<value_t>>& pts, 
             del_ptr = &delset;
         }
     }
-    const DelGuard del_guard(del_ptr, delaunay_only);
+    const DelGuard del_guard(del_ptr, delaunay_only, seed_incident);
     const auto t0 = std::chrono::steady_clock::now();
     auto bars = redzed_vr(D, dim, threshold, pre_ptr, knn_mark);
     Result r;
@@ -2765,7 +2801,11 @@ Result persist_redzed_from_points(const std::vector<std::vector<value_t>>& pts, 
     r.counters.reduce_ms = std::chrono::duration<double, std::milli>(t1 - t0).count();
     r.counters.pipeline = spatial ? "pith:redzed-spatial" : "pith:redzed-thr";
     if (knn_mark) r.counters.pipeline += "-knn-mark";
-    if (del_ptr) r.counters.pipeline += delaunay_only ? "-delonly" : "-delskip";
+    if (del_ptr) {
+        if (delaunay_only) r.counters.pipeline += "-delonly";
+        else if (seed_incident) r.counters.pipeline += "-seedinc";
+        else r.counters.pipeline += "-delskip";
+    }
     return r;
 }
 

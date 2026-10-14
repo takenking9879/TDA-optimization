@@ -60,6 +60,7 @@ static void usage_experimental() {
         << "  --knn-mark              k-NN triangle mark of leftover_coface (H1)\n"
         << "  --delaunay-skip         skip leftover_coface on empty-seed non-Delaunay\n"
         << "  --delaunay-only         pair only leftover∩Delaunay (skips ae_seeded)\n"
+        << "  --seed-incident         skip non-Del leftover unless it touches an active\n"
         << "  --delaunay-adapt  --delaunay-floor F\n"
         << "  --probe-only  --probe-vertex\n"
         << "Iteration numbers live in RESEARCH_LOG.md, not this interface.\n";
@@ -645,6 +646,7 @@ int main(int argc, char** argv) {
     bool knn_mark = false;
     bool delaunay_skip = false;
     bool delaunay_only = false;
+    bool seed_incident = false;
     bool delaunay_vr = false;
     value_t delaunay_alpha = 1;
     value_t delaunay_floor = 0;
@@ -683,6 +685,10 @@ int main(int argc, char** argv) {
         else if (a == "--delaunay-only") {
             delaunay_skip = true;
             delaunay_only = true;
+        }
+        else if (a == "--seed-incident") {
+            delaunay_skip = true;
+            seed_incident = true;
         }
         else if (a == "--delaunay-vr") delaunay_vr = true;
         else if (a == "--delaunay-alpha") {
@@ -1045,7 +1051,7 @@ int main(int argc, char** argv) {
         } else if (engine == "redzed") {
             if (have_pts && dist.empty()) {
                 r = persist_redzed_from_points(pts, maxdim, threshold, dense_metric, knn_mark,
-                                              delaunay_skip, delaunay_only);
+                                              delaunay_skip, delaunay_only, seed_incident);
                 c.n_distances = r.counters.n_distances;
                 c.metric_ms = r.counters.metric_ms;
             } else if (!edges_path.empty()) {
