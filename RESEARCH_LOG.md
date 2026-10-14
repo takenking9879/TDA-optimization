@@ -5,6 +5,14 @@ Do not paste long reasoning here.
 
 ---
 
+## 2026-10-14 — I323 empty-seed non-Delaunay leftover skip
+
+- **Question:** I273 was exact on figure8 (ae_seeded wall). I321 moved the leftover-miss clock to leftover_coface on \(\lvert E\rvert\). Does skipping prepare+coface on empty-ActiveReg non-Delaunay leftovers cut that wall? Never skip ae_seeded (I272).
+- **Work:** Experimental `--delaunay-skip`. Delaunay 1-skeleton; leftover_coface only on Delaunay leftovers or seeded leftovers. Live `delaunay_skip.json`. 1 thread. τ frozen. Default auto unchanged.
+- **Result:** **0 unmatched** vs auto (8/8) and vs Ripser (figure8 n=200). Faster than auto **6/8**. leftover_coface visits drop to \(O(n)\) (anisotropic n=8000: 25k / 10.9M, cover 99.8%). Wall only **1.16 vs 1.29 s** — Kruskal + leftover walk / prepare still \(\Theta(\lvert E\rvert)\). figure8 n=2000 0.148≈0.150 s (I273). torus/sphere slightly slower (3D Delaunay tax). leftover-miss still \(\lt 10\times\) vs Ripser.
+- **Decision:** Reject as a leftover 10× engine. Exact set certificate, not a new pairing class. Keep `--delaunay-skip` experimental. Do not change `--engine auto`. Euclidean Delaunay leftover skips closed even under the I321 wall. Goal not complete.
+- **Class:** verified (live)
+
 ## 2026-10-14 — I322 k-NN leftover witness mark
 
 - **Question:** Can an exact subset of leftover_coface successes be pre-marked from k-NN triangles (k=12) so leftover-miss does not call leftover_coface on \(\lvert E\rvert\) leftovers?
