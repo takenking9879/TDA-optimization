@@ -1,6 +1,6 @@
 # Selected algorithm (living)
 
-Updated 2026-10-14 after iterations I001–I327 plus consolidation (phase 3)
+Updated 2026-10-14 after iterations I001–I328 plus consolidation (phase 3)
 and the fused Euclidean sparse constructor.
 **Stable CLI:** `--mode exact|scale|sparse|auto`, `--engine auto|redzed|implicit`,
 `--estimate`, `--threads N`. Public runners import `generate_datasets` /
@@ -403,6 +403,13 @@ I272. `--delaunay-only` stays experimental. Not selected.
 Skip non-Del leftovers that miss every active vertex. Live
 `seed_incident.json`: **0 unmatched**, faster than auto **3/8**,
 than I323 **0/8**. figure8 n=2000 2.15 vs 0.15 s. Not selected.
+
+### I328 3D nearest-vertex jump locate (not default)
+
+`--delaunay-jump`: start the 3D walk at a tet incident to a nearby
+inserted vertex. Live `delaunay_jump.json`: same |E| / ess H2; sphere
+n=80000 **1.099 vs 1.075 s**. Morton + last-cavity hint already starts
+nearby. Not selected.
 
 ### I327 dyadic hierarchical s-net (not default)
 

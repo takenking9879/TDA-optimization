@@ -5,6 +5,14 @@ Do not paste long reasoning here.
 
 ---
 
+## 2026-10-14 — I328 3D nearest-vertex jump locate
+
+- **Question:** Does starting the 3D Bowyer–Watson walk at a tet incident to a spatially nearby inserted vertex (hash + walk) beat last-cavity hint + Morton order?
+- **Work:** Experimental `--delaunay-jump`. 32³ hash of inserted vertices; Moore neighborhood nearest → `vert_tet`. Same Delaunay. Default last-hint unchanged. Live `delaunay_jump.json`. Unit n=256 |E| match. 1 thread. τ frozen.
+- **Result:** Same |E| and ess H2 on every cell. Wall **does not drop**: sphere n=80000 1.099 vs 1.075 s (metric 528 vs 501 ms). n=2000–16000 within noise. Morton + last cavity tet is already a nearby start; the hash is a tax.
+- **Decision:** Reject as default. Keep `--delaunay-jump` experimental. A 1-level vertex jump is not a new location class on this insertion order. A Devillers hierarchy (coarse triangulations) would still count. Goal not complete.
+- **Class:** verified (live)
+
 ## 2026-10-14 — I327 dyadic hierarchical s-net sparse constructor
 
 - **Question:** Can a Cavanna–Jahanseir–Sheehy hierarchical s-net (factor-2 dyadic slack) replace Θ(n²) Gonzalez FPS in `--mode sparse` without losing essential topology, and is it faster?

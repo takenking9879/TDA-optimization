@@ -11,7 +11,7 @@ This is the single “how far can each method go” table. Receipts:
 `leftover_heldout.json`, `leftover_ratio_n.json`, `leftover_miss_n.json`,
 `linked_ratio_n.json`, `postfreeze.json`, `postband.json`, `knn_mark.json`,
 `delaunay_skip.json`, `delaunay_only.json`, `seed_incident.json`,
-`homcloud.json`, `dyadic_net.json`.
+`homcloud.json`, `dyadic_net.json`, `delaunay_jump.json`.
 
 ## Exact VR (barcode must match Ripser)
 
@@ -32,7 +32,7 @@ This is the single “how far can each method go” table. Receipts:
 
 | Method | Typical last-OK | First clear failure | Threads | Topology vs VR |
 | --- | --- | --- | ---: | --- |
-| PITH `--mode scale` | figure-8 \(n=24000\) 0.79 s ess \(H_1=2\); sphere \(n=80000\) 1.08 s ess \(H_2=1\) | \(d\notin\{2,3\}\) unsupported | 1 | Essential loops/voids kept on the measured suite; finite bars differ (sphere \(n=400\): 52 unmatched, bn \(H_1=0.024\)). |
+| PITH `--mode scale` | figure-8 \(n=24000\) 0.79 s ess \(H_1=2\); sphere \(n=80000\) 1.08 s ess \(H_2=1\) | \(d\notin\{2,3\}\) unsupported | 1 | Essential loops/voids kept on the measured suite; finite bars differ (sphere \(n=400\): 52 unmatched, bn \(H_1=0.024\)). `--delaunay-jump` same |E|, 80k 1.10 vs 1.07 s (`delaunay_jump.json`). |
 | PITH `--mode sparse` | figure-8 \(n=24000\) 5.56 s / 1.56M edges / ess \(H_1=2\) | FPS \(\Theta(n^2)\) (\(p\approx 2\)); fat \(H_2\) on 4D timed out (25 s) | 1 | Sheehy-style. 2D loops usually kept; `nested_loops` \(W_1\approx 1.05\). |
 | PITH `--sparse-net dyadic` | figure-8 \(n=8000\) 18.6 s / 2.92M edges / ess \(H_1=2\) | figure-8 \(n=16000\) timeout 30 s (FPS 2.55 s) | 1 | Hierarchical s-net. Fewer distances, denser flag. Not default. (`dyadic_net.json`). |
 | GUDHI Alpha | fast at these n | not a VR stand-in | 1 | Drops essential \(H_1/H_2\) on this suite. |

@@ -1,10 +1,10 @@
 # Complexity notes for PITH
 
-Updated 2026-10-14 after iterations I001–I327 plus consolidation measurements.
+Updated 2026-10-14 after iterations I001–I328 plus consolidation measurements.
 This is a **complexity ledger**,
 not a theorem paper and not a selected-algorithm rewrite. It restates what the
 literature already proves, what follows from those statements by a short
-derivation, and what the I204 / I218 / I227–I327 receipts only measure.
+derivation, and what the I204 / I218 / I227–I328 receipts only measure.
 
 **Honest contribution.** PITH does **not** introduce a new worst-case Big-O for
 exact Vietoris–Rips (VR) \(H_1\) on a connected threshold graph \(G_T\). The
@@ -579,7 +579,10 @@ fallback only (\(n\le 8000\)).
   **not exact** (sphere \(n=16000\) \(\lvert E\rvert\) 80659 vs 80641;
   \(n=50000\) ess \(H_2\) 2 vs 1) **[empirical]**. Do not treat a
   circumcenter filter as the Delaunay predicate.
-- I307–I312 cheap walk/locate bookkeeping did not cut the 80k metric wall
+- I307–I312 cheap walk/locate bookkeeping did not cut the 80k metric wall.
+  I328 nearest-vertex jump locate is the same Delaunay (same |E|) and
+  **does not** cut that wall (80k 1.099 vs 1.075 s) **[empirical,
+  delaunay_jump.json]**.
   **[empirical]**. Identity held on I311/I312; I310 did not.
 - **\(H_1\) leftover visits remain \(\Theta(\lvert E\rvert)\)** on the exact
   VR path (I271/I275 decisions). Delaunay \(H_0\) does not shrink exact
@@ -1047,7 +1050,7 @@ worst-case Big-O theorem versus Ripser on connected \(G_T\).
 | Seidel (Delaunay size) | 3D \(\Theta(n^2)\) worst case; \(\Theta(n^{\lceil d/2\rceil})\) |
 | Kruskal 1956; Tarjan union-find | \(H_0\) |
 
-Project ledgers: `docs/SELECTED.md` (living algorithm, through I327),
+Project ledgers: `docs/SELECTED.md` (living algorithm, through I328),
 `docs/PAPERS.md`, `docs/ALGORITHM_COMPARISON.md`, `docs/COMPLEXES.md`,
 `docs/EDGE_COLLAPSE_SPEC.md`, `src/pith/include/pith/redzed_bridge.hpp`,
 `RESEARCH_LOG.md` I228, I235, I263, I271, I275, I276, I282, I300–I306,
