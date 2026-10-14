@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-13 — I292 Delaunay thicken cell skip
+
+- **Question:** Does skipping grid cells whose nearest corner is farther than the local thicken radius cut I286 construction at more points, with the same edge set?
+- **Hypothesis:** Cell size is median spoke. The search cube is (2·reach+1)^d; the R-ball is much smaller when reach hits the 8/16 cap. Same edges ⇒ same flag PH. Hard: figure8 n=16000 and sphere n=16000 H0+H1+H2.
+- **Work:** Exact cell lower-bound in `delaunay_vr_skeleton`. Split now reports `metric_ms`/`reduce_ms`. Wave 152 vs I286/I287 edge counts.
+- **Result:** **Same edges** (figure8 n=4000 186241; n=16000 977068; sphere n=8000 1073583). Flag identity held (figure8 n=2000 exact H1 2=2, 34×; sphere ess2 1=1; two_spheres 2=2). **No pith cut:** figure8 n=16000 **1.03 s** (I286 1.01 s; metric 404 ms, reduce 602 ms). sphere n=8000 **1.51 vs I287 1.42 s**. **Hard sphere n=16000 H0+H1+H2: 4.73 s / 2.28M edges / ess2=1** (metric 1.24 s, reduce 3.46 s). Exact default held (H0 60×, figure8 17×, uniform2 11.3×, sphere H2 58×).
+- **Decision:** **Hold and keep** the skip (correct range query, no identity change). Not a selected clock lever — persist on the thicken is the remaining wall (sphere n=16000 reduce 3.46 s). Do not mark the goal complete.
+- **Class:** experiment (hold; same edges, no clock cut)
+
 ## 2026-10-13 — I291 collapse fat Delaunay thicken
 
 - **Question:** Does collapsing an auto-α Delaunay thicken (mean deg 40–100) cut I286/I287 H0+H1+H2 at more points, while keeping ess H1/H2?

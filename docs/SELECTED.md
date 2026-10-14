@@ -1,6 +1,6 @@
 # Selected algorithm (living)
 
-Updated 2026-10-13 after iterations I001–I291. **CLI default `--engine
+Updated 2026-10-13 after iterations I001–I292. **CLI default `--engine
 auto` (I235+I236+I239+I240+I241+I263+I270+I271+I275):** subsample residual-frac dispatch,
 plus I263 edge-frac so hollow/manifold clouds take RedZeD. Fat →
 RedZeD (torus n=2000 **13.0×**). Thin-circle → collapse+implicit
@@ -137,6 +137,7 @@ suite and I137 8/8 (including dense circle80/200 **collapse=0**, the I045 killer
 | Grade-t rbit apparent (I289) | Implicit collapse=0 exact (unit tests; same 892 cols). figure8 n=4000 **24424≈25463 ms**. Apparent probes 64M→3.2M; wall is 103M cofacet probes on surviving columns. Reverted. Do not retry as a clock lever. |
 | Implicit R-column cache (I290) | collapse=0 exact but **27.7 s vs 24.5 s**. collapse=1 invented H1 (figure8 ess1 117 vs 2; circle 12 vs 1). Emergent \(R\) is only the pivot; dump of fat \(R\) is slower than re-walking \(V\). Reverted. Do not retry add-\(R\) without full \(D(e_j)\) on emergent. |
 | Thicken-collapse (I291) | Flag identity held (figure8 n=2000 exact H1, 256-pt circle 2857→256). **Slower** at n≥4000: figure8 n=8000 1.16 vs 0.43 s; n=16000 collapse 4.05 s. Reverted. Do not collapse thicken at scale. |
+| Thicken cell skip (I292) | Same edges as I286. No pith cut (figure8 n=16000 1.03≈1.01 s). Keep as correct range query. Persist on the thicken is the wall (sphere n=16000 reduce 3.46 s / 2.28M). |
 
 I107 (`--dom-budget 1`) **still rejected** with implicit (I142–I144): thicker
 residual makes collapse *and* reduce slower (circle3000 1.49× vs full 8.11×).
@@ -685,8 +686,10 @@ Rips is exact and too slow.
    27.7 s (slower); collapse=1 invented H1. Reverted. Do not retry
    add-\(R\) without a full emergent coboundary. **I291 thicken-collapse:**
    exact-on-flag, slower at n≥4000 (figure8 n=16000 collapse 4.05 s).
-   Reverted. Do not collapse the optional thicken. ae_seeded visits
-   remain the exact-H1 wall.
+   Reverted. Do not collapse the optional thicken. **I292 cell skip:**
+   same edges, no pith cut; sphere n=16000 H0+H1+H2 **4.73 s /
+   ess2=1**. Persist-on-thicken is the remaining optional-path wall.
+   ae_seeded visits remain the exact-H1 wall.
 6. Owned AE leftover-star walk is still Θ(|leftover|·deg★) — rbit cut
    has_leftover_coface, not seeded probes (circle still 875k). I288
    equal-set seeded_is_noop is exact and reverted (848≈866). Packed
