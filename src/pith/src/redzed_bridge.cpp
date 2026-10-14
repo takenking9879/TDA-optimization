@@ -222,6 +222,7 @@ static thread_local const SparseDist* g_sparse = nullptr;
 // nonempty ⇒ leftover_coface succeeds (I273 identity). Never skip ae_seeded
 // (I272 invented bars). g_delskip == nullptr disables the path.
 static thread_local const std::unordered_set<uint64_t>* g_delskip = nullptr;
+static thread_local bool g_delonly = false;
 
 static bool delskip_is_delaunay(int u, int v) {
     if (!g_delskip) return true;
@@ -843,10 +844,13 @@ redzed_vr(DistanceMatrix& distIn, int n, value_t threshold, EdgeList* prebuilt,
                         st.top_buf[1] = hi;
                         const int32_t* xv = &ed.verts[2 * (e - 1)];
                         const bool del_edge = delskip_is_delaunay(lo, hi);
-                        // Empty ActiveReg ⇒ no seeds. Non-Delaunay leftover_coface
-                        // would succeed (I273). Skip prepare + coface. Seeded
-                        // leftovers always run (I272).
-                        if (g_delskip && !del_edge && st.act.slot_of.count == 0) {
+                        // I323: empty ActiveReg => no seeds. Non-Delaunay
+                        // leftover_coface would succeed (I273).
+                        // I324: --delaunay-only also skips seeded non-Delaunay
+                        // (pairing on leftover intersect Del only). I272 says
+                        // this invents bars; measure identity first.
+                        if (g_delskip && !del_edge &&
+                            (g_delonly || st.act.slot_of.count == 0)) {
                             ++g_alg.empty_skip;
                             ++g_alg.knn_mark;
                             continue;
@@ -2603,7 +2607,7 @@ Result persist_redzed(const std::vector<std::vector<value_t>>& dist, int maxdim,
 
 Result persist_redzed_from_points(const std::vector<std::vector<value_t>>& pts, int maxdim,
                                  value_t threshold, bool dense_metric, bool knn_mark,
-                                 bool delaunay_skip) {
+                                 bool delaunay_skip, bool delaunay_only) {
     const int n = static_cast<int>(pts.size());
     if (n <= 0 || maxdim < 0) {
         Result r;
@@ -2728,8 +2732,14 @@ Result persist_redzed_from_points(const std::vector<std::vector<value_t>>& pts, 
     const SparseGuard guard(spatial ? &csr : nullptr);
     std::unordered_set<uint64_t> delset;
     struct DelGuard {
-        explicit DelGuard(const std::unordered_set<uint64_t>* p) { g_delskip = p; }
-        ~DelGuard() { g_delskip = nullptr; }
+        explicit DelGuard(const std::unordered_set<uint64_t>* p, bool only) {
+            g_delskip = p;
+            g_delonly = only && p != nullptr;
+        }
+        ~DelGuard() {
+            g_delskip = nullptr;
+            g_delonly = false;
+        }
     };
     const std::unordered_set<uint64_t>* del_ptr = nullptr;
     if (delaunay_skip && dim >= 1) {
@@ -2740,7 +2750,7 @@ Result persist_redzed_from_points(const std::vector<std::vector<value_t>>& pts, 
             del_ptr = &delset;
         }
     }
-    const DelGuard del_guard(del_ptr);
+    const DelGuard del_guard(del_ptr, delaunay_only);
     const auto t0 = std::chrono::steady_clock::now();
     auto bars = redzed_vr(D, dim, threshold, pre_ptr, knn_mark);
     Result r;
@@ -2755,7 +2765,7 @@ Result persist_redzed_from_points(const std::vector<std::vector<value_t>>& pts, 
     r.counters.reduce_ms = std::chrono::duration<double, std::milli>(t1 - t0).count();
     r.counters.pipeline = spatial ? "pith:redzed-spatial" : "pith:redzed-thr";
     if (knn_mark) r.counters.pipeline += "-knn-mark";
-    if (del_ptr) r.counters.pipeline += "-delskip";
+    if (del_ptr) r.counters.pipeline += delaunay_only ? "-delonly" : "-delskip";
     return r;
 }
 
