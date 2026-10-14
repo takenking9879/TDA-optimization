@@ -16,6 +16,7 @@ from generate_datasets import (  # noqa: E402
     many_loops,
     nested_loops,
     sphere,
+    uniform,
     uniform4,
     write_csv,
 )
@@ -78,7 +79,10 @@ def main():
         ("mixed_1d2d3d", mixed_1d2d3d, 300, 1.4, 2, "scale"),
         ("figure8", figure8, 16000, 1.1, 1, "scale"),
         ("sphere", sphere, 16000, 1.4, 2, "scale"),
-        ("uniform4", uniform4, 5000, 1.0, 1, "sparse"),
+        # High-d H1: conservative exact_ok=false, but exact is cheaper
+        # than sparse (uniform4 n=5000: 0.83 s vs 2.07 s). Stay exact.
+        ("uniform4", uniform4, 5000, 1.0, 1, "exact"),
+        ("uniform10", lambda n, rng: uniform(n, 10, rng), 4000, 1.8, 1, "exact"),
         # Probe still names sparse; auto must refuse rather than hang.
         ("uniform4", uniform4, 250, 0.6, 2, "refuse"),
     ]

@@ -57,6 +57,7 @@ def main():
         "growth_p",
         "leaving_cheap_regime",
         "est_sparse_runtime_s",
+        "est_exact_runtime_s",
         "skips_dense_matrix",
         "auto_will_run",
         "wall_kind",

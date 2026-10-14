@@ -310,6 +310,7 @@ struct Feasibility {
     double est_runtime_lo = -1;
     double est_runtime_hi = -1;
     double est_sparse_runtime = -1;
+    double est_exact_runtime = -1;
     double growth_p = -1;
     bool leaving_cheap = false;
     bool skips_dense_matrix = false;
@@ -393,11 +394,38 @@ static Feasibility compute_feasibility(const std::vector<std::vector<value_t>>* 
     f.confidence = (n <= 400 && !near_tau) ? "medium" : "low";
     // Fused sparse: FPS is still Θ(n²). d∈{2,3} uses a T-ball emit
     // (figure-8 n=2k–8k: wall/n² ≈ 1.3e-8). Higher-d / abstract metrics
-    // walk all pairs (uniform4 n=5000: wall/n² ≈ 8e-8). Informational —
-    // does not change mode_rec or τ.
+    // walk all pairs (uniform4 n=5000: wall/n² ≈ 8e-8).
     if (n > 0) {
         const double c_sparse = (dim >= 2 && dim <= 3) ? 1.3e-8 : 8.0e-8;
         f.est_sparse_runtime = c_sparse * static_cast<double>(n) * static_cast<double>(n);
+    }
+    // Hypothetical exact-path clock. Used to avoid jumping to sparse
+    // when scale is unavailable and exact is the cheaper remaining
+    // option. Live (1 thread): uniform10 n=4000 exact 0.65 s vs sparse
+    // 18 s; uniform4 n=5000 exact 0.83 s vs sparse 2.07 s. Does not
+    // retune τ / engine_rec.
+    if (maxdim < 1 && n > 0) {
+        f.est_exact_runtime =
+            2.0e-6 * static_cast<double>(n) * std::max(1.0, std::log2(static_cast<double>(n)));
+    } else if (maxdim >= 2 && fat && n > 0) {
+        f.est_exact_runtime =
+            5.0e-7 * static_cast<double>(n) * static_cast<double>(n) * static_cast<double>(n);
+    } else if (thin && n > 0) {
+        f.est_exact_runtime = 4.0e-8 * static_cast<double>(n) * static_cast<double>(n);
+    } else if (f.est_e_hi > 0) {
+        f.est_exact_runtime = 8.0e-8 * f.est_e_hi;
+    }
+    if (f.est_exact_runtime > 0) f.est_exact_runtime += 0.005;
+    if (!f.exact_ok && !(dim >= 2 && dim <= 3) && maxdim == 1) {
+        const bool sparse_clearly_cheaper =
+            f.est_sparse_runtime > 0 && f.est_exact_runtime > 0 &&
+            f.est_sparse_runtime * 1.5 < f.est_exact_runtime;
+        if (!sparse_clearly_cheaper) {
+            f.mode_rec = "exact";
+            f.reason +=
+                "; no scale path and estimated exact clock is not worse than "
+                "sparse — stay on exact";
+        }
     }
     f.skips_dense_matrix = (pts != nullptr);
     if (maxdim < 1 && n > 0) {
@@ -479,6 +507,7 @@ static int print_estimate(const std::vector<std::vector<value_t>>* pts,
                   << "  \"est_runtime_hi_s\": " << f.est_runtime_hi << ",\n"
                   << "  \"growth_p\": " << f.growth_p << ",\n"
                   << "  \"est_sparse_runtime_s\": " << f.est_sparse_runtime << ",\n"
+                  << "  \"est_exact_runtime_s\": " << f.est_exact_runtime << ",\n"
                   << "  \"skips_dense_matrix\": " << (f.skips_dense_matrix ? "true" : "false") << ",\n"
                   << "  \"auto_will_run\": " << (f.auto_will_run ? "true" : "false") << ",\n"
                   << "  \"leaving_cheap_regime\": " << (f.leaving_cheap ? "true" : "false") << ",\n"
@@ -502,6 +531,7 @@ static int print_estimate(const std::vector<std::vector<value_t>>* pts,
                   << " est_runtime_s=" << f.est_runtime << " est_runtime_hi_s=" << f.est_runtime_hi
                   << " growth_p=" << f.growth_p << " leaving_cheap=" << (f.leaving_cheap ? 1 : 0)
                   << " est_sparse_s=" << f.est_sparse_runtime
+                  << " est_exact_s=" << f.est_exact_runtime
                   << " skips_dense_matrix=" << (f.skips_dense_matrix ? 1 : 0)
                   << " auto_will_run=" << (f.auto_will_run ? 1 : 0)
                   << " wall_kind=" << f.wall_kind
