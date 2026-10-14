@@ -23,6 +23,8 @@ EST_PATH = BENCH / "results" / "consolidation" / "estimate_accuracy.json"
 EST = json.loads(EST_PATH.read_text()) if EST_PATH.exists() else {}
 ENG_PATH = BENCH / "results" / "consolidation" / "engine_auto.json"
 ENG = json.loads(ENG_PATH.read_text()) if ENG_PATH.exists() else {}
+WALL_PATH = BENCH / "results" / "consolidation" / "wall_kind.json"
+WALL = json.loads(WALL_PATH.read_text()) if WALL_PATH.exists() else {}
 FIG = BENCH / "results" / "consolidation" / "figures"
 FIG.mkdir(parents=True, exist_ok=True)
 
@@ -752,6 +754,21 @@ if ENG:
             f"| {d.get('name')} | {d.get('n')} | {d.get('recommended')} | {d.get('oracle_faster')} | "
             f"{d.get('wrong')} | {d.get('waived')} | "
             f"{'' if waste is None else f'{waste:.2f}'} |"
+        )
+
+if WALL:
+    rows.append("")
+    rows.append("## `wall_kind` vs measured share (`eval_wall_kind.py`)")
+    rows.append(
+        f"Agreement {WALL.get('n_agree')}/{WALL.get('n')}. "
+        "Measured kind is the largest of metric/collapse/reduce (n≥400, ≥1 ms)."
+    )
+    rows.append("| family | n | measured | estimate | regime | agree |")
+    rows.append("| --- | ---: | --- | --- | --- | --- |")
+    for d in WALL.get("receipts") or []:
+        rows.append(
+            f"| {d.get('name')} | {d.get('n')} | {d.get('measured')} | {d.get('estimate')} | "
+            f"{d.get('regime')} | {d.get('agree')} |"
         )
 
 (BENCH / "results" / "consolidation" / "TABLES.md").write_text("\n".join(rows) + "\n")

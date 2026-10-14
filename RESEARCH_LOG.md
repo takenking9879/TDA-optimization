@@ -5,6 +5,14 @@ Do not paste long reasoning here.
 
 ---
 
+## 2026-10-14 — leftover time-bucket / later-bits already spent
+
+- **Question:** Does the original I202 follow-up (time-bucket / later-bits / residual cofacet / emergent early-stop) still have an untried leftover lever?
+- **Work:** Ledger check. I203 is the selected cofacet-walk early-stop (torus reduce 450→172 ms). I214/I215 CannotDom time-until marks rejected. I288 equal-set seeded_is_noop exact but no clock. Hash leftover-adj I303/I304 rejected.
+- **Result:** Those named leftover directions are spent. Figure-8 n=2000 / torus walls remain leftover pairing. Do not reopen them as micro-opts.
+- **Decision:** Hold. Validate `wall_kind` against measured shares instead. Goal not complete.
+- **Class:** verified (ledger)
+
 ## 2026-10-14 — wall_kind + construct/collapse/reduce figure
 
 - **Question:** Can `--estimate` tell the user whether the exact wall is collapse (circle 32×) or leftover pairing (figure-8 / torus), without retuning τ?
