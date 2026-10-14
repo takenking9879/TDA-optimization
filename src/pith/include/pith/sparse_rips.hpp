@@ -101,6 +101,132 @@ inline std::vector<value_t> greedy_insertion_radii_points(const std::vector<std:
     return lam;
 }
 
+// I327: hierarchical s-net insertion radii (Cavanna–Jahanseir–Sheehy nets,
+// not farthest-point). Euclidean d∈{2,3} only.
+//
+// Coarse-to-fine: at scale s, insert every unassigned p with d(p,N)>s and
+// set λ[p]=d(p,N). Then L_s (points inserted at this or a coarser scale)
+// is an s-net: packing d>s, covering d≤s. Neighbor-cell search uses cell
+// width s, so a ball of radius s sits in the Moore neighborhood.
+//
+// Stated slack vs Gonzalez FPS: insertion scales are dyadic, so
+// s < λ[p] ≤ 2s at the insert level. The same sparse-Rips rule with
+// these λ is a net-sparse 1-skeleton whose multiplicative interleaving
+// vs VR is the Sheehy/CJS constant times a factor-2 dyadic slack
+// **[derivation; not exact VR]**. Distance evaluations are
+// O(n log(Δ/δ)) expected, not Θ(n²).
+//
+// Falls back to farthest-point if d∉{2,3} or the cloud is degenerate.
+enum class SparseNet { Fps, Dyadic };
+
+struct DyadicCell {
+    int x = 0, y = 0, z = 0;
+    bool operator==(const DyadicCell& o) const { return x == o.x && y == o.y && z == o.z; }
+};
+
+struct DyadicCellHash {
+    std::size_t operator()(const DyadicCell& k) const {
+        std::size_t h = static_cast<std::size_t>(static_cast<std::uint32_t>(k.x));
+        h ^= static_cast<std::size_t>(static_cast<std::uint32_t>(k.y)) + 0x9e3779b97f4a7c15ull +
+             (h << 6) + (h >> 2);
+        h ^= static_cast<std::size_t>(static_cast<std::uint32_t>(k.z)) + 0x9e3779b97f4a7c15ull +
+             (h << 6) + (h >> 2);
+        return h;
+    }
+};
+
+inline std::vector<value_t> dyadic_insertion_radii_points(const std::vector<std::vector<value_t>>& pts,
+                                                          std::int64_t* n_dist = nullptr) {
+    const int n = static_cast<int>(pts.size());
+    const int d = n ? static_cast<int>(pts[0].size()) : 0;
+    if (n == 0) return {};
+    if (d < 2 || d > 3) return greedy_insertion_radii_points(pts, n_dist);
+
+    std::vector<value_t> lam(static_cast<size_t>(n), 0);
+    std::vector<char> used(static_cast<size_t>(n), 0);
+    used[0] = 1;
+    value_t cover = 0;
+    for (int j = 1; j < n; ++j) {
+        const value_t dj = euclid_dist(pts, 0, j);
+        if (n_dist) ++*n_dist;
+        cover = std::max(cover, dj);
+    }
+    lam[0] = cover;
+    if (!(cover > 0) || !std::isfinite(static_cast<double>(cover))) return lam;
+
+    int left = n - 1;
+    double s = static_cast<double>(cover);
+    std::unordered_map<DyadicCell, std::vector<int>, DyadicCellHash> grid;
+    auto cell_of = [&](int i, double inv) {
+        DyadicCell c;
+        c.x = static_cast<int>(std::floor(static_cast<double>(pts[static_cast<size_t>(i)][0]) * inv));
+        c.y = static_cast<int>(std::floor(static_cast<double>(pts[static_cast<size_t>(i)][1]) * inv));
+        if (d == 3)
+            c.z = static_cast<int>(
+                std::floor(static_cast<double>(pts[static_cast<size_t>(i)][2]) * inv));
+        return c;
+    };
+    auto min_net = [&](int i, double inv) -> value_t {
+        const DyadicCell c0 = cell_of(i, inv);
+        value_t best = kInf;
+        const int z1 = (d == 3) ? 1 : 0;
+        for (int dx = -1; dx <= 1; ++dx)
+            for (int dy = -1; dy <= 1; ++dy)
+                for (int dz = -z1; dz <= z1; ++dz) {
+                    DyadicCell c = c0;
+                    c.x += dx;
+                    c.y += dy;
+                    c.z += dz;
+                    const auto it = grid.find(c);
+                    if (it == grid.end()) continue;
+                    for (int j : it->second) {
+                        const value_t dd = euclid_dist(pts, i, j);
+                        if (n_dist) ++*n_dist;
+                        if (dd < best) best = dd;
+                    }
+                }
+        return best;
+    };
+
+    for (int level = 0; level < 64 && left > 0; ++level) {
+        s *= 0.5;
+        if (!(s > 0) || !std::isfinite(s)) break;
+        const double inv = 1.0 / s;
+        grid.clear();
+        grid.reserve(static_cast<size_t>(n - left + 1) * 2);
+        for (int i = 0; i < n; ++i) {
+            if (used[static_cast<size_t>(i)]) grid[cell_of(i, inv)].push_back(i);
+        }
+        for (int i = 1; i < n; ++i) {
+            if (used[static_cast<size_t>(i)]) continue;
+            const value_t md = min_net(i, inv);
+            if (md > static_cast<value_t>(s)) {
+                used[static_cast<size_t>(i)] = 1;
+                lam[static_cast<size_t>(i)] = md;
+                grid[cell_of(i, inv)].push_back(i);
+                --left;
+            }
+        }
+    }
+    if (left > 0) {
+        const double inv = (s > 0 && std::isfinite(s)) ? 1.0 / s : 0;
+        if (inv > 0 && grid.empty()) {
+            for (int i = 0; i < n; ++i) {
+                if (used[static_cast<size_t>(i)]) grid[cell_of(i, inv)].push_back(i);
+            }
+        }
+        for (int i = 1; i < n; ++i) {
+            if (used[static_cast<size_t>(i)]) continue;
+            value_t md = (inv > 0) ? min_net(i, inv) : kInf;
+            if (!(md < kInf)) md = static_cast<value_t>(s > 0 ? s : 0);
+            used[static_cast<size_t>(i)] = 1;
+            lam[static_cast<size_t>(i)] = md;
+            --left;
+        }
+    }
+    return lam;
+}
+
 // How the insertion-radius cap is combined. I210 used Max (looser, denser).
 // I212 tries Min (closer to GUDHI's thinner 1-skeleton).
 enum class SparseCap { Max, Min };
@@ -187,13 +313,16 @@ inline bool for_each_tball_pair(const std::vector<std::vector<value_t>>& pts, va
     return true;
 }
 
-// Euclidean constructor: same edge set as sparse_rips_graph(pairwise(pts), T, ε).
-// Farthest-point insertion is still Θ(n²). Emit uses a T-ball spatial hash
-// when d∈{2,3} and T is finite; otherwise an on-the-fly all-pairs walk.
-// Does not allocate an n×n matrix.
+// Euclidean constructor: same edge set as sparse_rips_graph(pairwise(pts), T, ε)
+// when net=Fps. Farthest-point insertion is still Θ(n²). `--sparse-net dyadic`
+// (I327) replaces FPS with hierarchical s-nets in d∈{2,3}; the edge set
+// then differs and the interleaving constant picks up a factor-2 slack.
+// Emit uses a T-ball spatial hash when d∈{2,3} and T is finite; otherwise
+// an on-the-fly all-pairs walk. Does not allocate an n×n matrix.
 inline Graph sparse_rips_graph_points(const std::vector<std::vector<value_t>>& pts, value_t T,
                                       value_t eps, SparseCap cap = SparseCap::Max,
-                                      std::int64_t* n_dist = nullptr) {
+                                      std::int64_t* n_dist = nullptr,
+                                      SparseNet net = SparseNet::Fps) {
     const int n = static_cast<int>(pts.size());
     Graph g;
     g.n = n;
@@ -212,7 +341,10 @@ inline Graph sparse_rips_graph_points(const std::vector<std::vector<value_t>>& p
     std::vector<value_t> lam;
     value_t cfac = 0;
     if (use_eps) {
-        lam = greedy_insertion_radii_points(pts, n_dist);
+        if (net == SparseNet::Dyadic)
+            lam = dyadic_insertion_radii_points(pts, n_dist);
+        else
+            lam = greedy_insertion_radii_points(pts, n_dist);
         cfac = (1 + eps) / eps;
     }
     auto visit = [&](int i, int j) {

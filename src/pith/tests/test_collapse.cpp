@@ -456,6 +456,44 @@ int main() {
             }
             std::cout << "ok FPS λ points==matrix n=" << lam_m.size() << "\n";
         }
+        {
+            // I327: dyadic net is cheaper than Θ(n²) FPS and still a cover.
+            std::int64_t n_dy = 0, n_fps = 0;
+            const auto lam_d = dyadic_insertion_radii_points(cloud, &n_dy);
+            const auto lam_f = greedy_insertion_radii_points(cloud, &n_fps);
+            if (lam_d.size() != cloud.size() || !(lam_d[0] > 0)) {
+                std::cerr << "dyadic λ empty/cover\n";
+                return 1;
+            }
+            const std::int64_t pairs =
+                static_cast<std::int64_t>(cloud.size()) * (static_cast<std::int64_t>(cloud.size()) - 1);
+            if (n_dy >= pairs / 4) {
+                std::cerr << "dyadic not subquadratic n_dist=" << n_dy << " fps=" << n_fps << "\n";
+                return 1;
+            }
+            Graph pd = sparse_rips_graph_points(cloud, 1.5f, 0.6f, SparseCap::Max, nullptr,
+                                                SparseNet::Dyadic);
+            Result rd = persist_implicit_coh(pd, 1, 1.5f, 1);
+            int ess1 = 0;
+            for (const auto& p : rd.pairs)
+                if (p.dim == 1 && !std::isfinite(p.death)) ++ess1;
+            if (ess1 < 1) {
+                std::cerr << "dyadic noisy-circle lost ess H1 edges=" << pd.edges.size() << "\n";
+                return 1;
+            }
+            Graph c4d = sparse_rips_graph_points(c4, 1.2f, 0.6f, SparseCap::Max, nullptr,
+                                                 SparseNet::Dyadic);
+            Result rc4d = persist_implicit_coh(c4d, 1, 1.2f, 1);
+            int ess4 = 0;
+            for (const auto& p : rc4d.pairs)
+                if (p.dim == 1 && !std::isfinite(p.death)) ++ess4;
+            if (ess4 < 1) {
+                std::cerr << "dyadic C4 lost the 4-cycle edges=" << c4d.edges.size() << "\n";
+                return 1;
+            }
+            std::cout << "ok dyadic-net n_dist=" << n_dy << " fps=" << n_fps
+                      << " ess1=" << ess1 << "\n";
+        }
         for (SparseCap cap : {SparseCap::Max, SparseCap::Min}) {
             Graph mm = sparse_rips_graph(dc, 1.5f, 0.6f, cap);
             Graph pp = sparse_rips_graph_points(cloud, 1.5f, 0.6f, cap);
