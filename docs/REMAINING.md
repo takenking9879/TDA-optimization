@@ -53,6 +53,7 @@ These were tried, logged, and must not be reopened as micro-opts.
 | Unused in-tree / vendor pairing (I330) | Closed | Vendor `run_active_enumeration` is already `ae_prepare`+`ae_seeded`. `simplex_pairs` is output. Sixth literature pass: no unused batch exact-VR pairing after RedZeD. Annotation/clearing already in implicit. SiRUP / incremental-ph is barcode *update*, not leftover 10×. |
 | Sample-farthest greedy net (I331) | Reject as default | `--sparse-net approx`. Stays thin (figure8 n=8000 260k vs 384k) and drops distances ~2.3×, but wall loses (0.66 vs 0.62 s; n=16000 3.36 vs 2.70 s). ess H1 kept. Finite bars differ (`approx_net.json`). |
 | 3-level Devillers stack (I332) | Exact, loses construction | `--delaunay-devillers`. Separate coarse/mid tets + downward links. Same |E|. Sphere n=80000 1.291 vs 1.069 s; torus/uniform3 n=8000 lose wall (`delaunay_devillers.json`). |
+| Prefix Gonzalez net (I333) | Wall win, coarser complex | `--sparse-net prefix`. m=max(64,⌈4√n⌉) vertices. figure8 n=8000 **30×**, n=16000 **51×** vs FPS. ess H1 kept. Unmatched vs FPS 510–20k. Not default (`prefix_net.json`). |
 
 Named leftover follow-ups after I202 are **spent**. That includes
 `ae_seeded`, leftover_coface **inner-loop** constants, **sparse
@@ -149,7 +150,7 @@ Search on 2026-10-14 (sixth pass the same day):
 | Leftover empty-seed `leftover_coface` on connected fat \(G_T\) | I321: leftover count **equals** Ripser. I323: leftover_coface on non-Delaunay is skippable (\(O(n)\) tests) but the leftover *walk* stays \(\Theta(\lvert E\rvert)\). I324: dropping that walk **invents bars**. I325: H1-incident vertex filter is exact but leftover-miss actives cover almost all vertices, so the walk stays \(\Theta(\lvert E\rvert)\). Inverted generation is \(O(\lvert R\rvert\deg)\) which **exceeds** \(\lvert E\rvert\) on leftover-miss (\(\sim 16\mathrm{k}\times 2750 > 11\mathrm{M}\)). Closed I315–I325 | A pairing that classifies leftovers without visiting \(\Theta(\lvert E\rvert)\) *and* without \(O(\lvert R\rvert\deg)\) star walks — vertex incidence cannot be \(o(\lvert E\rvert)\) on leftover-miss. New pairing theory, not another filter. |
 | Fat exact \(H_2\) | Default exact-auto is still RedZeD-cc (mixed \(n=300\) 22 ms vs implicit 73 ms; mixed \(n=1000\) 1.07 s vs Ripser 7.25 s). I313 gives `--engine implicit` tet-free Ripser-style H2: mixed \(n=300\) **73 ms / unmatched 0** (the old persist_sparse timeout). Thin collapse residuals stay collapse-dominated (sphere \(n=600\) 31 ms, **139×** vs Ripser). Both exact and Ripser leave a 12 s budget near mixed \(n=2000\) | A faster pairing than RedZeD on a connected fat flag, or `--mode scale` when \(n_{cc}\ge 800\). High-d fat H2 sparse remains refused. Implicit H2 is the Ripser class, not a new Big-O. |
 | 3D Lawson + insphere | Expected \(O(n\log n)\) incremental Delaunay. I328/I329/I332 location variants do not beat Morton + last-cavity (I332 3-level stack **loses** construction). Fat 3D scale walls are thicken/PH | A cheaper thicken/PH on a fat 3D flag, not another locate. 3D location class closed. |
-| Sparse FPS \(\Theta(n^2)\) | Greedy net needs \(\Theta(n^2)\) distance evaluations. I327 dyadic densifies. I331 sample-farthest stays thin and drops the distance count ~2.3× but the sample+NN tax loses the figure8 wall | A net that stays thin *and* wins wall (subquadratic including overhead), or a subquadratic **exact** FPS in low \(d\). Squared-distance, AABB, dyadic/grid, and sample-farthest (I331) are closed. |
+| Sparse FPS \(\Theta(n^2)\) | Greedy n-point net is \(\Theta(n^2)\). I327 densifies. I331 thin but loses wall. I333 prefix-net **wins** wall (30–51×) by dropping to m=Θ(√n) vertices — a coarser complex, not n-point Sheehy | A thin n-point net that wins wall, or a subquadratic **exact** n-point FPS. Prefix (I333) is the experimental clock win; default stays FPS. Squared-distance, AABB, dyadic/grid, and sample-farthest are closed. |
 
 ## What would satisfy the original 10× goal
 
@@ -178,7 +179,8 @@ All of the following, together:
 
 1. Spent table above is complete for leftover / collapse / owned AE /
    reduced VR / extra Morse / FPS sqrt / FPS AABB / dyadic nets /
-   sample-farthest (I331) / 3D bookkeeping.
+   sample-farthest (I331) / 3D bookkeeping / Devillers locate (I332) /
+   prefix-net default (I333 stays experimental).
 2. No unpublished pairing algorithm is sitting in-tree unused.
 3. Remaining walls require new theory or a different complex
    (already provided as `--mode scale` / `--mode sparse`).

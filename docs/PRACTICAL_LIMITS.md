@@ -12,7 +12,7 @@ This is the single “how far can each method go” table. Receipts:
 `linked_ratio_n.json`, `postfreeze.json`, `postband.json`, `knn_mark.json`,
 `delaunay_skip.json`, `delaunay_only.json`, `seed_incident.json`,
 `homcloud.json`, `dyadic_net.json`, `delaunay_jump.json`, `delaunay_hier.json`,
-`approx_net.json`, `delaunay_devillers.json`.
+`approx_net.json`, `delaunay_devillers.json`, `prefix_net.json`.
 I330: unused in-tree pairing closed (vendor AE already wrapped; no new
 2026 batch exact-VR paper besides RedZeD).
 
@@ -39,6 +39,7 @@ I330: unused in-tree pairing closed (vendor AE already wrapped; no new
 | PITH `--mode sparse` | figure-8 \(n=24000\) 5.56 s / 1.56M edges / ess \(H_1=2\) | FPS \(\Theta(n^2)\) (\(p\approx 2\)); fat \(H_2\) on 4D timed out (25 s) | 1 | Sheehy-style. 2D loops usually kept; `nested_loops` \(W_1\approx 1.05\). |
 | PITH `--sparse-net dyadic` | figure-8 \(n=8000\) 18.6 s / 2.92M edges / ess \(H_1=2\) | figure-8 \(n=16000\) timeout 30 s (FPS 2.55 s) | 1 | Hierarchical s-net. Fewer distances, denser flag. Not default. (`dyadic_net.json`). |
 | PITH `--sparse-net approx` | figure-8 \(n=8000\) 0.66 s / 260k edges / ess \(H_1=2\) | figure-8 \(n=16000\) 3.36 s vs FPS 2.70 s | 1 | Sample-farthest greedy. Thin, fewer distances, wall loses on FPS-scale. Not default. (`approx_net.json`). |
+| PITH `--sparse-net prefix` | figure-8 \(n=16000\) 0.051 s / 9.9k edges / ess \(H_1=2\) | coarser barcode (20k unmatched vs FPS) | 1 | m=Θ(√n) landmarks only. 30–51× vs FPS. Not default. (`prefix_net.json`). |
 | GUDHI Alpha | fast at these n | not a VR stand-in | 1 | Drops essential \(H_1/H_2\) on this suite. |
 | Coperto 0.1.7 | figure-8 \(n=8000\) 6.74 s / tower 31k | not a VR stand-in; default `greedy=True` drops \(H_1\) | 1 | Log-3 interleaving **[citation]**. Loops become finite (ess \(H_1=0\)). Slower and less faithful than scale on Euclidean \(d\in\{2,3\}\). Not vendored. |
 

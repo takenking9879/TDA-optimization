@@ -5,6 +5,14 @@ Do not paste long reasoning here.
 
 ---
 
+## 2026-10-14 — I333 prefix Gonzalez net (sparse vertices)
+
+- **Question:** If we keep only the first m=max(64,⌈4√n⌉) Gonzalez landmarks as vertices, does the sparse path stay thin *and* beat the Θ(n²) FPS wall while keeping essential H1?
+- **Work:** Experimental `--sparse-net prefix`. Construction O(n m). Same sparse-Rips rule on the landmark subset. Default FPS unchanged. Live `prefix_net.json`. Unit n=320: 72 verts, 23k vs 51k dist, ess H1. 1 thread. τ frozen.
+- **Result:** ess H1 kept (figure8=2, circle=1). Wall **wins**: figure8 n=8000 **0.021 vs 0.621 s (30×)**; n=16000 **0.051 vs 2.58 s (51×)**; circle n=2000 15×; sphere n=2000 58×. Thin (n=8000 5.8k vs 380k edges). Distances drop with n m (2.9M vs 53M at n=8000). Finite bars differ a lot (unmatched vs FPS 510–20k) — coarser complex, not n-point Sheehy.
+- **Decision:** Keep `--sparse-net prefix` experimental. Do **not** change default `--mode sparse` (n-point Sheehy contract). This is the constructor that wins the FPS clock; default stays the n-vertex net. Goal not complete.
+- **Class:** verified (live)
+
 ## 2026-10-14 — I332 3-level Devillers Delaunay stack
 
 - **Question:** Do separate coarse/mid triangulations + downward links (Devillers, not I328/I329 vertex hashes) beat Morton + last-cavity hint?

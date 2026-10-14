@@ -1,6 +1,6 @@
 # Selected algorithm (living)
 
-Updated 2026-10-14 after iterations I001–I332 plus consolidation (phase 3)
+Updated 2026-10-14 after iterations I001–I333 plus consolidation (phase 3)
 and the fused Euclidean sparse constructor.
 **Stable CLI:** `--mode exact|scale|sparse|auto`, `--engine auto|redzed|implicit`,
 `--estimate`, `--threads N`. Public runners import `generate_datasets` /
@@ -403,6 +403,13 @@ I272. `--delaunay-only` stays experimental. Not selected.
 Skip non-Del leftovers that miss every active vertex. Live
 `seed_incident.json`: **0 unmatched**, faster than auto **3/8**,
 than I323 **0/8**. figure8 n=2000 2.15 vs 0.15 s. Not selected.
+
+### I333 prefix Gonzalez net (not default)
+
+`--sparse-net prefix`: first m=max(64,⌈4√n⌉) landmarks are the only
+vertices. Live `prefix_net.json`: ess H1 kept; figure8 n=8000 **0.021
+vs 0.621 s (30×)**; n=16000 **51×**. Unmatched vs FPS 510–20k (coarser
+complex). Default `--mode sparse` stays n-point FPS. Not selected.
 
 ### I332 3-level Devillers stack (not default)
 
