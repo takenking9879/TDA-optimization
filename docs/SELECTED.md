@@ -1,6 +1,6 @@
 # Selected algorithm (living)
 
-Updated 2026-10-14 after iterations I001–I298. **CLI default `--engine
+Updated 2026-10-14 after iterations I001–I299. **CLI default `--engine
 auto` (I235+I236+I239+I240+I241+I263+I270+I271+I275):** subsample residual-frac dispatch,
 plus I263 edge-frac so hollow/manifold clouds take RedZeD. Fat →
 RedZeD (torus n=2000 **13.0×**). Thin-circle → collapse+implicit
@@ -142,6 +142,8 @@ suite and I137 8/8 (including dense circle80/200 **collapse=0**, the I045 killer
 | Parallel thicken scan (I294) | Same edges. Metric 1131→955 ms; pith 4.12→3.95 s. Keep. Reduce (2.96 s / 199k cols) remains the wall. |
 | R-cache + full emergent (I295) | Collapse=1 exact (I290’s invent-H1 fixed). **Slower** thicken (sphere n=16000 5.26 vs 3.95 s). Reverted. Do not retry add-\(R\). |
 | D(e) coboundary memo (I296) | Exact collapse=0/1. figure8 n=4000 collapse=0 still **25.6 s / 103M probes**. Adds are unique apparent-facet edges. Reverted. Do not retry \(D(e)\) memo. |
+| Reuse-Delaunay split (I298) | Same edges as I297. Keep one walk. Metric 916→905 ms; pith 3.08≈3.02 s. Not a selected pith lever. |
+| RCM-on-thicken (I299) | Exact (same edges / ess). figure8 n=16000 reduce 195→164 ms but pith **0.67 vs 0.62 s**. Sphere 16k **3.20 vs 3.08 s**. Reverted. Do not retry bandwidth/Morton orders on thicken. |
 
 I107 (`--dom-budget 1`) **still rejected** with implicit (I142–I144): thicker
 residual makes collapse *and* reduce slower (circle3000 1.49× vs full 8.11×).
@@ -710,8 +712,10 @@ Rips is exact and too slow.
    figure8 n=24000 **1.06 s**; sphere n=20000 **3.89 s**. Remaining
    optional-path wall is AE leftover on 2–3M thicken edges (reduce
    2.0–2.5 s). **I298 reuse-Delaunay split:** same edges, keep (one
-   walk); metric 916→905 ms — not a pith cut. ae_seeded visits remain
-   the exact-H1 wall.
+   walk); metric 916→905 ms — not a pith cut. **I299 RCM-on-thicken:**
+   exact, figure8 reduce 195→164 ms, pith worse (0.67 vs 0.62 s).
+   Reverted. Do not retry bandwidth/Morton orders on thicken.
+   ae_seeded visits remain the exact-H1 wall.
 6. Owned AE leftover-star walk is still Θ(|leftover|·deg★) — rbit cut
    has_leftover_coface, not seeded probes (circle still 875k). I288
    equal-set seeded_is_noop is exact and reverted (848≈866). Packed

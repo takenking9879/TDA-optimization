@@ -61,7 +61,6 @@ inline bool delaunay_thicken_should_collapse(int n, std::int64_t n_edges) {
 
 // I297: RedZeD on an explicit 1-skeleton (SparseDist + prebuilt EdgeList).
 // Used for fat Delaunay thicken so H1 is AE, not implicit V-adds.
-// I299: RCM relabel when |E|≥8n so rbit live ranges stay tight.
 Result persist_redzed_from_edges(int n, const std::vector<Edge>& edges, int maxdim,
                                  value_t threshold);
 

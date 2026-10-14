@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-14 — I299 RCM relabel fat thicken
+
+- **Question:** Does reverse Cuthill–McKee on the fat thicken 1-skeleton tighten rbit word ranges enough to cut RedZeD leftover at n=16k–20k, without changing flag PH?
+- **Hypothesis:** leftover_coface ANDs a contiguous word range. Input IDs need not be local. Same complex (isomorphism). I268 Morton on G_T was 5% — thicken n=20k has 313 words, so locality could matter more. Do not touch `persist_redzed_from_points`.
+- **Work:** `rcm_relabel_spat` before hash/EdgeList when `|E|≥8n`. Wave 159 vs I298. Reverted after pith miss.
+- **Result:** **Hold identity / reject clock.** Same edges; figure8 n=2000 exact H1; ess held. figure8 n=16000 reduce **164 vs I298 195 ms** but pith **0.666 vs 0.623 s** (RCM tax). n=24000 1.07≈1.02 s. sphere n=16000 reduce 1956≈1988 ms, pith **3.20 vs 3.08 s**; n=20000 **4.10 vs 3.92 s**. Exact default held.
+- **Decision:** **Reject and revert.** RCM is an isomorphism, not a clock lever. Do not retry space-filling / bandwidth orders on thicken (I268 + I299). Remaining wall is AE leftover visits. Do not mark the goal complete.
+- **Class:** experiment (hold identity; revert clock)
+
 ## 2026-10-14 — I298 reuse Delaunay for split thicken
 
 - **Question:** Does building the Euclidean Delaunay 1-skeleton once (α=1 flag + thicken extras on a copy) cut I286/I297 split metric at more points, without changing edges or bars?
