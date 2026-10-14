@@ -101,7 +101,7 @@ The standard, general-purpose barcode for metric data. Encodes more (and noisier
 | [giotto-ph](https://github.com/giotto-ai/giotto-ph) | Parallel CPU VR + edge collapse + weighted VR. AGPLv3. | Library exists; slower release cadence than GUDHI. |
 | [GUDHI](https://gudhi.inria.fr/) Rips + Simplex tree | Explicit expansion; optional sparse / collapse. MIT. | Actively maintained (docs 3.13.x). |
 | [Ripserer.jl](https://github.com/mtsch/Ripserer.jl) | Generic Ripser-style; `Rips(; sparse=true)`. MIT. | Maintained (v0.16.x). |
-| [Dionysus 2](https://github.com/mrzv/dionysus) | Explicit VR among other complexes. BSD. | Maintained (v2.2.x in 2026). |
+| [Dionysus 2](https://github.com/mrzv/dionysus) | Explicit VR among other complexes. BSD. | Maintained (v2.2.3). Timed here as a 1-thread oracle: circle \(n=400\) 11.68 s / 2.38M simplices vs Ripser 0.18 s; later leftover cells timeout (`dionysus.json`). Not vendored. |
 | [DIPHA](https://github.com/DIPHA/dipha) | MPI VR / cubical / general. | Mature, little recent development. |
 | [HomCloud](https://homcloud.dev/) | Wraps Ripser among other pipelines. GPL-3. | Actively maintained (v5.4.0, 2026-06). |
 | [Oineus](https://github.com/anigmetov/oineus) | Shared-memory VR + grids. BSD. | PyPI v0.9.39. Timed here as a 1-thread oracle: slower than Ripser on leftover \(H_1\); times out earlier than Ripser and Dory (`oineus.json`). Not vendored. |

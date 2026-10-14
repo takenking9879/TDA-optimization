@@ -162,6 +162,10 @@ out at 20 s where Ripser still finishes (circle \(n=1000\), figure-8
 \(n=2000\), sphere \(H_2\) \(n=400\)). Lock-free reduction + in-order
 VR generation; the published win is multi-core. giotto-ph is that
 family already timed at 4 threads on \(H_1\) (no win). Not a 10× engine.
+**Dionysus 2.2.3** (1 thread, not vendored) is explicit `fill_rips`:
+circle \(n=400\) **11.68 s / 2.38M simplices** vs Ripser 0.18 s
+(**65× slower**). The other leftover cells timeout at 20 s while
+Ripser still finishes. Same class as GUDHI Rips; not a 10× engine.
 Hardware threads (4) change circle \(n=1000\) from 0.068 s to 0.069 s —
 not the source of the 32×. giotto-ph’s 4 threads help sphere \(H_2\)
 (1.12→0.62 s) and do **not** speed up \(H_1\).
@@ -176,6 +180,8 @@ PITH **0.30 s** vs giotto **7.23 s** (24×).
 ![Dory vs PITH vs Ripser, 1 thread](benchmarks/results/consolidation/figures/runtime_dory.svg)
 
 ![Oineus vs PITH vs Ripser, 1 thread](benchmarks/results/consolidation/figures/runtime_oineus.svg)
+
+![Dionysus vs PITH vs Ripser, 1 thread](benchmarks/results/consolidation/figures/runtime_dionysus.svg)
 
 ![Exact VR runtime](benchmarks/results/consolidation/figures/runtime_exact.svg)
 
@@ -303,6 +309,9 @@ Full numbers: [`benchmarks/results/consolidation/TABLES.md`](benchmarks/results/
 - Oineus (`oineus` 0.9.39) is a **1-thread oracle**, not vendored. It
   is slower than Ripser on leftover \(H_1\) and times out earlier
   than both Ripser and Dory.
+- Dionysus 2.2.3 is a **1-thread oracle**, not vendored. Explicit VR
+  is 65× slower than Ripser on circle \(n=400\) and times out earlier
+  than Oineus.
 - Ripser++ was not built (no GPU).
 - `--threads 1` is the fair comparison. Default PITH may use every core for
   a few scans; that is **not** where the 30–60× exact ratios come from.
@@ -344,6 +353,8 @@ python3 benchmarks/reverify_dory.py
 python3 benchmarks/run_dory_limits.py
 # optional oracle: pip install oineus  (BSD wheel; not vendored)
 python3 benchmarks/reverify_oineus.py
+# optional oracle: pip install dionysus  (BSD wheel; not vendored)
+python3 benchmarks/reverify_dionysus.py
 python3 benchmarks/run_uniform10.py
 python3 benchmarks/eval_highd_auto.py
 python3 benchmarks/collect_topology_claims.py

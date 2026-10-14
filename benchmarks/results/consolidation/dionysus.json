@@ -1,0 +1,248 @@
+{
+  "note": "dionysus 2.2.3 oracle, 1 thread, not vendored. Explicit fill_rips + homology_persistence(prime=2).",
+  "dionysus_version": "2.2.3",
+  "threads": 1,
+  "budget_s": 20,
+  "receipts": [
+    {
+      "name": "circle_noisy",
+      "n": 400,
+      "T": 1.5,
+      "maxdim": 1,
+      "dionysus": {
+        "ok": true,
+        "error": null,
+        "timed_out": false,
+        "wall_s": 11.677550619002432,
+        "threads_used": 1,
+        "ess1": 1,
+        "n_simplices": 2379988,
+        "method": "dionysus:fill_rips+homology_persistence"
+      },
+      "pith": {
+        "ok": true,
+        "wall_s": 0.012934989994391799,
+        "pipeline": "pith:auto-collapse",
+        "threads_used": 1
+      },
+      "ripser": {
+        "ok": true,
+        "wall_s": 0.17897397799242754,
+        "threads_used": 1
+      },
+      "ripser_over_dionysus": 0.01532632859678553,
+      "dionysus_over_pith": 902.7877581710884,
+      "threads": 1
+    },
+    {
+      "name": "circle_noisy",
+      "n": 1000,
+      "T": 1.5,
+      "maxdim": 1,
+      "dionysus": {
+        "ok": false,
+        "error": "Command '['/usr/bin/python3', '/workspace/benchmarks/reverify_dionysus.py', '--worker', '/workspace/benchmarks/datasets/generated/dionysus_circle_noisy_n1000.csv', '1.5', '1']' timed out after 20 seconds",
+        "timed_out": true,
+        "wall_s": null,
+        "threads_used": 1,
+        "ess1": null,
+        "n_simplices": null,
+        "method": "dionysus:fill_rips+homology_persistence"
+      },
+      "pith": {
+        "ok": true,
+        "wall_s": 0.07741777900082525,
+        "pipeline": "pith:auto-collapse",
+        "threads_used": 1
+      },
+      "ripser": {
+        "ok": true,
+        "wall_s": 2.7652339370106347,
+        "threads_used": 1
+      },
+      "ripser_over_dionysus": null,
+      "dionysus_over_pith": null,
+      "threads": 1
+    },
+    {
+      "name": "figure8",
+      "n": 1000,
+      "T": 1.1,
+      "maxdim": 1,
+      "dionysus": {
+        "ok": false,
+        "error": "Command '['/usr/bin/python3', '/workspace/benchmarks/reverify_dionysus.py', '--worker', '/workspace/benchmarks/datasets/generated/dionysus_figure8_n1000.csv', '1.1', '1']' timed out after 20 seconds",
+        "timed_out": true,
+        "wall_s": null,
+        "threads_used": 1,
+        "ess1": null,
+        "n_simplices": null,
+        "method": "dionysus:fill_rips+homology_persistence"
+      },
+      "pith": {
+        "ok": true,
+        "wall_s": 0.05232263999641873,
+        "pipeline": "pith:auto-redzed-spatial",
+        "threads_used": 1
+      },
+      "ripser": {
+        "ok": true,
+        "wall_s": 0.602859193997574,
+        "threads_used": 1
+      },
+      "ripser_over_dionysus": null,
+      "dionysus_over_pith": null,
+      "threads": 1
+    },
+    {
+      "name": "figure8",
+      "n": 2000,
+      "T": 1.1,
+      "maxdim": 1,
+      "dionysus": {
+        "ok": false,
+        "error": "Command '['/usr/bin/python3', '/workspace/benchmarks/reverify_dionysus.py', '--worker', '/workspace/benchmarks/datasets/generated/dionysus_figure8_n2000.csv', '1.1', '1']' timed out after 20 seconds",
+        "timed_out": true,
+        "wall_s": null,
+        "threads_used": 1,
+        "ess1": null,
+        "n_simplices": null,
+        "method": "dionysus:fill_rips+homology_persistence"
+      },
+      "pith": {
+        "ok": true,
+        "wall_s": 0.1784072699956596,
+        "pipeline": "pith:auto-collapse",
+        "threads_used": 1
+      },
+      "ripser": {
+        "ok": true,
+        "wall_s": 2.740979616995901,
+        "threads_used": 1
+      },
+      "ripser_over_dionysus": null,
+      "dionysus_over_pith": null,
+      "threads": 1
+    },
+    {
+      "name": "torus",
+      "n": 1000,
+      "T": 1.6,
+      "maxdim": 1,
+      "dionysus": {
+        "ok": false,
+        "error": "Command '['/usr/bin/python3', '/workspace/benchmarks/reverify_dionysus.py', '--worker', '/workspace/benchmarks/datasets/generated/dionysus_torus_n1000.csv', '1.6', '1']' timed out after 20 seconds",
+        "timed_out": true,
+        "wall_s": null,
+        "threads_used": 1,
+        "ess1": null,
+        "n_simplices": null,
+        "method": "dionysus:fill_rips+homology_persistence"
+      },
+      "pith": {
+        "ok": true,
+        "wall_s": 0.04324693599482998,
+        "pipeline": "pith:auto-redzed-spatial",
+        "threads_used": 1
+      },
+      "ripser": {
+        "ok": true,
+        "wall_s": 0.40326889300195035,
+        "threads_used": 1
+      },
+      "ripser_over_dionysus": null,
+      "dionysus_over_pith": null,
+      "threads": 1
+    },
+    {
+      "name": "uniform2",
+      "n": 2000,
+      "T": 0.35,
+      "maxdim": 1,
+      "dionysus": {
+        "ok": false,
+        "error": "Command '['/usr/bin/python3', '/workspace/benchmarks/reverify_dionysus.py', '--worker', '/workspace/benchmarks/datasets/generated/dionysus_uniform2_n2000.csv', '0.35', '1']' timed out after 20 seconds",
+        "timed_out": true,
+        "wall_s": null,
+        "threads_used": 1,
+        "ess1": null,
+        "n_simplices": null,
+        "method": "dionysus:fill_rips+homology_persistence"
+      },
+      "pith": {
+        "ok": true,
+        "wall_s": 0.07029707499896176,
+        "pipeline": "pith:auto-redzed",
+        "threads_used": 1
+      },
+      "ripser": {
+        "ok": true,
+        "wall_s": 0.487671422000858,
+        "threads_used": 1
+      },
+      "ripser_over_dionysus": null,
+      "dionysus_over_pith": null,
+      "threads": 1
+    },
+    {
+      "name": "sphere",
+      "n": 400,
+      "T": 1.4,
+      "maxdim": 2,
+      "dionysus": {
+        "ok": false,
+        "error": "Command '['/usr/bin/python3', '/workspace/benchmarks/reverify_dionysus.py', '--worker', '/workspace/benchmarks/datasets/generated/dionysus_sphere_n400.csv', '1.4', '2']' timed out after 20 seconds",
+        "timed_out": true,
+        "wall_s": null,
+        "threads_used": 1,
+        "ess1": null,
+        "n_simplices": null,
+        "method": "dionysus:fill_rips+homology_persistence"
+      },
+      "pith": {
+        "ok": true,
+        "wall_s": 0.01715210100519471,
+        "pipeline": "pith:auto-collapse",
+        "threads_used": 1
+      },
+      "ripser": {
+        "ok": true,
+        "wall_s": 1.495940648004762,
+        "threads_used": 1
+      },
+      "ripser_over_dionysus": null,
+      "dionysus_over_pith": null,
+      "threads": 1
+    },
+    {
+      "name": "blobs",
+      "n": 2000,
+      "T": 1.0,
+      "maxdim": 1,
+      "dionysus": {
+        "ok": false,
+        "error": "Command '['/usr/bin/python3', '/workspace/benchmarks/reverify_dionysus.py', '--worker', '/workspace/benchmarks/datasets/generated/dionysus_blobs_n2000.csv', '1.0', '1']' timed out after 20 seconds",
+        "timed_out": true,
+        "wall_s": null,
+        "threads_used": 1,
+        "ess1": null,
+        "n_simplices": null,
+        "method": "dionysus:fill_rips+homology_persistence"
+      },
+      "pith": {
+        "ok": true,
+        "wall_s": 0.042557238004519604,
+        "pipeline": "pith:auto-redzed-cc",
+        "threads_used": 1
+      },
+      "ripser": {
+        "ok": true,
+        "wall_s": 0.40946124801121186,
+        "threads_used": 1
+      },
+      "ripser_over_dionysus": null,
+      "dionysus_over_pith": null,
+      "threads": 1
+    }
+  ]
+}

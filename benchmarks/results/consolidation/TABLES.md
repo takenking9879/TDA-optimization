@@ -895,6 +895,19 @@ oineus 0.9.39 oracle, 1 thread, not vendored. In-order VR generation + lock-free
 | sphere | 400 | 2 | timeout | 0.018 | 1.498 |  |  |  | pith:auto-collapse |
 | blobs | 2000 | 1 | timeout | 0.045 | 0.417 |  |  |  | pith:auto-redzed-cc |
 
+## Dionysus 2.2.3 (`fill_rips` + homology, 1 thread)
+dionysus 2.2.3 oracle, 1 thread, not vendored. Explicit fill_rips + homology_persistence(prime=2). Budget 20 s. dionysus 2.2.3. Not vendored. Explicit VR skeleton. Same pairing class as GUDHI Rips.
+| family | n | dim | Dionysus (s) | PITH (s) | Ripser (s) | simplices | Dionysus/PITH | ess H1 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| circle_noisy | 400 | 1 | 11.678 | 0.013 | 0.179 | 2379988 | 902.8× | 1 |
+| circle_noisy | 1000 | 1 | timeout | 0.077 | 2.765 |  |  |  |
+| figure8 | 1000 | 1 | timeout | 0.052 | 0.603 |  |  |  |
+| figure8 | 2000 | 1 | timeout | 0.178 | 2.741 |  |  |  |
+| torus | 1000 | 1 | timeout | 0.043 | 0.403 |  |  |  |
+| uniform2 | 2000 | 1 | timeout | 0.070 | 0.488 |  |  |  |
+| sphere | 400 | 2 | timeout | 0.017 | 1.496 |  |  |  |
+| blobs | 2000 | 1 | timeout | 0.043 | 0.409 |  |  |  |
+
 ## High-d control `uniform10` (d=10, T=1.8, 12 s, 1 thread)
 High-d Euclidean control, d=10. No --mode scale. 12 s, 1 thread. T=1.8 H1 and fat-H2 refuse. Conservative exact_ok can still be false; --mode auto now stays exact unless sparse is clearly cheaper. Live auto n=4000: 0.74 s exact (was 18.3 s sparse). τ not retuned.
 | n | exact (s) | sparse (s) | Ripser (s) | estimate mode | exact feasible |

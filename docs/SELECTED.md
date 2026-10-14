@@ -640,7 +640,12 @@ Oineus 0.9.39 (`oineus.json`, 1 thread) is **slower than Ripser**
 (7.7–11.7× on finished leftover cells) and times out earlier (circle
 \(n=1000\), figure-8 \(n=2000\), sphere \(H_2\) \(n=400\)). Lock-free
 + in-order VR; published win is multi-core. Not vendored. Not a 10×
-class. No new leftover skip.
+class.
+Dionysus 2.2.3 (`dionysus.json`, 1 thread) is explicit VR: circle
+\(n=400\) **11.68 s / 2.38M simplices** vs Ripser 0.18 s (65× slower);
+later leftover cells timeout. Same class as GUDHI Rips. Ripserer.jl
+is the Ripser algorithm (~30%); Julia is not on this box. Coperto
+is a cover approximation, not exact VR. No new leftover skip.
 
 High-d `uniform10` (\(T=1.8\), 12 s): exact last-OK \(n=8000\) 2.79 s;
 Ripser / sparse first-fail \(n=4000\). `--mode auto` now stays exact on

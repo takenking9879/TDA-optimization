@@ -5,6 +5,14 @@ Do not paste long reasoning here.
 
 ---
 
+## 2026-10-14 — Dionysus 2 leftover oracle + leftover-engine scan
+
+- **Question:** Is Dionysus 2.2.3 (explicit `fill_rips` + `homology_persistence`) a better exact-VR engine, and is there a 2026 pairing algorithm besides RedZeD we have not timed?
+- **Work:** `reverify_dionysus.py`, 1 thread, 20 s, not vendored. Literature: Ripserer.jl (same Ripser class, ~30%, Julia not on this box); Coperto (arXiv:2602.22784) is a quotient-cover **approximation**, not exact VR; incremental-PH is an update library.
+- **Result:** Circle \(n=400\): Dionysus **11.68 s / 2.38M simplices / ess \(H_1=1\)** vs Ripser 0.18 s vs PITH 0.013 s (**65× slower than Ripser**). All other leftover cells timeout at 20 s (circle \(n=1000\), figure-8 \(n=1000/2000\), torus \(n=1000\), uniform2 \(n=2000\), blobs \(n=2000\), sphere \(H_2\) \(n=400\)) while Ripser still finishes. Explicit-complex class, same as GUDHI Rips. First-fail is **earlier** than Oineus. RedZeD remains the only 2026 exact-VR pairing alternative; already wrapped.
+- **Decision:** Keep `dionysus.json`. Do not vendor. Do not reopen leftover pairing. Goal not complete.
+- **Class:** verified (live)
+
 ## 2026-10-14 — Oineus 1-thread leftover oracle
 
 - **Question:** Is Oineus 0.9.39 (`compute_diagrams_vr`, lock-free reduce + in-order VR generation) a better exact-VR engine than PITH / Ripser at 1 thread?

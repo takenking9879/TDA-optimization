@@ -931,6 +931,13 @@ Dory (circle \(n=1000\), figure-8 \(n=2000\), sphere \(H_2\) \(n=400\)).
 Lock-free reduction + in-order VR generation; the published win is
 multi-core. giotto-ph is that family already timed at 4 threads on
 \(H_1\) (no win). Same pairing class.
+Dionysus 2.2.3 (`dionysus.json`, 1 thread, not vendored) is the
+explicit `fill_rips` path: circle \(n=400\) 11.68 s / 2.38M simplices
+vs Ripser 0.18 s (**65× slower**). Every other leftover cell timeouts
+at 20 s. Same explicit-complex class as GUDHI Rips. Ripserer.jl is
+documented as within ~30% of Ripser; Julia is not on this box.
+Coperto (arXiv:2602.22784) is a quotient-cover approximation, not
+exact VR.
 
 GUDHI Rips becomes impractical (timeout) by \(n\sim 10^3\) on a noisy
 circle \(H_1\) and by \(n=400\) on sphere \(H_2\). That is the explicit
@@ -987,6 +994,9 @@ worst-case Big-O theorem versus Ripser on connected \(G_T\).
 | Morozov–Nigmetov, *Towards lockfree persistent homology*, SPAA 2020; doi:10.1145/3350755.3400244 | Lock-free reduction inside Oineus / giotto-ph |
 | Vejdemo-Johansson–Matuszewski–Bauer, *In-order generation of Vietoris–Rips complexes*, arXiv:2411.05495 | Oineus VR constructor; not a cheaper pairing class |
 | Nigmetov–Morozov, *Oineus* 0.9.39 | 1-thread leftover oracle (not vendored); slower than Ripser (`oineus.json`) |
+| Morozov, *Dionysus 2* 2.2.3 | Explicit VR `fill_rips`; 1-thread leftover oracle (not vendored); 65× slower than Ripser on circle \(n=400\) (`dionysus.json`) |
+| Čufar, *Ripserer.jl*, JOSS 2020 | Same Ripser class, ~30%; Julia not on this box |
+| Leitão, *It's All About Covers*, arXiv:2602.22784 | Coperto: quotient-cover approximation, **not** exact VR |
 | Bauer–Edelsbrunner, *Morse theory of Čech and Delaunay*, 2017 | Alpha / Čech / Del–Čech \(\neq\) VR |
 | Bauer–Roll, *Gromov hyperbolicity… and apparent pairs*, SoCG 2022 | Apparent-pair rate is geometric |
 | Shamos–Hoey 1975; Preparata–Shamos | Euclidean MST \(\subseteq\) Delaunay |

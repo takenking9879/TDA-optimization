@@ -74,6 +74,17 @@ Search on 2026-10-14:
   4.13 s). Same pairing class; the published win is multi-core, not a
   1-thread 10×. giotto-ph is the same lock-free family already timed
   at 4 threads on \(H_1\) (no win).
+- **Dionysus 2.2.3** (explicit `fill_rips` + homology, **not vendored**).
+  Live 1-thread leftover (`dionysus.json`): circle \(n=400\) **11.68 s /
+  2.38M simplices** vs Ripser 0.18 s (**65× slower**). Every other
+  leftover cell timeouts at 20 s while Ripser still finishes. Same
+  explicit-complex class as GUDHI Rips. First-fail is **earlier** than
+  Oineus.
+- **Ripserer.jl** (literature): same Ripser algorithm, usually within
+  ~30%. Julia is not on this box. Not a new pairing class.
+- **Coperto** (Leitão, arXiv:2602.22784): quotient-cover
+  **approximation**, not exact VR. Do not treat as an exact leftover
+  engine.
 - No 2026 paper we found claims a better **worst-case** pairing class
   than Ripser/RedZeD on a connected dense flag.
 
@@ -113,10 +124,10 @@ All of the following, together:
    general exact-\(H_1\) 10×.
 
 (1)–(4) hold for the leftover / collapse / RedZeD / giotto / Dory /
-Oineus oracles timed on this box. This is **not** a completion
-certificate: a genuinely new pairing idea would reopen the exact path.
-Dory tracks Ripser; Oineus is slower than Ripser at 1 thread. Neither
-is a 10× engine.
+Oineus / Dionysus oracles timed on this box. This is **not** a
+completion certificate: a genuinely new pairing idea would reopen the
+exact path. Dory tracks Ripser; Oineus and Dionysus are slower than
+Ripser at 1 thread. None of them is a 10× engine.
 
 ## What a user should do instead of waiting for a general 10×
 
