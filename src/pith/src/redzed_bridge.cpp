@@ -2273,6 +2273,66 @@ Result persist_redzed_from_points(const std::vector<std::vector<value_t>>& pts, 
     return r;
 }
 
+// I299: reverse Cuthill–McKee on a fat 1-skeleton. rbit AND uses a
+// contiguous word range per vertex; input IDs need not have locality.
+// Same flag complex (isomorphism). Bars are grades, not vertex ids.
+// Do not apply this to persist_redzed_from_points (I268 Morton on G_T
+// was 5% and reverted).
+static void rcm_relabel_spat(int n, std::vector<SpatEdge>& SE) {
+    if (n < 2 || SE.empty()) return;
+    std::vector<std::vector<int>> adj(static_cast<size_t>(n));
+    for (const SpatEdge& e : SE) {
+        if (e.u < 0 || e.v < 0 || e.u >= n || e.v >= n || e.u == e.v) continue;
+        adj[static_cast<size_t>(e.u)].push_back(e.v);
+        adj[static_cast<size_t>(e.v)].push_back(e.u);
+    }
+    int src = 0, mindeg = n + 1;
+    for (int i = 0; i < n; ++i) {
+        const int d = static_cast<int>(adj[static_cast<size_t>(i)].size());
+        if (d > 0 && d < mindeg) {
+            mindeg = d;
+            src = i;
+        }
+    }
+    std::vector<int> perm;
+    perm.reserve(static_cast<size_t>(n));
+    std::vector<char> seen(static_cast<size_t>(n), 0);
+    std::vector<int> q;
+    q.reserve(static_cast<size_t>(n));
+    auto bfs = [&](int start) {
+        q.clear();
+        q.push_back(start);
+        seen[static_cast<size_t>(start)] = 1;
+        for (size_t qi = 0; qi < q.size(); ++qi) {
+            const int u = q[qi];
+            auto& nb = adj[static_cast<size_t>(u)];
+            std::sort(nb.begin(), nb.end(), [&](int a, int b) {
+                return adj[static_cast<size_t>(a)].size() < adj[static_cast<size_t>(b)].size();
+            });
+            for (int v : nb) {
+                if (!seen[static_cast<size_t>(v)]) {
+                    seen[static_cast<size_t>(v)] = 1;
+                    q.push_back(v);
+                }
+            }
+        }
+        perm.insert(perm.end(), q.begin(), q.end());
+    };
+    if (!adj[static_cast<size_t>(src)].empty()) bfs(src);
+    for (int i = 0; i < n; ++i)
+        if (!seen[static_cast<size_t>(i)]) bfs(i);
+    std::reverse(perm.begin(), perm.end());
+    std::vector<int> iperm(static_cast<size_t>(n), -1);
+    for (int i = 0; i < static_cast<int>(perm.size()); ++i)
+        iperm[static_cast<size_t>(perm[static_cast<size_t>(i)])] = i;
+    for (int i = 0; i < n; ++i)
+        if (iperm[static_cast<size_t>(i)] < 0) iperm[static_cast<size_t>(i)] = i;
+    for (SpatEdge& e : SE) {
+        e.u = iperm[static_cast<size_t>(e.u)];
+        e.v = iperm[static_cast<size_t>(e.v)];
+    }
+}
+
 Result persist_redzed_from_edges(int n, const std::vector<Edge>& edges, int maxdim,
                                  value_t threshold) {
     Result r;
@@ -2291,6 +2351,8 @@ Result persist_redzed_from_edges(int n, const std::vector<Edge>& edges, int maxd
         r.counters.pipeline = "pith:redzed-edges-h0";
         return r;
     }
+    if (n >= 256 && static_cast<std::int64_t>(SE.size()) >= 8 * static_cast<std::int64_t>(n))
+        rcm_relabel_spat(n, SE);
     SparseDist csr;
     spat_to_hash(SE, n, csr);
     DistanceMatrix D;
