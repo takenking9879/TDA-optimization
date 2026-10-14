@@ -790,13 +790,36 @@ inline Result persist_implicit_coh(const Graph& g, int maxdim, value_t threshold
     std::unordered_map<std::uint64_t, int> pivot;
     pivot.reserve(cols.size() * 2);
     std::vector<std::vector<LEdge>> red(cols.size());
+    // I296: memoize D(e) for V-adds. Not reduced R (I290/I295). Same
+    // heap pushes, cheaper re-walks. Fill from the first full leftover
+    // walk so later add_simplex_coboundary(cols[j]) is a cache hit.
+    const bool use_dcob = cols.size() >= 256;
+    std::unordered_map<std::uint64_t, std::vector<CohEntry>> edge_cob;
+    if (use_dcob) edge_cob.reserve(cols.size() * 4);
+
+    auto cofacets_of = [&](index_t u, index_t v, value_t t) -> const std::vector<CohEntry>& {
+        const std::uint64_t k = pack2(u, v);
+        auto it = edge_cob.find(k);
+        if (it != edge_cob.end()) return it->second;
+        std::vector<CohEntry> xs;
+        xs.reserve(16);
+        for_cofacets_edge(g, u, v, t, threshold, [&](CohEntry x) {
+            ++c.n_cofacet_probes;
+            xs.push_back(x);
+        });
+        return edge_cob.emplace(k, std::move(xs)).first->second;
+    };
 
     auto add_simplex_coboundary = [&](const LEdge& e, std::vector<LEdge>& vred, CohHeap& cob) {
         vred.push_back(e);
-        for_cofacets_edge(g, e.u, e.v, e.t, threshold, [&](CohEntry x) {
-            ++c.n_cofacet_probes;
-            cob.push(x);
-        });
+        if (use_dcob) {
+            for (const CohEntry& x : cofacets_of(e.u, e.v, e.t)) cob.push(x);
+        } else {
+            for_cofacets_edge(g, e.u, e.v, e.t, threshold, [&](CohEntry x) {
+                ++c.n_cofacet_probes;
+                cob.push(x);
+            });
+        }
     };
 
     auto compress_vedges = [](std::vector<LEdge>& v) {
@@ -853,6 +876,10 @@ inline Result persist_implicit_coh(const Graph& g, int maxdim, value_t threshold
         if (have_emergent) {
             piv = emergent;
         } else {
+            if (use_dcob) {
+                const std::uint64_t ck = pack2(cols[static_cast<size_t>(i)].u, cols[static_cast<size_t>(i)].v);
+                edge_cob.emplace(ck, collected);
+            }
             for (const CohEntry& x : collected) working_cob.push(x);
             piv = peek_pivot_ripser(working_cob);
         }
