@@ -1,0 +1,43 @@
+{
+  "note": "Seed 19 leftover-miss clouds after the fat-only |E|>8e6 clock override. Hollow leftover (figure8 n=16000) still goes to scale. τ and fat-H2 rules unchanged. 1 thread. Empirical.",
+  "mode_auto": "11/11",
+  "adversarial": "0/11 timeout_miss, 0/11 scale_miss, 0/8 exact mismatch",
+  "receipts": [
+    {
+      "name": "anisotropic_blob",
+      "n": 8000,
+      "T": 2.5,
+      "mode_recommended": "exact",
+      "exact_feasible": true,
+      "residual_regime": "fat",
+      "est_exact_runtime_s": 1.07092,
+      "measured_exact_s": 1.8305087549961172,
+      "before": "scale (|E|>8e6)",
+      "after": "exact (fat leftover clock under 4 s)"
+    },
+    {
+      "name": "grid_holes",
+      "n": 8000,
+      "T": 0.12,
+      "mode_recommended": "exact",
+      "exact_feasible": true,
+      "residual_regime": "hollow",
+      "est_exact_runtime_s": 0.135246,
+      "measured_exact_s": 0.6403746339929057,
+      "before": "scale (fat && n>6000)",
+      "after": "exact (leftover H1 clock under 4 s; |E|<8e6)"
+    },
+    {
+      "name": "figure8",
+      "n": 16000,
+      "T": 1.1,
+      "mode_recommended": "scale",
+      "exact_feasible": false,
+      "residual_regime": "hollow",
+      "est_exact_runtime_s": 3.06118,
+      "measured_exact_s": null,
+      "before": "scale (|E|>8e6)",
+      "after": "scale (hollow |E|>8e6 not overridden; frozen mode_auto cell)"
+    }
+  ]
+}

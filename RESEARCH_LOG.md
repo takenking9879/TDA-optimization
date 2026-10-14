@@ -5,6 +5,14 @@ Do not paste long reasoning here.
 
 ---
 
+## 2026-10-14 — Dispatcher: stay exact on cheap fat leftover H1
+
+- **Question:** `--mode auto` preferred scale at leftover-miss n=8000 even though exact was 0.64–1.83 s. Can we use the exact clock without breaking figure8 n=16000?
+- **Work:** Gate `|E|>8e6` on `est_exact<=4 s` **and** fat **and** not hollow. Hollow leftover clocks lie (figure8 n=16000 est 3.06 s, auto timed out at 25 s). Gate `fat && n>6000` on the leftover H1 clock only. τ / fat-H2 / engine_rec unchanged.
+- **Result:** anisotropic n=8000 → exact (was scale). grid_holes n=8000 → exact (was scale). figure8 n=16000 → scale. `eval_mode_auto` **11/11**. `eval_adversarial` seed 17 **0/11 / 0/8** (pre-fix pack; small-n, unaffected). Not a pairing algorithm.
+- **Decision:** Keep. Goal not complete.
+- **Class:** verified (live)
+
 ## 2026-10-14 — Leftover-miss n-series (0/7 ≥10×)
 
 - **Question:** Do the leftover misses where Ripser is not already cheap (anisotropic_blob 5.5× at n=2000 / 0.48 s; grid_holes 3.2× at n=1600 / 44 ms) reach 10× as n grows?

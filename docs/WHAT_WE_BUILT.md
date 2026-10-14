@@ -64,7 +64,12 @@ unavailable and sparse is not clearly cheaper (live auto 0.74 s)
 \(d\notin\{2,3\}\) is unchanged. Euclidean fat \(H_2\) no longer uses
 the blunt \(n\ge 200\) cutoff: `--estimate` measures the largest
 T-component \(n_{cc}\) and marks exact impractical at \(n_{cc}\ge 800\)
-or a dense flag (`edge_frac≥0.5`, \(n_{cc}\ge 600\)). Held-out
+or a dense flag (`edge_frac≥0.5`, \(n_{cc}\ge 600\)). Leftover \(H_1\)
+`--mode auto` no longer jumps to scale on a fat residual just because
+`|E|>8e6` or \(n>6000\) when `est_exact≤4` s (anisotropic / grid_holes
+\(n=8000\) stay exact). Hollow leftover with `|E|>8e6` still goes to
+scale — that clock lies on figure8 \(n=16000\) **[empirical,
+leftover_miss_dispatch.json; eval_mode_auto 11/11]**. Held-out
 `ncc_auto.json` (seed 11): **0/11** timeout misses after that clause
 (complete sphere \(n=700\) T=2.5 was the miss that forced it). Mixed
 \(n=300\) is exact RedZeD-cc at 33 ms; mixed \(n=2000\) goes to scale. The old mixed \(n=300\) “exact timeout” was forced

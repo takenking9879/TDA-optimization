@@ -72,7 +72,7 @@ Leftover-miss families scaled in n (`leftover_miss_n.json`, seed 19, 1 thread):
 
 **0/7 ≥10×.** Growing n does not turn these misses into a leftover 10×. Anisotropic peaks then recedes when the representation flips. Grid-holes stays a mid-single-digit factor while both engines enter \(p\approx 3\). Ripser hits the 12 s budget on anisotropic \(n=8000\) (12.1 s); PITH is still 1.83 s.
 
-`--mode auto` on these cells: exact through \(n=6000\); at \(n=8000\) it prefers scale (anisotropic because conservative `|E|>8e6` even though `est_exact≈1.07` s vs wall 1.83 s; grid_holes because `fat && n>6000` even though `est_exact≈0.14` s vs wall 0.64 s). Those are **scale-when-exact-is-still-cheap** misses, not leftover-skip work.
+`--mode auto` **before** the leftover-H1 clock gate preferred scale at \(n=8000\). **After** (`leftover_miss_dispatch.json`): anisotropic stays exact (`|E|>8e6` overridden because the residual is fat and `est_exact≈1.07` s); grid_holes stays exact (`n>6000` overridden; `|E|<8e6`). Hollow leftover is **not** overridden: figure8 \(n=16000\) still goes to scale (est 3.06 s was a lie; auto timed out at 25 s). `eval_mode_auto` **11/11**. τ unchanged.
 
 This is **not** a general leftover 10×. It is an n-dependent constant factor in the RedZeD class.
 

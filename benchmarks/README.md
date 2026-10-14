@@ -22,6 +22,7 @@ Public runners and receipts. They talk only in `--mode` / `--engine` /
 | `eval_leftover_ratio_n.py` | Leftover H1 ratio vs n (frozen pack) |
 | `eval_leftover_heldout.py` | Held-out leftover H1 ratios, seed 19 |
 | `eval_leftover_miss_n.py` | Leftover-miss families scaled in n |
+| `leftover_miss_dispatch.json` | `--mode auto` on those n=8000 cells after the clock gate |
 | `eval_highd_auto.py` | High-d / L1 clock-compare |
 | `eval_wall_kind.py` | collapse vs leftover vs construction |
 | `reverify_*.py` | Headline / leftover / oracle re-measures |

@@ -125,7 +125,7 @@
       "returncode": 0,
       "refused": false,
       "selected": "exact",
-      "stderr": "# MODE auto selected exact engine=redzed exact_feasible=0 regime=fat confidence=low\n# conservative |E| band exceeds 8e6; exact H1 on G_T is likely impractical; no scale path and estimated exact clock is not worse than sparse \u2014 stay on exact\n",
+      "stderr": "# MODE auto selected exact engine=redzed exact_feasible=1 regime=fat confidence=low\n# conservative |E| band exceeds 8e6 but fat leftover H1 clock is still under 4 s \u2014 stay on exact\n",
       "has_h1": true,
       "pipeline": "pith:auto-redzed",
       "name": "uniform4",

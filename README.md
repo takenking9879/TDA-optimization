@@ -155,7 +155,9 @@ dropping collapse walls; misses include anisotropic 5.5× and
 grid_holes 3.2×. Growing those misses (`leftover_miss_n.json`)
 does **not** produce a 10×: anisotropic 5.3→8.8→6.6× (recedes
 when the representation flips; Ripser 12.1 s at \(n=8000\)),
-grid_holes 3.0→6.1×, **0/7 ≥10×**. Along n
+grid_holes 3.0→6.1×, **0/7 ≥10×**. `--mode auto` stays exact on
+those \(n=8000\) leftover cells; hollow figure-8 \(n=16000\) still
+selects scale. Along n
 (`leftover_ratio_n.json`): sphere H1 crosses 10× near \(n=4000\)
 (**11.4×**); uniform2 is still **9.1×** at \(n=7000\); figure8
 plateaus ~16× once both engines explode.
