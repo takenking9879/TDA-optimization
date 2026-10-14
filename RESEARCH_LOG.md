@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-14 — I312 skip post-walk contains (3D locate)
+
+- **Question:** Is the post-walk `contains` recheck redundant (walk already tested 4 faces; `locate_scan` already uses contains), and does dropping it cut 80k metric without changing the mesh?
+- **Hypothesis:** I307 bundled this skip with fsign cache and lost on birth tax. Isolated skip has no extra bookkeeping.
+- **Work:** `if (t0 < 0) locate_scan` only. Wave 172 vs I306. Hard: sphere n=80000, figure8 n=24000.
+- **Result:** **Hold / keep.** Identity held (sphere n=16000 |E|=80641, ess2=1 at 50k/80k; figure8 n=24000 **0.83 s / ess1=2**; exact auto 5/5, uniform2 **11.0×**). Clock ≈ I306: sphere n=80000 **1.09 s** (metric 524 vs 507); n=50000 **0.66 s**. Not a pith cut.
+- **Decision:** **Hold / keep** (strictly fewer orients, same mesh). Not a selected pith lever. I307–I312 exhausted cheap 3D walk/locate bookkeeping. Next: a different construction (2D thicken extras) or exact-H1 `ae_seeded`. Do not mark the goal complete.
+- **Class:** experiment (hold; keep; no metric cut)
+
 ## 2026-10-14 — I311 entered-face Lawson walk (revert)
 
 - **Question:** Does skipping the face just entered (3 orients/step after the first hop) cut 80k Delaunay metric without changing the mesh?
