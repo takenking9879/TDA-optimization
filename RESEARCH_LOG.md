@@ -5,6 +5,14 @@ Do not paste long reasoning here.
 
 ---
 
+## 2026-10-14 — I326 HomCloud / PHAT leftover oracle
+
+- **Question:** Is HomCloud 5.4.0 (or its PHAT-simplicial path) a leftover 10× pairing class we have not timed? Anything after June 2026 besides RedZeD?
+- **Work:** `pip install homcloud==5.4.0` (GPL, **not vendored**). Live `homcloud.json` vs PITH auto and C++ Ripser. Default `PDList.from_rips_filtration` (`simplicial=False`) is Python `ripser`. `simplicial=True algorithm=phat-twist` is PHAT on an explicit 2-skeleton. 1 thread. τ frozen. Fifth literature pass the same day.
+- **Result:** Default wrap is **slower than C++ Ripser** (figure8 n=2000 5.84 vs 2.04 vs PITH 0.13 s; uniform2 n=2000 2.06 vs 0.45 vs 0.061 s). PHAT-twist figure8 n=80 **1.24 vs Ripser 0.001 s**; n=200 **2.37 vs 0.004 s**; circle n=400 **timeout 20 s** (Ripser 0.14 s). Same pairing class (Ripser) or same explicit-complex class (GUDHI / Dionysus). Literature: RedZeD still the only published batch exact-VR pairing alternative. arXiv:2607.06524 is a sparse-approx **lower bound**. arXiv:2608.04262 is discrete homology of graphs (same RedZeD authors), not VR leftover. ripser++ needs GPU/nvcc (absent).
+- **Decision:** Reject. Do not vendor HomCloud. Unused CPU pairing oracles on this box are closed (HomCloud = Ripser/PHAT). Goal not complete.
+- **Class:** verified (live)
+
 ## 2026-10-14 — I325 seed-incident leftover skip
 
 - **Question:** I323 still `ae_prepare`s every leftover after the first keep_singleton. H1 seeds need a shared vertex with an active. Can we skip non-Del leftovers that miss every active vertex, in \(o(\lvert E\rvert)\)?

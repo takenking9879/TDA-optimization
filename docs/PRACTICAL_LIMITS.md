@@ -10,7 +10,8 @@ This is the single “how far can each method go” table. Receipts:
 `fat_h2.json`, `implicit_h2.json`, `dense_metric.json`, `ncc_auto.json`, `adversarial.json`,
 `leftover_heldout.json`, `leftover_ratio_n.json`, `leftover_miss_n.json`,
 `linked_ratio_n.json`, `postfreeze.json`, `postband.json`, `knn_mark.json`,
-`delaunay_skip.json`, `delaunay_only.json`, `seed_incident.json`.
+`delaunay_skip.json`, `delaunay_only.json`, `seed_incident.json`,
+`homcloud.json`.
 
 ## Exact VR (barcode must match Ripser)
 
@@ -24,6 +25,8 @@ This is the single “how far can each method go” table. Receipts:
 | Dory (`pydory` 1.1.137 oracle) | leftover \(H_1\): circle \(n=1500\) 9.45 s, figure-8 \(n=3000\) 5.70 s; sphere \(H_2\) \(n=400\) 4.13 s (20 s receipt) | circle \(n=2000\) (same as Ripser); figure-8 \(n=4000\) (same as Ripser); sphere \(H_2\) \(n=600\) (Ripser still 5.3 s) | 1 | Tracks Ripser on leftover \(H_1\). Fails \(H_2\) **earlier** than Ripser. Not vendored. 12 s budget (`dory_limits.json`). |
 | Oineus 0.9.39 oracle | leftover \(H_1\): circle \(n=400\) 1.54 s; figure-8 \(n=1000\) 4.68 s; torus \(n=1000\) 4.27 s | circle \(n=1000\); figure-8 \(n=2000\); uniform2 \(n=2000\); blobs \(n=2000\); sphere \(H_2\) \(n=400\) (Ripser still 0.42–2.73 s) | 1 | **Slower than Ripser** on finished cells (7.7–11.7×). Fails **earlier** than Ripser and Dory. Lock-free + in-order VR. Not vendored. 20 s (`oineus.json`). |
 | Dionysus 2.2.3 oracle | leftover \(H_1\): circle \(n=400\) 11.68 s / 2.38M simplices | circle \(n=1000\); figure-8 \(n=1000\); torus \(n=1000\); sphere \(H_2\) \(n=400\) (Ripser still finishes) | 1 | Explicit VR. **65× slower** than Ripser on the one finished cell. Same class as GUDHI Rips. Not vendored. 20 s (`dionysus.json`). |
+| HomCloud 5.4.0 (default Ripser wrap) | leftover \(H_1\): figure8 \(n=2000\) 5.84 s; leftover-miss uniform2 \(n=2000\) 2.06 s | slower than C++ Ripser on every timed leftover cell (Python wrap + dense \(D\)) | 1 | Same pairing class as Ripser. GPL. Not vendored. 20 s (`homcloud.json`). |
+| HomCloud 5.4.0 (`phat-twist`) | figure8 \(n=80\) 1.24 s; \(n=200\) 2.37 s | circle \(n=400\) timeout 20 s (Ripser 0.14 s) | 1 | PHAT on an explicit 2-skeleton. Same class as GUDHI / Dionysus. GPL. Not vendored. |
 
 ## Not exact VR
 

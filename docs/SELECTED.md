@@ -1,6 +1,6 @@
 # Selected algorithm (living)
 
-Updated 2026-10-14 after iterations I001–I325 plus consolidation (phase 3)
+Updated 2026-10-14 after iterations I001–I326 plus consolidation (phase 3)
 and the fused Euclidean sparse constructor.
 **Stable CLI:** `--mode exact|scale|sparse|auto`, `--engine auto|redzed|implicit`,
 `--estimate`, `--threads N`. Public runners import `generate_datasets` /
@@ -403,6 +403,14 @@ I272. `--delaunay-only` stays experimental. Not selected.
 Skip non-Del leftovers that miss every active vertex. Live
 `seed_incident.json`: **0 unmatched**, faster than auto **3/8**,
 than I323 **0/8**. figure8 n=2000 2.15 vs 0.15 s. Not selected.
+
+### I326 HomCloud / PHAT leftover oracle (not vendored)
+
+HomCloud 5.4.0 GPL. Default VR is Python Ripser (`homcloud.json`):
+figure8 n=2000 **5.84 vs C++ Ripser 2.04 vs PITH 0.13 s**.
+`phat-twist` on an explicit complex: figure8 n=200 **2.37 vs 0.004 s**;
+circle n=400 timeout 20 s. Same pairing class or slower explicit
+skeleton. Not selected. Not vendored.
 
 ### I227 real RedZeD (H09, MIT, not default)
 

@@ -1,10 +1,10 @@
 # Complexity notes for PITH
 
-Updated 2026-10-14 after iterations I001–I325 plus consolidation measurements.
+Updated 2026-10-14 after iterations I001–I326 plus consolidation measurements.
 This is a **complexity ledger**,
 not a theorem paper and not a selected-algorithm rewrite. It restates what the
 literature already proves, what follows from those statements by a short
-derivation, and what the I204 / I218 / I227–I325 receipts only measure.
+derivation, and what the I204 / I218 / I227–I326 receipts only measure.
 
 **Honest contribution.** PITH does **not** introduce a new worst-case Big-O for
 exact Vietoris–Rips (VR) \(H_1\) on a connected threshold graph \(G_T\). The
@@ -956,6 +956,14 @@ explicit `fill_rips` path: circle \(n=400\) 11.68 s / 2.38M simplices
 vs Ripser 0.18 s (**65× slower**). Every other leftover cell timeouts
 at 20 s. Same explicit-complex class as GUDHI Rips. Ripserer.jl is
 documented as within ~30% of Ripser; Julia is not on this box.
+HomCloud 5.4.0 (`homcloud.json`, 1 thread, GPL, not vendored) default
+`from_rips_filtration` is a Python Ripser wrap: leftover figure8
+\(n=2000\) 5.84 vs C++ Ripser 2.04 vs PITH 0.13 s; leftover-miss
+uniform2 \(n=2000\) 2.06 vs 0.45 vs 0.061 s. `simplicial=True` +
+`phat-twist` is PHAT on an explicit 2-skeleton: figure8 \(n=200\)
+2.37 vs Ripser 0.004 s; circle \(n=400\) timeout 20 s (Ripser 0.14 s).
+Same pairing class or the same explicit-complex class as GUDHI /
+Dionysus. Not a leftover 10× engine.
 Coperto 0.1.7 (`coperto.json`, 1 thread, not vendored) is a
 quotient-cover approximation with a claimed log-3 interleaving
 **[citation, Leitão arXiv:2602.22784]**. Live: tower \(\sim 3n\)–\(4n\);
@@ -1019,6 +1027,10 @@ worst-case Big-O theorem versus Ripser on connected \(G_T\).
 | Vejdemo-Johansson–Matuszewski–Bauer, *In-order generation of Vietoris–Rips complexes*, arXiv:2411.05495 | Oineus VR constructor; not a cheaper pairing class |
 | Nigmetov–Morozov, *Oineus* 0.9.39 | 1-thread leftover oracle (not vendored); slower than Ripser (`oineus.json`) |
 | Morozov, *Dionysus 2* 2.2.3 | Explicit VR `fill_rips`; 1-thread leftover oracle (not vendored); 65× slower than Ripser on circle \(n=400\) (`dionysus.json`) |
+| Obayashi et al., *HomCloud* 5.4.0 | GPL leftover oracle (not vendored); default is Python Ripser; `phat-twist` is PHAT on an explicit complex (`homcloud.json`) |
+| Bauer–Kerber–Reininghaus–Wagner, *PHAT* | Twist reduction used by HomCloud `simplicial=True`; explicit matrix, not implicit VR |
+| McCabe, *Lower Bounds for Approximating the VR Filtration*, arXiv:2607.06524 | Sparse-approx size lower bound; not a pairing algorithm |
+| Ebel–Kapulkin–Kershaw, arXiv:2608.04262 | Discrete homology of graphs via RedZeD; not VR leftover pairing |
 | Čufar, *Ripserer.jl*, JOSS 2020 | Same Ripser class, ~30%; Julia not on this box |
 | Leitão, *It's All About Covers*, arXiv:2602.22784 | Coperto 0.1.7: log-3 interleaving; live leftover/accuracy (`coperto.json`); not exact VR |
 | Bauer–Edelsbrunner, *Morse theory of Čech and Delaunay*, 2017 | Alpha / Čech / Del–Čech \(\neq\) VR |

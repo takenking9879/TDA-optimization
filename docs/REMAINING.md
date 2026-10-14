@@ -51,13 +51,14 @@ These were tried, logged, and must not be reopened as micro-opts.
 Named leftover follow-ups after I202 are **spent**. That includes
 `ae_seeded`, leftover_coface **inner-loop** constants, **sparse
 witness marks** (I322), **Euclidean Delaunay leftover skips**
-(I273/I323), and **leftover∩Del pairing** (I324). I323 can drop
-leftover_coface *tests* to \(O(n)\); I324 shows you still have to
-*walk* leftovers for ae_seeded.
+(I273/I323), **leftover∩Del pairing** (I324), and **seed-incident
+filters** (I325). I323 can drop leftover_coface *tests* to \(O(n)\);
+I324–I325 show you still have to *walk* leftovers for ae_seeded on a
+fat flag.
 
 ## What literature still offers
 
-Search on 2026-10-14 (third pass the same day):
+Search on 2026-10-14 (fifth pass the same day):
 
 - **RedZeD** (Kapulkin–Kershaw, arXiv:2606.06310) is the current
   published exact-VR alternative to Ripser. We already wrap vendor
@@ -108,9 +109,23 @@ Search on 2026-10-14 (third pass the same day):
 - **Reduced VR** (Koyama–Mémoli–Robins–Turner) is exact \(H_1\) on a
   thinner 2-complex; we already timed it (I224) and lost the clock to
   construction. Not a leftover pairing class.
+- **HomCloud 5.4.0** (GPL oracle, **not vendored**). Live
+  (`homcloud.json`): default `from_rips_filtration` is Python Ripser
+  (figure8 \(n=2000\) 5.84 vs C++ Ripser 2.04 vs PITH 0.13 s;
+  leftover-miss uniform2 \(n=2000\) 2.06 vs 0.45 vs 0.061 s).
+  `simplicial=True` + `phat-twist` is PHAT on an explicit 2-skeleton
+  (figure8 \(n=200\) 2.37 vs Ripser 0.004 s; circle \(n=400\) timeout
+  20 s). Same pairing class or the same explicit-complex class as
+  GUDHI / Dionysus. Not a leftover 10× engine. ripser++ is vendored
+  but needs GPU/nvcc (absent).
+- **arXiv:2607.06524** (McCabe, July 2026): lower bounds on the size
+  of sparse VR approximations. Not a pairing algorithm.
+- **arXiv:2608.04262** (Ebel–Kapulkin–Kershaw, August 2026): discrete
+  homology of graphs via the same RedZeD framework. Not exact VR
+  leftover pairing.
 - No 2026 paper we found claims a better **worst-case** pairing class
   than Ripser/RedZeD on a connected dense flag. `redzed-tda` on PyPI
-  is the same RedZeD we already wrap.
+  is the same RedZeD we already wrap. Fifth literature pass 2026-10-14.
 
 ## Remaining walls (not “try one more skip”)
 
@@ -155,10 +170,12 @@ All of the following, together:
    general exact-\(H_1\) 10×.
 
 (1)–(4) hold for the leftover / collapse / RedZeD / giotto / Dory /
-Oineus / Dionysus oracles timed on this box. This is **not** a
-completion certificate: a genuinely new pairing idea would reopen the
-exact path. Dory tracks Ripser; Oineus and Dionysus are slower than
-Ripser at 1 thread. None of them is a 10× engine.
+Oineus / Dionysus / HomCloud-PHAT oracles timed on this box. This is
+**not** a completion certificate: a genuinely new pairing idea would
+reopen the exact path. Dory and HomCloud-default track Ripser; Oineus,
+Dionysus, and HomCloud-PHAT are slower than Ripser at 1 thread. None
+of them is a 10× engine. Unused CPU pairing oracles on this box are
+closed (HomCloud = Ripser/PHAT; ripser++ needs GPU).
 
 ## What a user should do instead of waiting for a general 10×
 
