@@ -5,6 +5,14 @@ Do not paste long reasoning here.
 
 ---
 
+## 2026-10-14 — Stable Python wrapper
+
+- **Question:** Can a user call exact / scale / estimate / auto without the CLI or I-numbers?
+- **Work:** `python/pith/__init__.py` wraps the binary. `benchmarks/test_pith_api.py` on circle exact+scale and uniform4 n=250 fat-H2 refuse. No leftover-skip edits. τ frozen.
+- **Result:** Pending live smoke.
+- **Decision:** Try. Goal not complete.
+- **Class:** experiment
+
 ## 2026-10-14 — Post-16× leftover family (offset_rings)
 
 - **Question:** Does leftover H1 hi_mult=16 overfit figure8 / nested_loops? Any new 2026 batch exact-VR engine?

@@ -104,6 +104,23 @@ cmake --build src/pith/build -j
 `--help` is the stable interface. `--help-experimental` lists research
 flags kept for old scripts.
 
+Python wrapper (same binary, no I-numbers):
+
+```python
+import sys
+sys.path.insert(0, "python")
+import pith
+import numpy as np
+
+pts = np.loadtxt("cloud.csv", delimiter=",")
+est = pith.estimate(pts, maxdim=1, threshold=1.1)
+dgm = pith.rips(pts, maxdim=1, threshold=1.1, mode="exact", threads=1)
+print(est["mode_recommended"], dgm["ess"], dgm["pipeline"])
+```
+
+`pith.rips(..., mode="auto")` raises `pith.Refused` when fat \(H_2\)
+sparse on \(d\notin\{2,3\}\) would hang (CLI exit 3).
+
 ## When should I use each mode?
 
 | Situation | Mode |
@@ -413,6 +430,7 @@ Full numbers: [`benchmarks/results/consolidation/TABLES.md`](benchmarks/results/
 ```sh
 python3 benchmarks/generate_datasets.py --list
 python3 benchmarks/test_cli_stable.py
+python3 benchmarks/test_pith_api.py
 python3 benchmarks/test_sparse_points.py
 python3 benchmarks/test_baseline_hooks.py
 python3 benchmarks/run_consolidation.py

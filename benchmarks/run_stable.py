@@ -19,6 +19,7 @@ PITH_TEST = ROOT / "src" / "pith" / "build" / "pith_test"
 
 FAST = [
     "test_cli_stable.py",
+    "test_pith_api.py",
     "test_sparse_points.py",
     "test_baseline_hooks.py",
 ]
