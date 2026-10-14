@@ -826,9 +826,13 @@ int main(int argc, char** argv) {
                 if (fat || hollow) engine = "redzed";
             }
             const bool want_sparse = (sparse_eps > 0 && sparse_eps < 1);
+            // I319: young-cap + RedZeD uses the same G_T as persist_redzed_from_points
+            // (no pairwise vector<vector> / DenseTimes).
+            const bool young_cap_fair =
+                engine == "collapse-redzed" && collapse_alg == "young-cap";
             const bool skip_full_metric =
                 have_pts && gic_n == 0 && knn_k == 0 && witness_n == 0 && !reduced_vr &&
-                (want_sparse || engine == "redzed" || delaunay_vr);
+                (want_sparse || engine == "redzed" || delaunay_vr || young_cap_fair);
             if (!skip_full_metric) {
                 if (dist.empty() && have_pts) dist = pairwise(pts, c);
                 if (use_enclosing && !dist.empty()) {
@@ -917,6 +921,8 @@ int main(int argc, char** argv) {
         if (engine == "redzed") collapse_iters = 0;  // I228: RedZeD is on the metric, not a residual
         if (engine == "active") collapse_iters = 0;  // I231: owned active H1 is on G_T
         if (delaunay_vr) collapse_iters = 0;  // I276: O(n) flag; I291 collapse is a tax at n≥4000
+        if (engine == "collapse-redzed" && collapse_alg == "young-cap" && have_pts)
+            collapse_iters = 0;  // I319: collapse lives inside persist_redzed_from_points_young_cap
         c.n_vertices = g.n;
         c.n_edges_in = static_cast<std::int64_t>(g.edges.size());
         if (probe_only) {
@@ -1006,7 +1012,24 @@ int main(int argc, char** argv) {
         if (engine == "collapse-redzed") {
             // I317: collapse the 1-skeleton, then RedZeD AE on the residual
             // flag (not collapse+implicit). Exact VR if collapse is exact.
-            r = persist_redzed_from_edges(g.n, g.edges, maxdim, threshold);
+            // I319: young-cap on the same G_T as auto RedZeD (no extra n×n).
+            if (have_pts && collapse_alg == "young-cap") {
+                const std::int64_t cap =
+                    (suffix_keep > 0) ? suffix_keep
+                                      : static_cast<std::int64_t>(std::max(static_cast<int>(pts.size()), 1)) * 16;
+                r = persist_redzed_from_points_young_cap(pts, maxdim, threshold, dense_metric, cap);
+                c.n_distances = r.counters.n_distances;
+                c.metric_ms = r.counters.metric_ms;
+                c.collapse_ms = r.counters.collapse_ms;
+                c.n_edges_in = r.counters.n_edges_in;
+                c.n_edges_out = r.counters.n_edges_out;
+                c.n_collapse_trims = r.counters.n_collapse_trims;
+                c.n_collapse_fast_trims = r.counters.n_collapse_fast_trims;
+                c.n_collapse_c_probes = r.counters.n_collapse_c_probes;
+                c.n_collapse_dom_hits = r.counters.n_collapse_dom_hits;
+            } else {
+                r = persist_redzed_from_edges(g.n, g.edges, maxdim, threshold);
+            }
         } else if (engine == "redzed") {
             if (have_pts && dist.empty()) {
                 r = persist_redzed_from_points(pts, maxdim, threshold, dense_metric);
@@ -1101,6 +1124,7 @@ int main(int argc, char** argv) {
             r.counters.n_distances = c.n_distances;
         if (!(engine == "redzed" && r.counters.n_edges_in > 0))
             r.counters.n_edges_in = c.n_edges_in;
+        if (r.counters.n_edges_out == 0) r.counters.n_edges_out = c.n_edges_out;
         r.counters.n_collapse_trims = (engine == "redzed" && redzed_cc > 0)
                                           ? redzed_cc
                                           : c.n_collapse_trims;
@@ -1147,8 +1171,10 @@ int main(int argc, char** argv) {
             r.counters.n_vertices = g.n;
             if (r.counters.pipeline.empty()) r.counters.pipeline = "pith:active-h1";
         } else if (engine == "collapse-redzed") {
-            r.counters.n_vertices = g.n;
-            r.counters.pipeline = "pith:collapse+redzed-edges";
+            if (r.counters.pipeline.find("young-cap") == std::string::npos) {
+                r.counters.n_vertices = g.n;
+                r.counters.pipeline = "pith:collapse+redzed-edges";
+            }
         } else {
             r.counters.n_vertices = g.n;
             r.counters.pipeline = (sparse_eps > 0 && sparse_eps < 1)

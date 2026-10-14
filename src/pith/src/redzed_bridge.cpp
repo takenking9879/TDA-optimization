@@ -5,6 +5,7 @@
 #define REDZED_NO_MAIN
 #include "../../../third_party/redzed/redzed.cpp"
 
+#include "pith/edge_collapse.hpp"
 #include "pith/redzed_bridge.hpp"
 #include "pith/threads.hpp"
 
@@ -2582,6 +2583,101 @@ Result persist_redzed_from_edges(int n, const std::vector<Edge>& edges, int maxd
     r.counters.n_distances = static_cast<std::int64_t>(SE.size());
     r.counters.reduce_ms = std::chrono::duration<double, std::milli>(t1 - t0).count();
     r.counters.pipeline = "pith:redzed-edges";
+    return r;
+}
+
+Result persist_redzed_from_points_young_cap(const std::vector<std::vector<value_t>>& pts,
+                                           int maxdim, value_t threshold, bool dense_metric,
+                                           std::int64_t max_tests) {
+    const int n = static_cast<int>(pts.size());
+    if (n <= 0 || maxdim < 0) {
+        Result r;
+        r.counters.n_vertices = n;
+        return r;
+    }
+    if (maxdim < 1) return persist_redzed_from_points(pts, maxdim, threshold, dense_metric);
+
+    // Same G_T as persist_redzed_from_points (spatial vs all-pairs). No extra
+    // n×n Graph / DenseTimes. Fast-trim-only young-cap, then residual RedZeD.
+    const auto tm0 = std::chrono::steady_clock::now();
+    std::vector<std::vector<int>> comps;
+    if (spatial_components(pts, threshold, comps) && comps.size() > 1) {
+        const auto tm1 = std::chrono::steady_clock::now();
+        Result r = finish_redzed_from_points(pts, std::move(comps), maxdim, threshold);
+        r.counters.metric_ms = std::chrono::duration<double, std::milli>(tm1 - tm0).count();
+        return r;
+    }
+
+    const int dim = maxdim;
+    const int d = static_cast<int>(pts[0].size());
+    std::vector<SpatEdge> SE;
+    bool spatial = false;
+    if (std::isfinite(threshold) && threshold > 0 && d >= 2 && d <= 3 && n >= 256) {
+        const double L = bbox_max_extent(pts);
+        if (L > 0) {
+            const bool probe_sparse = probe_edge_frac_points(pts, threshold) < 0.25;
+            if (!dense_metric && probe_sparse) spatial = spatial_edges(pts, threshold, SE);
+        }
+    }
+    DistanceMatrix D;
+    const auto tfill0 = std::chrono::steady_clock::now();
+    if (spatial) {
+        D.n = n;
+    } else {
+        D.resize_lower(n);
+        const int nth = pith::nthreads();
+        auto fill_range = [&](int j0, int j1) {
+            for (int j = j0; j < j1; ++j) {
+                for (int i = 0; i < j; ++i) {
+                    D.mat[DistanceMatrix::offset(i, j)] = point_dist(pts, i, j);
+                }
+            }
+        };
+        if (nth <= 1 || n < 64) {
+            fill_range(1, n);
+        } else {
+            std::vector<std::thread> pool;
+            pool.reserve(static_cast<size_t>(nth));
+            const int span = (n - 1 + nth - 1) / nth;
+            for (int t = 0; t < nth; ++t) {
+                const int j0 = 1 + t * span;
+                const int j1 = std::min(n, j0 + span);
+                if (j0 >= j1) break;
+                pool.emplace_back(fill_range, j0, j1);
+            }
+            for (auto& th : pool) th.join();
+        }
+        SE.reserve(static_cast<size_t>(n));
+        for (int j = 1; j < n; ++j) {
+            for (int i = 0; i < j; ++i) {
+                const value_t dist = D.mat[DistanceMatrix::offset(i, j)];
+                if (dist <= threshold) SE.push_back({dist, i, j});
+            }
+        }
+    }
+    const auto tfill1 = std::chrono::steady_clock::now();
+
+    Graph g;
+    g.n = n;
+    g.edges.reserve(SE.size());
+    for (const SpatEdge& e : SE) g.edges.push_back({e.u, e.v, e.t});
+    rebuild_neighbors(g);
+    Counters cc;
+    cc.n_edges_in = static_cast<std::int64_t>(g.edges.size());
+    g = collapse_edges_young_sparse(std::move(g), cc, max_tests);
+
+    Result r = persist_redzed_from_edges(n, g.edges, dim, threshold);
+    r.counters.n_distances = spatial ? static_cast<std::int64_t>(SE.size())
+                                     : static_cast<std::int64_t>(n) * (n - 1) / 2;
+    r.counters.metric_ms = std::chrono::duration<double, std::milli>(tfill1 - tfill0).count();
+    r.counters.collapse_ms = cc.collapse_ms;
+    r.counters.n_collapse_trims = cc.n_collapse_trims;
+    r.counters.n_collapse_fast_trims = cc.n_collapse_fast_trims;
+    r.counters.n_collapse_c_probes = cc.n_collapse_c_probes;
+    r.counters.n_collapse_dom_hits = cc.n_collapse_dom_hits;
+    r.counters.n_edges_in = cc.n_edges_in;
+    r.counters.n_edges_out = cc.n_edges_out;
+    r.counters.pipeline = spatial ? "pith:young-cap-redzed-spatial" : "pith:young-cap-redzed";
     return r;
 }
 

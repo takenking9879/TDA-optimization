@@ -1173,6 +1173,94 @@ inline Graph collapse_edges_young_cap(Graph g, Counters& c, std::int64_t max_tes
     return g;
 }
 
+// I319: I156 fast-trim only (first common cones C_now, no later-commons).
+// Neighbor lists, no DenseTimes. A subset of legal trims ⇒ exact VR PH.
+inline bool fast_trim_flag_edge(const Graph& g, index_t u, index_t v, value_t t, Counters& c) {
+    const auto& nu = g.neighbors[u];
+    const auto& nv = g.neighbors[v];
+    std::vector<index_t> Cnow;
+    Cnow.reserve(16);
+    size_t i = 0, j = 0;
+    bool any_later = false;
+    const size_t probes = std::min(nu.size(), nv.size());
+    while (i < nu.size() && j < nv.size()) {
+        const index_t a = nu[i].first, b = nv[j].first;
+        if (a == v) {
+            ++i;
+            continue;
+        }
+        if (b == u) {
+            ++j;
+            continue;
+        }
+        if (a == b) {
+            const value_t tau = nu[i].second > nv[j].second ? nu[i].second : nv[j].second;
+            if (tau <= t) Cnow.push_back(a);
+            else any_later = true;
+            ++i;
+            ++j;
+        } else if (a < b) {
+            ++i;
+        } else {
+            ++j;
+        }
+    }
+    c.n_collapse_c_probes += static_cast<std::int64_t>(probes);
+    if (any_later || Cnow.empty()) return false;
+    const index_t first = Cnow[0];
+    const auto& nf = g.neighbors[first];
+    for (size_t k = 1; k < Cnow.size(); ++k) {
+        if (lookup_time(nf, Cnow[k]) > t) return false;
+    }
+    ++c.n_collapse_dom_hits;
+    return true;
+}
+
+inline void drop_sorted_nbr(std::vector<std::pair<index_t, value_t>>& row, index_t x) {
+    auto it = std::lower_bound(row.begin(), row.end(), std::make_pair(x, kNegInf));
+    if (it != row.end() && it->first == x) row.erase(it);
+}
+
+inline Graph collapse_edges_young_sparse(Graph g, Counters& c, std::int64_t max_tests) {
+    const auto t0 = std::chrono::steady_clock::now();
+    if (c.n_edges_in == 0) c.n_edges_in = static_cast<std::int64_t>(g.edges.size());
+    if (g.neighbors.size() != static_cast<size_t>(std::max(g.n, 0))) rebuild_neighbors(g);
+    if (max_tests <= 0) {
+        c.n_edges_out = static_cast<std::int64_t>(g.edges.size());
+        return g;
+    }
+    std::vector<Edge>& E = g.edges;
+    for (Edge& e : E) normalize_edge(e);
+    std::sort(E.begin(), E.end(), [](const Edge& a, const Edge& b) {
+        if (a.t != b.t) return a.t > b.t;
+        if (a.u != b.u) return a.u < b.u;
+        return a.v < b.v;
+    });
+    const size_t cap = std::min(E.size(), static_cast<size_t>(max_tests));
+    for (size_t i = 0; i < cap; ++i) {
+        const index_t u = E[i].u, v = E[i].v;
+        if (lookup_time(g.neighbors[u], v) >= kInf / 2) continue;
+        if (fast_trim_flag_edge(g, u, v, E[i].t, c)) {
+            drop_sorted_nbr(g.neighbors[u], v);
+            drop_sorted_nbr(g.neighbors[v], u);
+            ++c.n_collapse_trims;
+            ++c.n_collapse_fast_trims;
+        }
+    }
+    std::vector<Edge> kept;
+    kept.reserve(E.size());
+    for (int u = 0; u < g.n; ++u) {
+        for (const auto& p : g.neighbors[u]) {
+            if (p.first > u) kept.push_back({u, p.first, p.second});
+        }
+    }
+    g.edges.swap(kept);
+    c.n_edges_out = static_cast<std::int64_t>(g.edges.size());
+    const auto t1 = std::chrono::steady_clock::now();
+    c.collapse_ms += std::chrono::duration<double, std::milli>(t1 - t0).count();
+    return g;
+}
+
 // I165: keep the oldest mult·n edges (I164 suffix observation). No domination.
 // Exact iff the true residual pairs are among those oldest edges *and* their
 // unshifted times already realize the VR≤T barcode (likely false if deaths

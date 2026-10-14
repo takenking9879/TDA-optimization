@@ -65,6 +65,12 @@ inline bool delaunay_thicken_should_collapse(int n, std::int64_t n_edges) {
 Result persist_redzed_from_edges(int n, const std::vector<Edge>& edges, int maxdim,
                                  value_t threshold);
 
+// I319: same G_T as persist_redzed_from_points, then sparse young-cap
+// (no DenseTimes) and RedZeD AE on the residual edges. Exact VR.
+Result persist_redzed_from_points_young_cap(const std::vector<std::vector<value_t>>& pts,
+                                           int maxdim, value_t threshold, bool dense_metric,
+                                           std::int64_t max_tests);
+
 // Cheap T-ball Union-Find on Euclidean d∈{2,3}. Used by --estimate so
 // fat-H2 cost is modeled on the largest component, not n. False when
 // the metric is not a 2D/3D point cloud or T is not finite and positive.
