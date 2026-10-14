@@ -508,7 +508,11 @@ static Feasibility compute_feasibility(const std::vector<std::vector<value_t>>* 
         // Does not change mode_rec / τ / engine_rec.
         const double lo_mult = (maxdim >= 2 && fat) ? 0.03 : 0.4;
         f.est_runtime_lo = std::max(0.001, lo_mult * f.est_runtime);
-        const double hi_mult = (maxdim >= 2 && fat) ? 6.0 : 4.0;
+        // Hollow leftover H1 clocks underestimate pairing
+        // (leftover_miss grid_holes n=8000: wall 0.64 vs mid 0.14, 4.56×).
+        // Fat H2 already uses 6×. Does not change mode_rec / τ.
+        const double hi_mult =
+            (maxdim >= 2 && fat) ? 6.0 : (maxdim == 1 && hollow) ? 6.0 : 4.0;
         f.est_runtime_hi = std::max(0.025, hi_mult * f.est_runtime);
     }
     f.leaving_cheap = (maxdim >= 1 && n >= 2000 && (fat || (f.est_r_hi > 1.0e5 && !thin))) ||

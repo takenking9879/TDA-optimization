@@ -542,7 +542,15 @@ rows.append("## Topology vs Ripser (phase 2, bottleneck/Wasserstein when GUDHI p
 rows.append("| family | n | exact match | scale unmatched | scale bn H1 | scale W1 H1 | ess scale | ess sparse |")
 rows.append("| --- | ---: | --- | ---: | ---: | ---: | --- | --- |")
 for t in LIM.get("topology") or REP.get("topology") or []:
-    ex = t.get("exact_vs_ripser") or {}
+    ex = dict(t.get("exact_vs_ripser") or {})
+    # limits.json mixed n=300 exact timed out (pre RedZeD-cc). fat_h2.json
+    # re-measured exact-auto in 33 ms, ess 2/1/0, agree_mixed300_exact.
+    if (
+        t.get("name") == "mixed_1d2d3d"
+        and t.get("n") == 300
+        and FATH2.get("agree_mixed300_exact")
+    ):
+        ex["exact_match"] = True
     sc = t.get("scale_vs_ripser") or {}
     bn = sc.get("bottleneck_h1")
     w1 = sc.get("wasserstein1_h1")
