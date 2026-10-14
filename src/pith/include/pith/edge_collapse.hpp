@@ -1112,6 +1112,67 @@ inline Graph collapse_edges(Graph g, int iterations, Counters& c, int dom_budget
     return g;
 }
 
+// I318: exact partial backward collapse. Newest `max_tests` edges get the
+// full Glisse–Pritam test; older edges are kept untested. A subset of
+// legal collapses is still a valid flag-edge-collapse (same PH as VR).
+inline Graph collapse_edges_young_cap(Graph g, Counters& c, std::int64_t max_tests,
+                                     int dom_budget = -1) {
+    if (max_tests <= 0) {
+        if (c.n_edges_in == 0) c.n_edges_in = static_cast<std::int64_t>(g.edges.size());
+        c.n_edges_out = static_cast<std::int64_t>(g.edges.size());
+        return g;
+    }
+    const auto t0 = std::chrono::steady_clock::now();
+    if (c.n_edges_in == 0) c.n_edges_in = static_cast<std::int64_t>(g.edges.size());
+    std::vector<Edge>& E = g.edges;
+    for (Edge& e : E) normalize_edge(e);
+    std::sort(E.begin(), E.end(), [](const Edge& a, const Edge& b) {
+        if (a.t != b.t) return a.t > b.t;
+        if (a.u != b.u) return a.u < b.u;
+        return a.v < b.v;
+    });
+    const size_t mE = E.size();
+    const size_t cap = std::min(mE, static_cast<size_t>(max_tests));
+    BwScratch scratch;
+    scratch.C_now.reserve(static_cast<size_t>(g.n));
+    scratch.cands.reserve(static_cast<size_t>(g.n));
+    scratch.C_later.reserve(static_cast<size_t>(g.n));
+    DenseTimes Tm(g.n);
+    LiveAdj nbr;
+    LiveBits bits_store;
+    LiveBits* bits = &bits_store;
+    init_collapse_graph(E, g.n, Tm, nbr, bits, true);
+    std::vector<int> deg(static_cast<size_t>(g.n), 0);
+    LiveAdj later(static_cast<size_t>(g.n));
+    scratch.cover.resize(static_cast<size_t>(bits->W));
+    scratch.cwords.resize(static_cast<size_t>(bits->W));
+    for (const Edge& e : E) {
+        ++deg[e.u];
+        ++deg[e.v];
+    }
+    std::vector<Edge> kept;
+    kept.reserve(mE);
+    for (size_t i = 0; i < mE; ++i) {
+        if (i >= cap) {
+            kept.push_back(E[i]);
+            continue;
+        }
+        Edge out;
+        if (process_one_backward(E[i], E[i].t, Tm, nbr, scratch, dom_budget, out, c, bits, &deg,
+                                &later, nullptr)) {
+            kept.push_back(out);
+            later[out.u].push_back({out.v, out.t});
+            later[out.v].push_back({out.u, out.t});
+        }
+    }
+    g.edges.swap(kept);
+    rebuild_neighbors(g);
+    c.n_edges_out = static_cast<std::int64_t>(g.edges.size());
+    const auto t1 = std::chrono::steady_clock::now();
+    c.collapse_ms += std::chrono::duration<double, std::milli>(t1 - t0).count();
+    return g;
+}
+
 // I165: keep the oldest mult·n edges (I164 suffix observation). No domination.
 // Exact iff the true residual pairs are among those oldest edges *and* their
 // unshifted times already realize the VR≤T barcode (likely false if deaths

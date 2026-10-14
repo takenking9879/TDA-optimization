@@ -49,7 +49,7 @@ static void usage_experimental() {
         << "Experimental / compatibility flags (research ledger; not the stable API):\n"
         << "  --engine homology|active|collapse-redzed\n"
         << "  --collapse N            collapse passes (default -1 adaptive; 0 = off)\n"
-        << "  --collapse-alg back|back-src|back-bits|dc|forward|suffix*\n"
+        << "  --collapse-alg back|back-src|back-bits|dc|forward|suffix*|young-cap\n"
         << "  --suffix-mult X  --suffix-keep N  --suffix-k K\n"
         << "  --later-b  --later-escalate K  --later-esc-until N  --later-b-cap N\n"
         << "  --dom-budget K  --ratio R  --edges FILE  --sparse-only\n"
@@ -964,6 +964,12 @@ int main(int argc, char** argv) {
             if (collapse_alg == "suffix-later")
                 return collapse_edges_suffix_later(std::move(h), c, dom_budget, suffix_k, later_b,
                                                   later_escalate, later_esc_until, later_b_cap);
+            if (collapse_alg == "young-cap") {
+                const std::int64_t cap =
+                    (suffix_keep > 0) ? suffix_keep
+                                      : static_cast<std::int64_t>(std::max(h.n, 1)) * 16;
+                return collapse_edges_young_cap(std::move(h), c, cap, dom_budget);
+            }
             return collapse_edges(std::move(h), iters, c, dom_budget);
         };
         if (collapse_iters < 0) {
