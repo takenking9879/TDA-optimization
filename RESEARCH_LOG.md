@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-14 — I294 parallel Delaunay thicken scan
+
+- **Question:** Does scanning thicken extra-edges per vertex in parallel cut I293’s 1.13 s construction at sphere n=16000, with the same edge set?
+- **Hypothesis:** Per-vertex grid queries are independent. Thread-local extras + sequential `have[]` dedup. Same flag PH. Gate n≥1024.
+- **Work:** `scan_vertex` + thread pool in `delaunay_vr_skeleton`. Wave 154 vs I293 edge counts.
+- **Result:** **Same edges** (figure8 n=16000 977068; sphere n=8000 1073583; n=16000 2283282). Flag identity held (figure8 n=2000 exact H1 2=2; sphere ess2 1=1; two_spheres 2=2). **Modest metric cut, small pith cut:** figure8 n=16000 **0.838 vs I293 0.876 s** (metric 372 vs 415). sphere n=8000 **1.20 vs 1.25 s**. sphere n=16000 **3.95 vs 4.12 s** (metric 955 vs 1131 ms; reduce still 2.96 s). Exact default held (H0 59×, figure8 17×, uniform2 11.3×, sphere H2 57×, circle 15×).
+- **Decision:** **Hold and keep.** Correct parallel construction; not a selected pith lever (reduce still dominates). Do not mark the goal complete.
+- **Class:** experiment (hold; same edges, small metric cut)
+
 ## 2026-10-14 — I293 parallel first-pass apparent
 
 - **Question:** Does running Ripser apparent tests in parallel after Kruskal cut implicit persist on fat thicken graphs (I292: sphere n=16000 reduce 3.46 s / 2.26M leftovers, 99% apparent)?
