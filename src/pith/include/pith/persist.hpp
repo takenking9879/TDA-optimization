@@ -8,6 +8,7 @@
 #include <functional>
 #include <numeric>
 #include <queue>
+#include <thread>
 #include <type_traits>
 #include <unordered_map>
 #include <unordered_set>
@@ -716,8 +717,8 @@ inline Result persist_implicit_coh(const Graph& g, int maxdim, value_t threshold
         index_t u, v;
         value_t t;
     };
-    std::vector<LEdge> cols;
-    cols.reserve(edges.size());
+    std::vector<LEdge> leftover;
+    leftover.reserve(edges.size());
     int components = g.n;
     for (const Edge& e : edges) {
         if (e.t > threshold) continue;
@@ -725,10 +726,8 @@ inline Result persist_implicit_coh(const Graph& g, int maxdim, value_t threshold
             --components;
             r.pairs.push_back({0, 0, e.t});
             ++c.n_columns_cleared;
-        } else if (zero_apparent_cofacet(g, e.u, e.v, e.t, threshold, nullptr, &c)) {
-            ++c.n_columns_apparent;
         } else {
-            cols.push_back({e.u, e.v, e.t});
+            leftover.push_back({e.u, e.v, e.t});
         }
     }
     for (int i = 0; i < components; ++i) r.pairs.push_back({0, 0, kInf});
@@ -738,6 +737,48 @@ inline Result persist_implicit_coh(const Graph& g, int maxdim, value_t threshold
         c.reduce_ms = std::chrono::duration<double, std::milli>(t1 - t0).count();
         c.rss_bytes_peak = peak_rss_bytes();
         return r;
+    }
+
+    // I293: apparent tests are independent after Kruskal. Thicken
+    // leftovers are 98–99% apparent (figure8 n=16000: 957k of 977k).
+    std::vector<LEdge> cols;
+    cols.reserve(leftover.size() / 16 + 16);
+    const int nth = std::max(1, static_cast<int>(std::thread::hardware_concurrency()));
+    const bool par = nth > 1 && leftover.size() >= 4096;
+    if (!par) {
+        for (const LEdge& e : leftover) {
+            if (zero_apparent_cofacet(g, e.u, e.v, e.t, threshold, nullptr, &c))
+                ++c.n_columns_apparent;
+            else
+                cols.push_back(e);
+        }
+    } else {
+        std::vector<char> app(leftover.size(), 0);
+        std::vector<std::int64_t> probes(static_cast<size_t>(nth), 0);
+        std::vector<std::thread> pool;
+        pool.reserve(static_cast<size_t>(nth));
+        const size_t m = leftover.size();
+        for (int t = 0; t < nth; ++t) {
+            pool.emplace_back([&, t]() {
+                const size_t i0 = m * static_cast<size_t>(t) / static_cast<size_t>(nth);
+                const size_t i1 = m * static_cast<size_t>(t + 1) / static_cast<size_t>(nth);
+                Counters lc;
+                for (size_t i = i0; i < i1; ++i) {
+                    const LEdge& e = leftover[i];
+                    if (zero_apparent_cofacet(g, e.u, e.v, e.t, threshold, nullptr, &lc))
+                        app[i] = 1;
+                }
+                probes[static_cast<size_t>(t)] = lc.n_cofacet_apparent_probes;
+            });
+        }
+        for (auto& th : pool) th.join();
+        for (std::int64_t p : probes) c.n_cofacet_apparent_probes += p;
+        for (size_t i = 0; i < leftover.size(); ++i) {
+            if (app[i])
+                ++c.n_columns_apparent;
+            else
+                cols.push_back(leftover[i]);
+        }
     }
 
     // Youngest first: greater diameter, then smaller pack2 (Ripser reverse).
