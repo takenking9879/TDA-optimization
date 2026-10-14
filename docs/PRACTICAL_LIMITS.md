@@ -5,7 +5,8 @@
 
 This is the single “how far can each method go” table. Receipts:
 `leftover_10x.json`, `baselines.json`, `limits.json`, `sparse_scale.json`,
-`axis_scaling.json`, `headline_reverify.json`, `dory.json`.
+`axis_scaling.json`, `headline_reverify.json`, `dory.json`,
+`dory_limits.json`.
 
 ## Exact VR (barcode must match Ripser)
 
@@ -13,10 +14,10 @@ This is the single “how far can each method go” table. Receipts:
 | --- | --- | --- | ---: | --- |
 | PITH `--mode exact --engine auto` | circle \(H_1\) \(n=4000\) 0.43 s; figure-8 \(n=4000\) 1.03 s; sphere \(H_2\) \(n=800\) 0.057 s; leftover figure-8 \(n=2000\) 0.15 s | mixed 1D/2D/3D \(n=300\) `maxdim=2` timeout (fat \(H_2\)); connected leftover leaves cheap regime near a few thousand points (\(p_n\approx 2.8\)) | 1 | Portfolio. Circle 31× is **collapse**. Leftover 3/6 families ≥10×. |
 | PITH `--engine redzed` | same leftover families; torus \(n=2000\) 0.21 s | same fat-\(H_2\) / leftover visit wall | 1 | Forced AE. Same pairing class as Ripser. |
-| Ripser | circle \(n=1000\) 2.2 s; figure-8 \(n=2000\) 2.5 s; sphere \(H_2\) \(n=400\) 1.0 s | circle \(n=2000\); figure-8 \(n=4000\); sphere \(H_2\) \(n=800\) | 1 | Reference exact VR. |
+| Ripser | circle \(n=1000\) 2.2 s / \(n=1500\) 8.45 s; figure-8 \(n=2000\) 2.5 s / \(n=3000\) 5.42 s; sphere \(H_2\) \(n=400\) 1.0 s / \(n=600\) 5.30 s | circle \(n=2000\); figure-8 \(n=4000\); sphere \(H_2\) \(n=800\) | 1 | Reference exact VR. \(n=1500/3000/600\) from paired `dory_limits.json`. |
 | giotto-ph 0.2.4 | tracks Ripser on this suite | same n as Ripser on \(H_1\); 4 threads help sphere \(H_2\) only (1.12→0.62 s) | 1 or 4 | AGPL oracle. |
 | GUDHI 3.13 Rips (explicit) | circle \(n=400\) \(T=2.0\) 3.2 s; figure-8 \(n=800\) \(T=1.4\) 3.0 s | circle \(n=1000\) \(H_1\); uniform2 \(n=800\) \(T=0.55\) (8 s axis budget) | 1 | First to leave the budget as \(T\) or \(n\) grows. |
-| Dory (`pydory` 1.1.137 oracle) | leftover \(H_1\) \(n\le 2000\) in 0.4–2.8 s | sphere \(H_2\) \(n=400\) 4.13 s (slower than Ripser 1.49 s) | 1 | Tracks Ripser on leftover \(H_1\). Not vendored. |
+| Dory (`pydory` 1.1.137 oracle) | leftover \(H_1\): circle \(n=1500\) 9.45 s, figure-8 \(n=3000\) 5.70 s; sphere \(H_2\) \(n=400\) 4.13 s (20 s receipt) | circle \(n=2000\) (same as Ripser); figure-8 \(n=4000\) (same as Ripser); sphere \(H_2\) \(n=600\) (Ripser still 5.3 s) | 1 | Tracks Ripser on leftover \(H_1\). Fails \(H_2\) **earlier** than Ripser. Not vendored. 12 s budget (`dory_limits.json`). |
 
 ## Not exact VR
 

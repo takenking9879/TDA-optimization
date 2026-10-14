@@ -1,0 +1,167 @@
+{
+  "note": "pydory 1.1.137 oracle, 1 thread, 12 s budget, not vendored. Stops a family after first Dory failure. Complements dory.json.",
+  "pydory_version": "1.1.137",
+  "threads": 1,
+  "budget_s": 12,
+  "first_fail": {
+    "circle_noisy": {
+      "n": 2000,
+      "timed_out": true,
+      "error": "Command '['/usr/bin/python3', '/workspace/benchmarks/reverify_dory.py', '--worker', '/workspace/benchmarks/datasets/generated/dory_lim_circle_noisy_n2000.csv', '1.5', '1', '/workspace/benchmarks/results/consolidation/dory_out/lim_circle_noisy_n2000']' timed out after 12 seconds"
+    },
+    "figure8": {
+      "n": 4000,
+      "timed_out": true,
+      "error": "Command '['/usr/bin/python3', '/workspace/benchmarks/reverify_dory.py', '--worker', '/workspace/benchmarks/datasets/generated/dory_lim_figure8_n4000.csv', '1.1', '1', '/workspace/benchmarks/results/consolidation/dory_out/lim_figure8_n4000']' timed out after 12 seconds"
+    },
+    "sphere": {
+      "n": 600,
+      "timed_out": true,
+      "error": "Command '['/usr/bin/python3', '/workspace/benchmarks/reverify_dory.py', '--worker', '/workspace/benchmarks/datasets/generated/dory_lim_sphere_n600.csv', '1.4', '2', '/workspace/benchmarks/results/consolidation/dory_out/lim_sphere_n600']' timed out after 12 seconds"
+    }
+  },
+  "receipts": [
+    {
+      "name": "circle_noisy",
+      "n": 1500,
+      "T": 1.5,
+      "maxdim": 1,
+      "budget_s": 12,
+      "dory": {
+        "ok": true,
+        "error": null,
+        "timed_out": false,
+        "wall_s": 9.447162969008787,
+        "threads_used": 1,
+        "ess1": 1,
+        "method": "dory:pydory"
+      },
+      "pith": {
+        "ok": true,
+        "wall_s": 0.17232933100603987,
+        "pipeline": "pith:auto-collapse",
+        "threads_used": 1
+      },
+      "ripser": {
+        "ok": true,
+        "wall_s": 8.449463996992563,
+        "threads_used": 1
+      },
+      "threads": 1
+    },
+    {
+      "name": "circle_noisy",
+      "n": 2000,
+      "T": 1.5,
+      "maxdim": 1,
+      "budget_s": 12,
+      "dory": {
+        "ok": false,
+        "error": "Command '['/usr/bin/python3', '/workspace/benchmarks/reverify_dory.py', '--worker', '/workspace/benchmarks/datasets/generated/dory_lim_circle_noisy_n2000.csv', '1.5', '1', '/workspace/benchmarks/results/consolidation/dory_out/lim_circle_noisy_n2000']' timed out after 12 seconds",
+        "timed_out": true,
+        "wall_s": null,
+        "threads_used": 1,
+        "ess1": null,
+        "method": "dory:pydory"
+      },
+      "pith": {
+        "ok": true,
+        "wall_s": 0.3454950559971621,
+        "pipeline": "pith:auto-collapse",
+        "threads_used": 1
+      },
+      "ripser": {
+        "ok": false,
+        "error": "Command '['/workspace/third_party/ripser/ripser', '--format', 'point-cloud', '--dim', '1', '--threshold', '1.5', '/workspace/benchmarks/datasets/generated/dory_lim_circle_noisy_n2000.csv']' timed out after 12 seconds",
+        "wall_s": null,
+        "timed_out": true
+      },
+      "threads": 1
+    },
+    {
+      "name": "figure8",
+      "n": 3000,
+      "T": 1.1,
+      "maxdim": 1,
+      "budget_s": 12,
+      "dory": {
+        "ok": true,
+        "error": null,
+        "timed_out": false,
+        "wall_s": 5.696248840002227,
+        "threads_used": 1,
+        "ess1": 2,
+        "method": "dory:pydory"
+      },
+      "pith": {
+        "ok": true,
+        "wall_s": 0.313072213990381,
+        "pipeline": "pith:auto-redzed-spatial",
+        "threads_used": 1
+      },
+      "ripser": {
+        "ok": true,
+        "wall_s": 5.4218443099962315,
+        "threads_used": 1
+      },
+      "threads": 1
+    },
+    {
+      "name": "figure8",
+      "n": 4000,
+      "T": 1.1,
+      "maxdim": 1,
+      "budget_s": 12,
+      "dory": {
+        "ok": false,
+        "error": "Command '['/usr/bin/python3', '/workspace/benchmarks/reverify_dory.py', '--worker', '/workspace/benchmarks/datasets/generated/dory_lim_figure8_n4000.csv', '1.1', '1', '/workspace/benchmarks/results/consolidation/dory_out/lim_figure8_n4000']' timed out after 12 seconds",
+        "timed_out": true,
+        "wall_s": null,
+        "threads_used": 1,
+        "ess1": null,
+        "method": "dory:pydory"
+      },
+      "pith": {
+        "ok": true,
+        "wall_s": 3.662990976998117,
+        "pipeline": "pith:auto-redzed-spatial",
+        "threads_used": 1
+      },
+      "ripser": {
+        "ok": false,
+        "error": "Command '['/workspace/third_party/ripser/ripser', '--format', 'point-cloud', '--dim', '1', '--threshold', '1.1', '/workspace/benchmarks/datasets/generated/dory_lim_figure8_n4000.csv']' timed out after 12 seconds",
+        "wall_s": null,
+        "timed_out": true
+      },
+      "threads": 1
+    },
+    {
+      "name": "sphere",
+      "n": 600,
+      "T": 1.4,
+      "maxdim": 2,
+      "budget_s": 12,
+      "dory": {
+        "ok": false,
+        "error": "Command '['/usr/bin/python3', '/workspace/benchmarks/reverify_dory.py', '--worker', '/workspace/benchmarks/datasets/generated/dory_lim_sphere_n600.csv', '1.4', '2', '/workspace/benchmarks/results/consolidation/dory_out/lim_sphere_n600']' timed out after 12 seconds",
+        "timed_out": true,
+        "wall_s": null,
+        "threads_used": 1,
+        "ess1": null,
+        "method": "dory:pydory"
+      },
+      "pith": {
+        "ok": true,
+        "wall_s": 0.03379737300565466,
+        "pipeline": "pith:auto-collapse",
+        "threads_used": 1
+      },
+      "ripser": {
+        "ok": true,
+        "wall_s": 5.304957530999673,
+        "threads_used": 1
+      },
+      "threads": 1
+    }
+  ]
+}

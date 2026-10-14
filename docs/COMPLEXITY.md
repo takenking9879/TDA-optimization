@@ -917,9 +917,12 @@ therefore also holds against 4-thread giotto-ph on these families.
 Dory (`pydory` 1.1.137, 1 thread, not vendored) **tracks Ripser** on leftover
 \(H_1\) (Ripser/Dory \(0.90\)–\(1.00\) on `dory.json`) and is **slower**
 on sphere \(H_2\) \(n=400\) (4.13 vs the paired Ripser 1.49 s on that
-receipt; baselines.json Ripser is 1.02 s on a separate run). Same pairing
-class. Dory column is from `dory.json`; other columns from
-`baselines.json`. Same box, different process.
+receipt; baselines.json Ripser is 1.02 s on a separate run). 12 s
+first-fail (`dory_limits.json`): circle \(n=2000\) and figure-8
+\(n=4000\) timeout with Ripser; sphere \(n=600\) Dory timeouts while
+Ripser still finishes (5.30 s). Same pairing class. Dory leftover column
+is from `dory.json`; other columns from `baselines.json`. Same box,
+different process.
 
 GUDHI Rips becomes impractical (timeout) by \(n\sim 10^3\) on a noisy
 circle \(H_1\) and by \(n=400\) on sphere \(H_2\). That is the explicit

@@ -632,8 +632,10 @@ audit: [`REMAINING.md`](REMAINING.md). Sparse FPS squared-distance try:
 same complex, no clock cut, reverted. A 2026 literature check still
 names RedZeD as the published exact-VR alternative; we already wrap it.
 Dory (`pydory` 1.1.137, 1 thread, `dory.json`) **tracks Ripser** on leftover
-\(H_1\) and is slower on sphere \(H_2\) \(n=400\) (4.13 vs 1.49 s). Not
-vendored. Not a 10× class. No new leftover skip.
+\(H_1\) and is slower on sphere \(H_2\) \(n=400\) (4.13 vs 1.49 s). 12 s
+first-fail (`dory_limits.json`): circle \(n=2000\) and figure-8 \(n=4000\)
+timeout with Ripser; sphere \(n=600\) Dory timeouts while Ripser still
+finishes (5.3 s). Not vendored. Not a 10× class. No new leftover skip.
 
 Named leftover follow-ups after I202 are **spent**. Do not reopen
 empty-seed skips, leftover XOR/noop, G_t apparent, add-R, D(e) memo,

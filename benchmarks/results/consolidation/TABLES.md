@@ -865,3 +865,18 @@ pydory 1.1.137 oracle, 1 thread, not vendored. Same pairing class as VR. Budget 
 | uniform2 | 2000 | 1 | 0.450 | 0.061 | 0.451 | 1.00 | 7.4× | 0 | pith:auto-redzed |
 | sphere | 400 | 2 | 4.130 | 0.017 | 1.487 | 0.36 | 246.1× | 0 | pith:auto-collapse |
 | blobs | 2000 | 1 | 0.471 | 0.044 | 0.425 | 0.90 | 10.7× | 0 | pith:auto-redzed-cc |
+
+## Dory first-timeout sweep (12 s, 1 thread)
+pydory 1.1.137 oracle, 1 thread, 12 s budget, not vendored. Stops a family after first Dory failure. Complements dory.json. Complements leftover cells in dory.json.
+| family | first Dory fail n | timed out |
+| --- | ---: | --- |
+| circle_noisy | 2000 | True |
+| figure8 | 4000 | True |
+| sphere | 600 | True |
+| family | n | dim | Dory (s) | PITH (s) | Ripser (s) | Dory ok | Ripser ok |
+| --- | ---: | ---: | ---: | ---: | ---: | --- | --- |
+| circle_noisy | 1500 | 1 | 9.447 | 0.172 | 8.449 | True | True |
+| circle_noisy | 2000 | 1 | timeout | 0.345 | timeout | False | False |
+| figure8 | 3000 | 1 | 5.696 | 0.313 | 5.422 | True | True |
+| figure8 | 4000 | 1 | timeout | 3.663 | timeout | False | False |
+| sphere | 600 | 2 | timeout | 0.034 | 5.305 | False | True |

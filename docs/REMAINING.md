@@ -54,12 +54,14 @@ Search on 2026-10-14:
 - **giotto-ph** is lock-free Ripser + collapse. We compared it at 1
   and 4 threads; it tracks Ripser on \(H_1\).
 - **Dory** (`pydory` 1.1.137 oracle, **not vendored**). Live 1-thread
-  (`dory.json`): tracks Ripser on leftover \(H_1\) (figure-8 \(n=2000\)
-  2.84 vs 2.72 s; torus \(n=1000\) 0.43 vs 0.41 s; circle \(n=1000\)
-  2.79 vs 2.73 s) and is **slower** on sphere \(H_2\) \(n=400\) (4.13
-  vs 1.49 s). PITH exact is \(16\)–\(39\times\) faster than Dory on
-  those cells. Not a 10× class. Literature parallel \(\sim 2\times\)
-  does not change the 1-thread pairing class.
+  leftover (`dory.json`): tracks Ripser on leftover \(H_1\) (figure-8
+  \(n=2000\) 2.84 vs 2.72 s; torus \(n=1000\) 0.43 vs 0.41 s; circle
+  \(n=1000\) 2.79 vs 2.73 s) and is **slower** on sphere \(H_2\)
+  \(n=400\) (4.13 vs 1.49 s). 12 s first-fail (`dory_limits.json`):
+  circle \(n=2000\) and figure-8 \(n=4000\) timeout **with Ripser**;
+  sphere \(H_2\) \(n=600\) Dory timeouts while Ripser still finishes
+  (5.3 s) and PITH is 34 ms. Not a 10× class. Literature parallel
+  \(\sim 2\times\) does not change the 1-thread pairing class.
 - No 2026 paper we found claims a better **worst-case** pairing class
   than Ripser/RedZeD on a connected dense flag.
 

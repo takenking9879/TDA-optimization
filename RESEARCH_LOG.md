@@ -5,6 +5,13 @@ Do not paste long reasoning here.
 
 ---
 
+## 2026-10-14 — Dory 12 s first-timeout
+
+- **Question:** Where does 1-thread Dory become impractical vs Ripser / PITH on the leftover and \(H_2\) families?
+- **Work:** `run_dory_limits.py`, 12 s, `cpu_count=1`, same clouds as the leftover runner. Receipt: `dory_limits.json`.
+- **Result:** Last OK / first fail: circle \(n=1500\) 9.45 s / \(n=2000\) timeout (Ripser same); figure-8 \(n=3000\) 5.70 s / \(n=4000\) timeout (Ripser same, PITH 3.66 s still finishes); sphere \(H_2\) \(n=400\) was 4.13 s on the 20 s leftover receipt, \(n=600\) Dory timeouts while Ripser is 5.30 s and PITH is 34 ms.
+- **Decision:** Dory’s practical \(n\) on leftover \(H_1\) is the Ripser \(n\). On sphere \(H_2\) it fails earlier. Not a 10× engine. Goal not complete.
+
 ## 2026-10-14 — Dory 1-thread oracle
 
 - **Question:** Is Dory (`pydory` 1.1.137) a better exact-VR \(H_1\) engine than PITH / Ripser at 1 thread?

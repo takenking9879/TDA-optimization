@@ -125,12 +125,12 @@ On **this** hardware (4 CPUs, 16 GB, no GPU), under a **12 s** wall budget.
 | Task | Ripser | giotto-ph t1 | giotto-ph t4 | GUDHI Rips | Dory 1-thr | PITH exact (1 thr) | PITH scale |
 | --- | --- | --- | --- | --- | --- | ---: | --- |
 | Noisy circle \(H_1\), \(n=1000\) | 2.16 s | 2.47 s | 2.44 s | timeout | 2.79 s | **0.068 s (32× / 36× giotto)** | not needed |
-| Noisy circle \(H_1\), \(n=2000\) | timeout | — | — | — | — | 0.43 s (phase 2) | not needed |
+| Noisy circle \(H_1\), \(n=2000\) | timeout | — | — | — | timeout | 0.35 s (paired) | not needed |
 | Figure-8 \(H_1\), \(n=2000\) | 2.51 s | 2.81 s | 2.78 s | timeout | 2.84 s | **0.152 s (16×)** | 34 ms, ess \(H_1=2\) |
-| Figure-8 \(H_1\), \(n=4000\) | timeout | — | — | — | — | **1.03 s** | 0.09 s, ess \(H_1=2\) |
+| Figure-8 \(H_1\), \(n=4000\) | timeout | — | — | — | timeout | **1.03 s** (paired limit 3.66 s) | 0.09 s, ess \(H_1=2\) |
 | Figure-8 \(H_1\), \(n=24000\) | impractical | — | — | — | — | leftover wall | **0.79 s**, ess \(H_1=2\) |
 | Sphere \(H_2\), \(n=400\) | 1.02 s | 1.12 s | 0.62 s | timeout | 4.13 s | **0.017 s (60×; 36× vs giotto-4)** | 7 ms, ess \(H_2=1\) |
-| Sphere \(H_2\), \(n=800\) | timeout | — | — | — | — | **0.057 s** | small |
+| Sphere \(H_2\), \(n=800\) | timeout | — | — | — | timeout by \(n=600\) | **0.057 s** | small |
 | Sphere, \(n=80000\) | impractical | — | — | — | — | impractical as dense VR | **1.08 s**, ess \(H_2=1\) |
 | Nested loops \(H_1\), \(n=2000\) | 6.44 s | — | — | — | — | **0.29 s** | 0.036 s |
 | Blobs \(H_0\), \(n=25000\) | tens of seconds | — | — | — | — | **0.053 s** (Delaunay) | n/a |
@@ -147,8 +147,11 @@ Live leftover-family 1-thread ratios vs Ripser: figure-8 **17.0×**, torus
 **Dory** (`pydory` 1.1.137, 1 thread, not vendored) **tracks Ripser** on
 those leftover \(H_1\) cells (figure-8 \(n=2000\) 2.84 vs 2.72 s; circle
 \(n=1000\) 2.79 vs 2.73 s) and is **slower** on sphere \(H_2\) \(n=400\)
-(4.13 vs 1.49 s). PITH exact is \(16\)–\(39\times\) faster than Dory
-there. Same pairing class; not a 10× engine.
+(4.13 vs 1.49 s). 12 s first-fail (`dory_limits.json`): last OK circle
+\(n=1500\) 9.45 s / figure-8 \(n=3000\) 5.70 s; both timeout at the same
+next \(n\) as Ripser; sphere \(H_2\) times out at \(n=600\) while Ripser
+still finishes (5.3 s). PITH exact is \(16\)–\(39\times\) faster than
+Dory on the leftover cells. Same pairing class; not a 10× engine.
 Hardware threads (4) change circle \(n=1000\) from 0.068 s to 0.069 s —
 not the source of the 32×. giotto-ph’s 4 threads help sphere \(H_2\)
 (1.12→0.62 s) and do **not** speed up \(H_1\).
@@ -306,6 +309,7 @@ python3 benchmarks/reverify_leftover_10x.py
 python3 benchmarks/run_axis_scaling.py
 # optional oracle: pip install pydory  (not vendored; needs Python.h)
 python3 benchmarks/reverify_dory.py
+python3 benchmarks/run_dory_limits.py
 python3 benchmarks/run_baseline_pack.py
 python3 benchmarks/run_sparse_limits.py
 python3 benchmarks/run_sparse_scale.py
