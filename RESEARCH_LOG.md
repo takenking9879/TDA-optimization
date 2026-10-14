@@ -5,6 +5,14 @@ Do not paste long reasoning here.
 
 ---
 
+## 2026-10-14 — I319 fair G_T young-cap then RedZeD
+
+- **Question:** Were I317/I318 slow only because they paid an extra pairwise Graph + DenseTimes n² that auto RedZeD does not?
+- **Work:** `persist_redzed_from_points_young_cap`: same spatial/all-pairs G_T as auto, I156 fast-trim only on neighbor lists (no DenseTimes), RedZeD AE on the residual. Live `young_cap_fair.json`. 1 thread. τ frozen. Not a leftover skip.
+- **Result:** **0 unmatched**. Faster than auto **0/8**. ge10 vs Ripser **0/8**. Residual AE can drop (anisotropic n=8000 reduce 1026→435 ms) but Graph+trim is the tax (collapse 1.36–3.18 s; wall 3.79–5.72 s vs auto 1.30 s). figure8 young-4096 9.4× vs auto 17×. Fat flags barely shrink (11.0M→11.0M edges).
+- **Decision:** Reject. Collapse preprocessors are closed even on a fair G_T. Keep the experimental path. Do not change `--engine auto`. Goal not complete.
+- **Class:** verified (live)
+
 ## 2026-10-14 — I318 young-cap collapse then RedZeD
 
 - **Question:** Can an *exact subset* of flag-edge-collapses (newest K edges only) cut leftover RedZeD AE without I317’s full-collapse tax?

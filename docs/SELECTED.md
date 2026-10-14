@@ -1,6 +1,6 @@
 # Selected algorithm (living)
 
-Updated 2026-10-14 after iterations I001–I318 plus consolidation (phase 3)
+Updated 2026-10-14 after iterations I001–I319 plus consolidation (phase 3)
 and the fused Euclidean sparse constructor.
 **Stable CLI:** `--mode exact|scale|sparse|auto`, `--engine auto|redzed|implicit`,
 `--estimate`, `--threads N`. Public runners import `generate_datasets` /
@@ -355,6 +355,14 @@ tax. Faster than `--engine auto` **0/8** (`collapse_redzed.json`). GUDHI
 Exact subset of backward collapses (newest \(K\) edges). Live
 `young_cap.json`: **0 unmatched**, faster than auto **0/8**. DenseTimes
 init dominates (anisotropic \(n=8000\) 2.65 s at \(K=4096\)). Not selected.
+
+### I319 fair G_T young-cap + RedZeD (not default)
+
+Same spatial/all-pairs \(G_T\) as auto, I156 fast-trim only, residual
+RedZeD. Live `young_cap_fair.json`: **0 unmatched**, faster than auto
+**0/8**. Reduce can drop (anisotropic \(n=8000\) 1026→435 ms); Graph+trim
+does not pay (wall 3.79 vs 1.30 s). Not selected. Collapse
+preprocessors closed.
 
 ### I227 real RedZeD (H09, MIT, not default)
 
