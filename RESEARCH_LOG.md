@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-14 — I297 RedZeD on fat Delaunay thicken
+
+- **Question:** Does RedZeD AE on the explicit thicken 1-skeleton (SparseDist + prebuilt EdgeList, no n×n) beat implicit’s 199k-column / unique V-add wall (I296) for H0+H1+H2 at more Euclidean points?
+- **Hypothesis:** Same flag PH as I286 implicit on that 1-skeleton. Gate `|E|≥8n` (I291 helper). H2 stays implicit on the α=1 flag. Risk: fat ActiveReg on sphere finite H1 is slower than implicit 2.96 s.
+- **Work:** `persist_redzed_from_edges`; split and maxdim=1 fat thicken dispatch; wave 157 vs Ripser + I294 clocks. Harder pith-only: figure8 n=24000, sphere n=20000.
+- **Result:** **Support.** Same edges (figure8 16k 977068; sphere 8k 1073583; 16k 2283282). figure8 n=2000 **exact H1 46× / 56 ms** (ess1 2=2). n=16000 **0.621 vs I294 0.838 s** (reduce 187 vs 438 ms, ess1=2). sphere n=8000 **0.865 vs 1.20 s**; n=16000 **3.02 vs 3.95 s** (reduce 1.93 vs 2.96 s, ess2=1). two_spheres ess2 2=2. Harder: figure8 n=24000 **1.06 s / 1.49M / ess1=2**; sphere n=20000 **3.89 s / 2.90M / ess2=1**. Exact default held (H0 60×, figure8 17×, uniform2 11.4×, sphere H2 65×, circle 17×). Unit: 256-pt circle ess H1, same finite count as implicit.
+- **Decision:** **Support / select** for fat thicken persist. Pipeline `pith:delaunay-vr-split-redzed`. Do not switch exact default. Do not thicken H2. Remaining optional-path wall: sphere reduce 1.93–2.43 s (AE leftover on 2–3M edges) and split metric (two Delaunay builds). Do not mark the goal complete.
+- **Class:** experiment (support; selected thicken persist)
+
 ## 2026-10-14 — I296 D(e) coboundary memo
 
 - **Question:** Does memoizing \(D(e)\) for implicit V-adds cut the I289 collapse=0 wall (24 s / 103M probes) or thicken persist (199k cols), without I295’s fat-\(R\) dump?

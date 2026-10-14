@@ -1,6 +1,6 @@
 # Selected algorithm (living)
 
-Updated 2026-10-14 after iterations I001–I296. **CLI default `--engine
+Updated 2026-10-14 after iterations I001–I297. **CLI default `--engine
 auto` (I235+I236+I239+I240+I241+I263+I270+I271+I275):** subsample residual-frac dispatch,
 plus I263 edge-frac so hollow/manifold clouds take RedZeD. Fat →
 RedZeD (torus n=2000 **13.0×**). Thin-circle → collapse+implicit
@@ -610,8 +610,8 @@ Rips is exact and too slow.
    n=2000 maxdim=2 **exact H1 33× / 75 ms**; n=4000 **158 ms /
    186k / ess1=2**; n=8000 **430 ms / ess1=2**. sphere n=2000
    H0+H1+H2 **203 ms / ess2=1**; n=4000 **621 ms**; n=8000
-   **1.42 s / 1.07M / ess2=1** (I287);    n=16000 **3.95 s / 2.28M /
-   ess2=1** (I294). n=400 unmatched 3 vs I276
+   **1.42 s / 1.07M / ess2=1** (I287);    n=16000 **3.02 s / 2.28M /
+   ess2=1** (I297 RedZeD-on-thicken; I294 was 3.95 s). n=400 unmatched 3 vs I276
    flag 52. two_spheres n=400 ess2 2=2, unmatched 2.
    I279 fixed 2.25 is the measured H1 constant. Default α=1 stays
    I276 ess-only. Not a VR identity.
@@ -674,8 +674,11 @@ Rips is exact and too slow.
    recommended H1 thicken CLI** (exact 9/9, n=8000 65×). **I286
    split** makes auto work at maxdim≥2 (figure8 n=4000 158 ms;
    sphere n=2000 H0+H1+H2 203 ms). **I287 split scale:** sphere
-   n=8000 H0+H1+H2 **1.42 s / ess2=1**; n=16000 **3.95 s** (I294);
-   figure8 n=8000 **430 ms**.
+   n=8000 H0+H1+H2 **0.865 s / ess2=1** (I297); n=16000 **3.02 s**
+   (I294 was 3.95 s); figure8 n=16000 **0.621 s**; n=24000 **1.06 s /
+   ess1=2**; sphere n=20000 **3.89 s / ess2=1**. **I297 RedZeD-on-thicken
+   is selected** for fat thicken H1 (`|E|≥8n`): same flag PH, AE instead
+   of implicit V-adds. H2 stays implicit on α=1.
    **I283
    Delaunay 2-complex hold:** ess kept, sphere n=400 un 52→33, but
    two_spheres worse (28→32). Alpha drops ess H2. I276 flag stays.
@@ -699,10 +702,15 @@ Rips is exact and too slow.
    persist wall. **I294 parallel thicken:** same edges, metric
    1131→955 ms, pith 4.12→3.95 s — keep, not a selected pith lever.
    **I295 R-cache + full emergent \(D(e_j)\):** collapse=1 identity
-   held; slower on thicken. Reverted. **I296 \(D(e)\) memo:** exact,
+   held; slower on thicken. Reverted.    **I296 \(D(e)\) memo:** exact,
    collapse=0 still 103M probes (unique apparent-facet adds). Reverted.
-   Do not retry add-\(R\) or \(D(e)\) memo. ae_seeded visits remain
-   the exact-H1 wall.
+   Do not retry add-\(R\) or \(D(e)\) memo. **I297 RedZeD-on-thicken
+   is selected** for fat thicken persist: figure8 n=16000 **0.621 vs
+   0.838 s**; sphere n=16000 **3.02 vs 3.95 s / ess2=1**. Harder
+   figure8 n=24000 **1.06 s**; sphere n=20000 **3.89 s**. Remaining
+   optional-path wall is AE leftover on 2–3M thicken edges plus the
+   split’s two Delaunay builds. ae_seeded visits remain the exact-H1
+   wall.
 6. Owned AE leftover-star walk is still Θ(|leftover|·deg★) — rbit cut
    has_leftover_coface, not seeded probes (circle still 875k). I288
    equal-set seeded_is_noop is exact and reverted (848≈866). Packed
