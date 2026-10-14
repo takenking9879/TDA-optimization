@@ -5,6 +5,14 @@ Do not paste long reasoning here.
 
 ---
 
+## 2026-10-14 — I325 seed-incident leftover skip
+
+- **Question:** I323 still `ae_prepare`s every leftover after the first keep_singleton. H1 seeds need a shared vertex with an active. Can we skip non-Del leftovers that miss every active vertex, in \(o(\lvert E\rvert)\)?
+- **Work:** Experimental `--seed-incident` (implies `--delaunay-skip`). Rebuild incident-vertex marks after keep/AE. Live `seed_incident.json`. 1 thread. τ frozen. Default auto unchanged.
+- **Result:** **0 unmatched**. Faster than auto **3/8**. Faster than I323 **0/8**. figure8 n=2000 **2.15 vs 0.15 s** (refresh_act_verts tax). leftover-miss anisotropic n=8000 1.20 vs I323 1.16 vs auto 1.27 s — actives cover almost all vertices, so the filter does not shrink the leftover walk.
+- **Decision:** Reject. Exact, dominated by I323. Incident-vertex generation is not \(o(\lvert E\rvert)\) on leftover-miss. Keep `--seed-incident` experimental. Do not change `--engine auto`. Goal not complete.
+- **Class:** verified (live)
+
 ## 2026-10-14 — I324 leftover∩Delaunay pairing only
 
 - **Question:** I323 still walks \(\lvert E\rvert\) leftovers after the first keep_singleton so ae_seeded can run. If we never process non-Delaunay leftovers, is H1 still exact and does leftover-miss drop below Kruskal?

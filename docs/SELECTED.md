@@ -1,6 +1,6 @@
 # Selected algorithm (living)
 
-Updated 2026-10-14 after iterations I001–I324 plus consolidation (phase 3)
+Updated 2026-10-14 after iterations I001–I325 plus consolidation (phase 3)
 and the fused Euclidean sparse constructor.
 **Stable CLI:** `--mode exact|scale|sparse|auto`, `--engine auto|redzed|implicit`,
 `--estimate`, `--threads N`. Public runners import `generate_datasets` /
@@ -397,6 +397,12 @@ unmatched**, faster than auto **6/8**. leftover_coface \(O(n)\)
 Skips ae_seeded on non-Delaunay. Live `delaunay_only.json`: **not
 exact** (642 unmatched). Faster by dropping necessary AE. Confirms
 I272. `--delaunay-only` stays experimental. Not selected.
+
+### I325 seed-incident leftover skip (not default)
+
+Skip non-Del leftovers that miss every active vertex. Live
+`seed_incident.json`: **0 unmatched**, faster than auto **3/8**,
+than I323 **0/8**. figure8 n=2000 2.15 vs 0.15 s. Not selected.
 
 ### I227 real RedZeD (H09, MIT, not default)
 
