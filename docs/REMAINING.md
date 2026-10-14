@@ -46,7 +46,7 @@ Named leftover follow-ups after I202 are **spent**. That includes
 
 ## What literature still offers
 
-Search on 2026-10-14 (repeated later the same day):
+Search on 2026-10-14 (third pass the same day):
 
 - **RedZeD** (Kapulkin–Kershaw, arXiv:2606.06310) is the current
   published exact-VR alternative to Ripser. We already wrap vendor

@@ -9,9 +9,9 @@ Do not paste long reasoning here.
 
 - **Question:** Do the sub-10× leftover families (uniform2, sphere H1) reach 10× as n grows? Any new 2026 exact-VR engine?
 - **Work:** Literature: still only RedZeD (already wrapped); giotto/PHAT/Dory already timed. `eval_leftover_ratio_n.py` measures ratio vs n. Does not retune τ or reopen leftover skips. RedZeD paper itself flags unit-square \(\mathbb{R}^2\) as the weak H1 case.
-- **Result:** pending live sweep.
-- **Decision:** Measure, do not invent a pairing skip. Goal not complete.
-- **Class:** experiment
+- **Result:** figure8 n=1000/2000/3000 = **6.6 / 16.9 / 16.3×** (plateau; both \(p\approx 6\) at 2k→3k). uniform2 n=2k–7k = **7.0 / 8.3 / 8.5 / 9.1×** (still <10×; RedZeD’s unit-square weak case). sphere H1 n=1k–4k = **5.8 / 8.6 / 9.98 / 11.4×** (crosses 10× near n=4000). Frozen 6-cell pack stays **3/6**. Not a new pairing algorithm. τ frozen.
+- **Decision:** Keep the receipt. Do not claim a general leftover 10×. Goal not complete.
+- **Class:** verified (live)
 
 ## 2026-10-14 — Mode-dispatcher figure + fat-H2 band floor
 

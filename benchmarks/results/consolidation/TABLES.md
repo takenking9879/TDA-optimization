@@ -599,6 +599,22 @@ Agreement 20/20. Measured kind is the largest of metric/collapse/reduce (n≥400
 | sphere | 2000 | 0.092 | 0.784 | 8.48× | 61 | pith:auto-redzed |
 | blobs | 4000 | 0.165 | 2.131 | 12.94× | 145 | pith:auto-redzed-cc |
 
+## Leftover H1 ratio vs n (`eval_leftover_ratio_n.py`)
+1-thread leftover ratio vs n. Frozen leftover_10x.json pack is unchanged. Not a pairing-algorithm claim. τ frozen. Cells ≥10×: 3/11.
+| family | n | PITH (s) | Ripser (s) | ratio | p_PITH | p_Ripser |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| figure8 | 1000 | 0.024 | 0.160 | 6.61× |  |  |
+| figure8 | 2000 | 0.147 | 2.499 | 16.95× | 2.60 | 3.96 |
+| figure8 | 3000 | 1.716 | 28.024 | 16.33× | 6.05 | 5.96 |
+| uniform2 | 2000 | 0.061 | 0.428 | 7.01× |  |  |
+| uniform2 | 3500 | 0.179 | 1.487 | 8.31× | 1.92 | 2.23 |
+| uniform2 | 5000 | 0.391 | 3.325 | 8.49× | 2.20 | 2.26 |
+| uniform2 | 7000 | 0.793 | 7.234 | 9.13× | 2.10 | 2.31 |
+| sphere | 1000 | 0.031 | 0.177 | 5.75× |  |  |
+| sphere | 2000 | 0.091 | 0.782 | 8.61× | 1.56 | 2.15 |
+| sphere | 3000 | 0.212 | 2.115 | 9.98× | 2.09 | 2.46 |
+| sphere | 4000 | 0.381 | 4.334 | 11.38× | 2.04 | 2.49 |
+
 ## Axis scaling (T / noise / density / dimension)
 Budget 8 s. PITH `--threads 1`. Ripser 1 thread. Hardware 4 CPUs. Empirical.
 | axis | family | n | x | method | wall (s) | cpu (s) | threads | |E| | reduce (ms) | ok |

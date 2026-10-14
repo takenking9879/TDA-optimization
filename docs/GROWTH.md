@@ -55,6 +55,16 @@ Hardware: 4 CPU / 16 GB. Phase-2 exact times are 1-thread unless noted.
 - \(p \approx 2.8\)–\(3.5\): leftover visits or Ripser tet tax. Exact VR is leaving the cheap regime.
 - Do **not** call a 2-point slope “exponential.”
 
+Leftover H1 **ratio vs n** (`leftover_ratio_n.json`, 1 thread):
+
+| series | n | ratio | local \(p\) PITH / Ripser |
+| --- | ---: | ---: | --- |
+| figure8 | 1000→2000→3000 | 6.6→16.9→16.3× | \(p=2.60/3.96\) then **6.05/5.96** (both explode; ratio plateaus) |
+| uniform2 | 2000→3500→5000→7000 | 7.0→8.3→8.5→9.1× | \(p\approx 1.9\)–\(2.2\) / \(2.2\)–\(2.3\) (ratio crawls; still <10×) |
+| sphere H1 | 1000→2000→3000→4000 | 5.8→8.6→9.98→11.4× | \(p\approx 1.6\)–\(2.1\) / \(2.1\)–\(2.5\) (crosses 10× near \(n=4000\)) |
+
+This is **not** a general leftover 10×. It is an n-dependent constant factor in the RedZeD class.
+
 The feasibility probe uses these regimes: fat `maxdim≥2` with
 \(n_{cc}\ge 800\), or a dense flag (`edge_frac≥0.5` and \(n_{cc}\ge 600\)),
 or \(n\ge 200\) when there is no scale path, or conservative `|E|>8e6`.

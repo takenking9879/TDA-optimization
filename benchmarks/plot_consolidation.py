@@ -27,6 +27,8 @@ WALL_PATH = BENCH / "results" / "consolidation" / "wall_kind.json"
 WALL = json.loads(WALL_PATH.read_text()) if WALL_PATH.exists() else {}
 L10_PATH = BENCH / "results" / "consolidation" / "leftover_10x.json"
 L10 = json.loads(L10_PATH.read_text()) if L10_PATH.exists() else {}
+L10N_PATH = BENCH / "results" / "consolidation" / "leftover_ratio_n.json"
+L10N = json.loads(L10N_PATH.read_text()) if L10N_PATH.exists() else {}
 AXIS_PATH = BENCH / "results" / "consolidation" / "axis_scaling.json"
 AXIS = json.loads(AXIS_PATH.read_text()) if AXIS_PATH.exists() else {}
 DORY_PATH = BENCH / "results" / "consolidation" / "dory.json"
@@ -923,6 +925,41 @@ if L10:
             f"{'' if ratio is None else f'{ratio:.2f}×'} | "
             f"{'' if d.get('reduce_ms') is None else f'{d['reduce_ms']:.0f}'} | "
             f"{d.get('pipeline')} |"
+        )
+
+if L10N:
+    rows.append("")
+    rows.append("## Leftover H1 ratio vs n (`eval_leftover_ratio_n.py`)")
+    rows.append(
+        f"{L10N.get('note', '')} Cells ≥10×: {L10N.get('n_ratio_ge10')}/{L10N.get('n')}."
+    )
+    rows.append("| family | n | PITH (s) | Ripser (s) | ratio | p_PITH | p_Ripser |")
+    rows.append("| --- | ---: | ---: | ---: | ---: | ---: | ---: |")
+    by = {}
+    for d in L10N.get("receipts") or []:
+        rows.append(
+            "| {fam} | {n} | {pw} | {rw} | {ratio} | {pp} | {pr} |".format(
+                fam=d.get("name"),
+                n=d.get("n"),
+                pw="" if d.get("pith_s") is None else f"{d['pith_s']:.3f}",
+                rw="" if d.get("ripser_s") is None else f"{d['ripser_s']:.3f}",
+                ratio="" if d.get("ratio") is None else f"{d['ratio']:.2f}×",
+                pp="" if d.get("p_pith") is None else f"{d['p_pith']:.2f}",
+                pr="" if d.get("p_ripser") is None else f"{d['p_ripser']:.2f}",
+            )
+        )
+        if d.get("ratio") and d.get("n"):
+            by.setdefault(d.get("name"), []).append((d["n"], d["ratio"]))
+    series = [{"name": k, "xy": v} for k, v in by.items()]
+    if series:
+        svg_scatter(
+            FIG / "leftover_ratio_n.svg",
+            series,
+            "Leftover exact H1: Ripser/PITH ratio vs n (1 thread)",
+            "n",
+            "wall-clock ratio",
+            logx=True,
+            logy=False,
         )
 
 if AXIS:

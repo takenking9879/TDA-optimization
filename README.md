@@ -149,7 +149,10 @@ On the circle the wall is **collapse** (46 ms of 68 ms), not pairing
 (1 ms). On figure-8 \(n=2000\) the wall is **reduce** (95 ms of 147 ms).
 Live leftover-family 1-thread ratios vs Ripser: figure-8 **17.0×**, torus
 **12.6×**, blobs **12.9×**, sphere H1 **8.5×**, uniform2 n=5000 **8.1×**
-(3/6 ≥10× — not a general 10×).
+(3/6 ≥10× at those sizes — not a general 10×). Along n
+(`leftover_ratio_n.json`): sphere H1 crosses 10× near \(n=4000\)
+(**11.4×**); uniform2 is still **9.1×** at \(n=7000\); figure8
+plateaus ~16× once both engines explode.
 **Dory** (`pydory` 1.1.137, 1 thread, not vendored) **tracks Ripser** on
 those leftover \(H_1\) cells (figure-8 \(n=2000\) 2.84 vs 2.72 s; circle
 \(n=1000\) 2.79 vs 2.73 s) and is **slower** on sphere \(H_2\) \(n=400\)
@@ -182,6 +185,8 @@ Pushed to the 12 s wall: circle \(n=2000\) PITH **0.34 s**, Ripser and
 giotto timeout; figure-8 \(n=4000\) PITH **1.02 s**, giotto timeout;
 sphere \(n=800\) PITH **0.058 s**, giotto timeout; nested loops \(n=2000\)
 PITH **0.30 s** vs giotto **7.23 s** (24×).
+
+![Leftover H1 ratio vs n](benchmarks/results/consolidation/figures/leftover_ratio_n.svg)
 
 ![Exact VR vs Ripser / giotto-ph / GUDHI](benchmarks/results/consolidation/figures/runtime_baselines.svg)
 
