@@ -880,3 +880,18 @@ pydory 1.1.137 oracle, 1 thread, 12 s budget, not vendored. Stops a family after
 | figure8 | 3000 | 1 | 5.696 | 0.313 | 5.422 | True | True |
 | figure8 | 4000 | 1 | timeout | 3.663 | timeout | False | False |
 | sphere | 600 | 2 | timeout | 0.034 | 5.305 | False | True |
+
+## High-d control `uniform10` (d=10, T=1.8, 12 s, 1 thread)
+High-d Euclidean control, d=10. No --mode scale. 12 s, 1 thread. T=1.8 H1 and fat-H2 refuse. Probe 250-pt edge_frac≈0.99 at n=4000 marks exact infeasible; live exact RedZeD is 0.65 s. --mode auto selects sparse (18 s / 6.5M edges). Do not retune τ.
+| n | exact (s) | sparse (s) | Ripser (s) | estimate mode | exact feasible |
+| ---: | ---: | ---: | ---: | --- | --- |
+| 80 | 0.003 | 0.003 | 0.003 | exact | None |
+| 200 | 0.032 | 0.014 | 0.015 | exact | None |
+| 400 | 0.070 | 0.083 | 0.086 | exact | None |
+| 800 | 0.055 | 0.442 | 0.461 | exact | None |
+| 1600 | 0.128 | 2.158 | 2.366 | exact | None |
+| 4000 | 0.651 | timeout | timeout | sparse | None |
+| 8000 | 2.787 | skip | skip | sparse | None |
+
+Dispatcher miss (τ frozen): `--mode auto` selected sparse at n=4000 (18.3 s, 6500278 edges) vs exact 0.65 s (28× waste). fat residual band exceeds 1.5e6 leftover edges; exact leftover visits explode
+Fat H2 n=250 T=1.8: estimate sparse auto_will_run=False; auto refused=True.

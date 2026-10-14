@@ -121,14 +121,26 @@ def main() -> int:
     CLOUDS.mkdir(parents=True, exist_ok=True)
     rows = []
     first_fail = {}
-    for n in (80, 200, 400):
+    for n in (80, 200, 400, 800, 1600, 4000, 8000):
         path = CLOUDS / f"uniform10_n{n}.csv"
         write_csv(path, uniform(n, 10, rng))
         print(f"uniform10 n={n} maxdim=1 ...", flush=True)
         est = run_estimate(path, T, 1, timeout=BUDGET_S)
-        exact = run_pith_mode(path, 1, "exact")
-        sparse = run_pith_mode(path, 1, "sparse")
-        rip = run_ripser(path, 1)
+        exact = (
+            {"ok": False, "skipped_after_fail": True}
+            if "exact" in first_fail
+            else run_pith_mode(path, 1, "exact")
+        )
+        sparse = (
+            {"ok": False, "skipped_after_fail": True}
+            if "sparse" in first_fail
+            else run_pith_mode(path, 1, "sparse")
+        )
+        rip = (
+            {"ok": False, "skipped_after_fail": True}
+            if "ripser" in first_fail
+            else run_ripser(path, 1)
+        )
         print(
             f"  est mode={est.get('mode_recommended')} engine={est.get('engine_recommended')} "
             f"auto_will_run={est.get('auto_will_run')}",
@@ -150,11 +162,14 @@ def main() -> int:
                     "mode_recommended",
                     "engine_recommended",
                     "auto_will_run",
-                    "regime",
-                    "edge_frac",
-                    "residual_frac",
-                    "n_edges_lo",
-                    "n_edges_hi",
+                    "exact_feasible",
+                    "residual_regime",
+                    "edge_frac_probe",
+                    "residual_frac_probe",
+                    "est_edges",
+                    "est_residual_edges",
+                    "est_runtime_s",
+                    "reason",
                 )
             },
             "exact": exact,
@@ -167,11 +182,13 @@ def main() -> int:
         for meth, rec_m in (("exact", exact), ("sparse", sparse), ("ripser", rip)):
             if not rec_m.get("ok") and meth not in first_fail:
                 first_fail[meth] = {"n": n, "timed_out": bool(rec_m.get("timed_out"))}
+        if all(m in first_fail for m in ("exact", "sparse", "ripser")):
+            break
 
     path = CLOUDS / "uniform10_n250.csv"
     write_csv(path, uniform(250, 10, rng))
     print("uniform10 n=250 maxdim=2 (expect refuse) ...", flush=True)
-    est2 = run_estimate(path, 0.6, 2, timeout=BUDGET_S)
+    est2 = run_estimate(path, T, 2, timeout=BUDGET_S)
     auto2 = run_auto(path, 2)
     print(
         f"  est mode={est2.get('mode_recommended')} auto_will_run={est2.get('auto_will_run')} "
@@ -181,7 +198,7 @@ def main() -> int:
     refuse = {
         "name": "uniform10",
         "n": 250,
-        "T": 0.6,
+        "T": T,
         "maxdim": 2,
         "d": 10,
         "estimate": {
@@ -195,7 +212,7 @@ def main() -> int:
     payload = {
         "note": (
             "High-d Euclidean control, d=10. No --mode scale. "
-            "12 s, 1 thread. T=1.8 for H1; fat H2 refuse at n=250 T=0.6."
+            "12 s, 1 thread. T=1.8 for H1 and fat-H2 refuse."
         ),
         "threads": 1,
         "budget_s": BUDGET_S,

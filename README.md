@@ -135,6 +135,8 @@ On **this** hardware (4 CPUs, 16 GB, no GPU), under a **12 s** wall budget.
 | Nested loops \(H_1\), \(n=2000\) | 6.44 s | — | — | — | — | **0.29 s** | 0.036 s |
 | Blobs \(H_0\), \(n=25000\) | tens of seconds | — | — | — | — | **0.053 s** (Delaunay) | n/a |
 | Mixed 1D/2D/3D, \(n=300\), `maxdim=2` | 0.13 s | — | — | — | — | **timeout** (fat H2) | **5 ms** |
+| Uniform \(d=10\) \(H_1\), \(n=1600\) | 2.37 s | — | — | — | — | **0.13 s** | n/a (no scale) |
+| Uniform \(d=10\) \(H_1\), \(n=4000\) | timeout | — | — | — | — | **0.65 s** (auto picks sparse, 18 s) | n/a |
 
 The headline exact ratios **hold at 1 thread**, and they still hold against
 **4-thread giotto-ph**. A live re-measure on this box: circle \(n=1000\)
@@ -247,6 +249,15 @@ tens of milliseconds, not a change of regime. Mixed 1D/2D/3D at
 `--estimate` marks exact infeasible and recommends `--mode scale`.
 Auto-dispatch probes from \(n\ge 64\).
 
+A later high-d control (`uniform10`, \(d=10\), \(T=1.8\)) is outside the
+frozen engine pack. Exact RedZeD stays cheap through \(n=8000\) (2.79 s).
+Ripser and sparse first-timeout at \(n=4000\). `--mode auto` follows the
+probe, picks sparse, and spends **18 s** vs exact **0.65 s** (28×). The
+250-point residual band exceeds \(1.5\times 10^6\) leftover edges, so
+exact is marked infeasible. That cutoff is a **conservative safety
+margin**, not a clock measurement. \(\tau\) stays frozen. Fat \(H_2\)
+`uniform10` \(n=250\) still refuses (exit 3).
+
 ![Dispatcher regime](benchmarks/results/consolidation/figures/dispatcher.svg)
 
 Full numbers: [`benchmarks/results/consolidation/TABLES.md`](benchmarks/results/consolidation/TABLES.md).
@@ -263,7 +274,9 @@ Full numbers: [`benchmarks/results/consolidation/TABLES.md`](benchmarks/results/
 - `--estimate` is a probe plus conservative cutoffs. Runtime bands covered
   **32/32** scored walls after a 5 ms exact overhead and 25 ms hi-floor.
   It can still pick the slower exact engine (see `heavy_noise_circle`,
-  `disconnected_circles`, `two_spheres_apart`).
+  `disconnected_circles`, `two_spheres_apart`). On high-d `uniform10`
+  \(n=4000\) it marks exact infeasible and `--mode auto` runs sparse
+  (**28×** waste).
 - `--mode scale` requires Euclidean \(d\in\{2,3\}\) and is not a VR barcode.
 - GUDHI Rips (explicit) times out by \(n\sim 10^3\) on these \(H_1\)
   clouds. GUDHI Alpha is fast and **not** a VR stand-in.
@@ -310,6 +323,7 @@ python3 benchmarks/run_axis_scaling.py
 # optional oracle: pip install pydory  (not vendored; needs Python.h)
 python3 benchmarks/reverify_dory.py
 python3 benchmarks/run_dory_limits.py
+python3 benchmarks/run_uniform10.py
 python3 benchmarks/run_baseline_pack.py
 python3 benchmarks/run_sparse_limits.py
 python3 benchmarks/run_sparse_scale.py

@@ -637,6 +637,11 @@ first-fail (`dory_limits.json`): circle \(n=2000\) and figure-8 \(n=4000\)
 timeout with Ripser; sphere \(n=600\) Dory timeouts while Ripser still
 finishes (5.3 s). Not vendored. Not a 10× class. No new leftover skip.
 
+High-d `uniform10` (\(T=1.8\), 12 s): exact last-OK \(n=8000\) 2.79 s;
+Ripser / sparse first-fail \(n=4000\). `--mode auto` at \(n=4000\) picks
+sparse (18 s) vs exact 0.65 s — **28× waste**, τ frozen. Fat \(H_2\)
+refuse still correct.
+
 Named leftover follow-ups after I202 are **spent**. Do not reopen
 empty-seed skips, leftover XOR/noop, G_t apparent, add-R, D(e) memo,
 collapse-on-thicken at n≥4000, RCM/Morton on thicken, leftover

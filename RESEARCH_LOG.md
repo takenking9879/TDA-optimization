@@ -5,6 +5,13 @@ Do not paste long reasoning here.
 
 ---
 
+## 2026-10-14 — High-d uniform10 limits
+
+- **Question:** How far does exact / sparse / Ripser / auto go on \(d=10\) at \(T=1.8\), where scale is unsupported?
+- **Work:** `run_uniform10.py`, 12 s, 1 thread. Receipt: `uniform10.json`.
+- **Result:** Exact RedZeD last-OK \(n=8000\) 2.79 s. Ripser and sparse first-fail \(n=4000\). Historical negative control holds at \(n=200\) (exact 32 ms vs Ripser 15 ms). At \(n=4000\) the probe marks exact infeasible (est \(|R|\sim 3.7\)M) and `--mode auto` runs sparse in 18 s vs exact 0.65 s (**28× waste**). Fat \(H_2\) \(n=250\) refuse is correct. τ not retuned.
+- **Decision:** Document the miss. High-d at fixed \(T\) is sparse enough for exact RedZeD past Ripser’s 12 s wall. Goal not complete.
+
 ## 2026-10-14 — Dory 12 s first-timeout
 
 - **Question:** Where does 1-thread Dory become impractical vs Ripser / PITH on the leftover and \(H_2\) families?

@@ -6,7 +6,7 @@
 This is the single “how far can each method go” table. Receipts:
 `leftover_10x.json`, `baselines.json`, `limits.json`, `sparse_scale.json`,
 `axis_scaling.json`, `headline_reverify.json`, `dory.json`,
-`dory_limits.json`.
+`dory_limits.json`, `uniform10.json`.
 
 ## Exact VR (barcode must match Ripser)
 
@@ -27,10 +27,23 @@ This is the single “how far can each method go” table. Receipts:
 | PITH `--mode sparse` | figure-8 \(n=24000\) 5.56 s / 1.56M edges / ess \(H_1=2\) | FPS \(\Theta(n^2)\) (\(p\approx 2\)); fat \(H_2\) on 4D timed out (25 s) | 1 | Sheehy-style. 2D loops usually kept; `nested_loops` \(W_1\approx 1.05\). |
 | GUDHI Alpha | fast at these n | not a VR stand-in | 1 | Drops essential \(H_1/H_2\) on this suite. |
 
+## High-d control (`uniform10`, \(d=10\), \(T=1.8\))
+
+No `--mode scale`. 12 s, 1 thread (`uniform10.json`).
+
+| Method | Last OK | First 12 s fail | Notes |
+| --- | --- | --- | --- |
+| PITH `--mode exact` | \(n=8000\) 2.79 s (RedZeD) | none in this sweep | \(n=200\) is **2× slower** than Ripser (historical negative control). \(n\ge 800\) is faster. |
+| Ripser | \(n=1600\) 2.37 s | \(n=4000\) | Same pairing class; all-pairs at this \(T\). |
+| PITH `--mode sparse` | \(n=1600\) 2.16 s | \(n=4000\) | FPS + 6.5M edges at \(n=4000\) (~18 s if allowed). |
+| `--mode auto` | follows probe | \(n=4000\) picks sparse | **28× waste** vs exact 0.65 s. Probe residual band \(>1.5\times 10^6\). τ frozen. |
+| `--mode auto` fat \(H_2\) \(n=250\) | refuse (exit 3) | — | Same refuse as `uniform4`. |
+
 ## `--mode auto` refuse
 
 Fat \(H_2\) + recommended sparse + \(d\notin\{2,3\}\): exit 3 (`auto_will_run=false`).
-Example: `uniform4` \(n=250\), \(T=0.6\), `maxdim=2`. Explicit `--mode sparse` still runs.
+Examples: `uniform4` \(n=250\), \(T=0.6\), `maxdim=2`; `uniform10` \(n=250\), \(T=1.8\), `maxdim=2`.
+Explicit `--mode sparse` still runs.
 
 ## Axis (fixed n, 8 s, 1 thread)
 

@@ -33,6 +33,8 @@ DORY_PATH = BENCH / "results" / "consolidation" / "dory.json"
 DORY = json.loads(DORY_PATH.read_text()) if DORY_PATH.exists() else {}
 DORY_LIM_PATH = BENCH / "results" / "consolidation" / "dory_limits.json"
 DORY_LIM = json.loads(DORY_LIM_PATH.read_text()) if DORY_LIM_PATH.exists() else {}
+U10_PATH = BENCH / "results" / "consolidation" / "uniform10.json"
+U10 = json.loads(U10_PATH.read_text()) if U10_PATH.exists() else {}
 FIG = BENCH / "results" / "consolidation" / "figures"
 FIG.mkdir(parents=True, exist_ok=True)
 
@@ -984,6 +986,59 @@ if DORY_LIM:
                 dok=dor.get("ok"),
                 rok=rip.get("ok"),
             )
+        )
+
+if U10:
+    rows.append("")
+    rows.append("## High-d control `uniform10` (d=10, T=1.8, 12 s, 1 thread)")
+    rows.append(U10.get("note", "No --mode scale. Do not retune τ."))
+    rows.append("| n | exact (s) | sparse (s) | Ripser (s) | estimate mode | exact feasible |")
+    rows.append("| ---: | ---: | ---: | ---: | --- | --- |")
+    for d in U10.get("receipts") or []:
+        ex = d.get("exact") or {}
+        sp = d.get("sparse") or {}
+        rip = d.get("ripser") or {}
+        est = d.get("estimate") or {}
+        rows.append(
+            "| {n} | {ex} | {sp} | {rip} | {mode} | {feas} |".format(
+                n=d.get("n"),
+                ex="timeout"
+                if ex.get("timed_out")
+                else ("" if ex.get("wall_s") is None else f"{ex['wall_s']:.3f}"),
+                sp="timeout"
+                if sp.get("timed_out")
+                else (
+                    "skip"
+                    if sp.get("skipped_after_fail")
+                    else ("" if sp.get("wall_s") is None else f"{sp['wall_s']:.3f}")
+                ),
+                rip="timeout"
+                if rip.get("timed_out")
+                else (
+                    "skip"
+                    if rip.get("skipped_after_fail")
+                    else ("" if rip.get("wall_s") is None else f"{rip['wall_s']:.3f}")
+                ),
+                mode=est.get("mode_recommended"),
+                feas=est.get("exact_feasible"),
+            )
+        )
+    miss = U10.get("auto_miss")
+    if miss:
+        rows.append("")
+        rows.append(
+            f"Dispatcher miss (τ frozen): `--mode auto` selected {miss.get('auto_selected')} "
+            f"at n={miss.get('n')} ({miss.get('auto_wall_s'):.1f} s, "
+            f"{miss.get('auto_edges_in')} edges) vs exact {miss.get('exact_wall_s'):.2f} s "
+            f"({miss.get('waste'):.0f}× waste). {miss.get('reason')}"
+        )
+    fat = U10.get("fat_h2") or {}
+    if fat:
+        rows.append(
+            f"Fat H2 n={fat.get('n')} T={fat.get('T')}: estimate "
+            f"{(fat.get('estimate') or {}).get('mode_recommended')} "
+            f"auto_will_run={(fat.get('estimate') or {}).get('auto_will_run')}; "
+            f"auto refused={(fat.get('auto') or {}).get('refused')}."
         )
 
 (BENCH / "results" / "consolidation" / "TABLES.md").write_text("\n".join(rows) + "\n")

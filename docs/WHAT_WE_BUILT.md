@@ -50,9 +50,12 @@ existing scripts do not silently change complex. Held-out check: **8/8**
 (phase 2) and **10/10** on `eval_mode_auto.py` (9 execute + 1 refuse).
 Fat \(H_2\) on \(d\notin\{2,3\}\) is an exception: the probe still names
 `sparse`, but auto **refuses** (exit 3, `auto_will_run=false`) because
-that path timed out at 25 s on held-out `uniform4` \(n=250\). Explicit
-`--mode sparse` is unchanged. Engine choice inside exact can still be
-wrong (phase-3 oracle **5/9**; waste 1.3–2.75×, tens of milliseconds).
+that path timed out at 25 s on held-out `uniform4` \(n=250\) (same refuse
+on `uniform10` \(n=250\)). Explicit `--mode sparse` is unchanged. Engine
+choice inside exact can still be wrong (phase-3 oracle **5/9**; waste
+1.3–2.75×, tens of milliseconds). A post-freeze high-d control
+(`uniform10` \(n=4000\), \(T=1.8\)) marks exact infeasible and auto runs
+sparse in 18 s vs exact 0.65 s (**28×**) **[empirical, uniform10.json]**.
 \(\tau\) was **not** retuned.
 
 `--estimate` exposes that probe as a feasibility guess with a
