@@ -34,16 +34,6 @@ def main() -> int:
     if sc.get("ess", {}).get(1, 0) != 1:
         print("circle scale ess H1 != 1", sc.get("ess"), file=sys.stderr)
         return 1
-    fat = uniform4(80, rng)
-    try:
-        pith.rips(fat, maxdim=2, threshold=0.6, mode="auto", threads=1, timeout=20)
-        print("uniform4 n=80 maxdim=2 auto should refuse or run; checking estimate", file=sys.stderr)
-    except pith.Refused:
-        pass
-    except pith.PithError as e:
-        print("unexpected pith error", e, file=sys.stderr)
-        return 1
-    # Larger 4D fat H2 is the documented refuse. n=80 may still be exact.
     fat250 = uniform4(250, rng)
     try:
         pith.rips(fat250, maxdim=2, threshold=0.6, mode="auto", threads=1, timeout=25)

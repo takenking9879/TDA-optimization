@@ -9,9 +9,9 @@ Do not paste long reasoning here.
 
 - **Question:** Can a user call exact / scale / estimate / auto without the CLI or I-numbers?
 - **Work:** `python/pith/__init__.py` wraps the binary. `benchmarks/test_pith_api.py` on circle exact+scale and uniform4 n=250 fat-H2 refuse. No leftover-skip edits. τ frozen.
-- **Result:** Pending live smoke.
-- **Decision:** Try. Goal not complete.
-- **Class:** experiment
+- **Result:** Live `test_pith_api.py` ok: circle ess \(H_1=1\) on exact and scale; uniform4 \(n=250\) `maxdim=2` auto raises `Refused`. `run_stable.py` green.
+- **Decision:** Keep. Goal not complete.
+- **Class:** verified (live)
 
 ## 2026-10-14 — Post-16× leftover family (offset_rings)
 
