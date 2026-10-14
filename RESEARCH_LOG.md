@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-14 — I293 parallel first-pass apparent
+
+- **Question:** Does running Ripser apparent tests in parallel after Kruskal cut implicit persist on fat thicken graphs (I292: sphere n=16000 reduce 3.46 s / 2.26M leftovers, 99% apparent)?
+- **Hypothesis:** Apparent tests are independent and read-only on \(G\). 4096-leftover gate keeps unit tests sequential. Same PH. Also skip apparent entirely when maxdim<1.
+- **Work:** Thread pool in `persist_implicit_coh`. Wave 153 vs Ripser + I292 edge counts.
+- **Result:** **Exact** (figure8 n=2000 H1 2=2; implicit collapse=0 n=200 2=2; auto circle/figure8/uniform2/sphere/blobs). Same edges and same assembled columns (figure8 n=16000 40908; sphere n=8000 99497). **Clock cut:** figure8 n=16000 **0.876 vs I292 1.03 s** (reduce 438 vs 599 ms). sphere n=8000 **1.25 vs 1.51 s** (reduce 760 vs 940). sphere n=16000 **4.12 vs 4.73 s** (reduce 2.96 vs 3.46; ess2=1). Exact default held (H0 62×, figure8 17×, uniform2 10.7×, sphere H2 58×, circle 17×).
+- **Decision:** **Support** as a persist constant on implicit / optional thicken. Not a complexity-class change — 199k surviving columns still dominate sphere n=16000. Do not mark the goal complete.
+- **Class:** experiment (support; exact, 13–15% persist cut)
+
 ## 2026-10-13 — I292 Delaunay thicken cell skip
 
 - **Question:** Does skipping grid cells whose nearest corner is farther than the local thicken radius cut I286 construction at more points, with the same edge set?

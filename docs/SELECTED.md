@@ -1,6 +1,6 @@
 # Selected algorithm (living)
 
-Updated 2026-10-13 after iterations I001–I292. **CLI default `--engine
+Updated 2026-10-14 after iterations I001–I293. **CLI default `--engine
 auto` (I235+I236+I239+I240+I241+I263+I270+I271+I275):** subsample residual-frac dispatch,
 plus I263 edge-frac so hollow/manifold clouds take RedZeD. Fat →
 RedZeD (torus n=2000 **13.0×**). Thin-circle → collapse+implicit
@@ -63,7 +63,8 @@ hi-walk early-stop** after the zero-pivot / emergent pair.
   `--collapse -1` **skips collapse** when `maxdim=0`.
 - \(H_1\): leftover (non-MST, non-apparent) edges, youngest-first; F₂ heap
   coboundary; oldest remaining pivot; same-diameter apparent/emergent;
-  V-matrix re-enumeration. `--engine auto` **is implicit** (I137).
+  V-matrix re-enumeration. **I293** parallel first-pass apparent when
+  leftover≥4096. `--engine auto` **is implicit** (I137).
 - \(H_2\): tet-boundary homology fallback on the residual (thin after collapse).
 
 **Fidelity:** exact \(\mathrm{VR}_{\le T}\) vs Ripser `01add51` on the I044–I098
@@ -606,8 +607,8 @@ Rips is exact and too slow.
    n=2000 maxdim=2 **exact H1 33× / 75 ms**; n=4000 **158 ms /
    186k / ess1=2**; n=8000 **430 ms / ess1=2**. sphere n=2000
    H0+H1+H2 **203 ms / ess2=1**; n=4000 **621 ms**; n=8000
-   **1.42 s / 1.07M / ess2=1** (I287); n=16000 **4.73 s / 2.28M /
-   ess2=1** (I292). n=400 unmatched 3 vs I276
+   **1.42 s / 1.07M / ess2=1** (I287);    n=16000 **4.12 s / 2.28M /
+   ess2=1** (I293). n=400 unmatched 3 vs I276
    flag 52. two_spheres n=400 ess2 2=2, unmatched 2.
    I279 fixed 2.25 is the measured H1 constant. Default α=1 stays
    I276 ess-only. Not a VR identity.
@@ -670,7 +671,7 @@ Rips is exact and too slow.
    recommended H1 thicken CLI** (exact 9/9, n=8000 65×). **I286
    split** makes auto work at maxdim≥2 (figure8 n=4000 158 ms;
    sphere n=2000 H0+H1+H2 203 ms). **I287 split scale:** sphere
-   n=8000 H0+H1+H2 **1.42 s / ess2=1**; n=16000 **4.73 s** (I292);
+   n=8000 H0+H1+H2 **1.42 s / ess2=1**; n=16000 **4.12 s** (I293);
    figure8 n=8000 **430 ms**.
    **I283
    Delaunay 2-complex hold:** ess kept, sphere n=400 un 52→33, but
@@ -689,9 +690,10 @@ Rips is exact and too slow.
    add-\(R\) without a full emergent coboundary. **I291 thicken-collapse:**
    exact-on-flag, slower at n≥4000 (figure8 n=16000 collapse 4.05 s).
    Reverted. Do not collapse the optional thicken. **I292 cell skip:**
-   same edges, no pith cut; sphere n=16000 H0+H1+H2 **4.73 s /
-   ess2=1**. Persist-on-thicken is the remaining optional-path wall.
-   ae_seeded visits remain the exact-H1 wall.
+   same edges, no pith cut. **I293 parallel apparent:** exact,
+   figure8 n=16000 **0.876 vs 1.03 s**; sphere n=16000 **4.12 vs
+   4.73 s / ess2=1**. 199k surviving columns remain the thicken
+   persist wall. ae_seeded visits remain the exact-H1 wall.
 6. Owned AE leftover-star walk is still Θ(|leftover|·deg★) — rbit cut
    has_leftover_coface, not seeded probes (circle still 875k). I288
    equal-set seeded_is_noop is exact and reverted (848≈866). Packed
