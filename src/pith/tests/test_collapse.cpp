@@ -974,6 +974,19 @@ int main() {
             return 1;
         }
         std::cout << "ok I328 3D jump-locate |E|=" << e0.size() << "\n";
+        set_delaunay_hier(true);
+        std::vector<Edge> e2;
+        if (!delaunay_one_skeleton(pts, e2)) {
+            set_delaunay_hier(false);
+            std::cerr << "I329 hier 3D skeleton failed\n";
+            return 1;
+        }
+        set_delaunay_hier(false);
+        if (e0.size() != e2.size()) {
+            std::cerr << "I329 hier |E| " << e2.size() << " vs " << e0.size() << "\n";
+            return 1;
+        }
+        std::cout << "ok I329 3D hierarchy |E|=" << e0.size() << "\n";
     }
 
     // I276: Delaunay-flag keeps essential H1 on a circle (not exact VR).

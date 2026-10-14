@@ -61,7 +61,7 @@ static void usage_experimental() {
         << "  --delaunay-skip         skip leftover_coface on empty-seed non-Delaunay\n"
         << "  --delaunay-only         pair only leftover∩Delaunay (skips ae_seeded)\n"
         << "  --seed-incident         skip non-Del leftover unless it touches an active\n"
-        << "  --delaunay-adapt  --delaunay-floor F  --delaunay-jump\n"
+        << "  --delaunay-adapt  --delaunay-floor F  --delaunay-jump  --delaunay-hier\n"
         << "  --probe-only  --probe-vertex\n"
         << "Iteration numbers live in RESEARCH_LOG.md, not this interface.\n";
 }
@@ -649,6 +649,7 @@ int main(int argc, char** argv) {
     bool delaunay_only = false;
     bool seed_incident = false;
     bool delaunay_jump = false;
+    bool delaunay_hier = false;
     bool delaunay_vr = false;
     value_t delaunay_alpha = 1;
     value_t delaunay_floor = 0;
@@ -693,6 +694,7 @@ int main(int argc, char** argv) {
             seed_incident = true;
         }
         else if (a == "--delaunay-jump") delaunay_jump = true;
+        else if (a == "--delaunay-hier") delaunay_hier = true;
         else if (a == "--delaunay-vr") delaunay_vr = true;
         else if (a == "--delaunay-alpha") {
             const std::string v = need("--delaunay-alpha");
@@ -774,6 +776,7 @@ int main(int argc, char** argv) {
     }
     set_thread_limit(thread_limit);
     set_delaunay_jump(delaunay_jump);
+    set_delaunay_hier(delaunay_hier);
     if (points_path.empty() && dist_path.empty() && edges_path.empty()) {
         usage();
         return 2;
@@ -1235,6 +1238,7 @@ int main(int argc, char** argv) {
             if (used_redzed_thicken) r.counters.pipeline += "-redzed";
             if (used_redzed_h2) r.counters.pipeline += "-redzed-h2";
             if (delaunay_jump && delaunay_vr) r.counters.pipeline += "-jump";
+            if (delaunay_hier && delaunay_vr) r.counters.pipeline += "-hier";
         }
         std::sort(r.pairs.begin(), r.pairs.end(), [](const PersistencePair& a, const PersistencePair& b) {
             if (a.dim != b.dim) return a.dim < b.dim;

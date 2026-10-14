@@ -29,9 +29,11 @@
 
 namespace {
 thread_local bool g_deljump = false;
+thread_local bool g_delhier = false;
 }
 
 void pith::set_delaunay_jump(bool on) { g_deljump = on; }
+void pith::set_delaunay_hier(bool on) { g_delhier = on; }
 
 // I245: same buckets / finish_buckets as vendor build_edges, but the two
 // n² scans and the per-bucket sorts run on a thread pool. Final order is
@@ -2058,6 +2060,22 @@ static bool delaunay_edges_3d_walk(const std::vector<std::vector<value_t>>& pts,
         std::sort(order.begin(), order.end(),
                   [&](int a, int b) { return code[static_cast<size_t>(a)] < code[static_cast<size_t>(b)]; });
     }
+    int n_land = 0;
+    if (g_delhier && n >= 32) {
+        // I329: landmarks = every 16th Morton point, inserted first.
+        constexpr int kAlpha = 16;
+        std::vector<int> land, rest;
+        land.reserve(static_cast<size_t>(n / kAlpha + 1));
+        rest.reserve(static_cast<size_t>(n));
+        for (int i = 0; i < n; ++i) {
+            if ((i % kAlpha) == 0) land.push_back(order[static_cast<size_t>(i)]);
+            else rest.push_back(order[static_cast<size_t>(i)]);
+        }
+        n_land = static_cast<int>(land.size());
+        order.clear();
+        order.insert(order.end(), land.begin(), land.end());
+        order.insert(order.end(), rest.begin(), rest.end());
+    }
 
     std::vector<SpatEdge> extra;
     int hint = 0;
@@ -2068,7 +2086,9 @@ static bool delaunay_edges_3d_walk(const std::vector<std::vector<value_t>>& pts,
     inserted.reserve(static_cast<size_t>(n));
     constexpr int kJumpG = 32;
     std::unordered_map<int, std::vector<int>> jump_buckets;
+    std::unordered_map<int, std::vector<int>> land_buckets;
     if (g_deljump) jump_buckets.reserve(static_cast<size_t>(n) * 2);
+    if (g_delhier) land_buckets.reserve(static_cast<size_t>(n_land + 1) * 2);
     auto jump_cell = [&](double x, double y, double z) {
         int ix = static_cast<int>((x - xmin) / dx * (kJumpG - 1e-9));
         int iy = static_cast<int>((y - ymin) / dy * (kJumpG - 1e-9));
@@ -2109,6 +2129,37 @@ static bool delaunay_edges_3d_walk(const std::vector<std::vector<value_t>>& pts,
         const int t = vert_tet[static_cast<size_t>(best_v)];
         return live(t) ? t : hint;
     };
+    auto hier_start = [&](double px, double py, double pz) -> int {
+        if (!g_delhier || land_buckets.empty()) return hint;
+        const int cid = jump_cell(px, py, pz);
+        const int ix = cid / (kJumpG * kJumpG);
+        const int iy = (cid / kJumpG) % kJumpG;
+        const int iz = cid % kJumpG;
+        int best_v = -1;
+        double best2 = 1e300;
+        for (int dxk = -1; dxk <= 1; ++dxk)
+            for (int dyk = -1; dyk <= 1; ++dyk)
+                for (int dzk = -1; dzk <= 1; ++dzk) {
+                    const int jx = ix + dxk, jy = iy + dyk, jz = iz + dzk;
+                    if (jx < 0 || jx >= kJumpG || jy < 0 || jy >= kJumpG || jz < 0 || jz >= kJumpG)
+                        continue;
+                    const auto it = land_buckets.find((jx * kJumpG + jy) * kJumpG + jz);
+                    if (it == land_buckets.end()) continue;
+                    for (int v : it->second) {
+                        const double ddx = xs[static_cast<size_t>(v)] - px;
+                        const double ddy = ys[static_cast<size_t>(v)] - py;
+                        const double ddz = zs[static_cast<size_t>(v)] - pz;
+                        const double d2 = ddx * ddx + ddy * ddy + ddz * ddz;
+                        if (d2 < best2) {
+                            best2 = d2;
+                            best_v = v;
+                        }
+                    }
+                }
+        if (best_v < 0) return hint;
+        const int t = vert_tet[static_cast<size_t>(best_v)];
+        return live(t) ? t : hint;
+    };
     std::vector<int> cavity, q, newids;
     cavity.reserve(32);
     q.reserve(32);
@@ -2124,7 +2175,10 @@ static bool delaunay_edges_3d_walk(const std::vector<std::vector<value_t>>& pts,
         const int p = order[static_cast<size_t>(pi)];
         const double px = xs[static_cast<size_t>(p)], py = ys[static_cast<size_t>(p)],
                      pz = zs[static_cast<size_t>(p)];
-        int t0 = walk(jump_start(px, py, pz), px, py, pz);
+        int start = hint;
+        if (g_delhier && pi >= n_land) start = hier_start(px, py, pz);
+        else if (g_deljump) start = jump_start(px, py, pz);
+        int t0 = walk(start, px, py, pz);
         // I312: walk already tested 4 faces; locate_scan uses contains.
         // I307 bundled this skip with fsign cache and lost on birth tax.
         // Isolated skip — no extra bookkeeping.
@@ -2151,6 +2205,10 @@ static bool delaunay_edges_3d_walk(const std::vector<std::vector<value_t>>& pts,
                     vert_tet[static_cast<size_t>(p)] = t0;
                     inserted.push_back(p);
                     jump_buckets[jump_cell(px, py, pz)].push_back(p);
+                }
+                if (g_delhier) {
+                    vert_tet[static_cast<size_t>(p)] = t0;
+                    if (pi < n_land) land_buckets[jump_cell(px, py, pz)].push_back(p);
                 }
                 continue;
             }
@@ -2248,6 +2306,13 @@ static bool delaunay_edges_3d_walk(const std::vector<std::vector<value_t>>& pts,
             }
             inserted.push_back(p);
             jump_buckets[jump_cell(px, py, pz)].push_back(p);
+        }
+        if (g_delhier) {
+            for (int id : newids) {
+                const int* vv = tets[static_cast<size_t>(id)].v;
+                for (int k = 0; k < 4; ++k) vert_tet[static_cast<size_t>(vv[k])] = id;
+            }
+            if (pi < n_land) land_buckets[jump_cell(px, py, pz)].push_back(p);
         }
     }
 

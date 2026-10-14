@@ -9,6 +9,7 @@ Default scale path unchanged. 1 thread. τ frozen.
 from __future__ import annotations
 
 import json
+import math
 import sys
 import time
 from pathlib import Path
@@ -49,8 +50,6 @@ def run_scale(path: Path, T: float, maxdim: int, jump: bool):
         err = None
     except Exception as e:
         pairs, c, dt, err = [], {}, time.perf_counter() - t0, str(e)
-    import math
-
     ess2 = sum(1 for p in pairs if p["dim"] == 2 and not math.isfinite(p["death"]))
     return {
         "ok": err is None,
