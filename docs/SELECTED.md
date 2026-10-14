@@ -606,7 +606,8 @@ Rips is exact and too slow.
    n=2000 maxdim=2 **exact H1 33× / 75 ms**; n=4000 **158 ms /
    186k / ess1=2**; n=8000 **430 ms / ess1=2**. sphere n=2000
    H0+H1+H2 **203 ms / ess2=1**; n=4000 **621 ms**; n=8000
-   **1.42 s / 1.07M / ess2=1** (I287). n=400 unmatched 3 vs I276
+   **1.42 s / 1.07M / ess2=1** (I287); n=16000 **4.73 s / 2.28M /
+   ess2=1** (I292). n=400 unmatched 3 vs I276
    flag 52. two_spheres n=400 ess2 2=2, unmatched 2.
    I279 fixed 2.25 is the measured H1 constant. Default α=1 stays
    I276 ess-only. Not a VR identity.
@@ -669,7 +670,8 @@ Rips is exact and too slow.
    recommended H1 thicken CLI** (exact 9/9, n=8000 65×). **I286
    split** makes auto work at maxdim≥2 (figure8 n=4000 158 ms;
    sphere n=2000 H0+H1+H2 203 ms). **I287 split scale:** sphere
-   n=8000 H0+H1+H2 **1.42 s / ess2=1**; figure8 n=8000 **430 ms**.
+   n=8000 H0+H1+H2 **1.42 s / ess2=1**; n=16000 **4.73 s** (I292);
+   figure8 n=8000 **430 ms**.
    **I283
    Delaunay 2-complex hold:** ess kept, sphere n=400 un 52→33, but
    two_spheres worse (28→32). Alpha drops ess H2. I276 flag stays.
