@@ -19,42 +19,42 @@ using namespace pith;
 
 static void usage() {
     std::cerr
-        << "PITH — Preprocessed Implicit Topology Homology\n"
-        << "Usage: pith --points FILE.csv | --distances FILE | --edges FILE [options]\n"
-        << "  --maxdim K          homology dimension (default 1)\n"
-        << "  --threshold T       VR diameter threshold (default inf)\n"
-        << "  --collapse N        collapse passes (default -1 adaptive+probe; 0 = off)\n"
-        << "  --collapse-alg back|back-src|back-bits|dc|forward|suffix|suffix-back|suffix-stab|suffix-rescue|suffix-k|suffix-later\n"
-        << "  --suffix-mult X     oldest X·n edges for suffix* (default 6; I165)\n"
-        << "  --suffix-keep N     oldest N edges (overrides --suffix-mult; I167)\n"
-        << "  --suffix-k K        sample-K first-apex for suffix-k/later (0=full fused)\n"
-        << "  --later-b           Case-B later commons leave if |later[other]|<=cap (I183)\n"
-        << "  --later-escalate K  deeper K until first fused-fail (I183)\n"
-        << "  --later-esc-until N max young edges to escalate (default 32n)\n"
-        << "  --later-b-cap N     Case-B leave cap on |later[other]| (default 4)\n"
-        << "  --dom-budget K      max domination candidates per edge (-1 = all; I107)\n"
-        << "  --engine auto|homology|implicit|redzed|active   residual PH engine (default auto)\n"
-        << "                    auto: I235 subsample residual-frac; fat → redzed, thin → collapse+implicit\n"
-        << "  --ratio R           skip pairs with death <= birth*R (default 1)\n"
-        << "  --no-enclosing      do not cap T by enclosing radius\n"
-        << "  --edges FILE        1-skeleton: '# n=N' then 'u v t' lines (I207)\n"
-        << "  --sparse-eps EPS    in-process greedy-net sparse Rips 1-skeleton (I210)\n"
-        << "  --sparse-cap max|min  λ-cap for --sparse-eps (default max; I212 min)\n"
-        << "  --witness-n M       lazy witness on M farthest-point landmarks (I216)\n"
-        << "  --witness-nu K      lazy-witness ν (default 0; I216 ν=1 invents loops)\n"
-        << "  --knn K             undirected kNN flag 1-skeleton (I220; not exact VR)\n"
-        << "  --gic-n M           graph-induced complex on M landmarks (I222)\n"
-        << "  --gic-k K           kNN degree for --gic-n (default 16)\n"
-        << "  --reduced-vr        H07 reduced VR 2-complex (exact PH1 claimed; I224)\n"
-        << "  --delaunay-vr       flag of Euclidean Delaunay 1-skeleton (I276; not exact VR)\n"
-        << "  --delaunay-alpha A  I277–I300 H1 thicken: A or 'auto'. 2D maxdim≥2 splits H2 onto α=1;\n"
-        << "                      3D maxdim≥2 stays α=1 (thicken H1 is noise vs the void)\n"
-        << "  --delaunay-adapt    I280: R_v = A·max(r_v, max_nbr r) instead of A·r_v\n"
-        << "  --delaunay-floor F  I280: also thicken to F·median(r) (default 0)\n"
-        << "  --sparse-only       write residual edges and exit\n"
-        << "  --probe-only        print ROI probe on G_T and exit (I163)\n"
-        << "  --probe-vertex      print dominated-vertex count on G_T and exit (I192)\n"
-        << "  --format text|json  output format (default text)\n";
+        << "PITH — persistent homology for point clouds (CPU)\n"
+        << "Usage: pith --points FILE.csv [options]\n"
+        << "       pith --distances FILE [options]\n"
+        << "       pith --estimate --points FILE.csv [options]\n"
+        << "\n"
+        << "Stable options:\n"
+        << "  --maxdim K              homology dimension (default 1)\n"
+        << "  --threshold T           VR diameter threshold (default inf)\n"
+        << "  --mode exact|scale|sparse\n"
+        << "                          exact  = exact VR≤T (default)\n"
+        << "                          scale  = Euclidean Delaunay-flag path (d=2,3; not exact VR)\n"
+        << "                          sparse = greedy-net sparse Rips (approx; default eps=0.6)\n"
+        << "  --engine auto|redzed|implicit\n"
+        << "                          exact-mode engine (default auto: pick redzed or collapse)\n"
+        << "  --estimate              feasibility estimate only (no persistence)\n"
+        << "  --format text|json      output format (default text)\n"
+        << "  --no-enclosing          do not cap T by enclosing radius\n"
+        << "  --help                  this message\n"
+        << "  --help-experimental     research flags (not needed for normal use)\n";
+}
+
+static void usage_experimental() {
+    std::cerr
+        << "Experimental / compatibility flags (research ledger; not the stable API):\n"
+        << "  --engine homology|active\n"
+        << "  --collapse N            collapse passes (default -1 adaptive; 0 = off)\n"
+        << "  --collapse-alg back|back-src|back-bits|dc|forward|suffix*\n"
+        << "  --suffix-mult X  --suffix-keep N  --suffix-k K\n"
+        << "  --later-b  --later-escalate K  --later-esc-until N  --later-b-cap N\n"
+        << "  --dom-budget K  --ratio R  --edges FILE  --sparse-only\n"
+        << "  --sparse-eps EPS  --sparse-cap max|min\n"
+        << "  --witness-n M  --witness-nu K  --knn K  --gic-n M  --gic-k K\n"
+        << "  --reduced-vr  --delaunay-vr  --delaunay-alpha A|auto\n"
+        << "  --delaunay-adapt  --delaunay-floor F\n"
+        << "  --probe-only  --probe-vertex\n"
+        << "Iteration numbers live in RESEARCH_LOG.md, not this interface.\n";
 }
 
 static std::vector<std::vector<value_t>> read_points(const std::string& path) {
@@ -283,6 +283,79 @@ static void print_json(const Result& r) {
     std::cout << "  ]\n}\n";
 }
 
+// Empirical feasibility probe. Not a theorem: uses the same 250-pt
+// residual / edge-frac oracles as --engine auto, plus conservative
+// |E| cutoffs measured on the I227–I312 suite.
+static int print_estimate(const std::vector<std::vector<value_t>>* pts,
+                          const std::vector<std::vector<value_t>>* dist, int maxdim, value_t T,
+                          const std::string& format) {
+    const int n = pts ? static_cast<int>(pts->size())
+                      : (dist ? static_cast<int>(dist->size()) : 0);
+    const int dim = (pts && !pts->empty()) ? static_cast<int>((*pts)[0].size()) : -1;
+    double edge_frac = -1;
+    double residual_frac = -1;
+    if (pts && n >= 8 && std::isfinite(T) && T > 0)
+        edge_frac = probe_edge_frac_points(*pts, T, 250);
+    if (n >= 8) {
+        residual_frac = pts ? probe_residual_frac_points(*pts, T, 250)
+                            : (dist ? probe_residual_frac(*dist, T, 250) : -1);
+    }
+    const double all_pairs = (n > 1) ? 0.5 * static_cast<double>(n) * (n - 1) : 0;
+    const double est_e = (edge_frac >= 0) ? edge_frac * all_pairs : all_pairs;
+    const double est_del = (dim == 2) ? 3.0 * n : (dim == 3) ? 7.0 * n : -1;
+    const double tau = (maxdim >= 2) ? 0.15 : 0.04;
+    const bool hollow = edge_frac >= 0 && edge_frac < 0.25;
+    const bool fat = residual_frac >= 0 && residual_frac > tau;
+    std::string engine_rec = "implicit";
+    if (maxdim < 1) engine_rec = "redzed";  // Kruskal / Delaunay H0
+    else if (fat || hollow) engine_rec = "redzed";
+    bool exact_ok = true;
+    std::string reason = "exact VR looks feasible on the 250-pt probe";
+    if (maxdim >= 1 && est_e > 8.0e6) {
+        exact_ok = false;
+        reason = "estimated |E| > 8e6; exact H1 on G_T is likely impractical";
+    } else if (maxdim >= 1 && n > 20000 && edge_frac > 0.15) {
+        exact_ok = false;
+        reason = "dense G_T at n>20000; exact H1 typically leaves the low-polynomial regime";
+    } else if (maxdim >= 1 && n > 8000 && dim >= 2 && dim <= 3) {
+        reason = "exact VR may still run; Euclidean scale path is the practical option at this n";
+    }
+    std::string mode_rec = "exact";
+    if (!exact_ok && dim >= 2 && dim <= 3) mode_rec = "scale";
+    else if (!exact_ok) mode_rec = "sparse";
+    const char* runtime =
+        !exact_ok ? "impractical-or-scale" : (n >= 4000 && maxdim >= 1 ? "seconds" : "sub-second");
+    if (format == "json") {
+        std::cout << std::setprecision(6);
+        std::cout << "{\n"
+                  << "  \"kind\": \"estimate\",\n"
+                  << "  \"empirical\": true,\n"
+                  << "  \"n\": " << n << ",\n"
+                  << "  \"dim\": " << dim << ",\n"
+                  << "  \"maxdim\": " << maxdim << ",\n"
+                  << "  \"threshold\": " << T << ",\n"
+                  << "  \"edge_frac_probe\": " << edge_frac << ",\n"
+                  << "  \"residual_frac_probe\": " << residual_frac << ",\n"
+                  << "  \"est_edges\": " << est_e << ",\n"
+                  << "  \"est_delaunay_edges\": " << est_del << ",\n"
+                  << "  \"engine_recommended\": \"" << engine_rec << "\",\n"
+                  << "  \"mode_recommended\": \"" << mode_rec << "\",\n"
+                  << "  \"exact_feasible\": " << (exact_ok ? "true" : "false") << ",\n"
+                  << "  \"runtime_class\": \"" << runtime << "\",\n"
+                  << "  \"confidence\": \"low\",\n"
+                  << "  \"reason\": \"" << reason << "\"\n"
+                  << "}\n";
+    } else {
+        std::cout << "# ESTIMATE empirical=true n=" << n << " dim=" << dim << " maxdim=" << maxdim
+                  << " T=" << T << " edge_frac=" << edge_frac << " residual_frac=" << residual_frac
+                  << " est_edges=" << est_e << " est_delaunay=" << est_del
+                  << " engine=" << engine_rec << " mode=" << mode_rec
+                  << " exact_feasible=" << (exact_ok ? 1 : 0) << " runtime=" << runtime
+                  << " confidence=low\n# " << reason << "\n";
+    }
+    return 0;
+}
+
 int main(int argc, char** argv) {
     std::string points_path;
     std::string dist_path;
@@ -319,6 +392,8 @@ int main(int argc, char** argv) {
     int later_escalate = 0;
     int later_esc_until = 0;
     int later_b_cap = 0;
+    std::string mode = "exact";
+    bool estimate_only = false;
 
     for (int i = 1; i < argc; ++i) {
         const std::string a = argv[i];
@@ -375,6 +450,12 @@ int main(int argc, char** argv) {
         else if (a == "--probe-only") probe_only = true;
         else if (a == "--probe-vertex") probe_vertex = true;
         else if (a == "--format") format = need("--format");
+        else if (a == "--mode") mode = need("--mode");
+        else if (a == "--estimate") estimate_only = true;
+        else if (a == "--help-experimental") {
+            usage_experimental();
+            return 0;
+        }
         else if (a == "--help" || a == "-h") {
             usage();
             return 0;
@@ -383,6 +464,20 @@ int main(int argc, char** argv) {
             usage();
             return 2;
         }
+    }
+    if (mode == "scale") {
+        delaunay_vr = true;
+        delaunay_alpha_auto = true;
+    } else if (mode == "sparse") {
+        if (!(sparse_eps > 0 && sparse_eps < 1)) sparse_eps = static_cast<value_t>(0.6);
+    } else if (mode != "exact") {
+        std::cerr << "unknown --mode " << mode << " (use exact|scale|sparse)\n";
+        return 2;
+    }
+    if (engine != "auto" && engine != "redzed" && engine != "implicit" && engine != "homology" &&
+        engine != "active") {
+        std::cerr << "unknown --engine " << engine << "\n";
+        return 2;
     }
     if (points_path.empty() && dist_path.empty() && edges_path.empty()) {
         usage();
@@ -411,6 +506,10 @@ int main(int argc, char** argv) {
             } else {
                 pts = read_points(points_path);
                 have_pts = true;
+            }
+            if (estimate_only) {
+                return print_estimate(have_pts ? &pts : nullptr, dist.empty() ? nullptr : &dist,
+                                      maxdim, threshold, format);
             }
             // I235/I236/I238: --engine auto. Probe first. Fat residual →
             // RedZeD without building the n×n vector<vector> (I238). Thin
@@ -733,6 +832,7 @@ int main(int argc, char** argv) {
             if (a.birth != b.birth) return a.birth < b.birth;
             return a.death < b.death;
         });
+        r.counters.rss_bytes_peak = peak_rss_bytes();
         if (format == "json") print_json(r);
         else print_text(r);
         return 0;

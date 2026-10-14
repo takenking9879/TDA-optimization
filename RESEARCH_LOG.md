@@ -1134,6 +1134,14 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-14 — consolidation phase (stable CLI)
+
+- **Question:** Can the selected portfolio be used without I-numbers, and can we state honestly what was built plus measure limits?
+- **Work:** `--mode exact|scale|sparse`, `--estimate`, `--help` vs `--help-experimental`. Docs: `WHAT_WE_BUILT.md`, `SCALE_PATH.md`, `COMPLEXITY.md`. Held-out generators. `run_consolidation.py`.
+- **Result:** Public interface no longer requires I263/I297/…. Contribution stated as portfolio + dispatcher + sparse representations + optional Euclidean scale path (not a new exact-VR Big-O).
+- **Decision:** Stay in consolidation. Do not mark the goal complete until scaling tables, topology, and dispatcher eval are filled from `run_consolidation.py`.
+- **Class:** experiment (interface + documentation)
+
 ## 2026-10-14 — I312 skip post-walk contains (3D locate)
 
 - **Question:** Is the post-walk `contains` recheck redundant (walk already tested 4 faces; `locate_scan` already uses contains), and does dropping it cut 80k metric without changing the mesh?
