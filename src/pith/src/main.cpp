@@ -424,9 +424,10 @@ static Feasibility compute_feasibility(const std::vector<std::vector<value_t>>* 
         maxdim == 1 && f.est_exact_runtime > 0 && f.est_exact_runtime <= 4.0;
     // Hollow leftover clocks underestimate pairing (figure8 n=16000:
     // est 3.06 s, --mode auto timed out at 25 s). Do not override
-    // |E|>8e6 on hollow. Fat leftover H1 clocks track (anisotropic
-    // n=8000: est 1.07 s / wall 1.83 s).
-    const bool fat_h1_clock_ok = leftover_h1_clock_ok && fat;
+    // |E|>8e6 on hollow. Non-hollow fat leftover clocks track
+    // (anisotropic n=8000: est 1.07 s / wall 1.83 s). figure8 is
+    // hollow AND fat; anisotropic is fat only.
+    const bool fat_h1_clock_ok = leftover_h1_clock_ok && fat && !hollow;
     if (fat_h2_impractical) {
         f.exact_ok = false;
         if (dim >= 2 && dim <= 3)
@@ -445,7 +446,7 @@ static Feasibility compute_feasibility(const std::vector<std::vector<value_t>>* 
         f.exact_ok = false;
         f.reason = "dense G_T at n>20000 with a non-thin residual; exact H1 leaves the low-polynomial regime";
     } else if (maxdim >= 1 && fat && n > 6000 && dim >= 2 && dim <= 3 &&
-               !fat_h1_clock_ok) {
+               !leftover_h1_clock_ok) {
         f.reason = "fat Euclidean residual at n>6000: exact may still finish, scale is the safer option";
     } else if (maxdim >= 1 && thin && n > 8000 && dim >= 2 && dim <= 3) {
         f.reason = "thin residual: exact collapse+implicit is still the intended path; scale is optional";
@@ -453,7 +454,7 @@ static Feasibility compute_feasibility(const std::vector<std::vector<value_t>>* 
     f.mode_rec = "exact";
     if (!f.exact_ok && dim >= 2 && dim <= 3) f.mode_rec = "scale";
     else if (!f.exact_ok) f.mode_rec = "sparse";
-    else if (fat && n > 6000 && dim >= 2 && dim <= 3 && !fat_h1_clock_ok)
+    else if (fat && n > 6000 && dim >= 2 && dim <= 3 && !leftover_h1_clock_ok)
         f.mode_rec = "scale";
     const bool near_tau =
         residual_frac >= 0 && std::fabs(residual_frac - tau) < 0.02;
