@@ -1863,9 +1863,8 @@ bool delaunay_one_skeleton(const std::vector<std::vector<value_t>>& pts, std::ve
     return true;
 }
 
-bool delaunay_vr_skeleton(const std::vector<std::vector<value_t>>& pts, value_t T, value_t alpha,
-                          std::vector<Edge>& out, value_t floor, bool adapt) {
-    if (!delaunay_one_skeleton(pts, out)) return false;
+bool delaunay_thicken_extras(const std::vector<std::vector<value_t>>& pts, value_t T, value_t alpha,
+                             std::vector<Edge>& out, value_t floor, bool adapt) {
     if ((!(alpha > 1.0) && !(floor > 0) && !adapt) || pts.empty()) return true;
     const int n = static_cast<int>(pts.size());
     const int d = static_cast<int>(pts[0].size());
@@ -1976,6 +1975,12 @@ bool delaunay_vr_skeleton(const std::vector<std::vector<value_t>>& pts, value_t 
         }
     }
     return true;
+}
+
+bool delaunay_vr_skeleton(const std::vector<std::vector<value_t>>& pts, value_t T, value_t alpha,
+                          std::vector<Edge>& out, value_t floor, bool adapt) {
+    if (!delaunay_one_skeleton(pts, out)) return false;
+    return delaunay_thicken_extras(pts, T, alpha, out, floor, adapt);
 }
 
 static Result kruskal_h0(int n, std::vector<SpatEdge>&& edges) {

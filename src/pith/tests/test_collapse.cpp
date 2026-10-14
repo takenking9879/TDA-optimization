@@ -10,6 +10,7 @@
 #include <cmath>
 #include <iostream>
 #include <string>
+#include <tuple>
 #include <utility>
 #include <vector>
 
@@ -1033,6 +1034,46 @@ int main() {
         }
         std::cout << "ok I297 redzed-from-edges circle ess H1 |E|=" << de.size()
                   << " fin1=" << finz << "\n";
+    }
+
+    // I298: extras on a copied Delaunay 1-skeleton match a fresh thicken.
+    {
+        const int n = 64;
+        const value_t T = 1.4f;
+        std::vector<std::vector<value_t>> pts(static_cast<size_t>(n), std::vector<value_t>(2));
+        for (int i = 0; i < n; ++i) {
+            const float a = 6.2831853f * static_cast<float>(i) / static_cast<float>(n);
+            pts[static_cast<size_t>(i)][0] = std::cos(a);
+            pts[static_cast<size_t>(i)][1] = std::sin(a);
+        }
+        std::vector<Edge> fresh, thin, reused;
+        if (!delaunay_vr_skeleton(pts, T, delaunay_auto_alpha(n), fresh) ||
+            !delaunay_one_skeleton(pts, thin)) {
+            std::cerr << "I298 circle skeletons failed\n";
+            return 1;
+        }
+        reused = thin;
+        if (!delaunay_thicken_extras(pts, T, delaunay_auto_alpha(n), reused)) {
+            std::cerr << "I298 extras failed\n";
+            return 1;
+        }
+        auto key = [](const Edge& e) {
+            int u = e.u, v = e.v;
+            if (u > v) std::swap(u, v);
+            return std::tuple<int, int, int>{u, v, static_cast<int>(e.t * 1e6f + 0.5f)};
+        };
+        std::vector<std::tuple<int, int, int>> a, b;
+        for (const auto& e : fresh) a.push_back(key(e));
+        for (const auto& e : reused) b.push_back(key(e));
+        std::sort(a.begin(), a.end());
+        std::sort(b.begin(), b.end());
+        if (a != b || reused.size() <= thin.size()) {
+            std::cerr << "I298 extras mismatch |fresh|=" << fresh.size()
+                      << " |reused|=" << reused.size() << " |thin|=" << thin.size() << "\n";
+            return 1;
+        }
+        std::cout << "ok I298 reuse-Delaunay extras |E|=" << reused.size()
+                  << " thin=" << thin.size() << "\n";
     }
 
     // I239: two octahedra far apart — H0=2 and H2=2 (wedge of voids).

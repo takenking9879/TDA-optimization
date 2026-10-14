@@ -483,9 +483,13 @@ int main(int argc, char** argv) {
                 };
                 const auto t_dvr0 = std::chrono::steady_clock::now();
                 if (maxdim >= 2 && want_thicken) {
+                    // I298: one Delaunay; α=1 flag is that 1-skeleton;
+                    // thicken extras append onto a copy.
                     std::vector<Edge> thin;
-                    if (!delaunay_vr_skeleton(pts, threshold, 1, thin, 0, false)) return fail_dvr();
-                    if (!delaunay_vr_skeleton(pts, threshold, a, de, delaunay_floor, delaunay_adapt))
+                    if (!delaunay_one_skeleton(pts, thin)) return fail_dvr();
+                    de = thin;
+                    if (!delaunay_thicken_extras(pts, threshold, a, de, delaunay_floor,
+                                                 delaunay_adapt))
                         return fail_dvr();
                     g = graph_from_edge_list(npts, de, threshold);
                     g_h2 = graph_from_edge_list(npts, thin, threshold);

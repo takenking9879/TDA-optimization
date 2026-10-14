@@ -41,6 +41,11 @@ bool delaunay_one_skeleton(const std::vector<std::vector<value_t>>& pts, std::ve
 bool delaunay_vr_skeleton(const std::vector<std::vector<value_t>>& pts, value_t T, value_t alpha,
                           std::vector<Edge>& out, value_t floor = 0, bool adapt = false);
 
+// I298: append local-radius extras onto an existing Delaunay 1-skeleton
+// (same edges as delaunay_vr_skeleton). Split builds Delaunay once.
+bool delaunay_thicken_extras(const std::vector<std::vector<value_t>>& pts, value_t T, value_t alpha,
+                             std::vector<Edge>& inout, value_t floor = 0, bool adapt = false);
+
 // I282: α(n) = min(2.75, 1.75 + 0.125 log2(max(n/400, 1))).
 // 1.75 closed blobs; n=8000 reaches ≥2.25 (I279 exact). Empirical.
 inline value_t delaunay_auto_alpha(int n) {
