@@ -123,7 +123,7 @@ general leftover claim.
 All of the following, together:
 
 1. Spent table above is complete for leftover / collapse / owned AE /
-   reduced VR / extra Morse / FPS sqrt / 3D bookkeeping.
+   reduced VR / extra Morse / FPS sqrt / FPS AABB / 3D bookkeeping.
 2. No unpublished pairing algorithm is sitting in-tree unused.
 3. Remaining walls require new theory or a different complex
    (already provided as `--mode scale` / `--mode sparse`).
