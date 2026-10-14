@@ -200,8 +200,8 @@ probe. A **1-thread oracle** (run both exact engines):
 | Phase-3 held-out / post-freeze | 5 / 9 | `disconnected_circles`, `nonuniform_circle` (thin → implicit, 1.3–1.6×); `two_spheres_apart` (hollow → RedZeD, **2.75×**, 16 vs 6 ms) |
 
 `--mode auto` (exact vs scale vs sparse) matched the probe **8/8** then
-**9/9** on the new families, plus a **refuse** on fat 4D \(H_2\)
-(`uniform4` \(n=250\), `maxdim=2`: probe names sparse, auto exits 3).
+**10/10** on `eval_mode_auto.py` (9 execute + 1 refuse on fat 4D \(H_2\):
+`uniform4` \(n=250\), `maxdim=2`, probe names sparse, auto exits 3).
 \(\tau\) was **not** retuned after the post-freeze misses — they cost
 tens of milliseconds, not a change of regime. Mixed 1D/2D/3D at
 `maxdim=2` is a **fat H2** residual: exact timed out at \(n=300\);

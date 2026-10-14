@@ -2,6 +2,8 @@
   "receipts": [
     {
       "ok": true,
+      "returncode": 0,
+      "refused": false,
       "selected": "exact",
       "stderr": "# MODE auto selected exact engine=implicit exact_feasible=1 regime=thin confidence=low\n# exact VR looks feasible on the 250-pt probe (conservative |E| band)\n",
       "has_h1": true,
@@ -15,6 +17,8 @@
     },
     {
       "ok": true,
+      "returncode": 0,
+      "refused": false,
       "selected": "exact",
       "stderr": "# MODE auto selected exact engine=redzed exact_feasible=1 regime=hollow confidence=low\n# exact VR looks feasible on the 250-pt probe (conservative |E| band)\n",
       "has_h1": true,
@@ -28,6 +32,8 @@
     },
     {
       "ok": true,
+      "returncode": 0,
+      "refused": false,
       "selected": "exact",
       "stderr": "# MODE auto selected exact engine=redzed exact_feasible=1 regime=hollow confidence=medium\n# exact VR looks feasible on the 250-pt probe (conservative |E| band)\n",
       "has_h1": true,
@@ -41,6 +47,8 @@
     },
     {
       "ok": true,
+      "returncode": 0,
+      "refused": false,
       "selected": "exact",
       "stderr": "# MODE auto selected exact engine=redzed exact_feasible=1 regime=fat confidence=medium\n# exact VR looks feasible on the 250-pt probe (conservative |E| band)\n",
       "has_h1": true,
@@ -54,6 +62,8 @@
     },
     {
       "ok": true,
+      "returncode": 0,
+      "refused": false,
       "selected": "exact",
       "stderr": "# MODE auto selected exact engine=implicit exact_feasible=1 regime=thin confidence=medium\n# exact VR looks feasible on the 250-pt probe (conservative |E| band)\n",
       "has_h1": true,
@@ -67,6 +77,8 @@
     },
     {
       "ok": true,
+      "returncode": 0,
+      "refused": false,
       "selected": "scale",
       "stderr": "# MODE auto selected scale engine=redzed exact_feasible=0 regime=fat confidence=medium\n# fat residual at maxdim>=2: exact H2 on G_T is often impractical; Euclidean scale is safer\n",
       "has_h1": true,
@@ -80,6 +92,8 @@
     },
     {
       "ok": true,
+      "returncode": 0,
+      "refused": false,
       "selected": "scale",
       "stderr": "# MODE auto selected scale engine=redzed exact_feasible=0 regime=hollow confidence=low\n# conservative |E| band exceeds 8e6; exact H1 on G_T is likely impractical\n",
       "has_h1": true,
@@ -93,6 +107,8 @@
     },
     {
       "ok": true,
+      "returncode": 0,
+      "refused": false,
       "selected": "scale",
       "stderr": "# MODE auto selected scale engine=implicit exact_feasible=0 regime=thin confidence=low\n# conservative |E| band exceeds 8e6; exact H1 on G_T is likely impractical\n",
       "has_h1": true,
@@ -106,6 +122,8 @@
     },
     {
       "ok": true,
+      "returncode": 0,
+      "refused": false,
       "selected": "sparse",
       "stderr": "# MODE auto selected sparse engine=redzed exact_feasible=0 regime=fat confidence=low\n# conservative |E| band exceeds 8e6; exact H1 on G_T is likely impractical\n",
       "has_h1": true,
@@ -116,8 +134,23 @@
       "maxdim": 1,
       "expect": "sparse",
       "agree": true
+    },
+    {
+      "ok": false,
+      "returncode": 3,
+      "refused": true,
+      "selected": "sparse",
+      "stderr": "# MODE auto selected sparse engine=redzed exact_feasible=0 regime=hollow confidence=medium\n# fat residual at maxdim>=2 on a non-scaleable metric; sparse H2 may still be impractical \u2014 lower T or maxdim\n# MODE auto refusing to run: fat H2 sparse on d\u2209{2,3} timed out in the held-out 4D suite. Rerun with --maxdim 1 --mode sparse, or pass --mode sparse explicitly if you want H2 anyway.\n",
+      "has_h1": false,
+      "pipeline": null,
+      "name": "uniform4",
+      "n": 250,
+      "T": 0.6,
+      "maxdim": 2,
+      "expect": "refuse",
+      "agree": true
     }
   ],
-  "n_agree": 9,
-  "n": 9
+  "n_agree": 10,
+  "n": 10
 }

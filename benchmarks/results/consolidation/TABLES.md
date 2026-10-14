@@ -445,3 +445,18 @@ Same greedy-net flag as the matrix path. `distances` is FPS + T-ball evals. Loca
 | uniform4 | 400 | 0.026 |  | 32217 | 7 MB |  | 0 |
 | uniform4 | 800 | 0.072 |  | 93659 | 13 MB | 1.44 | 0 |
 | uniform4 | 1600 | 0.268 |  | 266831 | 38 MB | 1.91 | 0 |
+
+## `--mode auto` vs probe (`eval_mode_auto.py`)
+Agreement 10/10. `refuse` means the probe named sparse but auto exits 3 instead of starting fat H2 outside d∈{2,3}.
+| family | n | maxdim | selected | expect | refused | agree |
+| --- | ---: | ---: | --- | --- | --- | --- |
+| circle_noisy | 400 | 1 | exact | exact | False | True |
+| figure8 | 400 | 1 | exact | exact | False | True |
+| many_loops | 400 | 1 | exact | exact | False | True |
+| nested_loops | 400 | 1 | exact | exact | False | True |
+| sphere | 400 | 2 | exact | exact | False | True |
+| mixed_1d2d3d | 300 | 2 | scale | scale | False | True |
+| figure8 | 16000 | 1 | scale | scale | False | True |
+| sphere | 16000 | 2 | scale | scale | False | True |
+| uniform4 | 5000 | 1 | sparse | sparse | False | True |
+| uniform4 | 250 | 2 | sparse | refuse | True | True |

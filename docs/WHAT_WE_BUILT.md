@@ -47,7 +47,7 @@ collapse). **[empirical, I235+I263 + consolidation]**
 `--mode auto` runs the same probe and then **executes** the recommended
 path (`exact` / `scale` / `sparse`). Default remains `--mode exact` so
 existing scripts do not silently change complex. Held-out check: **8/8**
-(phase 2) and **9/9** vs probe on post-freeze families (phase 3).
+(phase 2) and **10/10** on `eval_mode_auto.py` (9 execute + 1 refuse).
 Fat \(H_2\) on \(d\notin\{2,3\}\) is an exception: the probe still names
 `sparse`, but auto **refuses** (exit 3, `auto_will_run=false`) because
 that path timed out at 25 s on held-out `uniform4` \(n=250\). Explicit
