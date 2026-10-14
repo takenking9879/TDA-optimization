@@ -369,6 +369,22 @@ int main() {
             cloud.push_back({std::cos(ang) + jitter, std::sin(ang) - jitter});
         }
         const auto dc = pairwise_pts(cloud);
+        {
+            const auto lam_m = greedy_insertion_radii(dc);
+            const auto lam_p = greedy_insertion_radii_points(cloud);
+            if (lam_m.size() != lam_p.size()) {
+                std::cerr << "FPS λ length mismatch\n";
+                return 1;
+            }
+            for (size_t i = 0; i < lam_m.size(); ++i) {
+                if (std::fabs(static_cast<double>(lam_m[i] - lam_p[i])) > 1e-5) {
+                    std::cerr << "FPS λ mismatch i=" << i << " matrix=" << lam_m[i]
+                              << " points=" << lam_p[i] << "\n";
+                    return 1;
+                }
+            }
+            std::cout << "ok FPS λ points==matrix n=" << lam_m.size() << "\n";
+        }
         for (SparseCap cap : {SparseCap::Max, SparseCap::Min}) {
             Graph mm = sparse_rips_graph(dc, 1.5f, 0.6f, cap);
             Graph pp = sparse_rips_graph_points(cloud, 1.5f, 0.6f, cap);

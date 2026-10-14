@@ -5,6 +5,14 @@ Do not paste long reasoning here.
 
 ---
 
+## 2026-10-14 — sparse FPS squared-distance try (revert)
+
+- **Question:** Does skipping \(n^2\) sqrts in Euclidean FPS cut the sparse construction wall?
+- **Work:** Compare on squared Euclidean distance (monotone), write \(\lambda=\sqrt{\cdot}\). Same start vertex / first-max ties. figure8 n=8000 / 16000 `--mode sparse --threads 1`.
+- **Result:** Same complex (unit λ points==matrix; CLI points==matrix 7/7). **No clock cut:** n=8000 **0.73 s** (receipt 0.65–0.75 s); n=16000 **2.51 s**. Distances still \(\Theta(n^2)\) (52.5M / 211M). Wall is the evaluations, not sqrt.
+- **Decision:** Revert. Keep `docs/PRACTICAL_LIMITS.md`. Do not retry FPS sqrt / squared-distance constants. Do not reopen leftover pairing. Goal not complete.
+- **Class:** experiment (reject)
+
 ## 2026-10-14 — axis scaling (T / noise / density / dimension)
 
 - **Question:** Where does each method leave the cheap regime when we raise T, noise, density, or ambient dim — not only n?

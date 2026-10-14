@@ -14,7 +14,8 @@ stock VR engines time out.
 
 Details: [`docs/WHAT_WE_BUILT.md`](docs/WHAT_WE_BUILT.md),
 [`docs/SCALE_PATH.md`](docs/SCALE_PATH.md),
-[`docs/COMPLEXITY.md`](docs/COMPLEXITY.md).
+[`docs/COMPLEXITY.md`](docs/COMPLEXITY.md),
+[`docs/PRACTICAL_LIMITS.md`](docs/PRACTICAL_LIMITS.md).
 Dashboard: [PITH consolidation results](https://cursor.com/canvas/store-bfb92e22-33cb-473f-b3c3-3bfc05d5722d/8a09a96a-dbf1-4b70-96ec-8021bc123ce6).
 
 ## What is this?
@@ -269,6 +270,7 @@ Full numbers: [`benchmarks/results/consolidation/TABLES.md`](benchmarks/results/
 | `docs/WHAT_WE_BUILT.md` | Contribution, exact vs approx |
 | `docs/SCALE_PATH.md` | Euclidean alternative complex |
 | `docs/COMPLEXITY.md` | Worst-case / regime / empirical |
+| `docs/PRACTICAL_LIMITS.md` | How far each method goes on this box |
 | `docs/GROWTH.md` | Fitted \(t\\approx Cn^p\) slopes (empirical) |
 | `docs/SELECTED.md` | Living selected path (research) |
 | `RESEARCH_LOG.md` | Iteration ledger |
