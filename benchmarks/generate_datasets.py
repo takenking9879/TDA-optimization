@@ -246,6 +246,11 @@ def grid_holes(n: int, rng: np.random.Generator) -> np.ndarray:
     return pts + rng.normal(0.0, 0.004, size=pts.shape)
 
 
+def uniform2(n: int, rng: np.random.Generator) -> np.ndarray:
+    """Unit-square sample used by leftover H1 receipts."""
+    return uniform(n, 2, rng)
+
+
 def uniform4(n: int, rng: np.random.Generator) -> np.ndarray:
     """Held-out 4D cloud: no Delaunay scale path; `--mode auto` may pick sparse."""
     return uniform(n, 4, rng)
@@ -304,6 +309,7 @@ GENERATORS = {
     "random_geometric": random_geometric,
     "grid_holes": grid_holes,
     "two_spheres_apart": two_spheres_apart,
+    "uniform2": uniform2,
     "uniform4": uniform4,
     "swiss_roll": swiss_roll,
     "linked_circles": linked_circles,
