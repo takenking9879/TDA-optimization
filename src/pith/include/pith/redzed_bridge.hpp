@@ -23,7 +23,7 @@ Result persist_redzed(const std::vector<std::vector<value_t>>& dist, int maxdim,
 // I245: parallel build_edges (same buckets + finish_buckets).
 Result persist_redzed_from_points(const std::vector<std::vector<value_t>>& pts, int maxdim,
                                  value_t threshold, bool dense_metric = false,
-                                 bool knn_mark = false);
+                                 bool knn_mark = false, bool delaunay_skip = false);
 
 // I263: 250 evenly spaced points, |{d≤T}| / C(m,2). Used by auto
 // dispatch so hollow/manifold clouds take RedZeD (spatial+hash) even
