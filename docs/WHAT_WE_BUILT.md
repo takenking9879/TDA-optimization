@@ -136,7 +136,8 @@ extend low-dimensional Euclidean analysis to tens of thousands of
 points by switching complex (and saying so).
 
 The public interface is `--mode exact|scale|sparse|auto`, `--engine
-auto|redzed|implicit`, `--estimate`, and `--threads`. Iteration numbers
+auto|redzed|implicit`, `--estimate`, `--threads`, and the Python
+wrapper `python/pith` (`rips` / `estimate`). Iteration numbers
 and `run_wave*.py` are the research ledger (`benchmarks/README.md`).
 
 Spent leftover / pairing micro-opts and the remaining walls are listed

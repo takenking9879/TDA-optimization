@@ -414,6 +414,7 @@ Full numbers: [`benchmarks/results/consolidation/TABLES.md`](benchmarks/results/
 | Path | Role |
 | --- | --- |
 | `src/pith/` | Engine (C++17) |
+| `python/pith/` | Stable Python wrapper (`rips` / `estimate`) |
 | `docs/WHAT_WE_BUILT.md` | Contribution, exact vs approx |
 | `docs/SCALE_PATH.md` | Euclidean alternative complex |
 | `docs/COMPLEXITY.md` | Worst-case / regime / empirical |
