@@ -5,6 +5,13 @@ Do not paste long reasoning here.
 
 ---
 
+## 2026-10-14 — Held-out high-d auto sweep
+
+- **Question:** Does the exact-vs-sparse clock-compare overfit uniform4/10?
+- **Work:** `eval_highd_auto.py` on uniform5/6/7/8, dense/sparse \(T\), L1 \(d=4\), plus a new fat-\(H_2\) refuse cell. τ frozen.
+- **Result:** **0/8** cheaper-mode misses. Exact won every timed pair; sparse timed out on uniform8 \(n=4000\). Auto stayed exact. Fat \(H_2\) `uniform6` \(n=200\) refused. Wrote `highd_auto.json` and `topology_claims.json`.
+- **Decision:** Keep the override. Not a pairing 10×. Goal not complete.
+
 ## 2026-10-14 — Dispatcher: stay exact when sparse is not cheaper
 
 - **Question:** Can `--mode auto` stop paying the uniform10 / uniform4 sparse miss without retuning \(\tau\)?

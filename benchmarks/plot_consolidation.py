@@ -35,6 +35,8 @@ DORY_LIM_PATH = BENCH / "results" / "consolidation" / "dory_limits.json"
 DORY_LIM = json.loads(DORY_LIM_PATH.read_text()) if DORY_LIM_PATH.exists() else {}
 U10_PATH = BENCH / "results" / "consolidation" / "uniform10.json"
 U10 = json.loads(U10_PATH.read_text()) if U10_PATH.exists() else {}
+HIGHD_PATH = BENCH / "results" / "consolidation" / "highd_auto.json"
+HIGHD = json.loads(HIGHD_PATH.read_text()) if HIGHD_PATH.exists() else {}
 FIG = BENCH / "results" / "consolidation" / "figures"
 FIG.mkdir(parents=True, exist_ok=True)
 
@@ -1046,6 +1048,40 @@ if U10:
             f"{(fat.get('estimate') or {}).get('mode_recommended')} "
             f"auto_will_run={(fat.get('estimate') or {}).get('auto_will_run')}; "
             f"auto refused={(fat.get('auto') or {}).get('refused')}."
+        )
+
+if HIGHD:
+    rows.append("")
+    rows.append("## Held-out high-d / L1 auto clock-compare")
+    rows.append(
+        f"{HIGHD.get('note', '')} Wrong picks: "
+        f"{HIGHD.get('n_wrong')}/{HIGHD.get('n_compared')}."
+    )
+    rows.append("| family | n | d | rec | exact (s) | sparse (s) | cheaper | wrong |")
+    rows.append("| --- | ---: | ---: | --- | ---: | ---: | --- | --- |")
+    for d in HIGHD.get("receipts") or []:
+        if d.get("maxdim") != 1:
+            continue
+        ex = (d.get("exact") or {}).get("wall_s")
+        sp = (d.get("sparse") or {}).get("wall_s")
+        rows.append(
+            "| {fam} | {n} | {dim} | {rec} | {ex} | {sp} | {ch} | {w} |".format(
+                fam=d.get("name"),
+                n=d.get("n"),
+                dim=d.get("d"),
+                rec=(d.get("estimate") or {}).get("mode_recommended"),
+                ex="" if ex is None else f"{ex:.3f}",
+                sp="timeout"
+                if (d.get("sparse") or {}).get("timed_out")
+                else ("" if sp is None else f"{sp:.3f}"),
+                ch=d.get("cheaper"),
+                w=d.get("wrong"),
+            )
+        )
+    refuse = [d for d in HIGHD.get("receipts") or [] if d.get("maxdim") >= 2]
+    for d in refuse:
+        rows.append(
+            f"Fat H2 {d.get('name')} n={d.get('n')}: refuse_ok={d.get('refuse_ok')}."
         )
 
 (BENCH / "results" / "consolidation" / "TABLES.md").write_text("\n".join(rows) + "\n")

@@ -897,3 +897,17 @@ High-d Euclidean control, d=10. No --mode scale. 12 s, 1 thread. T=1.8 H1 and fa
 Historical miss (τ frozen): `--mode auto` selected sparse at n=4000 (18.3 s, 6500278 edges) vs exact 0.65 s (28× waste). fat residual band exceeds 1.5e6 leftover edges; exact leftover visits explode
 After clock-compare override: auto selects exact in 0.74 s (pith:auto-redzed).
 Fat H2 n=250 T=1.8: estimate sparse auto_will_run=False; auto refused=True.
+
+## Held-out high-d / L1 auto clock-compare
+Held-out high-d / L1 clock-compare. τ frozen. wrong=recommended mode was the slower of exact/sparse. Wrong picks: 0/8.
+| family | n | d | rec | exact (s) | sparse (s) | cheaper | wrong |
+| --- | ---: | ---: | --- | ---: | ---: | --- | --- |
+| uniform6 | 2000 | 6 | exact | 0.151 | 1.359 | exact | False |
+| uniform6 | 4000 | 6 | exact | 0.602 | 5.799 | exact | False |
+| uniform8 | 2000 | 8 | exact | 0.194 | 3.344 | exact | False |
+| uniform8 | 4000 | 8 | exact | 0.648 | timeout | exact | False |
+| uniform5_sparseT | 3000 | 5 | exact | 0.128 | 1.071 | exact | False |
+| uniform5_denseT | 3000 | 5 | exact | 0.344 | 1.651 | exact | False |
+| uniform7 | 2500 | 7 | exact | 0.246 | 2.859 | exact | False |
+| uniform4_l1 | 2000 | 4 | exact | 0.326 | 0.675 | exact | False |
+Fat H2 uniform6_h2_refuse n=200: refuse_ok=True.

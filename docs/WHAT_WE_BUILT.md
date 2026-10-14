@@ -58,8 +58,10 @@ choice inside exact can still be wrong (phase-3 oracle **5/9**; waste
 sparse in 18 s vs exact 0.65 s (**28×**). `--mode auto` now compares the
 exact vs sparse clock models and **stays on exact** when scale is
 unavailable and sparse is not clearly cheaper (live auto 0.74 s)
-**[empirical, uniform10.json]**. \(\tau\) / engine_rec were **not**
-retuned. Fat \(H_2\) refuse is unchanged.
+**[empirical, uniform10.json]**. A later held-out sweep
+(`highd_auto.json`) is **0/8** wrong on uniform5/6/7/8 and L1 \(d=4\).
+\(\tau\) / engine_rec were **not** retuned. Fat \(H_2\) refuse is
+unchanged.
 
 `--estimate` exposes that probe as a feasibility guess with a
 **conservative |E| band** (probe fraction ×1.25), a residual-size band,

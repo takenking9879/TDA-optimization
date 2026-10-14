@@ -1,0 +1,221 @@
+{
+  "note": "README accuracy table \u2194 existing receipts. No new PH.",
+  "claims": [
+    {
+      "readme_row": "2D loops \u2248 VR",
+      "name": "figure8",
+      "n": 400,
+      "source": [
+        "wasserstein.json",
+        "sparse_limits.json"
+      ],
+      "exact_match_ripser": true,
+      "scale_unmatched": 0,
+      "scale_bn_h1": 5.000000000005e-07,
+      "scale_w1_h1": 2.8519999999906953e-06,
+      "sparse_unmatched": 14,
+      "sparse_w1_h1": 0.02282019149999998,
+      "ess_scale": {
+        "0": {
+          "ref": 1,
+          "other": 1
+        },
+        "1": {
+          "ref": 2,
+          "other": 2
+        }
+      },
+      "ess_sparse": {
+        "0": {
+          "ref": 1,
+          "other": 1
+        },
+        "1": {
+          "ref": 2,
+          "other": 2
+        }
+      }
+    },
+    {
+      "readme_row": "2D loops \u2248 VR",
+      "name": "circle_noisy",
+      "n": 400,
+      "source": [
+        "wasserstein.json",
+        "sparse_limits.json"
+      ],
+      "exact_match_ripser": true,
+      "scale_unmatched": 0,
+      "scale_bn_h1": 4.600000000076765e-07,
+      "scale_w1_h1": 5.301999999984819e-06,
+      "sparse_unmatched": 30,
+      "sparse_w1_h1": 0.034125527999999974,
+      "ess_scale": {
+        "0": {
+          "ref": 1,
+          "other": 1
+        },
+        "1": {
+          "ref": 1,
+          "other": 1
+        }
+      },
+      "ess_sparse": {
+        "0": {
+          "ref": 1,
+          "other": 1
+        },
+        "1": {
+          "ref": 1,
+          "other": 1
+        }
+      }
+    },
+    {
+      "readme_row": "2D loops \u2248 VR",
+      "name": "nested_loops",
+      "n": 400,
+      "source": [
+        "wasserstein.json",
+        "sparse_limits.json"
+      ],
+      "exact_match_ripser": true,
+      "scale_unmatched": 0,
+      "scale_bn_h1": 5.099999999869098e-06,
+      "scale_w1_h1": 5.9159999999378043e-05,
+      "sparse_unmatched": 52,
+      "sparse_w1_h1": 1.0465352255,
+      "ess_scale": {
+        "0": {
+          "ref": 1,
+          "other": 1
+        },
+        "1": {
+          "ref": 1,
+          "other": 1
+        }
+      },
+      "ess_sparse": {
+        "0": {
+          "ref": 1,
+          "other": 1
+        },
+        "1": {
+          "ref": 1,
+          "other": 1
+        }
+      }
+    },
+    {
+      "readme_row": "2D loops \u2248 VR",
+      "name": "many_loops",
+      "n": 400,
+      "source": [
+        "wasserstein.json",
+        "sparse_limits.json"
+      ],
+      "exact_match_ripser": true,
+      "scale_unmatched": 0,
+      "scale_bn_h1": 4.80000000024905e-07,
+      "scale_w1_h1": 3.6400000000547106e-06,
+      "sparse_unmatched": 8,
+      "sparse_w1_h1": 0.042830255000000025,
+      "ess_scale": {
+        "0": {
+          "ref": 5,
+          "other": 5
+        },
+        "1": {
+          "ref": 5,
+          "other": 5
+        }
+      },
+      "ess_sparse": {
+        "0": {
+          "ref": 5,
+          "other": 5
+        },
+        "1": {
+          "ref": 5,
+          "other": 5
+        }
+      }
+    },
+    {
+      "readme_row": "sphere",
+      "name": "sphere",
+      "n": 400,
+      "source": [
+        "wasserstein.json",
+        "sparse_limits.json"
+      ],
+      "exact_match_ripser": true,
+      "scale_unmatched": 52,
+      "scale_bn_h1": 0.02403957000000001,
+      "scale_w1_h1": 0.20972433200000012,
+      "scale_ess_h2": 1
+    },
+    {
+      "readme_row": "sparse nested_loops W1",
+      "name": "nested_loops",
+      "n": 400,
+      "source": [
+        "sparse_limits.json"
+      ],
+      "sparse_unmatched": 52,
+      "sparse_w1_h1": 1.0465352255,
+      "sparse_ess_h1": 1,
+      "ripser_ess_h1": 1
+    },
+    {
+      "readme_row": "ess H2=3, unmatched 52, bn H1 0.041",
+      "name": "multi_cavities",
+      "n": 300,
+      "source": [
+        "limits.json"
+      ],
+      "n_limit_rows": 0,
+      "methods": []
+    },
+    {
+      "readme_row": "exact timeout; scale unmatched 35",
+      "name": "mixed_1d2d3d",
+      "n": 300,
+      "source": [
+        "limits.json"
+      ],
+      "n_limit_rows": 0,
+      "methods": []
+    },
+    {
+      "readme_row": "held-out ess H0=2 H1=2",
+      "name": "disconnected_circles",
+      "n": 400,
+      "source": [
+        "limits.json"
+      ],
+      "n_limit_rows": 0,
+      "methods": []
+    },
+    {
+      "readme_row": "post-freeze ess H1=2",
+      "name": "grid_holes",
+      "n": 400,
+      "source": [
+        "limits.json"
+      ],
+      "n_limit_rows": 0,
+      "methods": []
+    },
+    {
+      "readme_row": "post-freeze ess H2=2 unmatched 45",
+      "name": "two_spheres_apart",
+      "n": 400,
+      "source": [
+        "limits.json"
+      ],
+      "n_limit_rows": 0,
+      "methods": []
+    }
+  ]
+}

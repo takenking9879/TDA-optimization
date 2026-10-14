@@ -261,6 +261,12 @@ frozen. Fat \(H_2\) `uniform10` \(n=250\) still refuses (exit 3).
 
 ![Dispatcher regime](benchmarks/results/consolidation/figures/dispatcher.svg)
 
+Claim-to-receipt map: [`benchmarks/results/consolidation/topology_claims.json`](benchmarks/results/consolidation/topology_claims.json)
+(`nested_loops` sparse \(W_1(H_1)=1.05\), 52 unmatched, ess \(H_1=1\)).
+
+Held-out high-d / L1 auto clock-compare (`highd_auto.json`): **0/8 wrong**.
+Fat \(H_2\) refuse still holds on a new `uniform6` \(n=200\) cell.
+
 Full numbers: [`benchmarks/results/consolidation/TABLES.md`](benchmarks/results/consolidation/TABLES.md).
 
 ## Limits (stated openly)
@@ -325,6 +331,8 @@ python3 benchmarks/run_axis_scaling.py
 python3 benchmarks/reverify_dory.py
 python3 benchmarks/run_dory_limits.py
 python3 benchmarks/run_uniform10.py
+python3 benchmarks/eval_highd_auto.py
+python3 benchmarks/collect_topology_claims.py
 python3 benchmarks/run_baseline_pack.py
 python3 benchmarks/run_sparse_limits.py
 python3 benchmarks/run_sparse_scale.py

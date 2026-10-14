@@ -37,7 +37,11 @@ No `--mode scale`. 12 s, 1 thread (`uniform10.json`).
 | Ripser | \(n=1600\) 2.37 s | \(n=4000\) | Same pairing class; all-pairs at this \(T\). |
 | PITH `--mode sparse` | \(n=1600\) 2.16 s | \(n=4000\) | FPS + 6.5M edges at \(n=4000\) (~18 s if allowed). |
 | `--mode auto` | \(n=4000\) now exact 0.74 s | previously sparse 18 s | Clock-compare override: stay exact when scale is unavailable and sparse is not clearly cheaper. τ frozen. |
-| `--mode auto` fat \(H_2\) \(n=250\) | refuse (exit 3) | — | Same refuse as `uniform4`. |
+| `--mode auto` fat \(H_2\) \(n=250\) | refuse (exit 3) | — | Same refuse as `uniform4`. Held-out `uniform6` \(n=200\) also refuses. |
+
+Held-out clock-compare (`highd_auto.json`, not used to pick the 1.5 margin):
+**0/8** wrong on uniform5/6/7/8 and L1 \(d=4\). Exact was cheaper on every
+timed pair.
 
 ## `--mode auto` refuse
 

@@ -641,6 +641,7 @@ High-d `uniform10` (\(T=1.8\), 12 s): exact last-OK \(n=8000\) 2.79 s;
 Ripser / sparse first-fail \(n=4000\). `--mode auto` now stays exact on
 that cell (0.74 s) unless sparse is clearly cheaper. τ / engine_rec
 frozen. Fat \(H_2\) refuse still correct. `eval_mode_auto` **11/11**.
+Held-out high-d / L1 sweep (`highd_auto.json`): **0/8** wrong.
 
 Named leftover follow-ups after I202 are **spent**. Do not reopen
 empty-seed skips, leftover XOR/noop, G_t apparent, add-R, D(e) memo,

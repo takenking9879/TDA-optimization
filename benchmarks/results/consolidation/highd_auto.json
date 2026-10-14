@@ -1,0 +1,368 @@
+{
+  "note": "Held-out high-d / L1 clock-compare. \u03c4 frozen. wrong=recommended mode was the slower of exact/sparse.",
+  "n_compared": 8,
+  "n_wrong": 0,
+  "receipts": [
+    {
+      "name": "uniform6",
+      "n": 2000,
+      "T": 1.2,
+      "maxdim": 1,
+      "d": 6,
+      "metric": "euclidean",
+      "estimate": {
+        "mode_recommended": "exact",
+        "engine_recommended": "redzed",
+        "exact_feasible": true,
+        "auto_will_run": true,
+        "residual_regime": "fat",
+        "est_exact_runtime_s": 0.16492,
+        "est_sparse_runtime_s": 0.32,
+        "reason": "exact VR looks feasible on the 250-pt probe (conservative |E| band)"
+      },
+      "auto": {
+        "ok": true,
+        "wall_s": 0.18171942300978117,
+        "pipeline": "pith:auto-redzed",
+        "timed_out": false
+      },
+      "exact": {
+        "ok": true,
+        "wall_s": 0.15149256799486466,
+        "pipeline": "pith:auto-redzed",
+        "timed_out": false
+      },
+      "sparse": {
+        "ok": true,
+        "wall_s": 1.359419082000386,
+        "pipeline": "pith:sparse",
+        "timed_out": false
+      },
+      "cheaper": "exact",
+      "wrong": false,
+      "refuse_ok": null,
+      "threads": 1,
+      "budget_s": 12
+    },
+    {
+      "name": "uniform6",
+      "n": 4000,
+      "T": 1.2,
+      "maxdim": 1,
+      "d": 6,
+      "metric": "euclidean",
+      "estimate": {
+        "mode_recommended": "exact",
+        "engine_recommended": "redzed",
+        "exact_feasible": false,
+        "auto_will_run": true,
+        "residual_regime": "fat",
+        "est_exact_runtime_s": 0.64484,
+        "est_sparse_runtime_s": 1.28,
+        "reason": "fat residual band exceeds 1.5e6 leftover edges; exact leftover visits explode; no scale path and estimated exact clock is not worse than sparse \u2014 stay on exact"
+      },
+      "auto": {
+        "ok": true,
+        "wall_s": 0.5971224239910953,
+        "pipeline": "pith:auto-redzed",
+        "timed_out": false
+      },
+      "exact": {
+        "ok": true,
+        "wall_s": 0.6023694559989963,
+        "pipeline": "pith:auto-redzed",
+        "timed_out": false
+      },
+      "sparse": {
+        "ok": true,
+        "wall_s": 5.7985894919984275,
+        "pipeline": "pith:sparse",
+        "timed_out": false
+      },
+      "cheaper": "exact",
+      "wrong": false,
+      "refuse_ok": null,
+      "threads": 1,
+      "budget_s": 12
+    },
+    {
+      "name": "uniform8",
+      "n": 2000,
+      "T": 1.5,
+      "maxdim": 1,
+      "d": 8,
+      "metric": "euclidean",
+      "estimate": {
+        "mode_recommended": "exact",
+        "engine_recommended": "redzed",
+        "exact_feasible": true,
+        "auto_will_run": true,
+        "residual_regime": "fat",
+        "est_exact_runtime_s": 0.16492,
+        "est_sparse_runtime_s": 0.32,
+        "reason": "exact VR looks feasible on the 250-pt probe (conservative |E| band)"
+      },
+      "auto": {
+        "ok": true,
+        "wall_s": 0.2441915829986101,
+        "pipeline": "pith:auto-redzed",
+        "timed_out": false
+      },
+      "exact": {
+        "ok": true,
+        "wall_s": 0.19410367000091355,
+        "pipeline": "pith:auto-redzed",
+        "timed_out": false
+      },
+      "sparse": {
+        "ok": true,
+        "wall_s": 3.3440411390038207,
+        "pipeline": "pith:sparse",
+        "timed_out": false
+      },
+      "cheaper": "exact",
+      "wrong": false,
+      "refuse_ok": null,
+      "threads": 1,
+      "budget_s": 12
+    },
+    {
+      "name": "uniform8",
+      "n": 4000,
+      "T": 1.5,
+      "maxdim": 1,
+      "d": 8,
+      "metric": "euclidean",
+      "estimate": {
+        "mode_recommended": "exact",
+        "engine_recommended": "redzed",
+        "exact_feasible": false,
+        "auto_will_run": true,
+        "residual_regime": "fat",
+        "est_exact_runtime_s": 0.64484,
+        "est_sparse_runtime_s": 1.28,
+        "reason": "fat residual band exceeds 1.5e6 leftover edges; exact leftover visits explode; no scale path and estimated exact clock is not worse than sparse \u2014 stay on exact"
+      },
+      "auto": {
+        "ok": true,
+        "wall_s": 0.6868811099993763,
+        "pipeline": "pith:auto-redzed",
+        "timed_out": false
+      },
+      "exact": {
+        "ok": true,
+        "wall_s": 0.6475103530101478,
+        "pipeline": "pith:auto-redzed",
+        "timed_out": false
+      },
+      "sparse": {
+        "ok": false,
+        "wall_s": null,
+        "timed_out": true,
+        "refused": false,
+        "error": "Command '['/workspace/src/pith/build/pith', '--points', '/workspace/benchmarks/datasets/generated/adv_uniform8_n4000.csv', '--maxdim', '1', '--threshold', '1.5', '--mode', 'sparse', '--engine', 'auto', '--threads', '1', '--no-enclosing']' timed out after 12 seconds"
+      },
+      "cheaper": "exact",
+      "wrong": false,
+      "refuse_ok": null,
+      "threads": 1,
+      "budget_s": 12
+    },
+    {
+      "name": "uniform5_sparseT",
+      "n": 3000,
+      "T": 0.7,
+      "maxdim": 1,
+      "d": 5,
+      "metric": "euclidean",
+      "estimate": {
+        "mode_recommended": "exact",
+        "engine_recommended": "redzed",
+        "exact_feasible": true,
+        "auto_will_run": true,
+        "residual_regime": "hollow",
+        "est_exact_runtime_s": 0.111967,
+        "est_sparse_runtime_s": 0.72,
+        "reason": "exact VR looks feasible on the 250-pt probe (conservative |E| band)"
+      },
+      "auto": {
+        "ok": true,
+        "wall_s": 0.13499797000258695,
+        "pipeline": "pith:auto-redzed",
+        "timed_out": false
+      },
+      "exact": {
+        "ok": true,
+        "wall_s": 0.12828973100113217,
+        "pipeline": "pith:auto-redzed",
+        "timed_out": false
+      },
+      "sparse": {
+        "ok": true,
+        "wall_s": 1.0705754600057844,
+        "pipeline": "pith:sparse",
+        "timed_out": false
+      },
+      "cheaper": "exact",
+      "wrong": false,
+      "refuse_ok": null,
+      "threads": 1,
+      "budget_s": 12
+    },
+    {
+      "name": "uniform5_denseT",
+      "n": 3000,
+      "T": 1.6,
+      "maxdim": 1,
+      "d": 5,
+      "metric": "euclidean",
+      "estimate": {
+        "mode_recommended": "exact",
+        "engine_recommended": "redzed",
+        "exact_feasible": true,
+        "auto_will_run": true,
+        "residual_regime": "fat",
+        "est_exact_runtime_s": 0.36488,
+        "est_sparse_runtime_s": 0.72,
+        "reason": "exact VR looks feasible on the 250-pt probe (conservative |E| band)"
+      },
+      "auto": {
+        "ok": true,
+        "wall_s": 0.35755495699413586,
+        "pipeline": "pith:auto-redzed",
+        "timed_out": false
+      },
+      "exact": {
+        "ok": true,
+        "wall_s": 0.34420504899753723,
+        "pipeline": "pith:auto-redzed",
+        "timed_out": false
+      },
+      "sparse": {
+        "ok": true,
+        "wall_s": 1.6506847989949165,
+        "pipeline": "pith:sparse",
+        "timed_out": false
+      },
+      "cheaper": "exact",
+      "wrong": false,
+      "refuse_ok": null,
+      "threads": 1,
+      "budget_s": 12
+    },
+    {
+      "name": "uniform7",
+      "n": 2500,
+      "T": 1.3,
+      "maxdim": 1,
+      "d": 7,
+      "metric": "euclidean",
+      "estimate": {
+        "mode_recommended": "exact",
+        "engine_recommended": "redzed",
+        "exact_feasible": true,
+        "auto_will_run": true,
+        "residual_regime": "fat",
+        "est_exact_runtime_s": 0.2549,
+        "est_sparse_runtime_s": 0.5,
+        "reason": "exact VR looks feasible on the 250-pt probe (conservative |E| band)"
+      },
+      "auto": {
+        "ok": true,
+        "wall_s": 0.2674909640045371,
+        "pipeline": "pith:auto-redzed",
+        "timed_out": false
+      },
+      "exact": {
+        "ok": true,
+        "wall_s": 0.24609505401167553,
+        "pipeline": "pith:auto-redzed",
+        "timed_out": false
+      },
+      "sparse": {
+        "ok": true,
+        "wall_s": 2.8594616079935804,
+        "pipeline": "pith:sparse",
+        "timed_out": false
+      },
+      "cheaper": "exact",
+      "wrong": false,
+      "refuse_ok": null,
+      "threads": 1,
+      "budget_s": 12
+    },
+    {
+      "name": "uniform4_l1",
+      "n": 2000,
+      "T": 1.0,
+      "maxdim": 1,
+      "d": 4,
+      "metric": "l1",
+      "estimate": {
+        "mode_recommended": "exact",
+        "engine_recommended": "redzed",
+        "exact_feasible": true,
+        "auto_will_run": true,
+        "residual_regime": "fat",
+        "est_exact_runtime_s": 0.16492,
+        "est_sparse_runtime_s": 0.32,
+        "reason": "exact VR looks feasible on the 250-pt probe (conservative |E| band)"
+      },
+      "auto": {
+        "ok": true,
+        "wall_s": 0.3343661160033662,
+        "pipeline": "pith:auto-redzed",
+        "timed_out": false
+      },
+      "exact": {
+        "ok": true,
+        "wall_s": 0.3262154609983554,
+        "pipeline": "pith:auto-redzed",
+        "timed_out": false
+      },
+      "sparse": {
+        "ok": true,
+        "wall_s": 0.67453850399761,
+        "pipeline": "pith:sparse",
+        "timed_out": false
+      },
+      "cheaper": "exact",
+      "wrong": false,
+      "refuse_ok": null,
+      "threads": 1,
+      "budget_s": 12
+    },
+    {
+      "name": "uniform6_h2_refuse",
+      "n": 200,
+      "T": 0.8,
+      "maxdim": 2,
+      "d": 6,
+      "metric": "euclidean",
+      "estimate": {
+        "mode_recommended": "sparse",
+        "engine_recommended": "redzed",
+        "exact_feasible": false,
+        "auto_will_run": false,
+        "residual_regime": "hollow",
+        "est_exact_runtime_s": 4.005,
+        "est_sparse_runtime_s": 0.0032,
+        "reason": "fat residual at maxdim>=2 on a non-scaleable metric; sparse H2 may still be impractical \u2014 lower T or maxdim"
+      },
+      "auto": {
+        "ok": false,
+        "wall_s": null,
+        "timed_out": true,
+        "refused": true,
+        "error": "-no-enclosing']\n# MODE auto selected sparse engine=redzed exact_feasible=0 regime=hollow confidence=medium\n# fat residual at maxdim>=2 on a non-scaleable metric; sparse H2 may still be impractical \u2014 lower T or maxdim\n# MODE auto refusing to run: fat H2 sparse on d\u2209{2,3} timed out in the held-out 4D suite. Rerun with --maxdim 1 --mode sparse, or pass --mode sparse explicitly if you want H2 anyway.\n"
+      },
+      "exact": null,
+      "sparse": null,
+      "cheaper": null,
+      "wrong": null,
+      "refuse_ok": true,
+      "threads": 1,
+      "budget_s": 12
+    }
+  ]
+}
