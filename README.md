@@ -262,6 +262,8 @@ python3 benchmarks/run_consolidation.py
 python3 benchmarks/run_consolidation_limits.py
 python3 benchmarks/eval_mode_auto.py
 python3 benchmarks/eval_estimate.py
+python3 benchmarks/eval_engine_auto.py
+python3 benchmarks/reverify_headlines.py
 python3 benchmarks/run_baseline_pack.py
 python3 benchmarks/run_sparse_limits.py
 python3 benchmarks/run_sparse_scale.py

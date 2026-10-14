@@ -21,6 +21,8 @@ MAUTO_PATH = BENCH / "results" / "consolidation" / "mode_auto.json"
 MAUTO = json.loads(MAUTO_PATH.read_text()) if MAUTO_PATH.exists() else {}
 EST_PATH = BENCH / "results" / "consolidation" / "estimate_accuracy.json"
 EST = json.loads(EST_PATH.read_text()) if EST_PATH.exists() else {}
+ENG_PATH = BENCH / "results" / "consolidation" / "engine_auto.json"
+ENG = json.loads(ENG_PATH.read_text()) if ENG_PATH.exists() else {}
 FIG = BENCH / "results" / "consolidation" / "figures"
 FIG.mkdir(parents=True, exist_ok=True)
 
@@ -481,6 +483,29 @@ if BASE:
         )
 
     rows.append("")
+    rows.append("## Construct vs reduce (1-thread exact, from `baselines.json`)")
+    rows.append(
+        "`metric_ms` is \(G_T\) / Delaunay construction; `collapse_ms` is flag collapse; "
+        "`reduce_ms` is the pairing. Counters already stored; not a new bench."
+    )
+    rows.append("| family | n | wall (s) | construct (s) | collapse (s) | reduce (s) | |E| in | residual |")
+    rows.append("| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |")
+    for r in BASE.get("comparisons") or []:
+        run = (r.get("runs") or {}).get("pith_exact_t1") or {}
+        if not (run.get("ok") and run.get("wall_s")):
+            continue
+        met = run.get("metric_ms")
+        col = run.get("collapse_ms")
+        red = run.get("reduce_ms")
+        rows.append(
+            f"| {r['name']} | {r['n']} | {run['wall_s']:.3f} | "
+            f"{'' if met is None else f'{met/1000:.3f}'} | "
+            f"{'' if col is None else f'{col/1000:.3f}'} | "
+            f"{'' if red is None else f'{red/1000:.3f}'} | "
+            f"{run.get('n_edges_in') or ''} | {run.get('residual_frac') or ''} |"
+        )
+
+    rows.append("")
     rows.append("## Phase-3 topology (exact engines vs Ripser; scale unmatched)")
     rows.append("| family | n | PITH match | giotto match | GUDHI match | scale unmatched | scale bn H1 |")
     rows.append("| --- | ---: | --- | --- | --- | ---: | ---: |")
@@ -661,6 +686,24 @@ if EST:
             f"{'' if d.get('est_runtime_lo_s') is None else f'{d['est_runtime_lo_s']:.3f}'} | "
             f"{'' if d.get('est_runtime_hi_s') is None else f'{d['est_runtime_hi_s']:.3f}'} | "
             f"{'' if ratio is None else f'{ratio:.2f}'} | {d.get('in_band')} |"
+        )
+
+if ENG:
+    rows.append("")
+    rows.append("## Engine oracle live check (`eval_engine_auto.py`)")
+    rows.append(
+        f"Oracle {ENG.get('n_oracle_ok')}/{ENG.get('n')}. "
+        f"New misses: {', '.join(ENG.get('new_misses') or []) or 'none'}. "
+        "Known misses waived; τ frozen."
+    )
+    rows.append("| family | n | rec | oracle | wrong | waived | waste |")
+    rows.append("| --- | ---: | --- | --- | --- | --- | ---: |")
+    for d in ENG.get("receipts") or []:
+        waste = d.get("waste_if_follow_estimate")
+        rows.append(
+            f"| {d.get('name')} | {d.get('n')} | {d.get('recommended')} | {d.get('oracle_faster')} | "
+            f"{d.get('wrong')} | {d.get('waived')} | "
+            f"{'' if waste is None else f'{waste:.2f}'} |"
         )
 
 (BENCH / "results" / "consolidation" / "TABLES.md").write_text("\n".join(rows) + "\n")
