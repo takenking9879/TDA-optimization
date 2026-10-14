@@ -5,6 +5,14 @@ Do not paste long reasoning here.
 
 ---
 
+## 2026-10-14 — I316 reduced VR at leftover scale
+
+- **Question:** Is EuclideanPH1 / `--reduced-vr` (Koyama–Mémoli–Robins–Turner) still a leftover-10× candidate if we later add kd-tree lunes?
+- **Work:** Time current `--reduced-vr` vs auto RedZeD on leftover cells. 1 thread. Did **not** implement spatial lunes after seeing the gap.
+- **Result:** figure8 n=2000: reduced-vr **18.1 s** (build 17.9 s) vs auto 0.15 s (**122× slower**) vs Ripser 2.53 s. uniform2 / sphere n=2000 and anisotropic n=4000 **timeout 20 s** (auto 0.06–0.28 s). Construction, not pairing. A 100× lune-query cut would only *match* RedZeD, not beat leftover-miss to 10×.
+- **Decision:** Reject reduced VR / EuclideanPH1 as a leftover engine. `--reduced-vr` stays experimental. Do not start kd-tree lunes. Goal not complete.
+- **Class:** verified (live)
+
 ## 2026-10-14 — I315 leftover engines: implicit vs RedZeD
 
 - **Question:** Do leftover-miss families miss 10× because auto picked RedZeD and collapse+implicit would have won?

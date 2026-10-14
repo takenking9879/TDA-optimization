@@ -34,7 +34,7 @@ These were tried, logged, and must not be reopened as micro-opts.
 | rbit layout / always-spatial / ae_prepare fusion (I262/I264/I266) | Reject | Exact; lost the 10× or no cut. |
 | Leftover adj/hash on \(\lvert E\rvert>16n\) (I303/I304) | Reject | Fat-thicken insert tax. |
 | Owned AE as clock (I242/I243) | Exact, dominated | 12× slower than RedZeD on circle AE. |
-| Reduced VR (I224) | Exact, loses clock | \(O(n^2)\) triangles; construction loses. |
+| Reduced VR (I224) / EuclideanPH1 | Exact, loses clock | I316 leftover scale: figure8 n=2000 **18 s vs auto 0.15 s**; uniform2/sphere/anisotropic timeout 20 s. Construction, not pairing. kd-tree lunes would need ~100× just to match RedZeD. Closed as a leftover 10× engine. |
 | Extra Morse / chunk on residual (H04) | Reject early | After collapse, circle remainder is tiny; torus remainder is \(\Theta(n^2)\) and matching is not a 10× lever. |
 | Sparse FPS squared-distance | Reject | Same greedy net; no clock cut. Wall is \(\Theta(n^2)\) evaluations. |
 | Sparse FPS AABB / axis reject (2D/3D) | Reject | Exact λ; fewer late evals; no clock cut (figure-8 \(n=8000\) 0.72 s, \(n=16000\) 2.51 s). Early insertions + Θ(n²) argmax remain. |

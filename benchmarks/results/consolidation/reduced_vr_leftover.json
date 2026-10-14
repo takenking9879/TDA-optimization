@@ -1,0 +1,46 @@
+{
+  "note": "I316: --reduced-vr vs auto RedZeD on leftover cells. 1 thread. Construction is the wall. Spatial/kd-tree lunes not implemented — would need ~100× construction cut just to match RedZeD. τ frozen.",
+  "n_timeout_20s": 3,
+  "n_finished": 1,
+  "reduced_vr_faster_than_auto": 0,
+  "cells": [
+    {
+      "name": "figure8",
+      "n": 2000,
+      "T": 1.1,
+      "auto_s": 0.149,
+      "reduced_vr_s": 18.145,
+      "ripser_s": 2.531,
+      "build_ms": 17884.676,
+      "reduce_ms": 194.896,
+      "rvr_over_auto": 122.0
+    },
+    {
+      "name": "uniform2",
+      "n": 2000,
+      "T": 0.35,
+      "auto_s": 0.062,
+      "reduced_vr_s": null,
+      "ripser_s": 0.440,
+      "timed_out_s": 20
+    },
+    {
+      "name": "sphere",
+      "n": 2000,
+      "T": 1.4,
+      "auto_s": 0.092,
+      "reduced_vr_s": null,
+      "ripser_s": 0.811,
+      "timed_out_s": 20
+    },
+    {
+      "name": "anisotropic_blob",
+      "n": 4000,
+      "T": 2.5,
+      "auto_s": 0.279,
+      "reduced_vr_s": null,
+      "ripser_s": 2.377,
+      "timed_out_s": 20
+    }
+  ]
+}
