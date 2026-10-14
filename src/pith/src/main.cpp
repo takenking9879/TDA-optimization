@@ -32,7 +32,8 @@ static void usage() {
         << "                          exact  = exact VR≤T (default)\n"
         << "                          scale  = Euclidean Delaunay-flag path (d=2,3; not exact VR)\n"
         << "                          sparse = greedy-net sparse Rips (approx; Euclidean points skip the n×n matrix)\n"
-        << "                          auto   = follow the feasibility probe (exact/scale/sparse)\n"
+        << "                          auto   = follow the feasibility probe (exact/scale/sparse);\n"
+        << "                                   refuses fat H2 sparse when d is not 2 or 3 (exit 3)\n"
         << "  --engine auto|redzed|implicit\n"
         << "                          exact-mode engine (default auto: pick redzed or collapse)\n"
         << "  --estimate              feasibility estimate only (no persistence)\n"
@@ -312,6 +313,7 @@ struct Feasibility {
     double growth_p = -1;
     bool leaving_cheap = false;
     bool skips_dense_matrix = false;
+    bool auto_will_run = true;
     std::string regime = "unknown";
     std::string engine_rec = "implicit";
     std::string mode_rec = "exact";
@@ -425,6 +427,10 @@ static Feasibility compute_feasibility(const std::vector<std::vector<value_t>>* 
     }
     f.leaving_cheap = (maxdim >= 1 && n >= 2000 && (fat || (f.est_r_hi > 1.0e5 && !thin))) ||
                       (maxdim >= 2 && fat && n >= 200);
+    // uniform4 n=250 maxdim=2 T=0.6: auto→sparse then timed out at 25 s.
+    // Explicit --mode sparse still runs. τ is unchanged.
+    f.auto_will_run = !(f.mode_rec == "sparse" && maxdim >= 2 && fat &&
+                        !(dim >= 2 && dim <= 3));
     f.runtime_class = !f.exact_ok ? "impractical-or-scale"
                                   : (f.leaving_cheap ? "leaving-cheap-regime"
                                                      : (f.est_runtime > 1.0 || (n >= 4000 && maxdim >= 1) ? "seconds"
@@ -460,6 +466,7 @@ static int print_estimate(const std::vector<std::vector<value_t>>* pts,
                   << "  \"growth_p\": " << f.growth_p << ",\n"
                   << "  \"est_sparse_runtime_s\": " << f.est_sparse_runtime << ",\n"
                   << "  \"skips_dense_matrix\": " << (f.skips_dense_matrix ? "true" : "false") << ",\n"
+                  << "  \"auto_will_run\": " << (f.auto_will_run ? "true" : "false") << ",\n"
                   << "  \"leaving_cheap_regime\": " << (f.leaving_cheap ? "true" : "false") << ",\n"
                   << "  \"engine_recommended\": \"" << f.engine_rec << "\",\n"
                   << "  \"mode_recommended\": \"" << f.mode_rec << "\",\n"
@@ -481,6 +488,7 @@ static int print_estimate(const std::vector<std::vector<value_t>>* pts,
                   << " growth_p=" << f.growth_p << " leaving_cheap=" << (f.leaving_cheap ? 1 : 0)
                   << " est_sparse_s=" << f.est_sparse_runtime
                   << " skips_dense_matrix=" << (f.skips_dense_matrix ? 1 : 0)
+                  << " auto_will_run=" << (f.auto_will_run ? 1 : 0)
                   << " confidence=" << f.confidence
                   << " threads=" << nthreads() << "\n# " << f.reason << "\n";
     }
@@ -663,6 +671,13 @@ int main(int argc, char** argv) {
                 std::cerr << "# MODE auto selected " << mode << " engine=" << rec.engine_rec
                           << " exact_feasible=" << (rec.exact_ok ? 1 : 0) << " regime=" << rec.regime
                           << " confidence=" << rec.confidence << "\n# " << rec.reason << "\n";
+                if (!rec.auto_will_run) {
+                    std::cerr << "# MODE auto refusing to run: fat H2 sparse on d∉{2,3} "
+                                 "timed out in the held-out 4D suite. "
+                                 "Rerun with --maxdim 1 --mode sparse, or pass --mode sparse "
+                                 "explicitly if you want H2 anyway.\n";
+                    return 3;
+                }
             }
             // I235/I236/I238: --engine auto. Probe first. Fat residual →
             // RedZeD without building the n×n vector<vector> (I238). Thin

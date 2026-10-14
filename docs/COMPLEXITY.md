@@ -858,7 +858,7 @@ edge-frac \(<0.25\) → RedZeD; `maxdim=0` → Kruskal / Delaunay.
 | 2D/3D Del \(H_0\) | Yes (\(H_0\), Euclidean) | 2D size \(\Theta(n)\), construct \(O(n\log n)\) (classical Del); 3D size \(O(n^2)\) worst | Expected \(O(n\log n)\) walk under standard RIC hypotheses | Blobs 25k **515×**; sphere 30k **288×** |
 | Delaunay-flag | **No** | Flag of Del: 2D \(\lvert E\rvert=\Theta(n)\); persist as §3/§6 on that graph | Typical \(\bar d=O(1)\Rightarrow\lvert K_k\rvert=O(n)\) | Ess kept; finite unmatched 3–209; 3D 80k **1.09 s** |
 | Sheehy sparse | **No** (interleaving) | \(O(n)\) size, \(O(n\log n)\) build, \((1/\varepsilon)^{O(k\delta)}\) | Bounded doubling | Owned \(\varepsilon=0.6\) Max **thins** the flag (figure-8 8k: 380k vs 32M pairs) **[empirical]**; FPS build is still \(\Theta(n^2)\) (no n×n store on Euclidean `--points`); \(H_2\) timeout at \(n=400\) |
-| Auto dispatch | Yes (exact engines only) | Worse engine on connected dense \(G_T\) | Probe \(O(1)\) in \(n\); pick thin vs fat vs hollow vs \(H_0\) | Shape-agnostic 0 unmatched; portfolio ratios above |
+| Auto dispatch | Yes (exact engines only) | Worse engine on connected dense \(G_T\) | Probe \(O(1)\) in \(n\); pick thin vs fat vs hollow vs \(H_0\); refuse fat \(H_2\) sparse when \(d\notin\{2,3\}\) | Shape-agnostic 0 unmatched; portfolio ratios above; 4D fat \(H_2\) auto exits 3 **[empirical]** |
 | CSR leftover-adj | Yes (same flag) | Dense: no win | \(\lvert E\rvert\le 16n\): \(O(\lvert E\rvert\Delta)\) vs \(O(\lvert E\rvert n/64)\) | Sphere 50k 0.84→0.65 s; fat thicken stays rbits |
 
 ---

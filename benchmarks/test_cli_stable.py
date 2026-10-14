@@ -12,7 +12,7 @@ import numpy as np
 
 BENCH = Path(__file__).resolve().parent
 sys.path.insert(0, str(BENCH))
-from generate_datasets import circle_noisy, write_csv  # noqa: E402
+from generate_datasets import circle_noisy, uniform4, write_csv  # noqa: E402
 from run_suite import PITH  # noqa: E402
 
 
@@ -58,6 +58,7 @@ def main():
         "leaving_cheap_regime",
         "est_sparse_runtime_s",
         "skips_dense_matrix",
+        "auto_will_run",
     ):
         if key not in js:
             print("estimate JSON missing", key, js, file=sys.stderr)
@@ -134,6 +135,78 @@ def main():
     )
     if "pipeline=pith:sparse" not in sparse:
         print("sparse mode did not tag pipeline=pith:sparse", file=sys.stderr)
+        return 1
+
+    # Fat 4D H2: probe recommends sparse, but auto must refuse (exit 3)
+    # instead of hanging. Explicit --mode sparse is still allowed.
+    four = BENCH / "datasets" / "generated" / "cli_refuse_uniform4_n250.csv"
+    write_csv(four, uniform4(250, np.random.default_rng(4)))
+    est4 = json.loads(
+        subprocess.check_output(
+            [
+                str(PITH),
+                "--estimate",
+                "--points",
+                str(four),
+                "--maxdim",
+                "2",
+                "--threshold",
+                "0.6",
+                "--format",
+                "json",
+            ],
+            text=True,
+        )
+    )
+    if est4.get("mode_recommended") != "sparse" or est4.get("auto_will_run") is not False:
+        print("4D fat H2 estimate should recommend sparse and auto_will_run=false", est4, file=sys.stderr)
+        return 1
+    refuse = subprocess.run(
+        [
+            str(PITH),
+            "--points",
+            str(four),
+            "--mode",
+            "auto",
+            "--maxdim",
+            "2",
+            "--threshold",
+            "0.6",
+            "--no-enclosing",
+            "--threads",
+            "1",
+        ],
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    if refuse.returncode != 3 or "refusing" not in refuse.stderr:
+        print("mode auto should refuse fat H2 sparse on d=4", refuse.returncode, refuse.stderr, file=sys.stderr)
+        return 1
+    if "MODE auto selected sparse" not in refuse.stderr:
+        print("refuse path should still report the probe selection", refuse.stderr, file=sys.stderr)
+        return 1
+    h1_auto = subprocess.run(
+        [
+            str(PITH),
+            "--points",
+            str(four),
+            "--mode",
+            "auto",
+            "--maxdim",
+            "1",
+            "--threshold",
+            "0.6",
+            "--no-enclosing",
+            "--threads",
+            "1",
+        ],
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    if h1_auto.returncode != 0 or "refusing" in h1_auto.stderr:
+        print("4D H1 auto should still run", h1_auto.returncode, h1_auto.stderr, file=sys.stderr)
         return 1
     print("ok stable CLI")
     return 0

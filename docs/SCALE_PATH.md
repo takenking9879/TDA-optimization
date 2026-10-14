@@ -125,6 +125,8 @@ out. Scale is still the faster Euclidean alternative (0.22 s at
 ## When not to use it
 
 - Non-Euclidean metrics (`--distances`) — there is no Delaunay.
-- \(d\ge 4\) — we do not build Delaunay there.
+- \(d\ge 4\) — we do not build Delaunay there. `--mode auto` may recommend
+  `--mode sparse` for \(H_1\); fat \(H_2\) on those metrics is refused
+  (exit 3) rather than started.
 - You need the VR barcode, including finite bars, as a legal invariant.
 - Very dense \(T\) where you already can afford exact VR (use `--mode exact`).

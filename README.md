@@ -30,7 +30,7 @@ hollow, exact \(H_0\) on the 2D/3D Delaunay skeleton, and an optional
 | Exact VR, same barcode as Ripser | An **automatic engine**: collapse + implicit cohomology when the residual is thin; RedZeD (active enumeration) when it is not. Sparse \(G_T\) when the cloud is hollow. |
 | Exact \(H_0\) in 2D/3D | Kruskal on the Delaunay 1-skeleton (the MST sits inside Delaunay). \(\Theta(n)\) edges instead of all pairs. |
 | Large Euclidean clouds | `--mode scale`: flag of a Delaunay / local-radius graph. **Not** Vietoris–Rips. Essential loops and voids are kept on the tested families; finite bars differ. |
-| Feasibility | `--estimate` guesses graph size, residual regime, and whether exact VR is reasonable. `--mode auto` follows that probe (default stays `--mode exact` so scripts do not silently change complex). |
+| Feasibility | `--estimate` guesses graph size, residual regime, and whether exact VR is reasonable (`auto_will_run` is false when the recommended path is known to hang). `--mode auto` follows that probe (default stays `--mode exact` so scripts do not silently change complex). |
 | Fair timing | `--threads N` caps workers. Measured 1-thread vs hardware vs Ripser (always 1 thread). |
 
 Internal experiment numbers live in [`RESEARCH_LOG.md`](RESEARCH_LOG.md),
@@ -58,7 +58,10 @@ extra essential loops (`nested_loops` \(n=400\): 4 vs VR 1). \(H_2\) is
 slow (two spheres \(n=300\): 3.7 s) or times out (sphere \(n=400\);
 4D fat \(H_2\)). Prefer `--mode scale` on Euclidean \(d\in\{2,3\}\).
 `--mode auto` selects sparse on a held-out 4D cloud when exact VR is
-marked impractical.
+marked impractical **and `maxdim=1`**. Fat \(H_2\) on \(d\notin\{2,3\}\)
+is **refused** (exit 3) instead of started — that path timed out at
+25 s on `uniform4` \(n=250\). Pass `--mode sparse` explicitly if you
+still want it, or drop to `--maxdim 1`.
 
 GUDHI **Alpha** is a third complex: on this suite it **drops** essential
 \(H_1/H_2\) (loops and voids become 0). We do not use it as a VR stand-in.
@@ -104,8 +107,9 @@ flags kept for old scripts.
 | Euclidean \(d\in\{2,3\}\), \(n\) in the tens of thousands, essential loops/voids | `--mode scale` |
 | You only need \(H_0\) in 2D/3D | `--mode exact --maxdim 0` (Delaunay Kruskal) |
 | Abstract / non-Euclidean distances | `--distances FILE --mode exact` |
-| Fat residual and `maxdim≥2` (mixed 3D structure) | `--mode scale` if \(d\in\{2,3\}\); else lower \(T\) |
-| Exact VR looks infeasible and \(d\ge 4\) | `--mode sparse` or a smaller \(T\); do not use scale |
+| Fat residual and `maxdim≥2` (mixed 3D structure) | `--mode scale` if \(d\in\{2,3\}\); else lower \(T\) or `--maxdim 1` |
+| Exact VR looks infeasible and \(d\ge 4\), \(H_1\) only | `--mode sparse` or a smaller \(T\); do not use scale |
+| Fat \(H_2\) and \(d\ge 4\) | `--mode auto` refuses (exit 3). Use `--maxdim 1` or explicit `--mode sparse` |
 
 ## How much larger can it go?
 
@@ -196,11 +200,13 @@ probe. A **1-thread oracle** (run both exact engines):
 | Phase-3 held-out / post-freeze | 5 / 9 | `disconnected_circles`, `nonuniform_circle` (thin → implicit, 1.3–1.6×); `two_spheres_apart` (hollow → RedZeD, **2.75×**, 16 vs 6 ms) |
 
 `--mode auto` (exact vs scale vs sparse) matched the probe **8/8** then
-**9/9** on the new families. \(\tau\) was **not** retuned after the
-post-freeze misses — they cost tens of milliseconds, not a change of
-regime. Mixed 1D/2D/3D at `maxdim=2` is a **fat H2** residual: exact
-timed out at \(n=300\); `--estimate` marks exact infeasible and
-recommends `--mode scale`. Auto-dispatch probes from \(n\ge 64\).
+**9/9** on the new families, plus a **refuse** on fat 4D \(H_2\)
+(`uniform4` \(n=250\), `maxdim=2`: probe names sparse, auto exits 3).
+\(\tau\) was **not** retuned after the post-freeze misses — they cost
+tens of milliseconds, not a change of regime. Mixed 1D/2D/3D at
+`maxdim=2` is a **fat H2** residual: exact timed out at \(n=300\);
+`--estimate` marks exact infeasible and recommends `--mode scale`.
+Auto-dispatch probes from \(n\ge 64\).
 
 ![Dispatcher regime](benchmarks/results/consolidation/figures/dispatcher.svg)
 
@@ -212,6 +218,9 @@ Full numbers: [`benchmarks/results/consolidation/TABLES.md`](benchmarks/results/
   the same complexity class as Ripser (active leftover visits).
 - Exact \(H_2\) on a **fat** residual can time out at a few hundred points
   (mixed 1D/2D/3D). Use `--estimate` or `--mode scale`.
+- `--mode auto` **refuses** fat \(H_2\) sparse when \(d\notin\{2,3\}\)
+  (exit 3, `auto_will_run=false`). That path hung at 25 s on 4D
+  `uniform4` \(n=250\). Explicit `--mode sparse` still runs.
 - `--estimate` is a probe plus conservative cutoffs. It can still pick the
   slower exact engine (see `heavy_noise_circle`, `disconnected_circles`,
   `two_spheres_apart`).

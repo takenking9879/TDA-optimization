@@ -17,6 +17,8 @@ SPARSE_PATH = BENCH / "results" / "consolidation" / "sparse_limits.json"
 SPARSE = json.loads(SPARSE_PATH.read_text()) if SPARSE_PATH.exists() else {}
 SSCALE_PATH = BENCH / "results" / "consolidation" / "sparse_scale.json"
 SSCALE = json.loads(SSCALE_PATH.read_text()) if SSCALE_PATH.exists() else {}
+MAUTO_PATH = BENCH / "results" / "consolidation" / "mode_auto.json"
+MAUTO = json.loads(MAUTO_PATH.read_text()) if MAUTO_PATH.exists() else {}
 FIG = BENCH / "results" / "consolidation" / "figures"
 FIG.mkdir(parents=True, exist_ok=True)
 
@@ -613,6 +615,21 @@ if SSCALE:
             f"{'' if sc.get('wall_s') is None else f'{sc['wall_s']:.3f}'} | "
             f"{r.get('n_edges_in') or ''} | {rss_s} | "
             f"{'' if p is None else f'{p:.2f}'} | {r.get('ess1')} |"
+        )
+
+if MAUTO:
+    rows.append("")
+    rows.append("## `--mode auto` vs probe (`eval_mode_auto.py`)")
+    rows.append(
+        f"Agreement {MAUTO.get('n_agree')}/{MAUTO.get('n')}. "
+        "`refuse` means the probe named sparse but auto exits 3 instead of starting fat H2 outside d∈{2,3}."
+    )
+    rows.append("| family | n | maxdim | selected | expect | refused | agree |")
+    rows.append("| --- | ---: | ---: | --- | --- | --- | --- |")
+    for d in MAUTO.get("receipts") or []:
+        rows.append(
+            f"| {d.get('name')} | {d.get('n')} | {d.get('maxdim')} | {d.get('selected')} | "
+            f"{d.get('expect')} | {d.get('refused', False)} | {d.get('agree')} |"
         )
 
 (BENCH / "results" / "consolidation" / "TABLES.md").write_text("\n".join(rows) + "\n")

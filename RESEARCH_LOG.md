@@ -5,6 +5,14 @@ Do not paste long reasoning here.
 
 ---
 
+## 2026-10-14 — `--mode auto` refuses fat H2 sparse outside d=2,3
+
+- **Question:** `--mode auto` on fat 4D H2 (`uniform4` n=250 T=0.6 maxdim=2) selected sparse and timed out at 25 s. Can we stop the hang without retuning τ?
+- **Work:** `Feasibility.auto_will_run` is false when the probe names sparse *and* maxdim≥2 *and* fat *and* \(d\notin\{2,3\}\). `--mode auto` prints the selection then exits 3. `--estimate` emits `auto_will_run`. Explicit `--mode sparse` is unchanged. CLI smoke + `eval_mode_auto` refuse case.
+- **Result:** Probe still recommends sparse. Auto no longer starts that H2. 4D H1 auto still runs. τ / engine selection frozen.
+- **Decision:** Keep the refuse. Do not retune τ. Do not mark the goal complete.
+- **Class:** experiment (usability / dispatcher safety)
+
 ## 2026-10-14 — PD figures include sparse and Alpha
 
 - **Work:** `plot_pd.py` — Ripser / exact / scale / sparse / GUDHI Alpha at \(n=400\).

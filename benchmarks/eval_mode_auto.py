@@ -52,8 +52,11 @@ def run_auto(path, T, maxdim, timeout=20):
     for line in proc.stderr.splitlines():
         if line.startswith("# MODE auto selected"):
             selected = line.split()[4]
+    refused = proc.returncode == 3 and "refusing" in proc.stderr
     return {
         "ok": proc.returncode == 0,
+        "returncode": proc.returncode,
+        "refused": refused,
         "selected": selected,
         "stderr": proc.stderr[-800:],
         "has_h1": "persistence intervals in dim 1" in proc.stdout,
@@ -76,6 +79,8 @@ def main():
         ("figure8", figure8, 16000, 1.1, 1, "scale"),
         ("sphere", sphere, 16000, 1.4, 2, "scale"),
         ("uniform4", uniform4, 5000, 1.0, 1, "sparse"),
+        # Probe still names sparse; auto must refuse rather than hang.
+        ("uniform4", uniform4, 250, 0.6, 2, "refuse"),
     ]
     recs = []
     for name, fn, n, T, dim, expect in cases:
@@ -85,8 +90,15 @@ def main():
         print(f"AUTO {name} n={n} expect={expect}", flush=True)
         got = run_auto(path, T, dim, timeout=25)
         got.update({"name": name, "n": n, "T": T, "maxdim": dim, "expect": expect})
-        got["agree"] = got.get("selected") == expect
-        print(f"  selected={got.get('selected')} pipeline={got.get('pipeline')} agree={got['agree']}", flush=True)
+        if expect == "refuse":
+            got["agree"] = bool(got.get("refused") and got.get("selected") == "sparse")
+        else:
+            got["agree"] = got.get("selected") == expect and got.get("ok")
+        print(
+            f"  selected={got.get('selected')} pipeline={got.get('pipeline')} "
+            f"refused={got.get('refused')} agree={got['agree']}",
+            flush=True,
+        )
         recs.append(got)
     OUT.mkdir(parents=True, exist_ok=True)
     path = OUT / "mode_auto.json"
