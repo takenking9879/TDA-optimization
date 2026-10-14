@@ -76,3 +76,9 @@ Two-point slopes from `baselines.json`. Same hardware. Not theorems.
 
 giotto-ph tracks Ripser’s slope. 4 threads do not change the \(H_1\)
 exponent. GUDHI’s explicit tree is the first to leave the 12 s budget.
+
+`--estimate` now emits that \(p\) as `growth_p` plus a conservative
+runtime band (`est_runtime_lo_s` / `est_runtime_hi_s`) and
+`leaving_cheap_regime`. Engine \(\tau\) is unchanged. On mixed 1D/2D/3D
+\(n=300\) it reports leave=true / mode=scale; sphere \(n=400\) predicted
+0.006–0.019 s and measured 0.017 s.

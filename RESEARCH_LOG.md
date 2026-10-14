@@ -5,6 +5,14 @@ Do not paste long reasoning here.
 
 ---
 
+## 2026-10-14 — consolidation phase 3b (sparse + failure + estimate bands)
+
+- **Question:** Does `--mode sparse` thin these clouds, where do Ripser/giotto actually fail, and can `--estimate` report growth bands without retuning τ?
+- **Work:** `growth_p` / `est_runtime_{lo,hi}` / `leaving_cheap_regime` on the frozen probe. `run_sparse_limits.py`.
+- **Result:** Sparse ε=0.6 Max does **not** thin: |E|=C(n,2) on the 2D suite; ess H1 kept; unmatched 8–52; sphere H2 timeout at n=400; figure8 n=8000 sparse 1.01 s vs scale 0.23 s. Failure: circle n=2000 PITH 0.34 s, Ripser+giotto timeout; figure8 n=4000 PITH 1.02 s, giotto timeout; sphere n=800 PITH 0.058 s, giotto timeout; nested n=2000 0.30 vs giotto 7.23 s. Estimate: mixed n=300 leave=true / scale; sphere n=400 predicted 0.006–0.019, measured 0.017. τ unchanged.
+- **Decision:** Document sparse as theorem-backed but not a size win here. Scale stays the Euclidean alternative. Goal not complete.
+- **Class:** verified (measurements)
+
 ## 2026-10-14 — consolidation phase 3 (giotto-ph + GUDHI + post-freeze)
 
 - **Question:** On this hardware, how do exact auto / RedZeD / Ripser / giotto-ph / GUDHI / scale compare, and does the frozen dispatcher survive held-out families?

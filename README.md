@@ -46,7 +46,12 @@ a non-Euclidean L1 distance matrix.
 thicken). Compare essential Betti numbers and unmatched finite bars;
 do not treat the diagram as VR.
 
-**`--mode sparse`** is a Sheehy-style sparse Rips approximation.
+**`--mode sparse`** is a Sheehy-style sparse Rips approximation (ε=0.6).
+On this suite the default Max cap **does not thin** the graph
+(\(\lvert E\rvert=C(n,2)\) at the \(T\) that keeps the loops). Essential
+\(H_1\) is kept; finite bars differ; \(H_2\) timed out at \(n=400\).
+Use `--mode scale` for a Euclidean size win; keep sparse for the
+literature interleaving guarantee on abstract / high-\(d\) metrics.
 
 GUDHI **Alpha** is a third complex: on this suite it **drops** essential
 \(H_1/H_2\) (loops and voids become 0). We do not use it as a VR stand-in.
@@ -118,6 +123,11 @@ The headline exact ratios **hold at 1 thread**, and they still hold against
 **4-thread giotto-ph**. Hardware threads (4) change circle \(n=1000\) from
 0.068 s to 0.069 s — not the source of the 32×. giotto-ph’s 4 threads help
 sphere \(H_2\) (1.12→0.62 s) and do **not** speed up \(H_1\).
+
+Pushed to the 12 s wall: circle \(n=2000\) PITH **0.34 s**, Ripser and
+giotto timeout; figure-8 \(n=4000\) PITH **1.02 s**, giotto timeout;
+sphere \(n=800\) PITH **0.058 s**, giotto timeout; nested loops \(n=2000\)
+PITH **0.30 s** vs giotto **7.23 s** (24×).
 
 ![Exact VR vs Ripser / giotto-ph / GUDHI](benchmarks/results/consolidation/figures/runtime_baselines.svg)
 

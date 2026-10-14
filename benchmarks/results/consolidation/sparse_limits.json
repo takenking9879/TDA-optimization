@@ -1,0 +1,1432 @@
+{
+  "budget_s": 12,
+  "sparse": [
+    {
+      "name": "figure8",
+      "n": 400,
+      "T": 1.1,
+      "maxdim": 1,
+      "walls": {
+        "exact": 0.007061911004711874,
+        "ripser": 0.016819907003082335,
+        "scale": 0.005131069992785342,
+        "sparse": 0.00430537699139677
+      },
+      "n_dist": {
+        "exact": 19060,
+        "scale": 8600,
+        "sparse": 79800
+      },
+      "ess_ripser": {
+        "0": 1,
+        "1": 2
+      },
+      "ess_exact": {
+        "0": 1,
+        "1": 2
+      },
+      "ess_scale": {
+        "0": 1,
+        "1": 2
+      },
+      "ess_sparse": {
+        "0": 1,
+        "1": 2
+      },
+      "sparse_ok": true,
+      "sparse_error": null,
+      "exact_vs_ripser": {
+        "unmatched": 0,
+        "exact_match": true,
+        "n_finite_ref": 420,
+        "n_finite_other": 420,
+        "ess": {
+          "0": {
+            "ref": 1,
+            "other": 1
+          },
+          "1": {
+            "ref": 2,
+            "other": 2
+          }
+        },
+        "bottleneck_greedy_h1": 5.000000000005e-07,
+        "bottleneck_h0": 5.000000000143778e-07,
+        "wasserstein1_h0": 1.640339999999657e-05,
+        "bottleneck_h1": 5.000000000005e-07,
+        "wasserstein1_h1": 2.8519999999906953e-06
+      },
+      "scale_vs_ripser": {
+        "unmatched": 0,
+        "exact_match": true,
+        "n_finite_ref": 420,
+        "n_finite_other": 420,
+        "ess": {
+          "0": {
+            "ref": 1,
+            "other": 1
+          },
+          "1": {
+            "ref": 2,
+            "other": 2
+          }
+        },
+        "bottleneck_greedy_h1": 5.000000000005e-07,
+        "bottleneck_h0": 5.000000000143778e-07,
+        "wasserstein1_h0": 1.640339999999657e-05,
+        "bottleneck_h1": 5.000000000005e-07,
+        "wasserstein1_h1": 2.8519999999906953e-06
+      },
+      "sparse_vs_ripser": {
+        "unmatched": 14,
+        "exact_match": false,
+        "n_finite_ref": 420,
+        "n_finite_other": 426,
+        "ess": {
+          "0": {
+            "ref": 1,
+            "other": 1
+          },
+          "1": {
+            "ref": 2,
+            "other": 2
+          }
+        },
+        "bottleneck_greedy_h1": null,
+        "bottleneck_h0": 0.01012010000000002,
+        "wasserstein1_h0": 0.03884615740000001,
+        "bottleneck_h1": 0.007141905000000004,
+        "wasserstein1_h1": 0.02282019149999998
+      }
+    },
+    {
+      "name": "circle_noisy",
+      "n": 400,
+      "T": 1.5,
+      "maxdim": 1,
+      "walls": {
+        "exact": 0.014320223999675363,
+        "ripser": 0.1206400270020822,
+        "scale": 0.005488404000061564,
+        "sparse": 0.006248675999813713
+      },
+      "n_dist": {
+        "exact": 79800,
+        "scale": 8967,
+        "sparse": 79800
+      },
+      "ess_ripser": {
+        "0": 1,
+        "1": 1
+      },
+      "ess_exact": {
+        "0": 1,
+        "1": 1
+      },
+      "ess_scale": {
+        "0": 1,
+        "1": 1
+      },
+      "ess_sparse": {
+        "0": 1,
+        "1": 1
+      },
+      "sparse_ok": true,
+      "sparse_error": null,
+      "exact_vs_ripser": {
+        "unmatched": 0,
+        "exact_match": true,
+        "n_finite_ref": 454,
+        "n_finite_other": 454,
+        "ess": {
+          "0": {
+            "ref": 1,
+            "other": 1
+          },
+          "1": {
+            "ref": 1,
+            "other": 1
+          }
+        },
+        "bottleneck_greedy_h1": 4.600000000076765e-07,
+        "bottleneck_h0": 1.8000000000240046e-07,
+        "wasserstein1_h0": 1.0045699999937981e-05,
+        "bottleneck_h1": 4.600000000076765e-07,
+        "wasserstein1_h1": 5.301999999984819e-06
+      },
+      "scale_vs_ripser": {
+        "unmatched": 0,
+        "exact_match": true,
+        "n_finite_ref": 454,
+        "n_finite_other": 454,
+        "ess": {
+          "0": {
+            "ref": 1,
+            "other": 1
+          },
+          "1": {
+            "ref": 1,
+            "other": 1
+          }
+        },
+        "bottleneck_greedy_h1": 4.600000000076765e-07,
+        "bottleneck_h0": 1.8000000000240046e-07,
+        "wasserstein1_h0": 1.0045699999937981e-05,
+        "bottleneck_h1": 4.600000000076765e-07,
+        "wasserstein1_h1": 5.301999999984819e-06
+      },
+      "sparse_vs_ripser": {
+        "unmatched": 30,
+        "exact_match": false,
+        "n_finite_ref": 454,
+        "n_finite_other": 458,
+        "ess": {
+          "0": {
+            "ref": 1,
+            "other": 1
+          },
+          "1": {
+            "ref": 1,
+            "other": 1
+          }
+        },
+        "bottleneck_greedy_h1": null,
+        "bottleneck_h0": 0.0004873889999999978,
+        "wasserstein1_h0": 0.009659046699999951,
+        "bottleneck_h1": 0.006244689999999997,
+        "wasserstein1_h1": 0.034125527999999974
+      }
+    },
+    {
+      "name": "nested_loops",
+      "n": 400,
+      "T": 1.6,
+      "maxdim": 1,
+      "walls": {
+        "exact": 0.009081280004465953,
+        "ripser": 0.046273326996015385,
+        "scale": 0.006906497001182288,
+        "sparse": 0.006345150002744049
+      },
+      "n_dist": {
+        "exact": 79800,
+        "scale": 11299,
+        "sparse": 79800
+      },
+      "ess_ripser": {
+        "0": 1,
+        "1": 1
+      },
+      "ess_exact": {
+        "0": 1,
+        "1": 1
+      },
+      "ess_scale": {
+        "0": 1,
+        "1": 1
+      },
+      "ess_sparse": {
+        "0": 1,
+        "1": 1
+      },
+      "sparse_ok": true,
+      "sparse_error": null,
+      "exact_vs_ripser": {
+        "unmatched": 0,
+        "exact_match": true,
+        "n_finite_ref": 431,
+        "n_finite_other": 431,
+        "ess": {
+          "0": {
+            "ref": 1,
+            "other": 1
+          },
+          "1": {
+            "ref": 1,
+            "other": 1
+          }
+        },
+        "bottleneck_greedy_h1": 5.099999999869098e-06,
+        "bottleneck_h0": 8.000000000230045e-07,
+        "wasserstein1_h0": 2.809309999998212e-05,
+        "bottleneck_h1": 5.099999999869098e-06,
+        "wasserstein1_h1": 5.9159999999378043e-05
+      },
+      "scale_vs_ripser": {
+        "unmatched": 0,
+        "exact_match": true,
+        "n_finite_ref": 431,
+        "n_finite_other": 431,
+        "ess": {
+          "0": {
+            "ref": 1,
+            "other": 1
+          },
+          "1": {
+            "ref": 1,
+            "other": 1
+          }
+        },
+        "bottleneck_greedy_h1": 5.099999999869098e-06,
+        "bottleneck_h0": 8.000000000230045e-07,
+        "wasserstein1_h0": 2.809309999998212e-05,
+        "bottleneck_h1": 5.099999999869098e-06,
+        "wasserstein1_h1": 5.9159999999378043e-05
+      },
+      "sparse_vs_ripser": {
+        "unmatched": 52,
+        "exact_match": false,
+        "n_finite_ref": 431,
+        "n_finite_other": 443,
+        "ess": {
+          "0": {
+            "ref": 1,
+            "other": 1
+          },
+          "1": {
+            "ref": 1,
+            "other": 1
+          }
+        },
+        "bottleneck_greedy_h1": null,
+        "bottleneck_h0": 0.07675579999999993,
+        "wasserstein1_h0": 0.09466522009999999,
+        "bottleneck_h1": 0.11087270000000005,
+        "wasserstein1_h1": 1.0465352255
+      }
+    },
+    {
+      "name": "many_loops",
+      "n": 400,
+      "T": 1.2,
+      "maxdim": 1,
+      "walls": {
+        "exact": 0.003668953009764664,
+        "ripser": 0.004914984994684346,
+        "scale": 0.004845866991672665,
+        "sparse": 0.0030831339972792193
+      },
+      "n_dist": {
+        "exact": 15800,
+        "scale": 5143,
+        "sparse": 79800
+      },
+      "ess_ripser": {
+        "0": 5,
+        "1": 5
+      },
+      "ess_exact": {
+        "0": 5,
+        "1": 5
+      },
+      "ess_scale": {
+        "0": 5,
+        "1": 5
+      },
+      "ess_sparse": {
+        "0": 5,
+        "1": 5
+      },
+      "sparse_ok": true,
+      "sparse_error": null,
+      "exact_vs_ripser": {
+        "unmatched": 0,
+        "exact_match": true,
+        "n_finite_ref": 403,
+        "n_finite_other": 403,
+        "ess": {
+          "0": {
+            "ref": 5,
+            "other": 5
+          },
+          "1": {
+            "ref": 5,
+            "other": 5
+          }
+        },
+        "bottleneck_greedy_h1": 4.80000000024905e-07,
+        "bottleneck_h0": 5.099999999813587e-07,
+        "wasserstein1_h0": 4.780769999993299e-05,
+        "bottleneck_h1": 4.80000000024905e-07,
+        "wasserstein1_h1": 3.6400000000547106e-06
+      },
+      "scale_vs_ripser": {
+        "unmatched": 0,
+        "exact_match": true,
+        "n_finite_ref": 403,
+        "n_finite_other": 403,
+        "ess": {
+          "0": {
+            "ref": 5,
+            "other": 5
+          },
+          "1": {
+            "ref": 5,
+            "other": 5
+          }
+        },
+        "bottleneck_greedy_h1": 4.80000000024905e-07,
+        "bottleneck_h0": 5.099999999813587e-07,
+        "wasserstein1_h0": 4.780769999993299e-05,
+        "bottleneck_h1": 4.80000000024905e-07,
+        "wasserstein1_h1": 3.6400000000547106e-06
+      },
+      "sparse_vs_ripser": {
+        "unmatched": 8,
+        "exact_match": false,
+        "n_finite_ref": 403,
+        "n_finite_other": 405,
+        "ess": {
+          "0": {
+            "ref": 5,
+            "other": 5
+          },
+          "1": {
+            "ref": 5,
+            "other": 5
+          }
+        },
+        "bottleneck_greedy_h1": null,
+        "bottleneck_h0": 0.028798160000000017,
+        "wasserstein1_h0": 0.0820425176999997,
+        "bottleneck_h1": 0.02808993999999998,
+        "wasserstein1_h1": 0.042830255000000025
+      }
+    },
+    {
+      "name": "disconnected_circles",
+      "n": 400,
+      "T": 1.5,
+      "maxdim": 1,
+      "walls": {
+        "exact": 0.007682687995838933,
+        "ripser": 0.028724956006044522,
+        "scale": 0.00567089299147483,
+        "sparse": 0.004365893997601233
+      },
+      "n_dist": {
+        "exact": 79800,
+        "scale": 8560,
+        "sparse": 79800
+      },
+      "ess_ripser": {
+        "0": 2,
+        "1": 2
+      },
+      "ess_exact": {
+        "0": 2,
+        "1": 2
+      },
+      "ess_scale": {
+        "0": 2,
+        "1": 2
+      },
+      "ess_sparse": {
+        "0": 2,
+        "1": 2
+      },
+      "sparse_ok": true,
+      "sparse_error": null,
+      "exact_vs_ripser": {
+        "unmatched": 0,
+        "exact_match": true,
+        "n_finite_ref": 424,
+        "n_finite_other": 424,
+        "ess": {
+          "0": {
+            "ref": 2,
+            "other": 2
+          },
+          "1": {
+            "ref": 2,
+            "other": 2
+          }
+        },
+        "bottleneck_greedy_h1": 4.900000000057636e-07,
+        "bottleneck_h0": 5.000000000143778e-07,
+        "wasserstein1_h0": 1.9656900000024867e-05,
+        "bottleneck_h1": 4.900000000057636e-07,
+        "wasserstein1_h1": 4.412999999939271e-06
+      },
+      "scale_vs_ripser": {
+        "unmatched": 0,
+        "exact_match": true,
+        "n_finite_ref": 424,
+        "n_finite_other": 424,
+        "ess": {
+          "0": {
+            "ref": 2,
+            "other": 2
+          },
+          "1": {
+            "ref": 2,
+            "other": 2
+          }
+        },
+        "bottleneck_greedy_h1": 4.900000000057636e-07,
+        "bottleneck_h0": 5.000000000143778e-07,
+        "wasserstein1_h0": 1.9656900000024867e-05,
+        "bottleneck_h1": 4.900000000057636e-07,
+        "wasserstein1_h1": 4.412999999939271e-06
+      },
+      "sparse_vs_ripser": {
+        "unmatched": 18,
+        "exact_match": false,
+        "n_finite_ref": 424,
+        "n_finite_other": 428,
+        "ess": {
+          "0": {
+            "ref": 2,
+            "other": 2
+          },
+          "1": {
+            "ref": 2,
+            "other": 2
+          }
+        },
+        "bottleneck_greedy_h1": null,
+        "bottleneck_h0": 0.0037024999999999975,
+        "wasserstein1_h0": 0.013305935899999954,
+        "bottleneck_h1": 0.017290520000000004,
+        "wasserstein1_h1": 0.05858382149999997
+      }
+    },
+    {
+      "name": "grid_holes",
+      "n": 400,
+      "T": 0.12,
+      "maxdim": 1,
+      "walls": {
+        "exact": 0.003710680000949651,
+        "ripser": 0.0037352810031734407,
+        "scale": 0.003844626000500284,
+        "sparse": 0.0033744490065146238
+      },
+      "n_dist": {
+        "exact": 2714,
+        "scale": 2688,
+        "sparse": 79800
+      },
+      "ess_ripser": {
+        "0": 1,
+        "1": 2
+      },
+      "ess_exact": {
+        "0": 1,
+        "1": 2
+      },
+      "ess_scale": {
+        "0": 1,
+        "1": 2
+      },
+      "ess_sparse": {
+        "0": 1,
+        "1": 2
+      },
+      "sparse_ok": true,
+      "sparse_error": null,
+      "exact_vs_ripser": {
+        "unmatched": 0,
+        "exact_match": true,
+        "n_finite_ref": 588,
+        "n_finite_other": 588,
+        "ess": {
+          "0": {
+            "ref": 1,
+            "other": 1
+          },
+          "1": {
+            "ref": 2,
+            "other": 2
+          }
+        },
+        "bottleneck_greedy_h1": 4.100000000062387e-07,
+        "bottleneck_h0": 5.2999999999858716e-08,
+        "wasserstein1_h0": 9.822999999988674e-06,
+        "bottleneck_h1": 4.100000000062387e-07,
+        "wasserstein1_h1": 7.506999999989938e-06
+      },
+      "scale_vs_ripser": {
+        "unmatched": 0,
+        "exact_match": true,
+        "n_finite_ref": 588,
+        "n_finite_other": 588,
+        "ess": {
+          "0": {
+            "ref": 1,
+            "other": 1
+          },
+          "1": {
+            "ref": 2,
+            "other": 2
+          }
+        },
+        "bottleneck_greedy_h1": 4.100000000062387e-07,
+        "bottleneck_h0": 5.2999999999858716e-08,
+        "wasserstein1_h0": 9.822999999988674e-06,
+        "bottleneck_h1": 4.100000000062387e-07,
+        "wasserstein1_h1": 7.506999999989938e-06
+      },
+      "sparse_vs_ripser": {
+        "unmatched": 0,
+        "exact_match": true,
+        "n_finite_ref": 588,
+        "n_finite_other": 588,
+        "ess": {
+          "0": {
+            "ref": 1,
+            "other": 1
+          },
+          "1": {
+            "ref": 2,
+            "other": 2
+          }
+        },
+        "bottleneck_greedy_h1": 4.100000000062387e-07,
+        "bottleneck_h0": 5.2999999999858716e-08,
+        "wasserstein1_h0": 9.822999999988674e-06,
+        "bottleneck_h1": 4.100000000062387e-07,
+        "wasserstein1_h1": 7.506999999989938e-06
+      }
+    },
+    {
+      "name": "sphere",
+      "n": 400,
+      "T": 1.4,
+      "maxdim": 2,
+      "walls": {
+        "exact": 0.017468650999944657,
+        "ripser": 1.0285149559931597,
+        "scale": 0.006131304005975835,
+        "sparse": null
+      },
+      "n_dist": {
+        "exact": 79800,
+        "scale": 1934,
+        "sparse": null
+      },
+      "ess_ripser": {
+        "0": 1,
+        "1": 0,
+        "2": 1
+      },
+      "ess_exact": {
+        "0": 1,
+        "1": 0,
+        "2": 1
+      },
+      "ess_scale": {
+        "0": 1,
+        "1": 0,
+        "2": 1
+      },
+      "ess_sparse": null,
+      "sparse_ok": false,
+      "sparse_error": "Command '['/workspace/src/pith/build/pith', '--points', '/workspace/benchmarks/datasets/generated/sphere_n400.csv', '--maxdim', '2', '--threshold', '1.4', '--mode', 'sparse', '--engine', 'auto', '--no-enclosing', '--threads', '1']' timed out after 12 seconds",
+      "exact_vs_ripser": {
+        "unmatched": 0,
+        "exact_match": true,
+        "n_finite_ref": 515,
+        "n_finite_other": 515,
+        "ess": {
+          "0": {
+            "ref": 1,
+            "other": 1
+          },
+          "1": {
+            "ref": 0,
+            "other": 0
+          },
+          "2": {
+            "ref": 1,
+            "other": 1
+          }
+        },
+        "bottleneck_greedy_h1": 5.200000000038507e-07,
+        "bottleneck_h0": 5.000000000143778e-07,
+        "wasserstein1_h0": 6.733390000019388e-05,
+        "bottleneck_h1": 5.200000000038507e-07,
+        "wasserstein1_h1": 3.715600000003816e-05,
+        "bottleneck_h2": 2.700000000244174e-07,
+        "wasserstein1_h2": 2.700000000244174e-07
+      },
+      "scale_vs_ripser": {
+        "unmatched": 52,
+        "exact_match": false,
+        "n_finite_ref": 515,
+        "n_finite_other": 517,
+        "ess": {
+          "0": {
+            "ref": 1,
+            "other": 1
+          },
+          "1": {
+            "ref": 0,
+            "other": 0
+          },
+          "2": {
+            "ref": 1,
+            "other": 1
+          }
+        },
+        "bottleneck_greedy_h1": null,
+        "bottleneck_h0": 5.000000000143778e-07,
+        "wasserstein1_h0": 6.733390000019388e-05,
+        "bottleneck_h1": 0.02403957000000001,
+        "wasserstein1_h1": 0.2097243320000001,
+        "bottleneck_h2": 0.033828199999999975,
+        "wasserstein1_h2": 0.03934319499999997
+      }
+    },
+    {
+      "name": "two_spheres_apart",
+      "n": 300,
+      "T": 1.4,
+      "maxdim": 2,
+      "walls": {
+        "exact": 0.01893278599891346,
+        "ripser": 0.08725756400963292,
+        "scale": 0.005041166004957631,
+        "sparse": 3.707989975999226
+      },
+      "n_dist": {
+        "exact": 22350,
+        "scale": 1420,
+        "sparse": 44850
+      },
+      "ess_ripser": {
+        "0": 2,
+        "1": 0,
+        "2": 2
+      },
+      "ess_exact": {
+        "0": 2,
+        "1": 0,
+        "2": 2
+      },
+      "ess_scale": {
+        "0": 2,
+        "1": 0,
+        "2": 2
+      },
+      "ess_sparse": {
+        "0": 2,
+        "1": 0,
+        "2": 2
+      },
+      "sparse_ok": true,
+      "sparse_error": null,
+      "exact_vs_ripser": {
+        "unmatched": 0,
+        "exact_match": true,
+        "n_finite_ref": 374,
+        "n_finite_other": 374,
+        "ess": {
+          "0": {
+            "ref": 2,
+            "other": 2
+          },
+          "1": {
+            "ref": 0,
+            "other": 0
+          },
+          "2": {
+            "ref": 2,
+            "other": 2
+          }
+        },
+        "bottleneck_greedy_h1": 5.000000000143778e-07,
+        "bottleneck_h0": 5.000000000143778e-07,
+        "wasserstein1_h0": 6.52131999996676e-05,
+        "bottleneck_h1": 5.000000000143778e-07,
+        "wasserstein1_h1": 2.5630000000331776e-05,
+        "bottleneck_h2": 5.999999996841865e-08,
+        "wasserstein1_h2": 1.0999999999761201e-07
+      },
+      "scale_vs_ripser": {
+        "unmatched": 45,
+        "exact_match": false,
+        "n_finite_ref": 374,
+        "n_finite_other": 383,
+        "ess": {
+          "0": {
+            "ref": 2,
+            "other": 2
+          },
+          "1": {
+            "ref": 0,
+            "other": 0
+          },
+          "2": {
+            "ref": 2,
+            "other": 2
+          }
+        },
+        "bottleneck_greedy_h1": null,
+        "bottleneck_h0": 5.000000000143778e-07,
+        "wasserstein1_h0": 6.52131999996676e-05,
+        "bottleneck_h1": 0.027504399999999984,
+        "wasserstein1_h1": 0.21197405500000044,
+        "bottleneck_h2": 0.019802230000000032,
+        "wasserstein1_h2": 0.025650640000000058
+      },
+      "sparse_vs_ripser": {
+        "unmatched": 41,
+        "exact_match": false,
+        "n_finite_ref": 374,
+        "n_finite_other": 383,
+        "ess": {
+          "0": {
+            "ref": 2,
+            "other": 2
+          },
+          "1": {
+            "ref": 0,
+            "other": 0
+          },
+          "2": {
+            "ref": 2,
+            "other": 2
+          }
+        },
+        "bottleneck_greedy_h1": null,
+        "bottleneck_h0": 0.011877709999999986,
+        "wasserstein1_h0": 0.0254628831999996,
+        "bottleneck_h1": 0.038879019999999986,
+        "wasserstein1_h1": 0.31403850000000016,
+        "bottleneck_h2": 0.02934458499999998,
+        "wasserstein1_h2": 0.09428299500000004
+      }
+    },
+    {
+      "name": "figure8",
+      "n": 2000,
+      "T": 1.1,
+      "maxdim": 1,
+      "larger": true,
+      "sparse": {
+        "method": "pith:sparse:auto:t1",
+        "ok": true,
+        "error": null,
+        "timed_out": false,
+        "oom": false,
+        "wall_s": 0.05453911599761341,
+        "cpu_s": 17.258377,
+        "threads_claimed": 1,
+        "threads_pith": 1,
+        "rss_delta": 0,
+        "rss_pith": 24207360,
+        "n_dist": 1999000,
+        "n_edges_in": 56626,
+        "n_edges_out": 56626,
+        "metric_ms": 11.732688,
+        "collapse_ms": 0,
+        "reduce_ms": 23.763832,
+        "pipeline": "pith:threshold+collapse0+implicit_coh",
+        "residual_frac": -1,
+        "n_pairs": 2362,
+        "ess0": 1,
+        "ess1": 2,
+        "ess2": 0
+      },
+      "scale": {
+        "method": "pith:scale:auto:t1",
+        "ok": true,
+        "error": null,
+        "timed_out": false,
+        "oom": false,
+        "wall_s": 0.03421315299056005,
+        "cpu_s": 17.292306999999997,
+        "threads_claimed": 1,
+        "threads_pith": 1,
+        "rss_delta": 0,
+        "rss_pith": 15097856,
+        "n_dist": 79853,
+        "n_edges_in": 79853,
+        "n_edges_out": 0,
+        "metric_ms": 20.14883,
+        "collapse_ms": 0,
+        "reduce_ms": 6.295384,
+        "pipeline": "pith:delaunay-vr-auto-redzed",
+        "residual_frac": -1,
+        "n_pairs": 2348,
+        "ess0": 1,
+        "ess1": 2,
+        "ess2": 0
+      }
+    },
+    {
+      "name": "figure8",
+      "n": 8000,
+      "T": 1.1,
+      "maxdim": 1,
+      "larger": true,
+      "sparse": {
+        "method": "pith:sparse:auto:t1",
+        "ok": true,
+        "error": null,
+        "timed_out": false,
+        "oom": false,
+        "wall_s": 1.012907523996546,
+        "cpu_s": 18.304512,
+        "threads_claimed": 1,
+        "threads_pith": 1,
+        "rss_delta": 137269248,
+        "rss_pith": 287645696,
+        "n_dist": 31996000,
+        "n_edges_in": 381386,
+        "n_edges_out": 381386,
+        "metric_ms": 296.47298,
+        "collapse_ms": 0,
+        "reduce_ms": 339.1668,
+        "pipeline": "pith:threshold+collapse0+implicit_coh",
+        "residual_frac": -1,
+        "n_pairs": 10027,
+        "ess0": 1,
+        "ess1": 2,
+        "ess2": 0
+      },
+      "scale": {
+        "method": "pith:scale:auto:t1",
+        "ok": true,
+        "error": null,
+        "timed_out": false,
+        "oom": false,
+        "wall_s": 0.2293976930086501,
+        "cpu_s": 18.533544,
+        "threads_claimed": 1,
+        "threads_pith": 1,
+        "rss_delta": 0,
+        "rss_pith": 59432960,
+        "n_dist": 428139,
+        "n_edges_in": 428139,
+        "n_edges_out": 0,
+        "metric_ms": 136.27373,
+        "collapse_ms": 0,
+        "reduce_ms": 55.105116,
+        "pipeline": "pith:delaunay-vr-auto-redzed",
+        "residual_frac": -1,
+        "n_pairs": 9958,
+        "ess0": 1,
+        "ess1": 2,
+        "ess2": 0
+      },
+      "p_sparse": 2.1075336694893836
+    },
+    {
+      "name": "sphere",
+      "n": 400,
+      "T": 1.4,
+      "maxdim": 2,
+      "larger": true,
+      "sparse": {
+        "method": "pith:sparse:auto:t1",
+        "ok": false,
+        "error": "Command '['/workspace/src/pith/build/pith', '--points', '/workspace/benchmarks/datasets/generated/sphere_n400.csv', '--maxdim', '2', '--threshold', '1.4', '--mode', 'sparse', '--engine', 'auto', '--no-enclosing', '--threads', '1']' timed out after 12 seconds",
+        "timed_out": true,
+        "oom": false,
+        "wall_s": null,
+        "cpu_s": 30.545502,
+        "threads_claimed": 1,
+        "threads_pith": null,
+        "rss_delta": 0,
+        "rss_pith": null,
+        "n_dist": null,
+        "n_edges_in": null,
+        "n_edges_out": null,
+        "metric_ms": null,
+        "collapse_ms": null,
+        "reduce_ms": null,
+        "pipeline": null,
+        "residual_frac": null,
+        "n_pairs": 0,
+        "ess0": null,
+        "ess1": null,
+        "ess2": null
+      },
+      "scale": {
+        "method": "pith:scale:auto:t1",
+        "ok": true,
+        "error": null,
+        "timed_out": false,
+        "oom": false,
+        "wall_s": 0.006119354002294131,
+        "cpu_s": 30.551169,
+        "threads_claimed": 1,
+        "threads_pith": 1,
+        "rss_delta": 0,
+        "rss_pith": 6250496,
+        "n_dist": 1934,
+        "n_edges_in": 1934,
+        "n_edges_out": 0,
+        "metric_ms": 2.367517,
+        "collapse_ms": 0,
+        "reduce_ms": 1.478482,
+        "pipeline": "pith:delaunay-vr-redzed",
+        "residual_frac": -1,
+        "n_pairs": 519,
+        "ess0": 1,
+        "ess1": 0,
+        "ess2": 1
+      }
+    },
+    {
+      "name": "sphere",
+      "n": 4000,
+      "T": 1.4,
+      "maxdim": 2,
+      "larger": true,
+      "sparse": {
+        "method": "pith:sparse:auto:t1",
+        "ok": false,
+        "error": "Command '['/workspace/src/pith/build/pith', '--points', '/workspace/benchmarks/datasets/generated/sphere_n4000.csv', '--maxdim', '2', '--threshold', '1.4', '--mode', 'sparse', '--engine', 'auto', '--no-enclosing', '--threads', '1']' timed out after 12 seconds",
+        "timed_out": true,
+        "oom": false,
+        "wall_s": null,
+        "cpu_s": 42.573593,
+        "threads_claimed": 1,
+        "threads_pith": null,
+        "rss_delta": 57794560,
+        "rss_pith": null,
+        "n_dist": null,
+        "n_edges_in": null,
+        "n_edges_out": null,
+        "metric_ms": null,
+        "collapse_ms": null,
+        "reduce_ms": null,
+        "pipeline": null,
+        "residual_frac": null,
+        "n_pairs": 0,
+        "ess0": null,
+        "ess1": null,
+        "ess2": null
+      },
+      "scale": {
+        "method": "pith:scale:auto:t1",
+        "ok": true,
+        "error": null,
+        "timed_out": false,
+        "oom": false,
+        "wall_s": 0.11329059899435379,
+        "cpu_s": 42.686504,
+        "threads_claimed": 1,
+        "threads_pith": 1,
+        "rss_delta": 0,
+        "rss_pith": 139681792,
+        "n_dist": 20122,
+        "n_edges_in": 20122,
+        "n_edges_out": 0,
+        "metric_ms": 28.899205,
+        "collapse_ms": 0,
+        "reduce_ms": 73.735233,
+        "pipeline": "pith:delaunay-vr-redzed",
+        "residual_frac": -1,
+        "n_pairs": 5150,
+        "ess0": 1,
+        "ess1": 0,
+        "ess2": 1
+      }
+    },
+    {
+      "name": "grid_holes",
+      "n": 800,
+      "T": 0.12,
+      "maxdim": 1,
+      "larger": true,
+      "sparse": {
+        "method": "pith:sparse:auto:t1",
+        "ok": true,
+        "error": null,
+        "timed_out": false,
+        "oom": false,
+        "wall_s": 0.010094141005538404,
+        "cpu_s": 42.69636,
+        "threads_claimed": 1,
+        "threads_pith": 1,
+        "rss_delta": 0,
+        "rss_pith": 7802880,
+        "n_dist": 319600,
+        "n_edges_in": 9314,
+        "n_edges_out": 9314,
+        "metric_ms": 1.63233,
+        "collapse_ms": 0,
+        "reduce_ms": 4.11813,
+        "pipeline": "pith:threshold+collapse0+implicit_coh",
+        "residual_frac": -1,
+        "n_pairs": 1226,
+        "ess0": 1,
+        "ess1": 2,
+        "ess2": 0
+      },
+      "scale": {
+        "method": "pith:scale:auto:t1",
+        "ok": true,
+        "error": null,
+        "timed_out": false,
+        "oom": false,
+        "wall_s": 0.008938036000472493,
+        "cpu_s": 42.705076,
+        "threads_claimed": 1,
+        "threads_pith": 1,
+        "rss_delta": 0,
+        "rss_pith": 6287360,
+        "n_dist": 10234,
+        "n_edges_in": 10234,
+        "n_edges_out": 0,
+        "metric_ms": 3.627952,
+        "collapse_ms": 0,
+        "reduce_ms": 2.57257,
+        "pipeline": "pith:delaunay-vr-auto-redzed",
+        "residual_frac": -1,
+        "n_pairs": 1226,
+        "ess0": 1,
+        "ess1": 2,
+        "ess2": 0
+      }
+    }
+  ],
+  "failures": [
+    {
+      "name": "circle_noisy",
+      "n": 2000,
+      "T": 1.5,
+      "maxdim": 1,
+      "runs": {
+        "pith_exact": {
+          "method": "pith:exact:auto:t1",
+          "ok": true,
+          "error": null,
+          "timed_out": false,
+          "oom": false,
+          "wall_s": 0.3384940160030965,
+          "cpu_s": 43.043311,
+          "threads_claimed": 1,
+          "threads_pith": 1,
+          "rss_delta": 0,
+          "rss_pith": 94343168,
+          "n_dist": 1999000,
+          "n_edges_in": 1077130,
+          "n_edges_out": 5169,
+          "metric_ms": 10.94067,
+          "collapse_ms": 261.96475,
+          "reduce_ms": 1.673262,
+          "pipeline": "pith:auto-collapse",
+          "residual_frac": 0.020157443,
+          "n_pairs": 2461,
+          "ess0": 1,
+          "ess1": 1,
+          "ess2": 0
+        },
+        "ripser": {
+          "method": "ripser",
+          "ok": false,
+          "error": "Command '['/workspace/third_party/ripser/ripser', '--format', 'point-cloud', '--dim', '1', '--threshold', '1.5', '/workspace/benchmarks/datasets/generated/circle_noisy_n2000.csv']' timed out after 12 seconds",
+          "wall_s": null,
+          "threads_claimed": 1,
+          "rss_delta": 255832064,
+          "n_pairs": 0,
+          "ess0": null,
+          "ess1": null,
+          "ess2": null
+        },
+        "giotto_t1": {
+          "method": "giotto-ph:t1",
+          "ok": false,
+          "error": "Command '['/usr/bin/python3', '/workspace/benchmarks/_ph_worker.py', 'giotto', '/workspace/benchmarks/datasets/generated/circle_noisy_n2000.csv', '1.5', '1', '1', '0']' timed out after 12 seconds",
+          "timed_out": true,
+          "wall_s": null,
+          "cpu_s": 12.698634000000006,
+          "threads_claimed": 1,
+          "rss_delta": 245100544,
+          "n_pairs": 0,
+          "ess0": null,
+          "ess1": null,
+          "ess2": null,
+          "collapse_edges": false
+        }
+      }
+    },
+    {
+      "name": "figure8",
+      "n": 4000,
+      "T": 1.1,
+      "maxdim": 1,
+      "runs": {
+        "pith_exact": {
+          "method": "pith:exact:auto:t1",
+          "ok": true,
+          "error": null,
+          "timed_out": false,
+          "oom": false,
+          "wall_s": 1.022352724990924,
+          "cpu_s": 68.792928,
+          "threads_claimed": 1,
+          "threads_pith": 1,
+          "rss_delta": 0,
+          "rss_pith": 157327360,
+          "n_dist": 1980771,
+          "n_edges_in": 0,
+          "n_edges_out": 0,
+          "metric_ms": 38.257642,
+          "collapse_ms": 0,
+          "reduce_ms": 811.80712,
+          "pipeline": "pith:auto-redzed-spatial",
+          "residual_frac": 0.038583092,
+          "n_pairs": 4892,
+          "ess0": 1,
+          "ess1": 2,
+          "ess2": 0
+        },
+        "giotto_t1": {
+          "method": "giotto-ph:t1",
+          "ok": false,
+          "error": "Command '['/usr/bin/python3', '/workspace/benchmarks/_ph_worker.py', 'giotto', '/workspace/benchmarks/datasets/generated/figure8_n4000.csv', '1.1', '1', '1', '0']' timed out after 12 seconds",
+          "timed_out": true,
+          "wall_s": null,
+          "cpu_s": 12.696209999999994,
+          "threads_claimed": 1,
+          "rss_delta": 0,
+          "n_pairs": 0,
+          "ess0": null,
+          "ess1": null,
+          "ess2": null,
+          "collapse_edges": false
+        }
+      }
+    },
+    {
+      "name": "sphere",
+      "n": 800,
+      "T": 1.4,
+      "maxdim": 2,
+      "runs": {
+        "pith_exact": {
+          "method": "pith:exact:auto:t1",
+          "ok": true,
+          "error": null,
+          "timed_out": false,
+          "oom": false,
+          "wall_s": 0.05761603399878368,
+          "cpu_s": 81.54649699999999,
+          "threads_claimed": 1,
+          "threads_pith": 1,
+          "rss_delta": 0,
+          "rss_pith": 17534976,
+          "n_dist": 319600,
+          "n_edges_in": 157312,
+          "n_edges_out": 2389,
+          "metric_ms": 1.548929,
+          "collapse_ms": 39.090611,
+          "reduce_ms": 2.102028,
+          "pipeline": "pith:auto-collapse",
+          "residual_frac": 0.062639527,
+          "n_pairs": 1026,
+          "ess0": 1,
+          "ess1": 0,
+          "ess2": 1
+        },
+        "giotto_t1": {
+          "method": "giotto-ph:t1",
+          "ok": false,
+          "error": "Command '['/usr/bin/python3', '/workspace/benchmarks/_ph_worker.py', 'giotto', '/workspace/benchmarks/datasets/generated/sphere_n800.csv', '1.4', '2', '1', '0']' timed out after 12 seconds",
+          "timed_out": true,
+          "wall_s": null,
+          "cpu_s": 12.692764000000011,
+          "threads_claimed": 1,
+          "rss_delta": 0,
+          "n_pairs": 0,
+          "ess0": null,
+          "ess1": null,
+          "ess2": null,
+          "collapse_edges": false
+        }
+      }
+    },
+    {
+      "name": "nested_loops",
+      "n": 2000,
+      "T": 1.6,
+      "maxdim": 1,
+      "runs": {
+        "pith_exact": {
+          "method": "pith:exact:auto:t1",
+          "ok": true,
+          "error": null,
+          "timed_out": false,
+          "oom": false,
+          "wall_s": 0.3029296339955181,
+          "cpu_s": 94.54181,
+          "threads_claimed": 1,
+          "threads_pith": 1,
+          "rss_delta": 0,
+          "rss_pith": 41484288,
+          "n_dist": 1999000,
+          "n_edges_in": 0,
+          "n_edges_out": 0,
+          "metric_ms": 7.567686,
+          "collapse_ms": 0,
+          "reduce_ms": 282.24162,
+          "pipeline": "pith:auto-redzed",
+          "residual_frac": 0.093351492,
+          "n_pairs": 2301,
+          "ess0": 1,
+          "ess1": 0,
+          "ess2": 0
+        },
+        "giotto_t1": {
+          "method": "giotto-ph:t1",
+          "ok": true,
+          "error": null,
+          "timed_out": false,
+          "wall_s": 7.225421989001916,
+          "cpu_s": 8.655569,
+          "threads_claimed": 1,
+          "rss_delta": 0,
+          "n_pairs": 2301,
+          "ess0": 1,
+          "ess1": 0,
+          "ess2": 0,
+          "collapse_edges": false
+        }
+      }
+    }
+  ],
+  "estimates": [
+    {
+      "name": "circle_noisy",
+      "n": 80,
+      "estimate": {
+        "kind": "estimate",
+        "empirical": true,
+        "n": 80,
+        "dim": 2,
+        "maxdim": 1,
+        "threshold": 1.5,
+        "edge_frac_probe": 0.532911,
+        "residual_frac_probe": 0.0552257,
+        "residual_regime": "fat",
+        "est_edges": 1684,
+        "est_edges_lo": 1347.2,
+        "est_edges_hi": 2105,
+        "est_residual_edges": 93,
+        "est_residual_edges_hi": 116.25,
+        "est_delaunay_edges": 240,
+        "est_runtime_s": 0.0001684,
+        "est_runtime_lo_s": 6.736e-05,
+        "est_runtime_hi_s": 0.0005052,
+        "growth_p": 2.4,
+        "leaving_cheap_regime": false,
+        "engine_recommended": "redzed",
+        "mode_recommended": "exact",
+        "exact_feasible": true,
+        "runtime_class": "sub-second",
+        "confidence": "low",
+        "threads": 4,
+        "reason": "exact VR looks feasible on the 250-pt probe (conservative |E| band)",
+        "wall_s": 0.0033678129984764382
+      }
+    },
+    {
+      "name": "figure8",
+      "n": 2000,
+      "estimate": {
+        "kind": "estimate",
+        "empirical": true,
+        "n": 2000,
+        "dim": 2,
+        "maxdim": 1,
+        "threshold": 1.1,
+        "edge_frac_probe": 0.241928,
+        "residual_frac_probe": 0.0379814,
+        "residual_regime": "hollow",
+        "est_edges": 483613,
+        "est_edges_lo": 386891,
+        "est_edges_hi": 604517,
+        "est_residual_edges": 18368.3,
+        "est_residual_edges_hi": 22960.4,
+        "est_delaunay_edges": 6000,
+        "est_runtime_s": 0.0483613,
+        "est_runtime_lo_s": 0.0193445,
+        "est_runtime_hi_s": 0.145084,
+        "growth_p": 1.8,
+        "leaving_cheap_regime": false,
+        "engine_recommended": "redzed",
+        "mode_recommended": "exact",
+        "exact_feasible": true,
+        "runtime_class": "sub-second",
+        "confidence": "low",
+        "threads": 4,
+        "reason": "exact VR looks feasible on the 250-pt probe (conservative |E| band)",
+        "wall_s": 0.003777044010348618
+      }
+    },
+    {
+      "name": "sphere",
+      "n": 400,
+      "estimate": {
+        "kind": "estimate",
+        "empirical": true,
+        "n": 400,
+        "dim": 3,
+        "maxdim": 2,
+        "threshold": 1.4,
+        "edge_frac_probe": 0.49147,
+        "residual_frac_probe": 0.0588351,
+        "residual_regime": "thin",
+        "est_edges": 39219.3,
+        "est_edges_lo": 31375.4,
+        "est_edges_hi": 49024.1,
+        "est_residual_edges": 2307.47,
+        "est_residual_edges_hi": 2884.34,
+        "est_delaunay_edges": 2800,
+        "est_runtime_s": 0.0064,
+        "est_runtime_lo_s": 0.00256,
+        "est_runtime_hi_s": 0.0192,
+        "growth_p": 2.2,
+        "leaving_cheap_regime": false,
+        "engine_recommended": "implicit",
+        "mode_recommended": "exact",
+        "exact_feasible": true,
+        "runtime_class": "sub-second",
+        "confidence": "medium",
+        "threads": 4,
+        "reason": "exact VR looks feasible on the 250-pt probe (conservative |E| band)",
+        "wall_s": 0.005194330005906522
+      }
+    },
+    {
+      "name": "mixed_1d2d3d",
+      "n": 300,
+      "estimate": {
+        "kind": "estimate",
+        "empirical": true,
+        "n": 300,
+        "dim": 3,
+        "maxdim": 2,
+        "threshold": 1.4,
+        "edge_frac_probe": 0.26294,
+        "residual_frac_probe": 0.421676,
+        "residual_regime": "fat",
+        "est_edges": 11792.8,
+        "est_edges_lo": 9434.28,
+        "est_edges_hi": 14741.1,
+        "est_residual_edges": 4972.77,
+        "est_residual_edges_hi": 6215.96,
+        "est_delaunay_edges": 2100,
+        "est_runtime_s": 0.006,
+        "est_runtime_lo_s": 0.0024,
+        "est_runtime_hi_s": 0.036,
+        "growth_p": 1.2,
+        "leaving_cheap_regime": true,
+        "engine_recommended": "redzed",
+        "mode_recommended": "scale",
+        "exact_feasible": false,
+        "runtime_class": "impractical-or-scale",
+        "confidence": "medium",
+        "threads": 4,
+        "reason": "fat residual at maxdim>=2: exact H2 on G_T is often impractical; Euclidean scale is safer",
+        "wall_s": 0.009392423002282158
+      }
+    }
+  ]
+}
