@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-14 — I301 CSR H2 stream on sparse flags
+
+- **Question:** Does replacing vendor `generate_stream`’s n×n bit graph with sorted-adj common-neighbor intersection (same growing \(G_{<e}\), \(d=2\)) cut 3D Delaunay-flag H2 at 30k–50k points?
+- **Hypothesis:** Delaunay \(|E|\sim 6n\). Bit-row AND is \(\Theta(n/64)\) per edge; intersection is \(O(\deg)\). Same triangles (tie groups still sort by `comb_index`). Gate \(|E|\le 16n\). Dense \(G_T\) keeps vendor.
+- **Work:** `generate_stream_h2_adj` in `redzed_vr`. Wave 161 vs I300 clocks + Ripser. Hard: sphere n=50000.
+- **Result:** **Support.** figure8 n=2000 exact H1. ess2 held (sphere 1; two_spheres 2). sphere n=16000 **0.215 vs I300 0.27 s** (reduce 96 vs 148 ms). n=30000 **0.439 vs 0.62 s** (reduce 220 vs 392 ms). n=50000 **0.84 s / 252k / ess2=1**. Exact default held (H0 60×, figure8 17×, uniform2 11.2×, sphere H2 58×, circle 17×). Justified: \(O(|E|\deg)\) vs \(O(|E|\,n/64)\) on a \(\Theta(n)\) flag.
+- **Decision:** **Support / select** for sparse-flag H2. Do not use on dense \(G_T\). Do not mark the goal complete.
+- **Class:** experiment (support; selected sparse H2 stream)
+
 ## 2026-10-14 — I300 3D α=1 RedZeD (no thicken)
 
 - **Question:** Does skipping H1 thicken on 3D `maxdim≥2` (α=1 Delaunay flag) and persisting that flag with RedZeD make H0+H1+H2 usable at 20k–30k points, without dropping ess H2 or 2D finite H1?

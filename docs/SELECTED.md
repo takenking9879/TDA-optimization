@@ -1,6 +1,6 @@
 # Selected algorithm (living)
 
-Updated 2026-10-14 after iterations I001–I300. **CLI default `--engine`
+Updated 2026-10-14 after iterations I001–I301. **CLI default `--engine`
 auto` (I235+I236+I239+I240+I241+I263+I270+I271+I275):** subsample residual-frac dispatch,
 plus I263 edge-frac so hollow/manifold clouds take RedZeD. Fat →
 RedZeD (torus n=2000 **13.0×**). Thin-circle → collapse+implicit
@@ -676,11 +676,12 @@ Rips is exact and too slow.
    recommended H1 thicken CLI** (exact 9/9, n=8000 65×). **I286
    split** makes auto work at maxdim≥2 (figure8 n=4000 158 ms;
    sphere n=2000 H0+H1+H2 203 ms). **I287 split scale:** sphere
-   n=8000 H0+H1+H2 **0.865 s / ess2=1** (I297); n=16000 **3.02 s**
-   (I294 was 3.95 s); figure8 n=16000 **0.621 s**; n=24000 **1.06 s /
-   ess1=2**; sphere n=20000 **3.89 s / ess2=1**. **I297 RedZeD-on-thicken
-   is selected** for fat thicken H1 (`|E|≥8n`): same flag PH, AE instead
-   of implicit V-adds. H2 stays implicit on α=1.
+   n=8000 H0+H1+H2 **0.865 s / ess2=1** (I297 thicken). **I300 3D
+   α=1 RedZeD** is the selected H0+H1+H2 path in \(d=3\): sphere
+   n=16000 **0.22 s / 80k / ess2=1** (I301); n=30000 **0.44 s**;
+   n=50000 **0.84 s / 252k**. figure8 (2D) still thickens: n=16000
+   **0.64 s / ess1=2**. **I297 RedZeD-on-thicken is selected** for fat 2D / maxdim=1
+   thicken H1 (`|E|≥8n`). H2 on 2D split stays implicit.
    **I283
    Delaunay 2-complex hold:** ess kept, sphere n=400 un 52→33, but
    two_spheres worse (28→32). Alpha drops ess H2. I276 flag stays.
@@ -719,7 +720,11 @@ Rips is exact and too slow.
    no H1 thicken (noise loops). sphere n=16000 **0.27 s / ess2=1**
    (I297 thicken 3.02 s); n=30000 **0.62 s / 151k**. 2D still
    thickens (figure8 n=16000 **0.67 s / ess1=2**). Finite 3D H1 on
-   this path is I276-flag. ae_seeded visits remain the exact-H1 wall.
+   this path is I276-flag. **I301 CSR H2 stream is selected** on
+   \(|E|\le 16n\): sphere n=30000 **0.44 vs 0.62 s**; n=50000
+   **0.84 s / 252k / ess2=1**. \(O(|E|\deg)\) vs \(O(|E|\,n/64)\).
+   Dense \(G_T\) keeps vendor `generate_stream`. ae_seeded visits
+   remain the exact-H1 wall.
 6. Owned AE leftover-star walk is still Θ(|leftover|·deg★) — rbit cut
    has_leftover_coface, not seeded probes (circle still 875k). I288
    equal-set seeded_is_noop is exact and reverted (848≈866). Packed
