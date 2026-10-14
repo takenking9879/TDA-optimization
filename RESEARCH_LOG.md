@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-14 — I303 leftover-adj mean-deg gate (fat thicken)
+
+- **Question:** Does raising leftover-adj from \(|E|\le 16n\) to mean deg < rbit-AND width (words) cut fat 2D thicken H1 (figure8 n=16k–24k) without regressing I302’s 3D Delaunay path?
+- **Hypothesis:** figure8 thicken n=16000 is deg~122 vs words=250, so intersection should beat word-AND. Dense \(G_T\) (deg ≫ words) stays on rbits. H2 stream stays at 16n.
+- **Work:** `use_adj` when `2|E|/n < words`. Wave 163 vs I302. Hard: figure8 n=24000.
+- **Result:** **Reject.** Identity held (ess1=2, ess2=1, exact default). Clock lost: figure8 n=16000 **0.85 vs I302 0.63 s** (reduce 409 vs 201 ms). n=24000 **1.29 s**. sphere n=50000 **0.76 vs 0.68 s**. Sorted `lower_bound` insert is \(\Theta(|E|\deg)\) on deg~100 lists — that tax ate the leftover_coface cut.
+- **Decision:** **Reject and revert** the gate to I302 \(|E|\le 16n\). Do not raise leftover-adj onto fat thicken with sorted insert. Next: hash-set leftover adj on the mid-deg band, or leave thicken on rbits.
+- **Class:** experiment (reject; exact, slower; reverted)
+
 ## 2026-10-14 — I302 growing-adj leftover_coface (skip rbits)
 
 - **Question:** On Delaunay-scale flags, is leftover_coface’s n×n rbit AND the remaining size-class tax after I301’s CSR H2 stream, and does a growing sorted adj (same \(G_r\)) cut H0+H1+H2 at 30k–50k without inventing bars?
