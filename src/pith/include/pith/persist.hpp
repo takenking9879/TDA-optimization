@@ -1,6 +1,7 @@
 #pragma once
 
 #include "graph.hpp"
+#include "threads.hpp"
 
 #include <algorithm>
 #include <chrono>
@@ -743,7 +744,7 @@ inline Result persist_implicit_coh(const Graph& g, int maxdim, value_t threshold
     // leftovers are 98–99% apparent (figure8 n=16000: 957k of 977k).
     std::vector<LEdge> cols;
     cols.reserve(leftover.size() / 16 + 16);
-    const int nth = std::max(1, static_cast<int>(std::thread::hardware_concurrency()));
+    const int nth = nthreads();
     const bool par = nth > 1 && leftover.size() >= 4096;
     if (!par) {
         for (const LEdge& e : leftover) {

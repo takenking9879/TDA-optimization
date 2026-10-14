@@ -4,6 +4,7 @@
 #include "pith/reduced_vr.hpp"
 #include "pith/redzed_bridge.hpp"
 #include "pith/sparse_rips.hpp"
+#include "pith/threads.hpp"
 
 #include <algorithm>
 #include <chrono>
@@ -34,6 +35,7 @@ static void usage() {
         << "  --engine auto|redzed|implicit\n"
         << "                          exact-mode engine (default auto: pick redzed or collapse)\n"
         << "  --estimate              feasibility estimate only (no persistence)\n"
+        << "  --threads N             cap worker threads (default: hardware)\n"
         << "  --format text|json      output format (default text)\n"
         << "  --no-enclosing          do not cap T by enclosing radius\n"
         << "  --help                  this message\n"
@@ -245,7 +247,8 @@ static void print_text(const Result& r) {
               << " collapse_ms=" << c.collapse_ms
               << " reduce_ms=" << c.reduce_ms
               << " residual_frac=" << c.residual_frac
-              << " rss=" << c.rss_bytes_peak << "\n";
+              << " rss=" << c.rss_bytes_peak
+              << " threads=" << c.n_threads << "\n";
 }
 
 static void print_json(const Result& r) {
@@ -270,7 +273,8 @@ static void print_json(const Result& r) {
               << "    \"metric_ms\": " << c.metric_ms << ",\n"
               << "    \"collapse_ms\": " << c.collapse_ms << ",\n"
               << "    \"reduce_ms\": " << c.reduce_ms << ",\n"
-              << "    \"rss_bytes_peak\": " << c.rss_bytes_peak << "\n"
+              << "    \"rss_bytes_peak\": " << c.rss_bytes_peak << ",\n"
+              << "    \"n_threads\": " << c.n_threads << "\n"
               << "  },\n";
     std::cout << "  \"pairs\": [\n";
     for (size_t i = 0; i < r.pairs.size(); ++i) {
@@ -285,7 +289,8 @@ static void print_json(const Result& r) {
 
 // Empirical feasibility probe. Not a theorem: uses the same 250-pt
 // residual / edge-frac oracles as --engine auto, plus conservative
-// |E| cutoffs measured on the I227–I312 suite.
+// |E| / residual cutoffs measured on the I227–I312 suite. Probe
+// fractions are inflated (×1.25) before feasibility cuts.
 static int print_estimate(const std::vector<std::vector<value_t>>* pts,
                           const std::vector<std::vector<value_t>>* dist, int maxdim, value_t T,
                           const std::string& format) {
@@ -302,29 +307,61 @@ static int print_estimate(const std::vector<std::vector<value_t>>* pts,
     }
     const double all_pairs = (n > 1) ? 0.5 * static_cast<double>(n) * (n - 1) : 0;
     const double est_e = (edge_frac >= 0) ? edge_frac * all_pairs : all_pairs;
+    const double edge_frac_hi = (edge_frac >= 0) ? std::min(1.0, edge_frac * 1.25) : 1.0;
+    const double est_e_hi = edge_frac_hi * all_pairs;
+    const double est_e_lo = (edge_frac >= 0) ? std::max(0.0, edge_frac * 0.80) * all_pairs : 0;
+    const double est_r = (residual_frac >= 0 && edge_frac >= 0) ? residual_frac * est_e : -1;
+    const double est_r_hi = (residual_frac >= 0) ? residual_frac * est_e_hi : -1;
     const double est_del = (dim == 2) ? 3.0 * n : (dim == 3) ? 7.0 * n : -1;
     const double tau = (maxdim >= 2) ? 0.15 : 0.04;
     const bool hollow = edge_frac >= 0 && edge_frac < 0.25;
     const bool fat = residual_frac >= 0 && residual_frac > tau;
+    const bool thin = residual_frac >= 0 && residual_frac <= tau && !hollow;
+    std::string regime = "unknown";
+    if (maxdim < 1) regime = "h0";
+    else if (hollow) regime = "hollow";
+    else if (fat) regime = "fat";
+    else if (thin) regime = "thin";
     std::string engine_rec = "implicit";
     if (maxdim < 1) engine_rec = "redzed";  // Kruskal / Delaunay H0
     else if (fat || hollow) engine_rec = "redzed";
     bool exact_ok = true;
-    std::string reason = "exact VR looks feasible on the 250-pt probe";
-    if (maxdim >= 1 && est_e > 8.0e6) {
+    std::string reason = "exact VR looks feasible on the 250-pt probe (conservative |E| band)";
+    if (maxdim >= 1 && est_e_hi > 8.0e6) {
         exact_ok = false;
-        reason = "estimated |E| > 8e6; exact H1 on G_T is likely impractical";
-    } else if (maxdim >= 1 && n > 20000 && edge_frac > 0.15) {
+        reason = "conservative |E| band exceeds 8e6; exact H1 on G_T is likely impractical";
+    } else if (maxdim >= 1 && fat && est_r_hi > 1.5e6) {
         exact_ok = false;
-        reason = "dense G_T at n>20000; exact H1 typically leaves the low-polynomial regime";
-    } else if (maxdim >= 1 && n > 8000 && dim >= 2 && dim <= 3) {
-        reason = "exact VR may still run; Euclidean scale path is the practical option at this n";
+        reason = "fat residual band exceeds 1.5e6 leftover edges; exact leftover visits explode";
+    } else if (maxdim >= 1 && n > 20000 && !thin && edge_frac > 0.15) {
+        exact_ok = false;
+        reason = "dense G_T at n>20000 with a non-thin residual; exact H1 leaves the low-polynomial regime";
+    } else if (maxdim >= 1 && fat && n > 6000 && dim >= 2 && dim <= 3) {
+        reason = "fat Euclidean residual at n>6000: exact may still finish, scale is the safer option";
+    } else if (maxdim >= 1 && thin && n > 8000 && dim >= 2 && dim <= 3) {
+        reason = "thin residual: exact collapse+implicit is still the intended path; scale is optional";
     }
     std::string mode_rec = "exact";
     if (!exact_ok && dim >= 2 && dim <= 3) mode_rec = "scale";
     else if (!exact_ok) mode_rec = "sparse";
-    const char* runtime =
-        !exact_ok ? "impractical-or-scale" : (n >= 4000 && maxdim >= 1 ? "seconds" : "sub-second");
+    else if (fat && n > 6000 && dim >= 2 && dim <= 3) mode_rec = "scale";
+    const bool near_tau =
+        residual_frac >= 0 && std::fabs(residual_frac - tau) < 0.02;
+    const char* confidence =
+        (n <= 400 && !near_tau) ? "medium" : "low";
+    double est_runtime = -1;
+    if (maxdim < 1 && n > 0) {
+        est_runtime = 2.0e-6 * static_cast<double>(n) * std::max(1.0, std::log2(static_cast<double>(n)));
+    } else if (mode_rec == "scale" && n > 0) {
+        est_runtime = (dim == 3 ? 2.0e-5 : 3.5e-5) * static_cast<double>(n);
+    } else if (thin && n > 0) {
+        est_runtime = 4.0e-8 * static_cast<double>(n) * static_cast<double>(n);
+    } else if (est_e_hi > 0) {
+        est_runtime = 8.0e-8 * est_e_hi;
+    }
+    const char* runtime = !exact_ok ? "impractical-or-scale"
+                                    : (est_runtime > 1.0 || (n >= 4000 && maxdim >= 1) ? "seconds"
+                                                                                       : "sub-second");
     if (format == "json") {
         std::cout << std::setprecision(6);
         std::cout << "{\n"
@@ -336,22 +373,31 @@ static int print_estimate(const std::vector<std::vector<value_t>>* pts,
                   << "  \"threshold\": " << T << ",\n"
                   << "  \"edge_frac_probe\": " << edge_frac << ",\n"
                   << "  \"residual_frac_probe\": " << residual_frac << ",\n"
+                  << "  \"residual_regime\": \"" << regime << "\",\n"
                   << "  \"est_edges\": " << est_e << ",\n"
+                  << "  \"est_edges_lo\": " << est_e_lo << ",\n"
+                  << "  \"est_edges_hi\": " << est_e_hi << ",\n"
+                  << "  \"est_residual_edges\": " << est_r << ",\n"
+                  << "  \"est_residual_edges_hi\": " << est_r_hi << ",\n"
                   << "  \"est_delaunay_edges\": " << est_del << ",\n"
+                  << "  \"est_runtime_s\": " << est_runtime << ",\n"
                   << "  \"engine_recommended\": \"" << engine_rec << "\",\n"
                   << "  \"mode_recommended\": \"" << mode_rec << "\",\n"
                   << "  \"exact_feasible\": " << (exact_ok ? "true" : "false") << ",\n"
                   << "  \"runtime_class\": \"" << runtime << "\",\n"
-                  << "  \"confidence\": \"low\",\n"
+                  << "  \"confidence\": \"" << confidence << "\",\n"
+                  << "  \"threads\": " << nthreads() << ",\n"
                   << "  \"reason\": \"" << reason << "\"\n"
                   << "}\n";
     } else {
         std::cout << "# ESTIMATE empirical=true n=" << n << " dim=" << dim << " maxdim=" << maxdim
                   << " T=" << T << " edge_frac=" << edge_frac << " residual_frac=" << residual_frac
-                  << " est_edges=" << est_e << " est_delaunay=" << est_del
+                  << " regime=" << regime << " est_edges=" << est_e << " est_edges_hi=" << est_e_hi
+                  << " est_residual=" << est_r << " est_delaunay=" << est_del
                   << " engine=" << engine_rec << " mode=" << mode_rec
                   << " exact_feasible=" << (exact_ok ? 1 : 0) << " runtime=" << runtime
-                  << " confidence=low\n# " << reason << "\n";
+                  << " est_runtime_s=" << est_runtime << " confidence=" << confidence
+                  << " threads=" << nthreads() << "\n# " << reason << "\n";
     }
     return 0;
 }
@@ -394,6 +440,7 @@ int main(int argc, char** argv) {
     int later_b_cap = 0;
     std::string mode = "exact";
     bool estimate_only = false;
+    int thread_limit = 0;
 
     for (int i = 1; i < argc; ++i) {
         const std::string a = argv[i];
@@ -452,6 +499,7 @@ int main(int argc, char** argv) {
         else if (a == "--format") format = need("--format");
         else if (a == "--mode") mode = need("--mode");
         else if (a == "--estimate") estimate_only = true;
+        else if (a == "--threads") thread_limit = std::stoi(need("--threads"));
         else if (a == "--help-experimental") {
             usage_experimental();
             return 0;
@@ -479,6 +527,11 @@ int main(int argc, char** argv) {
         std::cerr << "unknown --engine " << engine << "\n";
         return 2;
     }
+    if (thread_limit < 0) {
+        std::cerr << "--threads must be >= 0 (0 = hardware)\n";
+        return 2;
+    }
+    set_thread_limit(thread_limit);
     if (points_path.empty() && dist_path.empty() && edges_path.empty()) {
         usage();
         return 2;
@@ -833,6 +886,7 @@ int main(int argc, char** argv) {
             return a.death < b.death;
         });
         r.counters.rss_bytes_peak = peak_rss_bytes();
+        r.counters.n_threads = nthreads();
         if (format == "json") print_json(r);
         else print_text(r);
         return 0;

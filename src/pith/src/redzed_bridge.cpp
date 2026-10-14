@@ -6,6 +6,7 @@
 #include "../../../third_party/redzed/redzed.cpp"
 
 #include "pith/redzed_bridge.hpp"
+#include "pith/threads.hpp"
 
 #include <algorithm>
 #include <array>
@@ -31,7 +32,7 @@
 static void finish_buckets_parallel(std::vector<value_t>& diam, std::vector<int32_t>& verts, int vpc,
                                     const std::vector<rank_t>& starts, int nb,
                                     const BinomialTable& bt) {
-    const int nth = std::max(1, static_cast<int>(std::thread::hardware_concurrency()));
+    const int nth = pith::nthreads();
     if (nth <= 1 || nb < 8) {
         SortScratch sc;
         finish_buckets(diam, verts, vpc, starts, nb, bt, sc);
@@ -57,7 +58,7 @@ static void finish_buckets_parallel(std::vector<value_t>& diam, std::vector<int3
 static void build_edges_parallel(const DistanceMatrix& dist, value_t threshold,
                                  const BinomialTable& bt, EdgeList& out) {
     const int n = dist.n;
-    const int nth = std::max(1, static_cast<int>(std::thread::hardware_concurrency()));
+    const int nth = pith::nthreads();
     if (nth <= 1 || n < 256) {
         SortScratch sc;
         build_edges(dist, threshold, bt, sc, out);
@@ -861,7 +862,7 @@ static void run_blocks_parallel(std::vector<RedzedBlock>& blocks, int dim, value
     work.reserve(blocks.size());
     for (auto& b : blocks)
         if (b.verts.size() > 1) work.push_back(&b);
-    const int nth = std::max(1, static_cast<int>(std::thread::hardware_concurrency()));
+    const int nth = pith::nthreads();
     const int nworkers = std::min(nth, static_cast<int>(work.size()));
     if (nworkers > 1) {
         std::atomic<size_t> next{0};
@@ -1035,7 +1036,7 @@ static bool spatial_edges(const std::vector<std::vector<value_t>>& pts, value_t 
                     }
                 }
     };
-    const int nth = std::max(1, static_cast<int>(std::thread::hardware_concurrency()));
+    const int nth = pith::nthreads();
     if (nth <= 1 || n < 256) {
         out.reserve(static_cast<size_t>(n) * 8);
         for (int i = 0; i < n; ++i) scan_i(i, out);
@@ -2214,7 +2215,7 @@ bool delaunay_thicken_extras(const std::vector<std::vector<value_t>>& pts, value
                 }
     };
     // I294: per-vertex thicken queries are independent. Dedup on merge.
-    const int nth = std::max(1, static_cast<int>(std::thread::hardware_concurrency()));
+    const int nth = pith::nthreads();
     if (nth <= 1 || n < 1024) {
         std::vector<Edge> local;
         local.reserve(static_cast<size_t>(n) * 8);
@@ -2489,7 +2490,7 @@ Result persist_redzed_from_points(const std::vector<std::vector<value_t>>& pts, 
         D.n = n;
     } else {
         D.resize_lower(n);
-        const int nth = std::max(1, static_cast<int>(std::thread::hardware_concurrency()));
+        const int nth = pith::nthreads();
         auto fill_range = [&](int j0, int j1) {
             for (int j = j0; j < j1; ++j) {
                 for (int i = 0; i < j; ++i) {

@@ -24,8 +24,8 @@ def main():
     if "I263" in help_txt or "I297" in help_txt or "suffix-later" in help_txt:
         print("stable --help still exposes research flags or I-numbers", file=sys.stderr)
         return 1
-    if "--mode" not in help_txt or "--estimate" not in help_txt:
-        print("stable --help missing --mode/--estimate", file=sys.stderr)
+    if "--mode" not in help_txt or "--estimate" not in help_txt or "--threads" not in help_txt:
+        print("stable --help missing --mode/--estimate/--threads", file=sys.stderr)
         return 1
     exp = subprocess.check_output([str(PITH), "--help-experimental"], text=True, stderr=subprocess.STDOUT)
     if "--delaunay-vr" not in exp:
@@ -43,6 +43,10 @@ def main():
     if js.get("kind") != "estimate" or "engine_recommended" not in js:
         print("estimate JSON incomplete", js, file=sys.stderr)
         return 1
+    for key in ("residual_regime", "est_edges_hi", "est_residual_edges", "confidence", "threads"):
+        if key not in js:
+            print("estimate JSON missing", key, js, file=sys.stderr)
+            return 1
 
     out = subprocess.check_output(
         [str(PITH), "--points", str(path), "--mode", "exact", "--maxdim", "1", "--threshold", "1.5", "--no-enclosing"],
@@ -50,6 +54,26 @@ def main():
     )
     if "persistence intervals in dim 1" not in out:
         print("exact mode produced no H1 block", file=sys.stderr)
+        return 1
+    out1 = subprocess.check_output(
+        [
+            str(PITH),
+            "--points",
+            str(path),
+            "--mode",
+            "exact",
+            "--threads",
+            "1",
+            "--maxdim",
+            "1",
+            "--threshold",
+            "1.5",
+            "--no-enclosing",
+        ],
+        text=True,
+    )
+    if "threads=1" not in out1:
+        print(" --threads 1 did not appear in counters", file=sys.stderr)
         return 1
     print("ok stable CLI")
     return 0

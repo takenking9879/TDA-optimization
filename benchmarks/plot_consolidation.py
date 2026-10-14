@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""SVG figures + markdown tables from consolidation/report.json."""
+"""SVG figures + markdown tables from consolidation/report.json and limits.json."""
 
 from __future__ import annotations
 
@@ -9,6 +9,8 @@ from pathlib import Path
 
 BENCH = Path(__file__).resolve().parent
 REP = json.loads((BENCH / "results" / "consolidation" / "report.json").read_text())
+LIM_PATH = BENCH / "results" / "consolidation" / "limits.json"
+LIM = json.loads(LIM_PATH.read_text()) if LIM_PATH.exists() else {}
 FIG = BENCH / "results" / "consolidation" / "figures"
 FIG.mkdir(parents=True, exist_ok=True)
 
@@ -31,11 +33,14 @@ def svg_scatter(path, series, title, xlab, ylab, logx=True, logy=True, w=720, h=
         xmax = xmin + 1
     if ymax <= ymin:
         ymax = ymin + 1
+
     def X(v):
         return pad_l + (v - xmin) / (xmax - xmin) * (w - pad_l - pad_r)
+
     def Y(v):
         return pad_t + (1 - (v - ymin) / (ymax - ymin)) * (h - pad_t - pad_b)
-    colors = ["#1f77b4", "#d62728", "#2ca02c", "#9467bd", "#ff7f0e"]
+
+    colors = ["#1f77b4", "#d62728", "#2ca02c", "#9467bd", "#ff7f0e", "#8c564b"]
     out = [
         f"<svg xmlns='http://www.w3.org/2000/svg' width='{w}' height='{h}' font-family='sans-serif'>",
         f"<rect width='{w}' height='{h}' fill='white'/>",
@@ -64,15 +69,38 @@ def svg_scatter(path, series, title, xlab, ylab, logx=True, logy=True, w=720, h=
     path.write_text("\n".join(out))
 
 
-def collect(name, method_key):
+def collect(name, method_key, rss=False):
     xy = []
-    for r in REP["receipts"]:
+    for r in REP.get("receipts") or []:
         if r["name"] != name:
             continue
         run = r["runs"].get(method_key)
-        if run and run.get("ok") and run.get("wall_s"):
-            xy.append((r["n"], run["wall_s"]))
-    return sorted(xy)
+        if not (run and run.get("ok") and run.get("wall_s")):
+            continue
+        y = run.get("rss_pith") if rss else run.get("wall_s")
+        if y:
+            xy.append((r["n"], y))
+    alias = {
+        "pith_exact": "exact_auto",
+        "pith_scale": "scale",
+        "ripser": "ripser",
+        "pith_redzed": "exact_redzed",
+    }
+    lim_key = alias.get(method_key, method_key)
+    for r in LIM.get("limits") or []:
+        if r["name"] != name:
+            continue
+        run = r["runs"].get(lim_key) or r["runs"].get(method_key)
+        if not (run and run.get("ok") and run.get("wall_s")):
+            continue
+        y = run.get("rss_pith") if rss else run.get("wall_s")
+        if y:
+            xy.append((r["n"], y))
+    # unique by n, keep last
+    by = {}
+    for x, y in xy:
+        by[x] = y
+    return sorted(by.items())
 
 
 svg_scatter(
@@ -83,6 +111,7 @@ svg_scatter(
         {"name": "figure8 PITH exact", "xy": collect("figure8", "pith_exact")},
         {"name": "figure8 Ripser", "xy": collect("figure8", "ripser")},
         {"name": "uniform2 PITH exact", "xy": collect("uniform2", "pith_exact")},
+        {"name": "torus PITH exact", "xy": collect("torus", "pith_exact")},
     ],
     "Runtime vs n (exact VR, log-log)",
     "n",
@@ -96,17 +125,31 @@ svg_scatter(
         {"name": "sphere scale", "xy": collect("sphere", "pith_scale")},
         {"name": "figure8 exact (small n)", "xy": collect("figure8", "pith_exact")},
         {"name": "figure8 Ripser (small n)", "xy": collect("figure8", "ripser")},
+        {"name": "many_loops scale", "xy": collect("many_loops", "pith_scale")},
     ],
     "Runtime vs n (scale path vs exact, log-log)",
     "n",
     "wall seconds",
 )
 
-# exponent bars as a simple table-like svg
-exp = REP.get("exponents") or []
+svg_scatter(
+    FIG / "memory_exact.svg",
+    [
+        {"name": "circle PITH", "xy": collect("circle_noisy", "pith_exact", rss=True)},
+        {"name": "figure8 PITH", "xy": collect("figure8", "pith_exact", rss=True)},
+        {"name": "figure8 scale", "xy": collect("figure8", "pith_scale", rss=True)},
+        {"name": "sphere scale", "xy": collect("sphere", "pith_scale", rss=True)},
+        {"name": "blobs H0 PITH", "xy": collect("blobs", "pith_exact", rss=True)},
+    ],
+    "Peak RSS vs n (PITH VmHWM, log-log)",
+    "n",
+    "bytes",
+)
+
+exp = list(REP.get("exponents") or []) + list(LIM.get("exponents") or [])
 lines = [
-    "<svg xmlns='http://www.w3.org/2000/svg' width='760' height='420' font-family='sans-serif'>",
-    "<rect width='760' height='420' fill='white'/>",
+    "<svg xmlns='http://www.w3.org/2000/svg' width='760' height='520' font-family='sans-serif'>",
+    "<rect width='760' height='520' fill='white'/>",
     "<text x='380' y='22' text-anchor='middle' font-size='14'>Local time exponent p = log(t1/t0)/log(n1/n0)</text>",
 ]
 y = 48
@@ -118,24 +161,102 @@ for e in exp:
     col = "#d62728" if p > 2.5 else ("#ff7f0e" if p > 1.8 else "#2ca02c")
     label = f"{e['name']} {e['method']} {e['n0']}→{e['n1']}  p={p:.2f}"
     lines.append(f"<text x='12' y='{y}' font-size='11'>{label}</text>")
-    lines.append(f"<rect x='340' y='{y-10}' width='{bar:.1f}' height='10' fill='{col}'/>")
+    lines.append(f"<rect x='360' y='{y-10}' width='{bar:.1f}' height='10' fill='{col}'/>")
     y += 16
-    if y > 400:
+    if y > 500:
         break
 lines.append("</svg>")
 (FIG / "exponents.svg").write_text("\n".join(lines))
+
+# max practical N bars
+mp = LIM.get("max_practical") or []
+# collapse to method x family max
+want = ["pith_exact", "pith_redzed", "ripser", "pith_scale"]
+families = []
+for row in mp:
+    if row.get("method") in want and row.get("max_n_ok"):
+        families.append(row)
+h = max(220, 36 + 16 * min(len(families), 24))
+out = [
+    f"<svg xmlns='http://www.w3.org/2000/svg' width='760' height='{h}' font-family='sans-serif'>",
+    f"<rect width='760' height='{h}' fill='white'/>",
+    "<text x='380' y='22' text-anchor='middle' font-size='14'>Largest n finished under the 12s budget (this hardware)</text>",
+]
+ymax_n = max((r["max_n_ok"] for r in families), default=1)
+y = 44
+colors = {"pith_exact": "#1f77b4", "pith_redzed": "#9467bd", "ripser": "#d62728", "pith_scale": "#2ca02c"}
+for r in families[:24]:
+    n = r["max_n_ok"]
+    bar = 20 + 480 * (math.log10(n) / math.log10(max(ymax_n, 10)))
+    col = colors.get(r["method"], "#333")
+    label = f"{r['name']} {r['method']} dim{r.get('maxdim')}  n≤{n}"
+    out.append(f"<text x='12' y='{y}' font-size='11'>{label}</text>")
+    out.append(f"<rect x='360' y='{y-10}' width='{bar:.1f}' height='10' fill='{col}'/>")
+    y += 16
+out.append("</svg>")
+(FIG / "max_practical.svg").write_text("\n".join(out))
+
+# dispatcher regime map: residual_frac vs edge_frac
+disp = LIM.get("dispatcher_oracle") or REP.get("dispatcher") or []
+# pull probe coords from engines rows
+eng = { (r["name"], r["n"]): r for r in (LIM.get("engines") or []) }
+w, h = 640, 420
+pad_l, pad_r, pad_t, pad_b = 56, 20, 36, 48
+out = [
+    f"<svg xmlns='http://www.w3.org/2000/svg' width='{w}' height='{h}' font-family='sans-serif'>",
+    f"<rect width='{w}' height='{h}' fill='white'/>",
+    "<text x='320' y='22' text-anchor='middle' font-size='14'>Dispatcher regime (edge-frac vs residual-frac)</text>",
+    "<text x='320' y='408' text-anchor='middle' font-size='11'>edge_frac probe</text>",
+    "<text x='14' y='210' text-anchor='middle' font-size='11' transform='rotate(-90 14 210)'>residual_frac probe</text>",
+]
+pts = []
+for d in disp:
+    row = eng.get((d.get("name"), d.get("n")))
+    est = (row or {}).get("estimate") or {}
+    x, yv = est.get("edge_frac_probe"), est.get("residual_frac_probe")
+    if x is None or yv is None or x < 0 or yv < 0:
+        continue
+    pts.append((x, yv, d))
+if pts:
+    xs, ys = [p[0] for p in pts], [p[1] for p in pts]
+    xmin, xmax = min(0, min(xs)), max(1, max(xs))
+    ymin, ymax = min(0, min(ys)), max(0.2, max(ys))
+
+    def X(v):
+        return pad_l + (v - xmin) / (xmax - xmin) * (w - pad_l - pad_r)
+
+    def Y(v):
+        return pad_t + (1 - (v - ymin) / (ymax - ymin)) * (h - pad_t - pad_b)
+
+    for x, yv, d in pts:
+        col = "#d62728" if d.get("wrong") else ("#9467bd" if d.get("recommended") == "redzed" else "#1f77b4")
+        mark = "X" if d.get("wrong") else "o"
+        if mark == "X":
+            out.append(
+                f"<text x='{X(x):.1f}' y='{Y(yv):.1f}' text-anchor='middle' font-size='14' fill='{col}'>x</text>"
+            )
+        else:
+            out.append(f"<circle cx='{X(x):.1f}' cy='{Y(yv):.1f}' r='5' fill='{col}'/>")
+        out.append(
+            f"<text x='{X(x)+8:.1f}' y='{Y(yv)-8:.1f}' font-size='10' fill='#333'>{d.get('name')}</text>"
+        )
+    out.append("<text x='520' y='50' font-size='11' fill='#9467bd'>redzed (correct)</text>")
+    out.append("<text x='520' y='66' font-size='11' fill='#1f77b4'>implicit (correct)</text>")
+    out.append("<text x='520' y='82' font-size='11' fill='#d62728'>x = wrong vs 1-thread oracle</text>")
+out.append("</svg>")
+(FIG / "dispatcher.svg").write_text("\n".join(out))
 
 # tables
 rows = []
 rows.append("# Consolidation tables (this hardware: 4 CPU, 16 GB)")
 rows.append("")
-rows.append("Ripser is 1 thread. PITH may use up to 4 threads for a few scans.")
-rows.append("giotto-ph was not installed. GUDHI Rips ran only at n=200 (circle 0.085 s).")
+rows.append("Ripser is 1 thread. Phase-2 PITH times use `--threads 1` unless noted.")
+rows.append("giotto-ph was not installed. GUDHI Rips/Alpha used where n is small enough.")
 rows.append("")
-rows.append("## Exact VR wall time")
+rows.append("## Exact VR wall time (phase 1, PITH may use 4 threads)")
 rows.append("| family | n | T | dim | PITH exact (s) | Ripser (s) | ratio | pipeline |")
 rows.append("| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |")
-for r in REP["receipts"]:
+for r in REP.get("receipts") or []:
     a = r["runs"].get("pith_exact")
     b = r["runs"].get("ripser")
     if not (a and b and a.get("wall_s") and b.get("wall_s")):
@@ -143,35 +264,104 @@ for r in REP["receipts"]:
     rows.append(
         f"| {r['name']} | {r['n']} | {r['T']} | {r['maxdim']} | {a['wall_s']:.3f} | {b['wall_s']:.3f} | {b['wall_s']/a['wall_s']:.2f}× | {a.get('pipeline','')} |"
     )
+
+rows.append("")
+rows.append("## Thread-fair exact VR (`--threads 1` vs hardware vs Ripser)")
+rows.append("| family | n | PITH 1-thr (s) | PITH hw-thr (s) | Ripser 1-thr (s) | 1-thr ratio | hw-thr ratio |")
+rows.append("| --- | ---: | ---: | ---: | ---: | ---: | ---: |")
+for r in LIM.get("threads") or []:
+    a = r["runs"].get("pith_t1") or {}
+    h = r["runs"].get("pith_thw") or {}
+    b = r["runs"].get("ripser") or {}
+    if not (a.get("wall_s") and b.get("wall_s")):
+        continue
+    hw = f"{h['wall_s']:.3f}" if h.get("wall_s") else ""
+    hw_r = f"{b['wall_s']/h['wall_s']:.2f}×" if h.get("wall_s") else ""
+    rows.append(
+        f"| {r['name']} | {r['n']} | {a['wall_s']:.3f} | {hw} | {b['wall_s']:.3f} | {b['wall_s']/a['wall_s']:.2f}× | {hw_r} |"
+    )
+
+rows.append("")
+rows.append("## Forced engines (1 thread)")
+rows.append("| family | n | auto (s) | redzed (s) | implicit (s) | estimate | oracle | waste |")
+rows.append("| --- | ---: | ---: | ---: | ---: | --- | --- | ---: |")
+oracle = { (d["name"], d["n"]): d for d in LIM.get("dispatcher_oracle") or [] }
+for r in LIM.get("engines") or []:
+    a, z, i = r["runs"].get("auto") or {}, r["runs"].get("redzed") or {}, r["runs"].get("implicit") or {}
+    d = oracle.get((r["name"], r["n"])) or {}
+    rows.append(
+        f"| {r['name']} | {r['n']} | {a.get('wall_s') or ''} | {z.get('wall_s') or ''} | {i.get('wall_s') or ''} | "
+        f"{(r.get('estimate') or {}).get('engine_recommended')} | {d.get('oracle_faster')} | {d.get('waste_if_follow_estimate') or ''} |"
+    )
+
 rows.append("")
 rows.append("## Scale path")
-rows.append("| family | n | PITH scale (s) | |E| | ess H1 | ess H2 |")
-rows.append("| --- | ---: | ---: | ---: | ---: | ---: |")
-for r in REP["receipts"]:
-    s = r["runs"].get("pith_scale")
-    if not (s and s.get("ok") and s.get("wall_s")):
-        continue
-    rows.append(
-        f"| {r['name']} | {r['n']} | {s['wall_s']:.3f} | {s.get('n_dist')} | {s.get('ess1')} | {s.get('ess2')} |"
-    )
+rows.append("| family | n | PITH scale (s) | |E| | ess H1 | ess H2 | RSS |")
+rows.append("| --- | ---: | ---: | ---: | ---: | ---: | ---: |")
+seen = set()
+for src, key in ((REP.get("receipts") or [], "pith_scale"), (LIM.get("limits") or [], "scale")):
+    for r in src:
+        s = r["runs"].get(key)
+        if not (s and s.get("ok") and s.get("wall_s")):
+            continue
+        tok = (r["name"], r["n"], r.get("T"))
+        if tok in seen:
+            continue
+        seen.add(tok)
+        rows.append(
+            f"| {r['name']} | {r['n']} | {s['wall_s']:.3f} | {s.get('n_dist')} | {s.get('ess1')} | {s.get('ess2')} | {s.get('rss_pith')} |"
+        )
+
 rows.append("")
-rows.append("## Topology at n=400 vs Ripser")
-rows.append("| family | exact match | exact unmatched | scale unmatched | ess exact | ess Ripser | ess scale |")
-rows.append("| --- | --- | ---: | ---: | --- | --- | --- |")
-for t in REP["topology"]:
+rows.append("## Topology vs Ripser (phase 2, bottleneck/Wasserstein when GUDHI provides them)")
+rows.append("| family | n | exact match | scale unmatched | scale bn H1 | scale W1 H1 | ess scale | ess sparse |")
+rows.append("| --- | ---: | --- | ---: | ---: | ---: | --- | --- |")
+for t in LIM.get("topology") or REP.get("topology") or []:
+    ex = t.get("exact_vs_ripser") or {}
+    sc = t.get("scale_vs_ripser") or {}
+    bn = sc.get("bottleneck_h1")
+    w1 = sc.get("wasserstein1_h1")
+    ess_s = t.get("ess_scale") or {}
+    ess_p = t.get("ess_sparse") or {}
     rows.append(
-        f"| {t['name']} | {t.get('exact_match')} | {t.get('exact_unmatched')} | {t.get('scale_unmatched')} | "
-        f"H1={t.get('ess1_exact')} H2={t.get('ess2_exact')} | H1={t.get('ess1_ripser')} H2={t.get('ess2_ripser')} | "
-        f"H1={t.get('ess1_scale')} H2={t.get('ess2_scale')} |"
+        f"| {t['name']} | {t.get('n')} | {ex.get('exact_match')} | {sc.get('unmatched')} | "
+        f"{'' if bn is None else (f'{bn:.4g}' if isinstance(bn, float) else bn)} | "
+        f"{'' if w1 is None else (f'{w1:.4g}' if isinstance(w1, float) else w1)} | "
+        f"H1={ess_s.get(1, ess_s.get('1'))} H2={ess_s.get(2, ess_s.get('2'))} | "
+        f"H1={ess_p.get(1, ess_p.get('1'))} H2={ess_p.get(2, ess_p.get('2'))} |"
     )
+
 rows.append("")
-rows.append("## Dispatcher (same 250-pt probe as `--engine auto`)")
-rows.append("| family | recommended | picked | agree | exact feasible | wall (s) |")
-rows.append("| --- | --- | --- | --- | --- | ---: |")
-for d in REP["dispatcher"]:
+rows.append("## Dispatcher oracle (1-thread; wrong = estimate ≠ faster engine)")
+rows.append("| family | n | recommended | auto | oracle | wrong | waste | regime |")
+rows.append("| --- | ---: | --- | --- | --- | --- | ---: | --- |")
+for d in LIM.get("dispatcher_oracle") or []:
     rows.append(
-        f"| {d['name']} | {d.get('recommended')} | {d.get('picked')} | {d.get('match')} | {d.get('exact_feasible')} | {d.get('wall_s'):.3f} |"
+        f"| {d['name']} | {d['n']} | {d.get('recommended')} | {d.get('auto_picked')} | {d.get('oracle_faster')} | "
+        f"{d.get('wrong')} | {d.get('waste_if_follow_estimate') or ''} | {d.get('regime')} |"
     )
+
+rows.append("")
+rows.append("## Practical limits under a 12 s budget")
+rows.append("| family | dim | method | max n ok | wall (s) | first fail n |")
+rows.append("| --- | ---: | --- | ---: | ---: | ---: |")
+for r in LIM.get("max_practical") or []:
+    rows.append(
+        f"| {r['name']} | {r.get('maxdim')} | {r['method']} | {r.get('max_n_ok')} | "
+        f"{'' if r.get('wall_at_max') is None else f'{r['wall_at_max']:.3f}'} | {r.get('first_fail_n')} |"
+    )
+
+rows.append("")
+rows.append("## Non-Euclidean L1 (exact engine only)")
+rows.append("| n | PITH auto (s) | PITH redzed (s) | Ripser (s) | exact match |")
+rows.append("| ---: | ---: | ---: | ---: | --- |")
+for r in LIM.get("noneuclidean") or []:
+    a, z, b = r.get("pith_auto") or {}, r.get("pith_redzed") or {}, r.get("ripser") or {}
+    fid = r.get("exact_vs_ripser") or {}
+    rows.append(
+        f"| {r['n']} | {a.get('wall_s') or ''} | {z.get('wall_s') or ''} | {b.get('wall_s') or ''} | {fid.get('exact_match')} |"
+    )
+
 rows.append("")
 rows.append("## Local time exponents (empirical slopes, not theorems)")
 rows.append("| family | method | n0 | n1 | p_time | p_edges |")

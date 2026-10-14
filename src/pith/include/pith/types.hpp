@@ -88,6 +88,7 @@ struct Counters {
     double metric_ms = 0;
     double residual_frac = -1;  // I235: subsample collapse E'/E for auto-dispatch
     std::int64_t rss_bytes_peak = 0;
+    std::int64_t n_threads = 0;
     std::string pipeline;
 };
 

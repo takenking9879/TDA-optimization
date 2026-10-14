@@ -26,6 +26,23 @@ def write_csv(path: Path, pts: np.ndarray) -> None:
             w.writerow([f"{x:.8f}" for x in row])
 
 
+def write_lower_distance(path: Path, pts: np.ndarray, p: float = 1.0) -> None:
+    """Ripser lower-distance format (row i has i entries) under an L_p metric."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    n = pts.shape[0]
+    with path.open("w", newline="") as f:
+        w = csv.writer(f)
+        for i in range(1, n):
+            diffs = np.abs(pts[i] - pts[:i])
+            if p == 1.0:
+                d = diffs.sum(axis=1)
+            elif p == 2.0:
+                d = np.sqrt((diffs * diffs).sum(axis=1))
+            else:
+                d = np.power(np.power(diffs, p).sum(axis=1), 1.0 / p)
+            w.writerow([f"{x:.8f}" for x in d])
+
+
 def _split_n(n: int, k: int) -> list[int]:
     q, r = divmod(n, k)
     return [q + (i < r) for i in range(k)]
