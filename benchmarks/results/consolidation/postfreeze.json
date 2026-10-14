@@ -3,6 +3,9 @@
   "n": 10,
   "n_timeout_miss": 0,
   "n_scale_miss": 1,
+  "after_thin_override": {
+    "nonuniform_circle_n6000": "mode_recommended=exact, exact_feasible=true, est_exact=1.445 s. eval_mode_auto 11/11."
+  },
   "n_exact_checked": 2,
   "n_exact_mismatch": 0,
   "n_in_band": 10,
