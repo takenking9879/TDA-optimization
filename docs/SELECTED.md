@@ -1,6 +1,6 @@
 # Selected algorithm (living)
 
-Updated 2026-10-14 after iterations I001–I302. **CLI default `--engine`
+Updated 2026-10-14 after iterations I001–I305. **CLI default `--engine`
 auto` (I235+I236+I239+I240+I241+I263+I270+I271+I275):** subsample residual-frac dispatch,
 plus I263 edge-frac so hollow/manifold clouds take RedZeD. Fat →
 RedZeD (torus n=2000 **13.0×**). Thin-circle → collapse+implicit
@@ -672,7 +672,7 @@ Rips is exact and too slow.
    vs I279 — hold, do not replace. **I281 exact H2 scale:** sphere
    n=800 **527× / 56 ms** vs Ripser 29.6 s (auto-collapse, 0 unmatched).
    Optional Delaunay-flag H2 keeps the void at n=800 (17 ms, 86
-   unmatched finite).    **I282 `--delaunay-alpha auto` is the
+   unmatched finite).    **I282 `--delaunay-alpha auto` (I305 cap 2.25) is the
    recommended H1 thicken CLI** (exact 9/9, n=8000 65×). **I286
    split** makes auto work at maxdim≥2 (figure8 n=4000 158 ms;
    sphere n=2000 H0+H1+H2 203 ms). **I287 split scale:** sphere
@@ -680,7 +680,8 @@ Rips is exact and too slow.
    α=1 RedZeD** is the selected H0+H1+H2 path in \(d=3\): sphere
    n=16000 **0.20 s / 80k / ess2=1** (I302); n=30000 **0.39 s**;
    n=50000 **0.68 s / 252k**. figure8 (2D) still thickens: n=16000
-   **0.63 s / ess1=2**. **I297 RedZeD-on-thicken is selected** for fat 2D / maxdim=1
+   **0.54 s / 878k / ess1=2** (I305 α≤2.25); n=24000 **0.82 s**.
+   **I297 RedZeD-on-thicken is selected** for fat 2D / maxdim=1
    thicken H1 (`|E|≥8n`). H2 on 2D split stays implicit.
    **I283
    Delaunay 2-complex hold:** ess kept, sphere n=400 un 52→33, but
@@ -732,7 +733,10 @@ Rips is exact and too slow.
    **0.85 vs 0.63 s** (sorted insert \(\Theta(|E|\deg)\)). **I304
    hash leftover reject/revert:** figure8 n=16000 **1.55 vs 0.63 s**
    (reduce 1121 vs 201 ms). Do not retry leftover adj/hash on
-   \(|E|>16n\). Fat thicken stays on rbits.
+   \(|E|>16n\). Fat thicken stays on rbits. **I305 auto-α cap 2.25
+   is selected:** figure8 n=16000 **0.54 vs 0.63 s / 878k vs 977k /
+   ess1=2**; n=24000 **0.82 s**. Extra thicken past I279’s exact
+   constant was noise, not essential H1. 3D stays α=1.
    ae_seeded visits remain the exact-H1 wall.
 6. Owned AE leftover-star walk is still Θ(|leftover|·deg★) — rbit cut
    has_leftover_coface, not seeded probes (circle still 875k). I288

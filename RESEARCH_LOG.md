@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-14 — I305 cap auto-α at 2.25
+
+- **Question:** Does freezing `--delaunay-alpha auto` at I279’s measured exact constant 2.25 (instead of growing to 2.75) cut fat 2D thicken H1 at 16k–24k without dropping ess H1 or regressing I302 3D?
+- **Hypothesis:** Extra α past 2.25 adds noise loops, not essential cycles. 3D maxdim≥2 stays α=1. Quantified: fewer thicken edges, same ess.
+- **Work:** `delaunay_auto_alpha` cap 2.25. Wave 165 vs I302 clocks + Ripser. Hard: figure8 n=24000.
+- **Result:** **Support.** figure8 n=2000 still exact H1. ess1=2 at 16k and 24k. n=16000 **0.538 vs I302 0.63 s** / **878k vs 977k**. n=24000 **0.82 s / 1.26M / ess1=2**. sphere n=50000 **0.68 s / ess2=1** (α=1, unchanged). Exact default held (H0 61×, figure8 17×, uniform2 11.1×, sphere H2 57×, circle 17×). Topology: ess kept; finite unmatched on the optional path is still I276-flag (sphere n=400 un 52).
+- **Decision:** **Support / select** as the auto-α cap. Do not grow thicken past 2.25. Do not switch exact default. Do not mark the goal complete.
+- **Class:** experiment (support; selected auto-α cap)
+
 ## 2026-10-14 — I304 hash leftover G_r on mid-deg thicken
 
 - **Question:** Does `unordered_set` leftover \(G_r\) (instead of sorted insert) cut fat 2D thicken H1 on the band \(16n < |E|\) and mean deg < words, without regressing I302 3D?
