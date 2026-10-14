@@ -5,6 +5,14 @@ Do not paste long reasoning here.
 
 ---
 
+## 2026-10-14 — correction: sparse |E| is edges_in, not distances
+
+- **Question:** Was “sparse does not thin (\(\lvert E\rvert=C(n,2)\))” using the wrong counter?
+- **Work:** Re-read `# COUNTERS`. `distances` is pairwise evals; `edges_in` is the flag.
+- **Result:** Sparse **does** thin. figure8 n=400: 5563 vs 79800 pairs / 19060 exact; n=8000: 381386 vs 32M. Construction remains \(\Theta(n^2)\) (`metric_ms` 297 ms at n=8000). Pipeline now tagged `pith:sparse`.
+- **Decision:** Correct the 3b write-up. Scale still wins at large Euclidean \(n\) because it skips the dense matrix. Goal not complete.
+- **Class:** verified (counter correction)
+
 ## 2026-10-14 — consolidation phase 3b (sparse + failure + estimate bands)
 
 - **Question:** Does `--mode sparse` thin these clouds, where do Ripser/giotto actually fail, and can `--estimate` report growth bands without retuning τ?

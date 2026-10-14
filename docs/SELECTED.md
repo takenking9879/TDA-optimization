@@ -9,7 +9,9 @@ Engine oracle on new held-out families is **5/9** (do not retune \(\tau\)).
 Equal-hardware: PITH `--threads 1` still beats Ripser, giotto-ph 0.2.4
 (`n_threads=1` and `4`), and GUDHI 3.13 Rips on the measured suite.
 `--estimate` reports empirical `growth_p` and a runtime band; τ is frozen.
-`--mode sparse` (ε=0.6 Max) did not thin this suite (\(\lvert E\rvert=C(n,2)\)).
+`--mode sparse` (ε=0.6 Max) thins the flag (figure-8 \(n=8000\): 381k vs 32M pairs)
+but still builds a dense metric. An earlier note that \(\lvert E\rvert=C(n,2)\)
+confused the `distances` counter with `edges_in`.
 Iteration numbers stay in this file and `RESEARCH_LOG.md`.
 **CLI default `--engine`
 auto` (I235+I236+I239+I240+I241+I263+I270+I271+I275):** subsample residual-frac dispatch,

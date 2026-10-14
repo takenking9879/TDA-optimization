@@ -47,11 +47,12 @@ thicken). Compare essential Betti numbers and unmatched finite bars;
 do not treat the diagram as VR.
 
 **`--mode sparse`** is a Sheehy-style sparse Rips approximation (ε=0.6).
-On this suite the default Max cap **does not thin** the graph
-(\(\lvert E\rvert=C(n,2)\) at the \(T\) that keeps the loops). Essential
-\(H_1\) is kept; finite bars differ; \(H_2\) timed out at \(n=400\).
-Use `--mode scale` for a Euclidean size win; keep sparse for the
-literature interleaving guarantee on abstract / high-\(d\) metrics.
+It **does** thin the flag (figure-8 \(n=400\): 5.6k edges vs 80k pairs;
+\(n=8000\): 381k vs 32M). Construction is still \(\Theta(n^2)\) (greedy
+net on a dense matrix) — that, not the leftover algebra, is the large-\(n\)
+wall. Essential \(H_1\) is kept; finite bars differ (8–52 unmatched);
+\(H_2\) is slow (two spheres \(n=300\): 3.7 s) or times out (sphere
+\(n=400\)). Prefer `--mode scale` on Euclidean \(d\in\{2,3\}\).
 
 GUDHI **Alpha** is a third complex: on this suite it **drops** essential
 \(H_1/H_2\) (loops and voids become 0). We do not use it as a VR stand-in.

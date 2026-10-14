@@ -376,16 +376,19 @@ PITH `--threads 1`. Ripser 1 thread. giotto-ph `n_threads=1` and `n_threads=4` (
 
 ## Sparse Rips (ε=0.6 greedy net) vs VR / scale
 Not exact VR. Sheehy-style interleaving is the literature guarantee; numbers are measured.
+`distances` is the pairwise construction (\(C(n,2)\)); \(\lvert E\rvert\) below is `edges_in`.
 | family | n | exact (s) | scale (s) | sparse (s) | sparse |E| | sparse unmatched | sparse ess | scale unmatched |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- | ---: |
-| figure8 | 400 | 0.007 | 0.005 | 0.004 | 79800 | 14 | H1=2 H2=None | 0 |
-| circle_noisy | 400 | 0.014 | 0.005 | 0.006 | 79800 | 30 | H1=1 H2=None | 0 |
-| nested_loops | 400 | 0.009 | 0.007 | 0.006 | 79800 | 52 | H1=1 H2=None | 0 |
-| many_loops | 400 | 0.004 | 0.005 | 0.003 | 79800 | 8 | H1=5 H2=None | 0 |
-| disconnected_circles | 400 | 0.008 | 0.006 | 0.004 | 79800 | 18 | H1=2 H2=None | 0 |
-| grid_holes | 400 | 0.004 | 0.004 | 0.003 | 79800 | 0 | H1=2 H2=None | 0 |
-| sphere | 400 | 0.017 | 0.006 |  | None | None | H1=None H2=None | 52 |
-| two_spheres_apart | 300 | 0.019 | 0.005 | 3.708 | 44850 | 41 | H1=0 H2=2 | 45 |
+| figure8 | 400 | 0.007 | 0.005 | 0.004 | 5563 | 14 | H1=2 H2=None | 0 |
+| circle_noisy | 400 | 0.014 | 0.005 | 0.006 | 7689 | 30 | H1=1 H2=None | 0 |
+| nested_loops | 400 | 0.009 | 0.007 | 0.006 | 5061 | 52 | H1=1 H2=None | 0 |
+| many_loops | 400 | 0.004 | 0.005 | 0.003 | 3318 | 8 | H1=5 H2=None | 0 |
+| disconnected_circles | 400 | 0.008 | 0.006 | 0.004 | 5605 | 18 | H1=2 H2=None | 0 |
+| grid_holes | 400 | 0.004 | 0.004 | 0.003 | 2672 | 0 | H1=2 H2=None | 0 |
+| sphere | 400 | 0.017 | 0.006 |  | timeout |  | H1=None H2=None | 52 |
+| two_spheres_apart | 300 | 0.019 | 0.005 | 3.708 | 5730 | 41 | H1=0 H2=2 | 45 |
+| figure8 | 2000 |  | 0.034 | 0.055 | 56626 |  |  |  |
+| figure8 | 8000 |  | 0.229 | 1.013 | 381386 |  |  |  |
 
 ## Failure pushes (12 s)
 | family | n | PITH exact | Ripser | giotto t1 |

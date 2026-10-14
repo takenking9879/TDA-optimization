@@ -67,6 +67,11 @@ def main():
                 "sparse": sparse.get("wall_s"),
             },
             "n_dist": {
+                "exact": pith.get("n_edges_in") or pith.get("n_dist"),
+                "scale": scale.get("n_edges_in") or scale.get("n_dist"),
+                "sparse": sparse.get("n_edges_in") or sparse.get("n_dist"),
+            },
+            "n_metric": {
                 "exact": pith.get("n_dist"),
                 "scale": scale.get("n_dist"),
                 "sparse": sparse.get("n_dist"),

@@ -113,6 +113,26 @@ def main():
     if "MODE auto selected" not in auto.stderr:
         print("mode auto did not report the selected path", auto.stderr, file=sys.stderr)
         return 1
+    sparse = subprocess.check_output(
+        [
+            str(PITH),
+            "--points",
+            str(path),
+            "--mode",
+            "sparse",
+            "--maxdim",
+            "1",
+            "--threshold",
+            "1.5",
+            "--no-enclosing",
+            "--threads",
+            "1",
+        ],
+        text=True,
+    )
+    if "pipeline=pith:sparse" not in sparse:
+        print("sparse mode did not tag pipeline=pith:sparse", file=sys.stderr)
+        return 1
     print("ok stable CLI")
     return 0
 

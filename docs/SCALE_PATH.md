@@ -102,12 +102,13 @@ how we go further.
 ## Versus `--mode sparse`
 
 Owned sparse Rips (greedy net, ε=0.6, Max cap) has a Sheehy-style
-size / interleaving **[citation]**. On the consolidation clouds, at the
-\(T\) that keeps essential loops, the Max cap did **not** drop edges:
-\(\lvert E\rvert=C(n,2)\). Essential \(H_1\) was kept; unmatched finite
-bars were 8–52; sphere \(H_2\) timed out at \(n=400\). Scale is the
-practical Euclidean alternative; sparse remains the theorem-backed
-option for abstract or \(d\ge 4\) metrics when exact VR is infeasible.
+interleaving **[citation]**. An earlier write-up used the `distances`
+counter (\(C(n,2)\) pairwise evaluations) as \(\lvert E\rvert\); that was
+wrong. The flag **is** thinner: figure-8 \(n=400\) has 5 563 edges
+(vs 79 800 pairs / 19 060 exact-VR edges); \(n=8000\) has 381k vs 32M
+pairs. Construction is still \(\Theta(n^2)\). Essential \(H_1\) is kept;
+unmatched finite bars 8–52; \(H_2\) is slow or times out. Scale avoids
+the dense matrix and is the practical Euclidean alternative.
 
 ## When not to use it
 

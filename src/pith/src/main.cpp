@@ -31,7 +31,7 @@ static void usage() {
         << "  --mode exact|scale|sparse|auto\n"
         << "                          exact  = exact VR≤T (default)\n"
         << "                          scale  = Euclidean Delaunay-flag path (d=2,3; not exact VR)\n"
-        << "                          sparse = greedy-net sparse Rips (approx; default eps=0.6)\n"
+        << "                          sparse = greedy-net sparse Rips (approx; still O(n²) metric)\n"
         << "                          auto   = follow the feasibility probe (exact/scale/sparse)\n"
         << "  --engine auto|redzed|implicit\n"
         << "                          exact-mode engine (default auto: pick redzed or collapse)\n"
@@ -941,7 +941,9 @@ int main(int argc, char** argv) {
             if (r.counters.pipeline.empty()) r.counters.pipeline = "pith:active-h1";
         } else {
             r.counters.n_vertices = g.n;
-            r.counters.pipeline = delaunay_vr
+            r.counters.pipeline = (sparse_eps > 0 && sparse_eps < 1)
+                                      ? std::string("pith:sparse")
+                                      : delaunay_vr
                                       ? (delaunay_split
                                              ? std::string("pith:delaunay-vr-split")
                                              : ((maxdim <= 1 && (delaunay_alpha_auto || delaunay_alpha > 1 ||

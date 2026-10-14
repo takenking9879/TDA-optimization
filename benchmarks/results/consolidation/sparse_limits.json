@@ -15,7 +15,7 @@
       "n_dist": {
         "exact": 19060,
         "scale": 8600,
-        "sparse": 79800
+        "sparse": 5563
       },
       "ess_ripser": {
         "0": 1,
@@ -97,7 +97,8 @@
         "wasserstein1_h0": 0.03884615740000001,
         "bottleneck_h1": 0.007141905000000004,
         "wasserstein1_h1": 0.02282019149999998
-      }
+      },
+      "n_edges_in_sparse": 5563
     },
     {
       "name": "circle_noisy",
@@ -113,7 +114,7 @@
       "n_dist": {
         "exact": 79800,
         "scale": 8967,
-        "sparse": 79800
+        "sparse": 7689
       },
       "ess_ripser": {
         "0": 1,
@@ -195,7 +196,8 @@
         "wasserstein1_h0": 0.009659046699999951,
         "bottleneck_h1": 0.006244689999999997,
         "wasserstein1_h1": 0.034125527999999974
-      }
+      },
+      "n_edges_in_sparse": 7689
     },
     {
       "name": "nested_loops",
@@ -211,7 +213,7 @@
       "n_dist": {
         "exact": 79800,
         "scale": 11299,
-        "sparse": 79800
+        "sparse": 5061
       },
       "ess_ripser": {
         "0": 1,
@@ -293,7 +295,8 @@
         "wasserstein1_h0": 0.09466522009999999,
         "bottleneck_h1": 0.11087270000000005,
         "wasserstein1_h1": 1.0465352255
-      }
+      },
+      "n_edges_in_sparse": 5061
     },
     {
       "name": "many_loops",
@@ -309,7 +312,7 @@
       "n_dist": {
         "exact": 15800,
         "scale": 5143,
-        "sparse": 79800
+        "sparse": 3318
       },
       "ess_ripser": {
         "0": 5,
@@ -391,7 +394,8 @@
         "wasserstein1_h0": 0.0820425176999997,
         "bottleneck_h1": 0.02808993999999998,
         "wasserstein1_h1": 0.042830255000000025
-      }
+      },
+      "n_edges_in_sparse": 3318
     },
     {
       "name": "disconnected_circles",
@@ -407,7 +411,7 @@
       "n_dist": {
         "exact": 79800,
         "scale": 8560,
-        "sparse": 79800
+        "sparse": 5605
       },
       "ess_ripser": {
         "0": 2,
@@ -489,7 +493,8 @@
         "wasserstein1_h0": 0.013305935899999954,
         "bottleneck_h1": 0.017290520000000004,
         "wasserstein1_h1": 0.05858382149999997
-      }
+      },
+      "n_edges_in_sparse": 5605
     },
     {
       "name": "grid_holes",
@@ -505,7 +510,7 @@
       "n_dist": {
         "exact": 2714,
         "scale": 2688,
-        "sparse": 79800
+        "sparse": 2672
       },
       "ess_ripser": {
         "0": 1,
@@ -587,7 +592,8 @@
         "wasserstein1_h0": 9.822999999988674e-06,
         "bottleneck_h1": 4.100000000062387e-07,
         "wasserstein1_h1": 7.506999999989938e-06
-      }
+      },
+      "n_edges_in_sparse": 2672
     },
     {
       "name": "sphere",
@@ -692,7 +698,7 @@
       "n_dist": {
         "exact": 22350,
         "scale": 1420,
-        "sparse": 44850
+        "sparse": 5730
       },
       "ess_ripser": {
         "0": 2,
@@ -796,7 +802,8 @@
         "wasserstein1_h1": 0.31403850000000016,
         "bottleneck_h2": 0.02934458499999998,
         "wasserstein1_h2": 0.09428299500000004
-      }
+      },
+      "n_edges_in_sparse": 5730
     },
     {
       "name": "figure8",
@@ -853,7 +860,11 @@
         "ess0": 1,
         "ess1": 2,
         "ess2": 0
-      }
+      },
+      "n_dist": {
+        "sparse": 56626
+      },
+      "n_edges_in_sparse": 56626
     },
     {
       "name": "figure8",
@@ -911,7 +922,11 @@
         "ess1": 2,
         "ess2": 0
       },
-      "p_sparse": 2.1075336694893836
+      "p_sparse": 2.1075336694893836,
+      "n_dist": {
+        "sparse": 381386
+      },
+      "n_edges_in_sparse": 381386
     },
     {
       "name": "sphere",
@@ -1082,7 +1097,11 @@
         "ess0": 1,
         "ess1": 2,
         "ess2": 0
-      }
+      },
+      "n_dist": {
+        "sparse": 9314
+      },
+      "n_edges_in_sparse": 9314
     }
   ],
   "failures": [

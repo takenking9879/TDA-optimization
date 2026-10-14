@@ -490,6 +490,7 @@ if SPARSE:
     rows.append("")
     rows.append("## Sparse Rips (ε=0.6 greedy net) vs VR / scale")
     rows.append("Not exact VR. Sheehy-style interleaving is the literature guarantee; numbers are measured.")
+    rows.append("`distances` is pairwise construction; report `edges_in` as |E| (do not use distances).")
     rows.append("| family | n | exact (s) | scale (s) | sparse (s) | sparse |E| | sparse unmatched | sparse ess | scale unmatched |")
     rows.append("| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- | ---: |")
     for t in SPARSE.get("sparse") or []:
