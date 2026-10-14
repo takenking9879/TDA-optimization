@@ -98,7 +98,7 @@ giotto-ph 0.2.4 (AGPL oracle) and GUDHI 3.13.0 are compared at equal hardware in
 | loops_with_bridges | 400 | True | 0 | 5.1e-07 |  | H1=2 H2=0 | H1=2 H2=0 |
 | heavy_noise_circle | 400 | True | 0 | 5.1e-07 |  | H1=0 H2=0 | H1=0 H2=0 |
 | multi_scale_loops | 400 | True | 0 | 4.8e-07 |  | H1=1 H2=0 | H1=1 H2=0 |
-| mixed_1d2d3d | 300 | None | 35 | 0.02969 |  | H1=1 H2=0 | H1=None H2=None |
+| mixed_1d2d3d | 300 | True | 35 | 0.02969 |  | H1=1 H2=0 | H1=None H2=None |
 | multi_cavities | 300 | True | 52 | 0.04121 |  | H1=0 H2=3 | H1=0 H2=3 |
 
 ## Dispatcher oracle (1-thread; wrong = estimate ≠ faster engine)
@@ -493,9 +493,13 @@ Agreement 11/11. `refuse` means the probe named sparse but auto exits 3 instead 
 | uniform4 | 250 | 2 | sparse | refuse | True | True |
 
 ## `--estimate` vs measured wall (`eval_estimate.py`)
-Recommended-mode wall inside `[est_runtime_lo, est_runtime_hi]`: 42/42. Empirical bands; τ frozen.
+Recommended-mode wall inside `[est_runtime_lo, est_runtime_hi]`: 48/48. Empirical bands; τ frozen.
 | family | n | maxdim | rec | wall (s) | lo | hi | ratio | in band |
 | --- | ---: | ---: | --- | ---: | ---: | ---: | ---: | --- |
+| anisotropic_blob | 2000 | 1 | exact | 0.093 | 0.028 | 0.277 | 1.34 | True |
+| anisotropic_blob | 4000 | 1 | exact | 0.411 | 0.110 | 1.103 | 1.49 | True |
+| anisotropic_blob | 6000 | 1 | exact | 0.670 | 0.248 | 2.479 | 1.08 | True |
+| anisotropic_blob | 8000 | 1 | exact | 1.831 | 0.402 | 4.019 | 1.82 | True |
 | circle_noisy | 200 | 1 | exact | 0.005 | 0.003 | 0.026 | 0.78 | True |
 | circle_noisy | 400 | 1 | exact | 0.014 | 0.005 | 0.046 | 1.26 | True |
 | circle_noisy | 500 | 1 | exact | 0.017 | 0.006 | 0.060 | 1.15 | True |
@@ -509,37 +513,40 @@ Recommended-mode wall inside `[est_runtime_lo, est_runtime_hi]`: 42/42. Empirica
 | disconnected_circles | 2000 | 1 | exact |  | 0.066 | 0.660 |  | None |
 | disconnected_circles | 4000 | 1 | exact |  | 0.258 | 2.580 |  | None |
 | disconnected_circles | 8000 | 1 | scale | 0.225 | 0.112 | 1.120 | 0.80 | True |
-| figure8 | 400 | 1 | exact | 0.007 | 0.003 | 0.028 | 1.03 | True |
+| figure8 | 400 | 1 | exact | 0.007 | 0.003 | 0.041 | 1.03 | True |
 | figure8 | 500 | 1 | exact | 0.010 | 0.006 | 0.060 | 0.67 | True |
-| figure8 | 1000 | 1 | exact | 0.023 | 0.007 | 0.069 | 1.32 | True |
-| figure8 | 2000 | 1 | exact | 0.152 | 0.021 | 0.213 | 2.85 | True |
-| figure8 | 4000 | 1 | exact |  | 0.080 | 0.801 |  | None |
-| figure8 | 8000 | 1 | scale | 0.219 | 0.112 | 1.120 | 0.78 | True |
-| figure8 | 12000 | 1 | scale | 0.361 | 0.168 | 1.680 | 0.86 | True |
-| figure8 | 16000 | 1 | scale | 0.498 | 0.224 | 2.240 | 0.89 | True |
+| figure8 | 1000 | 1 | exact | 0.023 | 0.007 | 0.104 | 1.32 | True |
+| figure8 | 2000 | 1 | exact | 0.152 | 0.021 | 0.320 | 2.85 | True |
+| figure8 | 4000 | 1 | exact |  | 0.080 | 1.201 |  | None |
+| figure8 | 8000 | 1 | scale | 0.219 | 0.112 | 1.680 | 0.78 | True |
+| figure8 | 12000 | 1 | scale | 0.361 | 0.168 | 2.520 | 0.86 | True |
+| figure8 | 16000 | 1 | scale | 0.498 | 0.224 | 3.360 | 0.89 | True |
 | figure8 | 24000 | 1 | scale | 0.816 | 0.336 | 3.360 | 0.97 | True |
-| grid_holes | 400 | 1 | exact | 0.004 | 0.002 | 0.025 | 0.70 | True |
-| grid_holes | 800 | 1 | exact | 0.007 | 0.002 | 0.025 | 1.13 | True |
-| many_loops | 400 | 1 | exact | 0.004 | 0.002 | 0.025 | 0.65 | True |
-| mixed_1d2d3d | 300 | 2 | exact | 0.033 | 0.026 | 3.870 | 0.05 | True |
-| mixed_1d2d3d | 600 | 2 | exact | 0.237 | 0.205 | 30.750 | 0.05 | True |
-| mixed_1d2d3d | 1000 | 2 | exact | 1.074 | 0.950 | 142.466 | 0.05 | True |
-| mixed_1d2d3d | 2000 | 2 | scale | 0.051 | 0.002 | 0.240 | 1.26 | True |
+| grid_holes | 400 | 1 | exact | 0.004 | 0.002 | 0.032 | 0.70 | True |
+| grid_holes | 800 | 1 | exact | 0.007 | 0.002 | 0.037 | 1.13 | True |
+| grid_holes | 1600 | 1 | exact | 0.015 | 0.004 | 0.061 | 1.45 | True |
+| grid_holes | 4000 | 1 | exact | 0.094 | 0.014 | 0.217 | 2.61 | True |
+| grid_holes | 8000 | 1 | exact | 0.640 | 0.056 | 0.843 | 4.56 | True |
+| many_loops | 400 | 1 | exact | 0.004 | 0.002 | 0.034 | 0.65 | True |
+| mixed_1d2d3d | 300 | 2 | exact | 0.033 | 0.019 | 3.870 | 0.05 | True |
+| mixed_1d2d3d | 600 | 2 | exact | 0.237 | 0.154 | 30.750 | 0.05 | True |
+| mixed_1d2d3d | 1000 | 2 | exact | 1.074 | 0.712 | 142.466 | 0.05 | True |
+| mixed_1d2d3d | 2000 | 2 | scale | 0.051 | 0.001 | 0.240 | 1.26 | True |
 | multi_cavities | 300 | 2 | exact | 0.010 | 0.003 | 0.510 | 0.12 | True |
-| multi_cavities | 600 | 2 | exact | 0.066 | 0.026 | 3.870 | 0.10 | True |
+| multi_cavities | 600 | 2 | exact | 0.066 | 0.019 | 3.870 | 0.10 | True |
 | nested_loops | 400 | 1 | exact | 0.009 | 0.003 | 0.028 | 1.29 | True |
 | nested_loops | 1000 | 1 | exact | 0.037 | 0.007 | 0.071 | 2.10 | True |
 | nested_loops | 2000 | 1 | exact |  | 0.023 | 0.227 |  | None |
 | nested_loops | 4000 | 1 | exact |  | 0.083 | 0.831 |  | None |
-| nested_loops | 8000 | 1 | scale | 0.203 | 0.112 | 1.120 | 0.73 | True |
+| nested_loops | 8000 | 1 | exact |  | 0.329 | 3.291 |  | None |
 | nonuniform_circle | 400 | 1 | exact | 0.012 | 0.005 | 0.046 | 1.02 | True |
 | sphere | 200 | 2 | exact | 0.007 | 0.003 | 0.026 | 1.10 | True |
 | sphere | 400 | 2 | exact | 0.017 | 0.005 | 0.046 | 1.53 | True |
-| sphere_complete | 80 | 2 | exact | 0.013 | 0.002 | 0.276 | 0.29 | True |
-| sphere_complete | 150 | 2 | exact | 0.085 | 0.011 | 1.650 | 0.31 | True |
-| sphere_complete | 250 | 2 | exact | 0.468 | 0.050 | 7.530 | 0.37 | True |
-| torus | 400 | 1 | exact | 0.009 | 0.003 | 0.028 | 1.29 | True |
-| torus | 1000 | 1 | exact | 0.040 | 0.007 | 0.067 | 2.39 | True |
+| sphere_complete | 80 | 2 | exact | 0.013 | 0.001 | 0.276 | 0.29 | True |
+| sphere_complete | 150 | 2 | exact | 0.085 | 0.008 | 1.650 | 0.31 | True |
+| sphere_complete | 250 | 2 | exact | 0.468 | 0.038 | 7.530 | 0.37 | True |
+| torus | 400 | 1 | exact | 0.009 | 0.003 | 0.041 | 1.29 | True |
+| torus | 1000 | 1 | exact | 0.040 | 0.007 | 0.101 | 2.39 | True |
 | two_spheres_apart | 300 | 2 | exact | 0.019 | 0.002 | 0.025 | 3.11 | True |
 | uniform2 | 500 | 1 | exact | 0.008 | 0.003 | 0.034 | 0.91 | True |
 | uniform2 | 1000 | 1 | exact | 0.018 | 0.007 | 0.073 | 0.96 | True |
@@ -1052,7 +1059,7 @@ timeout_miss 0/11, scale_miss 0/11. Held-out seed 11. timeout_miss = recommended
 timeout_miss 0/11, scale_miss 0/11, exact vs Ripser mismatches 0/8. Held-out seed 17. timeout_miss = recommended exact but 12 s fail. scale_miss = recommended scale but exact finished under 8 s. τ / n_cc / dense-flag frozen.
 | family | n | rec | exact (s) | scale (s) | unmatched | ess exact H1 | ess scale H1 |
 | --- | ---: | --- | ---: | ---: | ---: | ---: | ---: |
-| many_loops | 400 | exact | 0.004 | 0.006 | 0 | 5 | 5 |
+| many_loops | 400 | exact | 0.004 | 0.005 | 0 | 5 | 5 |
 | loops_with_bridges | 400 | exact | 0.009 | 0.006 | 0 | 2 | 2 |
 | anisotropic_blob | 400 | exact | 0.007 | 0.005 | 0 | 0 | 0 |
 | clustered | 600 | exact | 0.004 | 0.007 | None | 0 | 0 |
@@ -1061,23 +1068,23 @@ timeout_miss 0/11, scale_miss 0/11, exact vs Ripser mismatches 0/8. Held-out see
 | multi_scale_loops_smallT | 400 | exact | 0.006 | 0.005 | 0 | 1 | 1 |
 | multi_scale_loops_largeT | 400 | exact | 0.007 | 0.005 | 0 | 1 | 1 |
 | torus | 400 | exact | 0.009 | 0.013 | 0 | 1 | 1 |
-| mixed_1d2d3d | 400 | exact | 0.053 | 0.006 | 0 | 1 | 1 |
+| mixed_1d2d3d | 400 | exact | 0.052 | 0.006 | 0 | 1 | 1 |
 | l1_circle | 300 | exact | 0.013 |  | None | 1 |  |
 
 ### Held-out estimate mid vs exact wall (no retune)
 | family | n | rec | est exact (s) | wall (s) | wall/mid |
 | --- | ---: | --- | ---: | ---: | ---: |
-| many_loops | 400 | exact | 0.006 | 0.004 | 0.68 |
-| loops_with_bridges | 400 | exact | 0.011 | 0.009 | 0.76 |
-| anisotropic_blob | 400 | exact | 0.008 | 0.007 | 0.93 |
-| clustered | 600 | exact | 0.007 | 0.004 | 0.59 |
-| heavy_noise_circle | 400 | exact | 0.011 | 0.015 | 1.31 |
-| near_degenerate | 500 | exact | 0.006 | 0.004 | 0.66 |
-| multi_scale_loops_smallT | 400 | exact | 0.007 | 0.006 | 0.89 |
+| many_loops | 400 | exact | 0.006 | 0.004 | 0.65 |
+| loops_with_bridges | 400 | exact | 0.011 | 0.009 | 0.75 |
+| anisotropic_blob | 400 | exact | 0.008 | 0.007 | 0.94 |
+| clustered | 600 | exact | 0.007 | 0.004 | 0.61 |
+| heavy_noise_circle | 400 | exact | 0.011 | 0.015 | 1.30 |
+| near_degenerate | 500 | exact | 0.006 | 0.004 | 0.68 |
+| multi_scale_loops_smallT | 400 | exact | 0.007 | 0.006 | 0.88 |
 | multi_scale_loops_largeT | 400 | exact | 0.008 | 0.007 | 0.89 |
 | torus | 400 | exact | 0.007 | 0.009 | 1.27 |
-| mixed_1d2d3d | 400 | exact | 1.528 | 0.053 | 0.03 |
-| l1_circle | 300 | exact | 0.009 | 0.013 | 1.50 |
+| mixed_1d2d3d | 400 | exact | 1.528 | 0.052 | 0.03 |
+| l1_circle | 300 | exact | 0.009 | 0.013 | 1.53 |
 | two_spheres_apart | 400 | exact | 0.007 | 0.050 | 7.24 |
 | two_spheres_apart | 1200 | exact | 0.023 | 4.672 | 205.33 |
 | outliers_sphere | 400 | exact | 0.011 | 0.015 | 1.34 |

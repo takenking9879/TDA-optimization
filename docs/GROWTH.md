@@ -136,8 +136,10 @@ thin 2.2 / hollow 1.8 / else 2.4), not a per-series fit from this file.
 `eval_estimate.py` scores the recommended-mode wall against
 `[est_runtime_lo, est_runtime_hi]`. After a 5 ms exact overhead and a
 25 ms hi-floor (small-n process tax) and the \(n_{cc}\) fat-H2 band,
-**42/42** scored walls sit in band (fat-H2 `lo_mult` is now 0.03 so
-held-out mixed \(n=400\) stays inside the conservative overestimate).
+**48/48** scored walls sit in band (includes leftover-miss n-series).
+Hollow leftover \(H_1\) uses `hi_mult=6` because grid_holes \(n=8000\)
+was 4.56× the mid clock (0.64 vs 0.14 s). Fat-H2 `lo_mult` is 0.03 so
+held-out mixed \(n=400\) stays inside the conservative overestimate.
 It does **not** change `engine_rec` or \(\tau\).
 `--estimate` also emits `wall_kind`: `collapse` on thin residuals
 (circle 32× is collapse, not pairing), `leftover` on fat/hollow exact

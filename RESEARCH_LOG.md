@@ -5,6 +5,14 @@ Do not paste long reasoning here.
 
 ---
 
+## 2026-10-14 — Estimate bands include leftover-miss (48/48)
+
+- **Question:** Do `--estimate` bands still cover recommended-mode walls after leftover-miss n-series and the fat leftover-H1 clock gate?
+- **Work:** `eval_estimate.py` now ingests `leftover_miss_n.json`. First pass **47/48**: grid_holes n=8000 wall 0.64 vs hi 0.56 (4.56× mid). Hollow leftover H1 `hi_mult` 4→6. Live mixed n=300 exact vs Ripser unmatched **0** (355/355). TABLES overlays fat_h2 exact match on the stale limits.json timeout. τ / mode_rec unchanged.
+- **Result:** **48/48** in band. Mixed topology table now True. Not a pairing algorithm.
+- **Decision:** Keep the wider hollow H1 hi band. Goal not complete.
+- **Class:** verified (live)
+
 ## 2026-10-14 — Dispatcher: stay exact on cheap fat leftover H1
 
 - **Question:** `--mode auto` preferred scale at leftover-miss n=8000 even though exact was 0.64–1.83 s. Can we use the exact clock without breaking figure8 n=16000?

@@ -78,7 +78,11 @@ when \(\lvert E\rvert>16n\) or \(\Delta>24\) (53 ms, unmatched 0)
 **[empirical, fat_h2.json]**. Held-out seed-17 `adversarial.json`:
 **0/11** timeout misses, **0/8** exact-vs-Ripser mismatches.
 
-`--estimate` exposes that probe as a feasibility guess with a
+`--estimate` bands cover **48/48** scored recommended-mode walls
+(`eval_estimate.py`, leftover-miss included). Hollow leftover \(H_1\)
+uses a 6× hi band (grid_holes \(n=8000\) was 4.56× mid). Mixed
+\(n=300\) exact matches Ripser (unmatched 0, 355 bars)
+**[empirical]**. `--estimate` exposes that probe as a feasibility guess with a
 **conservative |E| band** (probe fraction ×1.25), a residual-size band,
 and a residual regime (`thin` / `fat` / `hollow` / `h0`). Confidence is
 `medium` only when \(n\le 400\) and the residual is not near \(\tau\);
