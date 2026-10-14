@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-14 — I306 share leftover g_adj with H2 stream
+
+- **Question:** Do I301’s H2 stream and I302’s leftover_coface rebuild the same growing \(G_r\), and does streaming into `g_adj` (rptr synced, emit after the diam group) cut 3D Delaunay-flag H2 enough to take n=80k?
+- **Hypothesis:** maxdim≥2 does not advance leftover adj during H1. Stream can own `g_adj`; AE leftover then no-ops `advance_adj`. Same triangles (unique-diam still emitted in intersection order). 3D H0 cap raised to 100k.
+- **Work:** `generate_stream_h2_adj(..., rptr_sync)`. Wave 166 vs I305. Hard: sphere n=80000.
+- **Result:** **Hold / keep.** Identity held (ess2=1 at 16k/50k/80k; two_spheres 2; figure8 ess1=2; exact default). sphere n=16000 **0.195 s** (reduce 74 vs I305 83 ms). n=50000 **0.651 vs 0.681 s** (reduce 273 vs 304 ms). n=80000 **1.09 s / 404k / ess2=1**. figure8 n=16000 **0.55 s / ess1=2**. Not a support pith cut (50k still >0.55 s; 80k 1.09>1.00). Duplicate adj build was a ~10% reduce tax, not the wall. Metric (Delaunay walk) is now half of 80k.
+- **Decision:** **Hold / keep** the share (less duplicate work, no regression). Do not claim a selected pith lever. Next: Delaunay walk/metric, not another leftover-adj rebuild. Do not mark the goal complete.
+- **Class:** experiment (hold; keep; 80k hard case)
+
 ## 2026-10-14 — I305 cap auto-α at 2.25
 
 - **Question:** Does freezing `--delaunay-alpha auto` at I279’s measured exact constant 2.25 (instead of growing to 2.75) cut fat 2D thicken H1 at 16k–24k without dropping ess H1 or regressing I302 3D?

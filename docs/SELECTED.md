@@ -1,6 +1,6 @@
 # Selected algorithm (living)
 
-Updated 2026-10-14 after iterations I001–I305. **CLI default `--engine`
+Updated 2026-10-14 after iterations I001–I306. **CLI default `--engine`
 auto` (I235+I236+I239+I240+I241+I263+I270+I271+I275):** subsample residual-frac dispatch,
 plus I263 edge-frac so hollow/manifold clouds take RedZeD. Fat →
 RedZeD (torus n=2000 **13.0×**). Thin-circle → collapse+implicit
@@ -737,6 +737,11 @@ Rips is exact and too slow.
    is selected:** figure8 n=16000 **0.54 vs 0.63 s / 878k vs 977k /
    ess1=2**; n=24000 **0.82 s**. Extra thicken past I279’s exact
    constant was noise, not essential H1. 3D stays α=1.
+   **I306 share H2/leftover adj hold/keep:** sphere n=50000
+   **0.65 vs 0.68 s** (reduce 273 vs 304 ms); n=80000
+   **1.09 s / 404k / ess2=1**. Duplicate \(G_r\) build was a ~10%
+   reduce tax. Keep; not a selected pith lever. Metric (Delaunay
+   walk) is the 80k wall.
    ae_seeded visits remain the exact-H1 wall.
 6. Owned AE leftover-star walk is still Θ(|leftover|·deg★) — rbit cut
    has_leftover_coface, not seeded probes (circle still 875k). I288
