@@ -117,7 +117,7 @@ inline std::vector<value_t> greedy_insertion_radii_points(const std::vector<std:
 // O(n log(Δ/δ)) expected, not Θ(n²).
 //
 // Falls back to farthest-point if d∉{2,3} or the cloud is degenerate.
-enum class SparseNet { Fps, Dyadic };
+enum class SparseNet { Fps, Dyadic, Approx };
 
 struct DyadicCell {
     int x = 0, y = 0, z = 0;
@@ -227,6 +227,162 @@ inline std::vector<value_t> dyadic_insertion_radii_points(const std::vector<std:
     return lam;
 }
 
+// I331: c-approximate greedy permutation (not batched s-nets, not exact FPS).
+// Euclidean d∈{2,3} only.
+//
+// Gonzalez picks the unused point farthest from the current net. That is
+// Θ(n²) distance evaluations. Here each insertion takes a deterministic
+// stride sample of unused indices, |S|=min(left, max(48, ⌈2.5√n⌉)), and
+// picks the sample point with largest exact d(·, net). λ[p] is that
+// distance — a valid insertion radius for this order.
+//
+// If every step is a c-approx farthest, the prefixes are (2c)-approx
+// k-centers and the same sparse-Rips rule has Sheehy interleaving times
+// c **[derivation; sample-farthest is c-approx when the leftover set is
+// well spread, otherwise empirical]**. One insert per step, so λ tracks
+// Gonzalez instead of a dyadic bucket (I327 densified because many
+// points shared a coarse s).
+//
+// Nearest-net queries use a grid of inserted points (cell width tracks
+// the last λ). Falls back to farthest-point if d∉{2,3}.
+inline value_t approx_net_nn(const std::vector<std::vector<value_t>>& pts, int p,
+                             const std::vector<int>& net,
+                             const std::unordered_map<DyadicCell, std::vector<int>, DyadicCellHash>& grid,
+                             double w, int d, std::int64_t* n_dist) {
+    if (net.empty()) return kInf;
+    auto cell_of = [&](int i) {
+        DyadicCell c;
+        const double inv = 1.0 / w;
+        c.x = static_cast<int>(std::floor(static_cast<double>(pts[static_cast<size_t>(i)][0]) * inv));
+        c.y = static_cast<int>(std::floor(static_cast<double>(pts[static_cast<size_t>(i)][1]) * inv));
+        if (d == 3)
+            c.z = static_cast<int>(
+                std::floor(static_cast<double>(pts[static_cast<size_t>(i)][2]) * inv));
+        return c;
+    };
+    if (static_cast<int>(net.size()) <= 24 || !(w > 0) || !std::isfinite(w) || grid.empty()) {
+        value_t best = kInf;
+        for (int j : net) {
+            const value_t dd = euclid_dist(pts, p, j);
+            if (n_dist) ++*n_dist;
+            if (dd < best) best = dd;
+        }
+        return best;
+    }
+    const DyadicCell c0 = cell_of(p);
+    value_t best = kInf;
+    const int z1 = (d == 3) ? 1 : 0;
+    for (int r = 0; r <= 48; ++r) {
+        if (r >= 1 && best < kInf) {
+            const double mind = static_cast<double>(r - 1) * w;
+            if (mind >= static_cast<double>(best)) break;
+        }
+        for (int dx = -r; dx <= r; ++dx)
+            for (int dy = -r; dy <= r; ++dy)
+                for (int dz = -z1 * r; dz <= z1 * r; ++dz) {
+                    if (r > 0 && std::max(std::abs(dx), std::max(std::abs(dy), std::abs(dz))) != r)
+                        continue;
+                    DyadicCell c = c0;
+                    c.x += dx;
+                    c.y += dy;
+                    c.z += dz;
+                    const auto it = grid.find(c);
+                    if (it == grid.end()) continue;
+                    for (int j : it->second) {
+                        const value_t dd = euclid_dist(pts, p, j);
+                        if (n_dist) ++*n_dist;
+                        if (dd < best) best = dd;
+                    }
+                }
+    }
+    if (!(best < kInf)) {
+        for (int j : net) {
+            const value_t dd = euclid_dist(pts, p, j);
+            if (n_dist) ++*n_dist;
+            if (dd < best) best = dd;
+        }
+    }
+    return best;
+}
+
+inline std::vector<value_t> approx_insertion_radii_points(const std::vector<std::vector<value_t>>& pts,
+                                                          std::int64_t* n_dist = nullptr) {
+    const int n = static_cast<int>(pts.size());
+    const int d = n ? static_cast<int>(pts[0].size()) : 0;
+    if (n == 0) return {};
+    if (d < 2 || d > 3) return greedy_insertion_radii_points(pts, n_dist);
+
+    std::vector<value_t> lam(static_cast<size_t>(n), 0);
+    std::vector<char> used(static_cast<size_t>(n), 0);
+    std::vector<int> net;
+    net.reserve(static_cast<size_t>(n));
+    used[0] = 1;
+    net.push_back(0);
+    value_t cover = 0;
+    for (int j = 1; j < n; ++j) {
+        const value_t dj = euclid_dist(pts, 0, j);
+        if (n_dist) ++*n_dist;
+        cover = std::max(cover, dj);
+    }
+    lam[0] = cover;
+    if (!(cover > 0) || !std::isfinite(static_cast<double>(cover))) return lam;
+
+    double grid_w = static_cast<double>(cover);
+    std::unordered_map<DyadicCell, std::vector<int>, DyadicCellHash> grid;
+    auto cell_of = [&](int i, double w) {
+        DyadicCell c;
+        const double inv = 1.0 / w;
+        c.x = static_cast<int>(std::floor(static_cast<double>(pts[static_cast<size_t>(i)][0]) * inv));
+        c.y = static_cast<int>(std::floor(static_cast<double>(pts[static_cast<size_t>(i)][1]) * inv));
+        if (d == 3)
+            c.z = static_cast<int>(
+                std::floor(static_cast<double>(pts[static_cast<size_t>(i)][2]) * inv));
+        return c;
+    };
+    auto rebuild = [&](double w) {
+        grid.clear();
+        grid.reserve(net.size() * 2);
+        for (int i : net) grid[cell_of(i, w)].push_back(i);
+    };
+    rebuild(grid_w);
+
+    const int s_cap = std::max(48, static_cast<int>(std::ceil(2.5 * std::sqrt(static_cast<double>(n)))));
+    std::vector<int> unused;
+    unused.reserve(static_cast<size_t>(n));
+    for (int k = 1; k < n; ++k) {
+        unused.clear();
+        for (int i = 1; i < n; ++i)
+            if (!used[static_cast<size_t>(i)]) unused.push_back(i);
+        const int left = static_cast<int>(unused.size());
+        if (left <= 0) break;
+        const int s = std::min(left, s_cap);
+        const int stride = std::max(1, left / s);
+        const int phase = k % stride;
+        int best = unused[static_cast<size_t>(phase % left)];
+        value_t best_d = -1;
+        for (int t = 0; t < s; ++t) {
+            const int p = unused[static_cast<size_t>((phase + static_cast<long long>(t) * stride) % left)];
+            const value_t md = approx_net_nn(pts, p, net, grid, grid_w, d, n_dist);
+            if (md > best_d) {
+                best_d = md;
+                best = p;
+            }
+        }
+        if (best < 0) break;
+        used[static_cast<size_t>(best)] = 1;
+        lam[static_cast<size_t>(best)] = (best_d > 0) ? best_d : 0;
+        net.push_back(best);
+        if (best_d > 0 && static_cast<double>(best_d) < 0.5 * grid_w) {
+            grid_w = static_cast<double>(best_d);
+            if (!(grid_w > 0) || !std::isfinite(grid_w)) grid_w = static_cast<double>(best_d);
+            rebuild(grid_w);
+        } else {
+            grid[cell_of(best, grid_w)].push_back(best);
+        }
+    }
+    return lam;
+}
+
 // How the insertion-radius cap is combined. I210 used Max (looser, denser).
 // I212 tries Min (closer to GUDHI's thinner 1-skeleton).
 enum class SparseCap { Max, Min };
@@ -317,6 +473,9 @@ inline bool for_each_tball_pair(const std::vector<std::vector<value_t>>& pts, va
 // when net=Fps. Farthest-point insertion is still Θ(n²). `--sparse-net dyadic`
 // (I327) replaces FPS with hierarchical s-nets in d∈{2,3}; the edge set
 // then differs and the interleaving constant picks up a factor-2 slack.
+// `--sparse-net approx` (I331) is a sample-farthest greedy permutation:
+// one insert per step, λ = d(p, prefix net), stated slack is the
+// approx-farthest factor (not a dyadic bucket).
 // Emit uses a T-ball spatial hash when d∈{2,3} and T is finite; otherwise
 // an on-the-fly all-pairs walk. Does not allocate an n×n matrix.
 inline Graph sparse_rips_graph_points(const std::vector<std::vector<value_t>>& pts, value_t T,
@@ -343,6 +502,8 @@ inline Graph sparse_rips_graph_points(const std::vector<std::vector<value_t>>& p
     if (use_eps) {
         if (net == SparseNet::Dyadic)
             lam = dyadic_insertion_radii_points(pts, n_dist);
+        else if (net == SparseNet::Approx)
+            lam = approx_insertion_radii_points(pts, n_dist);
         else
             lam = greedy_insertion_radii_points(pts, n_dist);
         cfac = (1 + eps) / eps;

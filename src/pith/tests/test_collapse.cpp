@@ -494,6 +494,43 @@ int main() {
             std::cout << "ok dyadic-net n_dist=" << n_dy << " fps=" << n_fps
                       << " ess1=" << ess1 << "\n";
         }
+        {
+            // I331: sample-farthest greedy. Cheaper than Θ(n²) FPS, must
+            // not densify like I327, and must keep ess H1.
+            std::int64_t n_ap = 0, n_fps = 0;
+            const auto lam_a = approx_insertion_radii_points(cloud, &n_ap);
+            const auto lam_f = greedy_insertion_radii_points(cloud, &n_fps);
+            if (lam_a.size() != cloud.size() || !(lam_a[0] > 0)) {
+                std::cerr << "approx λ empty/cover\n";
+                return 1;
+            }
+            const std::int64_t pairs =
+                static_cast<std::int64_t>(cloud.size()) * (static_cast<std::int64_t>(cloud.size()) - 1);
+            if (n_ap >= pairs / 3) {
+                std::cerr << "approx not cheaper n_dist=" << n_ap << " fps=" << n_fps << "\n";
+                return 1;
+            }
+            Graph pa = sparse_rips_graph_points(cloud, 1.5f, 0.6f, SparseCap::Max, nullptr,
+                                                SparseNet::Approx);
+            Graph pf = sparse_rips_graph_points(cloud, 1.5f, 0.6f, SparseCap::Max, nullptr,
+                                                SparseNet::Fps);
+            if (pa.edges.size() > pf.edges.size() * 3 + 32) {
+                std::cerr << "approx densified edges=" << pa.edges.size() << " fps=" << pf.edges.size()
+                          << "\n";
+                return 1;
+            }
+            Result ra = persist_implicit_coh(pa, 1, 1.5f, 1);
+            int ess1 = 0;
+            for (const auto& p : ra.pairs)
+                if (p.dim == 1 && !std::isfinite(p.death)) ++ess1;
+            if (ess1 < 1) {
+                std::cerr << "approx noisy-circle lost ess H1 edges=" << pa.edges.size() << "\n";
+                return 1;
+            }
+            std::cout << "ok approx-net n_dist=" << n_ap << " fps=" << n_fps
+                      << " edges=" << pa.edges.size() << "/" << pf.edges.size()
+                      << " ess1=" << ess1 << "\n";
+        }
         for (SparseCap cap : {SparseCap::Max, SparseCap::Min}) {
             Graph mm = sparse_rips_graph(dc, 1.5f, 0.6f, cap);
             Graph pp = sparse_rips_graph_points(cloud, 1.5f, 0.6f, cap);
