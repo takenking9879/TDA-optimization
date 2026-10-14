@@ -159,7 +159,9 @@ grid_holes 3.0→6.1×, **0/7 ≥10×**. `--mode auto` stays exact on
 those \(n=8000\) leftover cells; hollow figure-8 \(n=16000\) still
 selects scale. A post-freeze pack (seed 23, new families) had
 **0/10** exact timeouts and one thin-circle scale miss, now
-overridden. Along n
+overridden. Post-freeze leftover vs n (`linked_ratio_n.json`):
+linked_circles 6.6→13.7→**32.2×** (grows; Ripser 17 s at \(n=4000\));
+sheared_loops 3.0→6.5×. Along n
 (`leftover_ratio_n.json`): sphere H1 crosses 10× near \(n=4000\)
 (**11.4×**); uniform2 is still **9.1×** at \(n=7000\); figure8
 plateaus ~16× once both engines explode.
@@ -201,6 +203,8 @@ PITH **0.30 s** vs giotto **7.23 s** (24×).
 ![Leftover-miss H1 ratio vs n](benchmarks/results/consolidation/figures/leftover_miss_n.svg)
 
 ![Leftover-miss local scaling exponent vs n](benchmarks/results/consolidation/figures/leftover_miss_exponents.svg)
+
+![Post-freeze leftover H1 ratio vs n](benchmarks/results/consolidation/figures/linked_ratio_n.svg)
 
 ![Exact VR vs Ripser / giotto-ph / GUDHI](benchmarks/results/consolidation/figures/runtime_baselines.svg)
 

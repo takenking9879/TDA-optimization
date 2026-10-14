@@ -5,13 +5,13 @@ Do not paste long reasoning here.
 
 ---
 
-## 2026-10-14 — Post-freeze leftover n-series (pending live)
+## 2026-10-14 — Post-freeze leftover n-series (linked_circles grows)
 
 - **Question:** Does linked_circles leftover 10.7× at n=1200 hold as n grows?
 - **Work:** `eval_linked_n.py` seed 23. linked_circles T=1.3 n=800–4000; sheared_loops n=800–2000. 1 thread. τ frozen. No leftover-skip edits.
-- **Result:** pending live sweep (script committed first).
-- **Decision:** Measurement toward leftover 10× generality on a post-freeze family. Goal not complete.
-- **Class:** experiment (pending)
+- **Result:** **4/8 ≥10×**. linked_circles 6.6→13.7→19.1→27.1→**32.2×** (n=800–4000; Ripser 17.1 s at n=4000, PITH 0.53 s; \(p\approx 2.0\)–\(2.4\) / \(2.7\)–\(3.5\)). sheared_loops 3.0→4.3→6.5× (climbs, still <10×). Not a general leftover 10×. Not a new pairing algorithm.
+- **Decision:** Keep the receipt. Goal not complete.
+- **Class:** verified (live)
 
 ## 2026-10-14 — Post-freeze dispatcher pack (seed 23)
 

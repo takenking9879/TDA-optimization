@@ -651,6 +651,19 @@ Seed 19. Leftover misses from leftover_heldout.json, scaled in n. τ frozen. Not
 | grid_holes | 4000 | 0.094 | 0.471 | 4.99× | 2.03 | 2.59 | pith:auto-redzed-spatial |
 | grid_holes | 8000 | 0.640 | 3.896 | 6.08× | 2.76 | 3.05 | pith:auto-redzed-spatial |
 
+## Post-freeze leftover H1 vs n (`eval_linked_n.py`, seed 23)
+Seed 23. Post-freeze leftover families scaled in n. τ frozen. Not a pairing-algorithm claim. Cells ≥10×: 4/8.
+| family | n | PITH (s) | Ripser (s) | ratio | p_PITH | p_Ripser | pipeline |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| linked_circles | 800 | 0.019 | 0.126 | 6.60× |  |  | pith:auto-redzed |
+| linked_circles | 1200 | 0.038 | 0.522 | 13.65× | 1.70 | 3.49 | pith:auto-redzed |
+| linked_circles | 2000 | 0.109 | 2.081 | 19.14× | 2.05 | 2.71 | pith:auto-redzed |
+| linked_circles | 3000 | 0.267 | 7.248 | 27.11× | 2.22 | 3.08 | pith:auto-redzed |
+| linked_circles | 4000 | 0.531 | 17.114 | 32.20× | 2.39 | 2.99 | pith:auto-redzed |
+| sheared_loops | 800 | 0.013 | 0.040 | 3.00× |  |  | pith:auto-redzed-spatial |
+| sheared_loops | 1200 | 0.024 | 0.103 | 4.28× | 1.49 | 2.36 | pith:auto-redzed-spatial |
+| sheared_loops | 2000 | 0.060 | 0.394 | 6.53× | 1.79 | 2.62 | pith:auto-redzed-spatial |
+
 ## Axis scaling (T / noise / density / dimension)
 Budget 8 s. PITH `--threads 1`. Ripser 1 thread. Hardware 4 CPUs. Empirical.
 | axis | family | n | x | method | wall (s) | cpu (s) | threads | |E| | reduce (ms) | ok |
