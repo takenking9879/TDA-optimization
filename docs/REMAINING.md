@@ -122,6 +122,8 @@ All of the following, together:
    (`leftover_miss_n.json`; anisotropic recedes after 8.8×).
    Post-freeze linked_circles grows 6.6→32.2×; sheared_loops peaks
    9.87× then recedes to 8.53× (`linked_ratio_n.json`, 4/11 ≥10×).
+   Post-16× offset_rings grows 15.8→20.6× (`postband.json`, 3/3 timed
+   ≥10×; estimate 2/4 — hi_mult not retuned).
 3. A complexity justification that is not “circle collapse”.
 4. Reproduced on this hardware with `--threads 1`.
 

@@ -40,8 +40,8 @@ def main() -> int:
             path = cloud(f"postband_{name}", n, fn, rng)
             print(f"POSTBAND {name} n={n}", flush=True)
             est = run_estimate(path, T, dim, timeout=15)
-            pith = run_pith(path, T, dim, "exact", "auto", threads=1, timeout=20)
-            rip = run_ripser(path, T, dim, timeout=30)
+            pith = run_pith(path, T, dim, "exact", "auto", threads=1, timeout=25)
+            rip = run_ripser(path, T, dim, timeout=90)
             pw, rw = pith.get("wall_s"), rip.get("wall_s")
             ratio = (rw / pw) if pw and rw else None
             lo, hi, mid = (
@@ -91,8 +91,6 @@ def main() -> int:
             )
             if pith.get("ok"):
                 prev = rec
-            if rec["ripser_timeout"]:
-                break
     ge10 = [r for r in recs if r.get("ratio") and r["ratio"] >= 10]
     scored = [r for r in recs if r.get("in_band") is not None]
     n_in = sum(1 for r in scored if r["in_band"])

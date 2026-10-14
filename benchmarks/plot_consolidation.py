@@ -63,6 +63,8 @@ L10MD_PATH = BENCH / "results" / "consolidation" / "leftover_miss_dispatch.json"
 L10MD = json.loads(L10MD_PATH.read_text()) if L10MD_PATH.exists() else {}
 PD_PATH = BENCH / "results" / "consolidation" / "pd_metrics.json"
 PD = json.loads(PD_PATH.read_text()) if PD_PATH.exists() else []
+PB_PATH = BENCH / "results" / "consolidation" / "postband.json"
+PB = json.loads(PB_PATH.read_text()) if PB_PATH.exists() else {}
 FIG = BENCH / "results" / "consolidation" / "figures"
 FIG.mkdir(parents=True, exist_ok=True)
 
@@ -629,6 +631,12 @@ score = [
         "`leftover_miss_dispatch`",
         L10MD.get("mode_auto", "—"),
         L10MD.get("note", "fat leftover n=8000 stay exact; hollow figure8 n=16000 scale"),
+    ),
+    (
+        "`eval_postband` seed 29",
+        f"{PB.get('n_in_band', '?')}/{PB.get('n_scored_band', '?')} in band, "
+        f"{PB.get('n_ratio_ge10', '?')}/{PB.get('n', '?')} ≥10×",
+        "offset_rings after hi_mult=16 freeze; n=800 and n=4000 sit outside the |E| clock",
     ),
 ]
 rows.append("| pack | score | note |")

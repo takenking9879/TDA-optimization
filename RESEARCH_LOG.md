@@ -8,10 +8,10 @@ Do not paste long reasoning here.
 ## 2026-10-14 — Post-16× leftover family (offset_rings)
 
 - **Question:** Does leftover H1 hi_mult=16 overfit figure8 / nested_loops? Any new 2026 batch exact-VR engine?
-- **Work:** New generator `offset_rings` (unlinked parallel rings) chosen after the 16× freeze. Seed 29. `eval_postband.py` leftover n-series + estimate bands. τ / hi_mult / mode_rec frozen. Literature still only RedZeD as batch exact-VR pairing alternative.
-- **Result:** Pending live run.
-- **Decision:** Try. Goal not complete.
-- **Class:** experiment
+- **Work:** New generator `offset_rings` (unlinked parallel rings) chosen after the 16× freeze. Seed 29. `eval_postband.py`. τ / hi_mult / mode_rec frozen. Literature still only RedZeD as batch exact-VR pairing alternative.
+- **Result:** Leftover ratio **15.8→18.1→20.6×** at n=800/2000/3000 (Ripser 37 s at n=3000; PITH 1.81 s). n=4000 PITH 4.76 s, Ripser not run. Estimate **2/4 in band**. Misses: n=800 (4.58× mid vs hi_mult=4, below the 16× n≥2000 gate); n=4000 (17.1× mid vs 16× hi). Did **not** retune. Not a general leftover 10×.
+- **Decision:** Keep the receipt. Do not widen hi_mult. Goal not complete.
+- **Class:** verified (live)
 
 ## 2026-10-14 — Leaving-cheap leftover H1 hi-band (16×)
 

@@ -9,7 +9,7 @@ This is the single “how far can each method go” table. Receipts:
 `dory_limits.json`, `oineus.json`, `dionysus.json`, `coperto.json`, `uniform10.json`,
 `fat_h2.json`, `ncc_auto.json`, `adversarial.json`,
 `leftover_heldout.json`, `leftover_ratio_n.json`, `leftover_miss_n.json`,
-`linked_ratio_n.json`, `postfreeze.json`.
+`linked_ratio_n.json`, `postfreeze.json`, `postband.json`.
 
 ## Exact VR (barcode must match Ripser)
 

@@ -28,7 +28,8 @@ n=8000 fat leftover cells when `est_exact≤4` s; hollow `|E|>8e6`
 **0/10 timeout**, one thin-circle `|E|>8e6` scale miss then overridden.
 Post-freeze leftover n-series (`linked_ratio_n.json`): linked_circles
 6.6→32.2× (grows); sheared_loops 2.93→9.87→8.53× (peaks then recedes;
-never ≥10×). Pack **4/11 ≥10×**. Not a new pairing algorithm.
+never ≥10×). Pack **4/11 ≥10×**. Post-16× offset_rings 15.8→20.6×
+(`postband.json`; estimate 2/4). Not a new pairing algorithm.
 Equal-hardware: PITH `--threads 1` still beats Ripser, giotto-ph 0.2.4
 (`n_threads=1` and `4`), and GUDHI 3.13 Rips on the measured suite.
 `--estimate` reports a regime-bucket `growth_p` and a runtime band

@@ -15,6 +15,7 @@ One place for mode / estimate / engine / wall-kind / held-out packs. τ is froze
 | `eval_highd_auto` | 0/8 wrong | high-d / L1 clock-compare (stay exact unless sparse clearly cheaper) |
 | `eval_postfreeze` seed 23 | 0/10 timeout, 0/2 mismatch, 10/10 in band | new families after leftover-H1 clock gate; first-pass scale_miss then thin override |
 | `leftover_miss_dispatch` | 11/11 | Seed 19 leftover-miss clouds after the fat-only |E|>8e6 clock override. Hollow leftover (figure8 n=16000) still goes to scale. τ and fat-H2 rules unchanged. 1 thread. Empirical. |
+| `eval_postband` seed 29 | 2/4 in band, 3/4 ≥10× | offset_rings after hi_mult=16 freeze; n=800 and n=4000 sit outside the |E| clock |
 
 ![Dispatcher scorecard](figures/dispatcher_scorecard.svg)
 
@@ -510,7 +511,7 @@ Agreement 11/11. `refuse` means the probe named sparse but auto exits 3 instead 
 | uniform4 | 250 | 2 | sparse | refuse | True | True |
 
 ## `--estimate` vs measured wall (`eval_estimate.py`)
-Recommended-mode wall inside `[est_runtime_lo, est_runtime_hi]`: 82/82. Empirical bands; τ frozen. in_band compares the recommended-mode wall to est_runtime_lo/hi. τ unchanged. Includes leftover_10x / leftover_ratio_n / leftover_heldout / leftover_miss_n / linked_ratio_n / postfreeze.
+Recommended-mode wall inside `[est_runtime_lo, est_runtime_hi]`: 82/82. Empirical bands; τ frozen. in_band compares the recommended-mode wall to est_runtime_lo/hi. τ unchanged. Includes leftover_10x / leftover_ratio_n / leftover_heldout / leftover_miss_n / linked_ratio_n / postfreeze. Leftover H1 n>=2000 uses hi_mult=16.
 | family | n | maxdim | rec | wall (s) | lo | hi | ratio | in band |
 | --- | ---: | ---: | --- | ---: | ---: | ---: | ---: | --- |
 | anisotropic_blob | 2000 | 1 | exact | 0.093 | 0.028 | 1.108 | 1.34 | True |

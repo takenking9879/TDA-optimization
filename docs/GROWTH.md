@@ -83,6 +83,14 @@ Post-freeze leftover n-series (`linked_ratio_n.json`, seed 23, 1 thread):
 
 **4/11 ≥10×** (all four are linked_circles). Linked leftover 10× **grows** with \(n\); sheared_loops never crosses 10× (peaks then recedes, like anisotropic). Still not a general leftover 10×.
 
+Post-16× leftover family (`postband.json`, seed 29, 1 thread):
+
+| series | n | ratio | local \(p\) PITH / Ripser | estimate |
+| --- | ---: | ---: | --- | --- |
+| offset_rings | 800→2000→3000 (4000 PITH only) | 15.8→18.1→**20.6×** | \(p\approx 1.8\)–\(3.9\) / \(2.0\)–\(4.2\); Ripser 37 s at \(n=3000\); PITH \(n=4000\) 4.76 s | **2/4 in band** (n=800: 4.58× mid vs hi 4; n=4000: 17× mid vs hi 16) |
+
+Chosen after `hi_mult=16`. Did **not** retune. Another leftover family where 10× **grows**, not a general leftover 10×.
+
 This is **not** a general leftover 10×. It is an n-dependent constant factor in the RedZeD class.
 
 The feasibility probe uses these regimes: fat `maxdim≥2` with

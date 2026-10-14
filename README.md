@@ -163,7 +163,11 @@ overridden. Post-freeze leftover vs n (`linked_ratio_n.json`):
 linked_circles 6.6→13.7→**32.2×** (grows; Ripser 17 s at \(n=4000\));
 sheared_loops 2.93→6.97→**9.87→8.53×** (peaks just under 10× at \(n=4000\),
 then recedes; **never ≥10×**). Pack **4/11 ≥10×** (all four are
-linked_circles). Along n
+linked_circles). A later family chosen after the leftover hi-band
+freeze (`postband.json`, seed 29): offset_rings **15.8→18.1→20.6×**
+(grows; Ripser 37 s at \(n=3000\)). Estimate **2/4 in band** — n=800
+is below the 16× gate (4.58× mid) and n=4000 is 17× mid. τ / hi_mult
+not retuned. Along n
 (`leftover_ratio_n.json`): sphere H1 crosses 10× near \(n=4000\)
 (**11.4×**); uniform2 is still **9.1×** at \(n=7000\); figure8
 plateaus ~16× once both engines explode.
@@ -424,6 +428,7 @@ python3 benchmarks/eval_leftover_heldout.py
 python3 benchmarks/eval_leftover_miss_n.py
 python3 benchmarks/eval_postfreeze.py
 python3 benchmarks/eval_linked_n.py
+python3 benchmarks/eval_postband.py
 python3 benchmarks/run_axis_scaling.py
 # optional oracle: pip install pydory  (not vendored; needs Python.h)
 python3 benchmarks/reverify_dory.py
