@@ -53,7 +53,7 @@ static void usage_experimental() {
         << "  --suffix-mult X  --suffix-keep N  --suffix-k K\n"
         << "  --later-b  --later-escalate K  --later-esc-until N  --later-b-cap N\n"
         << "  --dom-budget K  --ratio R  --edges FILE  --sparse-only\n"
-        << "  --sparse-eps EPS  --sparse-cap max|min  --sparse-net fps|dyadic|approx\n"
+        << "  --sparse-eps EPS  --sparse-cap max|min  --sparse-net fps|dyadic|approx|prefix\n"
         << "  --witness-n M  --witness-nu K  --knn K  --gic-n M  --gic-k K\n"
         << "  --reduced-vr  --delaunay-vr  --delaunay-alpha A|auto\n"
         << "  --dense-metric          force all-pairs RedZeD metric (no spatial G_T)\n"
@@ -720,6 +720,7 @@ int main(int argc, char** argv) {
             if (v == "fps") sparse_net = SparseNet::Fps;
             else if (v == "dyadic") sparse_net = SparseNet::Dyadic;
             else if (v == "approx") sparse_net = SparseNet::Approx;
+            else if (v == "prefix") sparse_net = SparseNet::Prefix;
             else {
                 std::cerr << "unknown --sparse-net " << v << "\n";
                 return 2;
@@ -1222,7 +1223,9 @@ int main(int argc, char** argv) {
                                              ? std::string("pith:sparse-dyadic")
                                              : (sparse_net == SparseNet::Approx
                                                     ? std::string("pith:sparse-approx")
-                                                    : std::string("pith:sparse")))
+                                                    : (sparse_net == SparseNet::Prefix
+                                                           ? std::string("pith:sparse-prefix")
+                                                           : std::string("pith:sparse"))))
                                       : delaunay_vr
                                       ? (delaunay_split
                                              ? std::string("pith:delaunay-vr-split")

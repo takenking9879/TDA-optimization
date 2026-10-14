@@ -101,6 +101,57 @@ inline std::vector<value_t> greedy_insertion_radii_points(const std::vector<std:
     return lam;
 }
 
+// I333: first `m` Gonzalez landmarks and their insertion radii (λ in
+// landmark-index order). O(n m) distances, not Θ(n²).
+inline int prefix_landmark_count(int n) {
+    if (n <= 1) return n;
+    const int m = std::max(64, static_cast<int>(std::ceil(4.0 * std::sqrt(static_cast<double>(n)))));
+    return std::min(n, m);
+}
+
+inline std::vector<int> greedy_prefix_ids(const std::vector<std::vector<value_t>>& pts, int m,
+                                          std::vector<value_t>& lam, std::int64_t* n_dist = nullptr) {
+    const int n = static_cast<int>(pts.size());
+    if (m > n) m = n;
+    std::vector<int> L;
+    lam.assign(static_cast<size_t>(std::max(m, 0)), 0);
+    if (n <= 0 || m <= 0) return L;
+    L.reserve(static_cast<size_t>(m));
+    std::vector<char> used(static_cast<size_t>(n), 0);
+    std::vector<value_t> mind(static_cast<size_t>(n), kInf);
+    L.push_back(0);
+    used[0] = 1;
+    value_t cover = 0;
+    for (int j = 1; j < n; ++j) {
+        mind[static_cast<size_t>(j)] = euclid_dist(pts, 0, j);
+        if (n_dist) ++*n_dist;
+        cover = std::max(cover, mind[static_cast<size_t>(j)]);
+    }
+    lam[0] = cover;
+    for (int k = 1; k < m; ++k) {
+        int best = -1;
+        value_t best_d = -1;
+        for (int j = 0; j < n; ++j) {
+            if (used[static_cast<size_t>(j)]) continue;
+            if (mind[static_cast<size_t>(j)] > best_d) {
+                best_d = mind[static_cast<size_t>(j)];
+                best = j;
+            }
+        }
+        if (best < 0) break;
+        used[static_cast<size_t>(best)] = 1;
+        L.push_back(best);
+        lam[static_cast<size_t>(k)] = best_d;
+        for (int j = 0; j < n; ++j) {
+            if (used[static_cast<size_t>(j)]) continue;
+            const value_t d = euclid_dist(pts, best, j);
+            if (n_dist) ++*n_dist;
+            mind[static_cast<size_t>(j)] = std::min(mind[static_cast<size_t>(j)], d);
+        }
+    }
+    return L;
+}
+
 // I327: hierarchical s-net insertion radii (Cavanna–Jahanseir–Sheehy nets,
 // not farthest-point). Euclidean d∈{2,3} only.
 //
@@ -117,7 +168,7 @@ inline std::vector<value_t> greedy_insertion_radii_points(const std::vector<std:
 // O(n log(Δ/δ)) expected, not Θ(n²).
 //
 // Falls back to farthest-point if d∉{2,3} or the cloud is degenerate.
-enum class SparseNet { Fps, Dyadic, Approx };
+enum class SparseNet { Fps, Dyadic, Approx, Prefix };
 
 struct DyadicCell {
     int x = 0, y = 0, z = 0;
@@ -499,6 +550,10 @@ inline bool for_each_tball_pair(const std::vector<std::vector<value_t>>& pts, va
 // `--sparse-net approx` (I331) is a sample-farthest greedy permutation:
 // one insert per step, λ = d(p, prefix net), stated slack is the
 // approx-farthest factor (not a dyadic bucket).
+// `--sparse-net prefix` (I333) keeps only the first m=max(64,⌈4√n⌉)
+// Gonzalez landmarks as vertices. Construction O(n m); PH is on m
+// vertices. Stated slack: Sheehy on an ε-net whose covering radius is
+// the last prefix λ **[derivation; not exact VR]**.
 // Emit uses a T-ball spatial hash when d∈{2,3} and T is finite; otherwise
 // an on-the-fly all-pairs walk. Does not allocate an n×n matrix.
 inline Graph sparse_rips_graph_points(const std::vector<std::vector<value_t>>& pts, value_t T,
@@ -509,6 +564,30 @@ inline Graph sparse_rips_graph_points(const std::vector<std::vector<value_t>>& p
     Graph g;
     g.n = n;
     if (n <= 1) return g;
+    const bool use_eps = (eps > 0 && eps < 1);
+    if (net == SparseNet::Prefix && use_eps) {
+        const int m = prefix_landmark_count(n);
+        if (m < n) {
+            std::vector<value_t> lam;
+            const auto ids = greedy_prefix_ids(pts, m, lam, n_dist);
+            const int mm = static_cast<int>(ids.size());
+            g.n = mm;
+            g.edges.reserve(static_cast<size_t>(mm) * 8);
+            const value_t cfac = (1 + eps) / eps;
+            for (int i = 0; i < mm; ++i) {
+                for (int j = i + 1; j < mm; ++j) {
+                    const value_t dist = euclid_dist(pts, ids[static_cast<size_t>(i)],
+                                                     ids[static_cast<size_t>(j)]);
+                    if (n_dist) ++*n_dist;
+                    if (sparse_rips_keep(dist, T, lam[static_cast<size_t>(i)],
+                                         lam[static_cast<size_t>(j)], cfac, cap))
+                        g.edges.push_back({i, j, dist});
+                }
+            }
+            rebuild_neighbors(g);
+            return g;
+        }
+    }
     g.edges.reserve(static_cast<size_t>(n) * 8);
     auto emit_pair = [&](int i, int j, value_t li, value_t lj, value_t cfac, bool use_eps) {
         const value_t dist = euclid_dist(pts, i, j);
@@ -519,7 +598,6 @@ inline Graph sparse_rips_graph_points(const std::vector<std::vector<value_t>>& p
             g.edges.push_back({i, j, dist});
         }
     };
-    const bool use_eps = (eps > 0 && eps < 1);
     std::vector<value_t> lam;
     value_t cfac = 0;
     if (use_eps) {

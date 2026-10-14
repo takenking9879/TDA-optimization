@@ -541,6 +541,34 @@ int main() {
             std::cout << "ok approx-net n_dist=" << n_ap << " fps=" << n_fps
                       << " edges=" << pa.edges.size() << "/" << pf.edges.size()
                       << " ess1=" << ess1 << "\n";
+            // I333: prefix net is on m<<n vertices, cheaper than Θ(n²), keeps ess H1.
+            std::int64_t n_pr = 0, n_fps2 = 0;
+            Graph ppre = sparse_rips_graph_points(med, 1.5f, 0.6f, SparseCap::Max, &n_pr,
+                                                  SparseNet::Prefix);
+            Graph pf2 = sparse_rips_graph_points(med, 1.5f, 0.6f, SparseCap::Max, &n_fps2,
+                                                 SparseNet::Fps);
+            const int want_m = prefix_landmark_count(static_cast<int>(med.size()));
+            if (ppre.n != want_m || ppre.n >= static_cast<int>(med.size())) {
+                std::cerr << "prefix n=" << ppre.n << " want=" << want_m << "\n";
+                return 1;
+            }
+            if (n_pr >= n_fps2) {
+                std::cerr << "prefix not cheaper n_dist=" << n_pr << " fps=" << n_fps2 << "\n";
+                return 1;
+            }
+            Result rp = persist_implicit_coh(ppre, 1, 1.5f, 1);
+            int essp = 0;
+            for (const auto& p : rp.pairs)
+                if (p.dim == 1 && !std::isfinite(p.death)) ++essp;
+            if (essp < 1) {
+                std::cerr << "prefix noisy-circle lost ess H1 n=" << ppre.n
+                          << " edges=" << ppre.edges.size() << "\n";
+                return 1;
+            }
+            std::cout << "ok prefix-net n_dist=" << n_pr << " fps=" << n_fps2
+                      << " verts=" << ppre.n << "/" << med.size()
+                      << " edges=" << ppre.edges.size() << "/" << pf2.edges.size()
+                      << " ess1=" << essp << "\n";
         }
         for (SparseCap cap : {SparseCap::Max, SparseCap::Min}) {
             Graph mm = sparse_rips_graph(dc, 1.5f, 0.6f, cap);
