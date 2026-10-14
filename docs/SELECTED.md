@@ -681,6 +681,8 @@ that cell (0.74 s) unless sparse is clearly cheaper. τ / engine_rec
 frozen. Fat \(H_2\) refuse still correct. `eval_mode_auto` **11/11**.
 Held-out high-d / L1 sweep (`highd_auto.json`): **0/8** wrong.
 
+I315 leftover engines: collapse+implicit loses to RedZeD on leftover
+families (**0/8**). Do not flip leftover default to implicit. τ frozen.
 Named leftover follow-ups after I202 are **spent**. Do not reopen
 empty-seed skips, leftover XOR/noop, G_t apparent, add-R, D(e) memo,
 collapse-on-thicken at n≥4000, RCM/Morton on thicken, leftover

@@ -5,6 +5,14 @@ Do not paste long reasoning here.
 
 ---
 
+## 2026-10-14 — I315 leftover engines: implicit vs RedZeD
+
+- **Question:** Do leftover-miss families miss 10× because auto picked RedZeD and collapse+implicit would have won?
+- **Work:** `eval_leftover_engines.py`, 8 cells, 1 thread. `--engine implicit` vs `redzed` vs `auto`. τ frozen. No leftover-coface edits.
+- **Result:** **0 unmatched** vs Ripser. implicit faster than RedZeD **0/8**. implicit ≥10× only on figure8 (15.5× vs RedZeD 17.2×). torus implicit 0.91× (collapse tax 2.79 s vs RedZeD 0.19 s). anisotropic n=8000 implicit 10.1 s vs RedZeD 1.22 s (**9.07×**). auto ≥10× on 2/8 (figure8, torus). Collapse+implicit is a tax on fat leftover. Dispatcher was right.
+- **Decision:** Reject changing leftover default to implicit. τ stays frozen. Goal not complete.
+- **Class:** verified (live)
+
 ## 2026-10-14 — I314 spatial gate: probe-only, not bbox volume
 
 - **Question:** Is leftover-miss anisotropic n=8000 a pairing wall (1.83 s) or a bbox-volume spatial false positive? Any new leftover pairing idea that is not a spent skip?
