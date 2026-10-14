@@ -1,6 +1,6 @@
 # Selected algorithm (living)
 
-Updated 2026-10-14 after iterations I001–I331 plus consolidation (phase 3)
+Updated 2026-10-14 after iterations I001–I332 plus consolidation (phase 3)
 and the fused Euclidean sparse constructor.
 **Stable CLI:** `--mode exact|scale|sparse|auto`, `--engine auto|redzed|implicit`,
 `--estimate`, `--threads N`. Public runners import `generate_datasets` /
@@ -403,6 +403,12 @@ I272. `--delaunay-only` stays experimental. Not selected.
 Skip non-Del leftovers that miss every active vertex. Live
 `seed_incident.json`: **0 unmatched**, faster than auto **3/8**,
 than I323 **0/8**. figure8 n=2000 2.15 vs 0.15 s. Not selected.
+
+### I332 3-level Devillers stack (not default)
+
+`--delaunay-devillers`: separate coarse/mid tets + downward links.
+Live `delaunay_devillers.json`: same |E| / ess H2. Sphere n=80000
+**1.291 vs 1.069 s**. torus/uniform3 n=8000 lose wall. Not selected.
 
 ### I331 sample-farthest greedy net (not default)
 

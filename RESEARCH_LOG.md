@@ -5,6 +5,14 @@ Do not paste long reasoning here.
 
 ---
 
+## 2026-10-14 — I332 3-level Devillers Delaunay stack
+
+- **Question:** Do separate coarse/mid triangulations + downward links (Devillers, not I328/I329 vertex hashes) beat Morton + last-cavity hint?
+- **Work:** Experimental `--delaunay-devillers`. Geometric heights α=3, three IncTetMesh levels. Same Delaunay. Default unchanged. Live `delaunay_devillers.json` plus torus/uniform3. Unit n=256 |E| match. 1 thread. τ frozen.
+- **Result:** Same |E| / ess H2 on every cell. Wall **loses**: sphere n=80000 1.291 vs 1.069 s (metric 737 vs 504 ms). n=2000–30000 same sign. torus n=8000 0.323 vs 0.292 s; uniform3 n=8000 0.194 vs 0.167 s. Three meshes are a construction tax; last-cavity + Morton already locates.
+- **Decision:** Reject as default. Keep `--delaunay-devillers` experimental. I328/I329/I332 close 3D location. Fat 3D scale walls remain thicken/PH. Goal not complete.
+- **Class:** verified (live)
+
 ## 2026-10-14 — I331 sample-farthest greedy net
 
 - **Question:** Can a c-approximate greedy permutation (stride sample + exact-ish d to the prefix net) stay thin vs Gonzalez FPS and cut the Θ(n²) sparse construction clock? I327 densified because batched dyadic λ is coarse.
