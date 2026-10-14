@@ -957,6 +957,23 @@ int main() {
             return 1;
         }
         std::cout << "ok I275 walk-locate 3D Delaunay H0 n=256\n";
+        std::vector<Edge> e0, e1;
+        if (!delaunay_one_skeleton(pts, e0)) {
+            std::cerr << "I328 default 3D skeleton failed\n";
+            return 1;
+        }
+        set_delaunay_jump(true);
+        if (!delaunay_one_skeleton(pts, e1)) {
+            set_delaunay_jump(false);
+            std::cerr << "I328 jump 3D skeleton failed\n";
+            return 1;
+        }
+        set_delaunay_jump(false);
+        if (e0.size() != e1.size()) {
+            std::cerr << "I328 jump |E| " << e1.size() << " vs " << e0.size() << "\n";
+            return 1;
+        }
+        std::cout << "ok I328 3D jump-locate |E|=" << e0.size() << "\n";
     }
 
     // I276: Delaunay-flag keeps essential H1 on a circle (not exact VR).

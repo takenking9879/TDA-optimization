@@ -27,6 +27,12 @@
 #include <utility>
 #include <vector>
 
+namespace {
+thread_local bool g_deljump = false;
+}
+
+void pith::set_delaunay_jump(bool on) { g_deljump = on; }
+
 // I245: same buckets / finish_buckets as vendor build_edges, but the two
 // n² scans and the per-bucket sorts run on a thread pool. Final order is
 // still (diam, comb_index) so VR≤T is unchanged.
@@ -2055,6 +2061,54 @@ static bool delaunay_edges_3d_walk(const std::vector<std::vector<value_t>>& pts,
 
     std::vector<SpatEdge> extra;
     int hint = 0;
+    // I328: nearest inserted vertex → incident live tet, then the same walk.
+    // Different location structure than last-cavity hint (I275) / I307–I312.
+    std::vector<int> vert_tet(static_cast<size_t>(n) + 4, 0);
+    std::vector<int> inserted;
+    inserted.reserve(static_cast<size_t>(n));
+    constexpr int kJumpG = 32;
+    std::unordered_map<int, std::vector<int>> jump_buckets;
+    if (g_deljump) jump_buckets.reserve(static_cast<size_t>(n) * 2);
+    auto jump_cell = [&](double x, double y, double z) {
+        int ix = static_cast<int>((x - xmin) / dx * (kJumpG - 1e-9));
+        int iy = static_cast<int>((y - ymin) / dy * (kJumpG - 1e-9));
+        int iz = static_cast<int>((z - zmin) / dz * (kJumpG - 1e-9));
+        ix = std::max(0, std::min(kJumpG - 1, ix));
+        iy = std::max(0, std::min(kJumpG - 1, iy));
+        iz = std::max(0, std::min(kJumpG - 1, iz));
+        return (ix * kJumpG + iy) * kJumpG + iz;
+    };
+    auto jump_start = [&](double px, double py, double pz) -> int {
+        if (!g_deljump || inserted.empty()) return hint;
+        const int cid = jump_cell(px, py, pz);
+        const int ix = cid / (kJumpG * kJumpG);
+        const int iy = (cid / kJumpG) % kJumpG;
+        const int iz = cid % kJumpG;
+        int best_v = -1;
+        double best2 = 1e300;
+        for (int dxk = -1; dxk <= 1; ++dxk)
+            for (int dyk = -1; dyk <= 1; ++dyk)
+                for (int dzk = -1; dzk <= 1; ++dzk) {
+                    const int jx = ix + dxk, jy = iy + dyk, jz = iz + dzk;
+                    if (jx < 0 || jx >= kJumpG || jy < 0 || jy >= kJumpG || jz < 0 || jz >= kJumpG)
+                        continue;
+                    const auto it = jump_buckets.find((jx * kJumpG + jy) * kJumpG + jz);
+                    if (it == jump_buckets.end()) continue;
+                    for (int v : it->second) {
+                        const double ddx = xs[static_cast<size_t>(v)] - px;
+                        const double ddy = ys[static_cast<size_t>(v)] - py;
+                        const double ddz = zs[static_cast<size_t>(v)] - pz;
+                        const double d2 = ddx * ddx + ddy * ddy + ddz * ddz;
+                        if (d2 < best2) {
+                            best2 = d2;
+                            best_v = v;
+                        }
+                    }
+                }
+        if (best_v < 0) return hint;
+        const int t = vert_tet[static_cast<size_t>(best_v)];
+        return live(t) ? t : hint;
+    };
     std::vector<int> cavity, q, newids;
     cavity.reserve(32);
     q.reserve(32);
@@ -2070,7 +2124,7 @@ static bool delaunay_edges_3d_walk(const std::vector<std::vector<value_t>>& pts,
         const int p = order[static_cast<size_t>(pi)];
         const double px = xs[static_cast<size_t>(p)], py = ys[static_cast<size_t>(p)],
                      pz = zs[static_cast<size_t>(p)];
-        int t0 = walk(hint, px, py, pz);
+        int t0 = walk(jump_start(px, py, pz), px, py, pz);
         // I312: walk already tested 4 faces; locate_scan uses contains.
         // I307 bundled this skip with fsign cache and lost on birth tax.
         // Isolated skip — no extra bookkeeping.
@@ -2093,6 +2147,11 @@ static bool delaunay_edges_3d_walk(const std::vector<std::vector<value_t>>& pts,
             }
             if (best >= 0 && (best2 < 1e-24 || !insphere_t(t0, px, py, pz))) {
                 extra.push_back({point_dist(pts, p, best), std::min(p, best), std::max(p, best)});
+                if (g_deljump) {
+                    vert_tet[static_cast<size_t>(p)] = t0;
+                    inserted.push_back(p);
+                    jump_buckets[jump_cell(px, py, pz)].push_back(p);
+                }
                 continue;
             }
         }
@@ -2182,6 +2241,14 @@ static bool delaunay_edges_3d_walk(const std::vector<std::vector<value_t>>& pts,
         }
         if (!pending.empty()) return false;
         hint = newids[0];
+        if (g_deljump) {
+            for (int id : newids) {
+                const int* vv = tets[static_cast<size_t>(id)].v;
+                for (int k = 0; k < 4; ++k) vert_tet[static_cast<size_t>(vv[k])] = id;
+            }
+            inserted.push_back(p);
+            jump_buckets[jump_cell(px, py, pz)].push_back(p);
+        }
     }
 
     std::unordered_set<uint64_t> seen;
