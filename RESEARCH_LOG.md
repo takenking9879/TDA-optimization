@@ -10,7 +10,7 @@ Do not paste long reasoning here.
 - **Question:** Does the original I202 follow-up (time-bucket / later-bits / residual cofacet / emergent early-stop) still have an untried leftover lever?
 - **Work:** Ledger check. I203 is the selected cofacet-walk early-stop (torus reduce 450→172 ms). I214/I215 CannotDom time-until marks rejected. I288 equal-set seeded_is_noop exact but no clock. Hash leftover-adj I303/I304 rejected.
 - **Result:** Those named leftover directions are spent. Figure-8 n=2000 / torus walls remain leftover pairing. Do not reopen them as micro-opts.
-- **Decision:** Hold. Validate `wall_kind` against measured shares instead. Goal not complete.
+- **Decision:** Hold. `eval_wall_kind.py` **20/20** (n≥400, ≥1 ms share). Circle / disconnected / nonuniform / figure8 n=500 → collapse. Figure-8 n≥1000 / torus / uniform2 / nested → leftover. τ unchanged. Goal not complete.
 - **Class:** verified (ledger)
 
 ## 2026-10-14 — wall_kind + construct/collapse/reduce figure
