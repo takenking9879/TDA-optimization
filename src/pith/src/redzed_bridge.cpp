@@ -1762,17 +1762,23 @@ static bool delaunay_edges_3d_walk(const std::vector<std::vector<value_t>>& pts,
             if (contains(t, px, py, pz)) return t;
         return -1;
     };
+    // I311: Lawson walk — skip the face just entered (3 orients/step
+    // after the first hop, not 4). The query is already on the correct
+    // side of that shared face. No cached signs (I307), no new predicate
+    // (I310). Identity: same exit test on the other three faces.
     auto walk = [&](int hint, double px, double py, double pz) -> int {
         int t = hint;
         if (!live(t)) t = locate_scan(px, py, pz);
         if (t < 0) return -1;
         const int guard = n * 8 + 64;
+        int skip_face = -1;
         for (int step = 0; step < guard; ++step) {
             if (!live(t)) return locate_scan(px, py, pz);
             const Tet& tr = tets[static_cast<size_t>(t)];
             bool moved = false;
             bool hole = false;
             for (int i = 0; i < 4; ++i) {
+                if (i == skip_face) continue;
                 int f[3];
                 face_opp(tr.v, i, f);
                 const double ov = delaunay_orient3(
@@ -1790,7 +1796,15 @@ static bool delaunay_edges_3d_walk(const std::vector<std::vector<value_t>>& pts,
                 if (op < 0.0) {
                     const int nb = tr.nbor[i];
                     if (live(nb)) {
+                        int back = -1;
+                        const int* nn = tets[static_cast<size_t>(nb)].nbor;
+                        for (int k = 0; k < 4; ++k)
+                            if (nn[k] == t) {
+                                back = k;
+                                break;
+                            }
                         t = nb;
+                        skip_face = back;
                         moved = true;
                         break;
                     }
