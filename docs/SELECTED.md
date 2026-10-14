@@ -1,6 +1,6 @@
 # Selected algorithm (living)
 
-Updated 2026-10-14 after iterations I001–I301. **CLI default `--engine`
+Updated 2026-10-14 after iterations I001–I302. **CLI default `--engine`
 auto` (I235+I236+I239+I240+I241+I263+I270+I271+I275):** subsample residual-frac dispatch,
 plus I263 edge-frac so hollow/manifold clouds take RedZeD. Fat →
 RedZeD (torus n=2000 **13.0×**). Thin-circle → collapse+implicit
@@ -678,9 +678,9 @@ Rips is exact and too slow.
    sphere n=2000 H0+H1+H2 203 ms). **I287 split scale:** sphere
    n=8000 H0+H1+H2 **0.865 s / ess2=1** (I297 thicken). **I300 3D
    α=1 RedZeD** is the selected H0+H1+H2 path in \(d=3\): sphere
-   n=16000 **0.22 s / 80k / ess2=1** (I301); n=30000 **0.44 s**;
-   n=50000 **0.84 s / 252k**. figure8 (2D) still thickens: n=16000
-   **0.64 s / ess1=2**. **I297 RedZeD-on-thicken is selected** for fat 2D / maxdim=1
+   n=16000 **0.20 s / 80k / ess2=1** (I302); n=30000 **0.39 s**;
+   n=50000 **0.68 s / 252k**. figure8 (2D) still thickens: n=16000
+   **0.63 s / ess1=2**. **I297 RedZeD-on-thicken is selected** for fat 2D / maxdim=1
    thicken H1 (`|E|≥8n`). H2 on 2D split stays implicit.
    **I283
    Delaunay 2-complex hold:** ess kept, sphere n=400 un 52→33, but
@@ -723,8 +723,12 @@ Rips is exact and too slow.
    this path is I276-flag. **I301 CSR H2 stream is selected** on
    \(|E|\le 16n\): sphere n=30000 **0.44 vs 0.62 s**; n=50000
    **0.84 s / 252k / ess2=1**. \(O(|E|\deg)\) vs \(O(|E|\,n/64)\).
-   Dense \(G_T\) keeps vendor `generate_stream`. ae_seeded visits
-   remain the exact-H1 wall.
+   Dense \(G_T\) keeps vendor `generate_stream`. **I302 growing-adj
+   leftover_coface is selected** on the same gate: skip the n×n
+   rbit matrix. sphere n=30000 **0.39 vs 0.44 s**; n=50000
+   **0.68 vs 0.84 s / 252k / ess2=1**. leftover_coface \(O(\deg)\)
+   vs \(O(n/64)\). Fat 2D thicken (\(|E|>16n\)) still uses rbits.
+   ae_seeded visits remain the exact-H1 wall.
 6. Owned AE leftover-star walk is still Θ(|leftover|·deg★) — rbit cut
    has_leftover_coface, not seeded probes (circle still 875k). I288
    equal-set seeded_is_noop is exact and reverted (848≈866). Packed

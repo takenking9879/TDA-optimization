@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-14 — I302 growing-adj leftover_coface (skip rbits)
+
+- **Question:** On Delaunay-scale flags, is leftover_coface’s n×n rbit AND the remaining size-class tax after I301’s CSR H2 stream, and does a growing sorted adj (same \(G_r\)) cut H0+H1+H2 at 30k–50k without inventing bars?
+- **Hypothesis:** n=50000 rbits is ~313 MB; leftover ANDs \(n/64\) words while mean deg ~10. Intersection is \(O(\deg)\). Gate \(|E|\le 16n\). Dense \(G_T\) keeps rbits. Never call vendor `collect_candidates` / `rbit` / `has_leftover_coface` on the adj path.
+- **Work:** `advance_adj` / `leftover_coface_*_adj` / `collect_candidates_adj` + AdjGuard in `redzed_vr`. Wave 162 vs I301 clocks + Ripser. Hard: sphere n=50000.
+- **Result:** **Support.** figure8 n=2000 exact H1. ess2 held (sphere 1; two_spheres 2). sphere n=16000 **0.199 vs I301 0.215 s** (reduce 83 vs 96 ms). n=30000 **0.389 vs 0.44 s** (reduce 171 vs 220 ms). n=50000 **0.675 vs 0.84 s** (reduce 302 vs ~465 ms) / 252k / ess2=1. figure8 n=16000 thicken **0.63 s / ess1=2** (fat, \(|E|>16n\), adj off). Exact default held (H0 61×, figure8 17×, uniform2 11.2×, sphere H2 58×, circle 17.5×). Justified: leftover_coface \(O(\deg)\) vs \(O(n/64)\); memory \(O(|E|)\) vs \(O(n^2/64)\).
+- **Decision:** **Support / select** for leftover_coface on \(|E|\le 16n\). Do not enable on dense \(G_T\). Fat 2D thicken still uses rbits. Do not mark the goal complete.
+- **Class:** experiment (support; selected sparse leftover_coface)
+
 ## 2026-10-14 — I301 CSR H2 stream on sparse flags
 
 - **Question:** Does replacing vendor `generate_stream`’s n×n bit graph with sorted-adj common-neighbor intersection (same growing \(G_{<e}\), \(d=2\)) cut 3D Delaunay-flag H2 at 30k–50k points?
