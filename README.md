@@ -15,6 +15,7 @@ stock VR engines time out.
 Details: [`docs/WHAT_WE_BUILT.md`](docs/WHAT_WE_BUILT.md),
 [`docs/SCALE_PATH.md`](docs/SCALE_PATH.md),
 [`docs/COMPLEXITY.md`](docs/COMPLEXITY.md).
+Dashboard: [PITH consolidation results](https://cursor.com/canvas/store-bfb92e22-33cb-473f-b3c3-3bfc05d5722d/8a09a96a-dbf1-4b70-96ec-8021bc123ce6).
 
 ## What is this?
 
@@ -169,6 +170,20 @@ PITH **0.30 s** vs giotto **7.23 s** (24×).
 Local time exponents (empirical, not theorems): scale stays \(p\approx 1.0\)–\(1.3\);
 exact figure-8 / nested-loop \(H_1\) leaves that regime around a few thousand
 points (\(p\approx 2.8\)–\(3.0\)); Ripser on the same series is \(p\approx 2.7\)–\(3.5\).
+
+Axis sweeps at **1 thread** (`axis_scaling.json`): raising \(T\) on a
+circle \(n=400\) sends Ripser \(0.007\to 0.26\) s and GUDHI
+\(0.037\to 3.2\) s (\(p_T\) up to 5.4 — explicit simplex tree). PITH
+exact stays \(0.004\to 0.023\) s; scale stays 4–6 ms. More noise makes
+exact VR *cheaper* (the loop washes out). At fixed \(T\), higher ambient
+dimension is *sparser*, not harder. GUDHI is the first method to fail
+the 8 s budget (uniform2 \(n=800\), \(T=0.55\)).
+
+![Wall time vs T](benchmarks/results/consolidation/figures/runtime_vs_T.svg)
+
+![Wall time vs noise](benchmarks/results/consolidation/figures/runtime_vs_noise.svg)
+
+![Wall time vs density](benchmarks/results/consolidation/figures/runtime_vs_density.svg)
 
 ## How accurate is the scale path?
 

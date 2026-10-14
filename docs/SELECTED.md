@@ -623,6 +623,11 @@ Sparse connected n=20000 **5.6×**. I242/I243 owned AE is exact; rbit
 is ~1.5× on circle AE and still 12× slower than RedZeD. GUDHI
 explicit Rips is exact and too slow.
 
+Axis scaling (`axis_scaling.json`, 1 thread, 8 s): raising \(T\)
+explodes GUDHI / Ripser while exact auto stays tens of milliseconds
+on n=400–800; GUDHI is the first timeout (uniform2 n=800 \(T=0.55\)).
+Higher ambient dim at fixed \(T\) is sparser, not harder.
+
 Named leftover follow-ups after I202 are **spent**. Do not reopen
 empty-seed skips, leftover XOR/noop, G_t apparent, add-R, D(e) memo,
 collapse-on-thicken at n≥4000, RCM/Morton on thicken, leftover

@@ -5,6 +5,14 @@ Do not paste long reasoning here.
 
 ---
 
+## 2026-10-14 — axis scaling (T / noise / density / dimension)
+
+- **Question:** Where does each method leave the cheap regime when we raise T, noise, density, or ambient dim — not only n?
+- **Work:** `run_axis_scaling.py`, 1-thread PITH vs Ripser / giotto t1 / GUDHI / scale / sparse, 8 s budget. `axis_scaling.json` 153 rows.
+- **Result:** Circle n=400 T=0.4→2.0: PITH 4→23 ms; Ripser 7→261 ms (\(p_T\approx 3\)); GUDHI 37 ms→3.2 s (\(p_T=5.4\)). Scale 4–6 ms. Noise σ=0→0.3 makes Ripser cheaper (0.30→0.034 s) and kills ess H1 at σ≥0.15. GUDHI first timeout: uniform2 n=800 T=0.55. Higher d at fixed T is sparser/faster. PITH cpu/wall ≈ 1 at `--threads 1`. τ unchanged.
+- **Decision:** Document in GROWTH/README. Do not treat ambient dim as a hardness proxy; keep edge-frac / |E|. Do not retune τ. Goal not complete.
+- **Class:** experiment (limits)
+
 ## 2026-10-14 — leftover-family 10× re-measure (1 thread)
 
 - **Question:** Do SELECTED leftover-family 10× claims still hold vs Ripser on this box?

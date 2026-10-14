@@ -464,10 +464,11 @@ reduction to zero differentials*, arXiv:2606.06310. Vendored
   pairs **[empirical]**. Spatial leftover wall: 866 ms / 1.98M leftover
   **visits** (I263). Inner-loop leftover-coface skips (I253–I255, I265) did
   not cut that visit term **[empirical]**.
-- I235+I263 auto: torus residual-frac \(0.28\) → RedZeD **13.0×**; circle
-  frac \(0.021\) → collapse **28×** at \(n=1000\) **[empirical]**. Dispatch
-  is \(O(s^2)\) with \(s=250\), not a function of \(n\) **[derivation]**.
-  **Not** a better Big-O.
+- I235+I263 auto: torus residual-frac \(0.28\) → RedZeD **13.0×**
+  (I-wave); live 1-thread leftover re-measure is **12.6×**
+  (`leftover_10x.json`). Circle frac \(0.021\) → collapse **28×** at
+  \(n=1000\) **[empirical]**. Dispatch is \(O(s^2)\) with \(s=250\), not
+  a function of \(n\) **[derivation]**. **Not** a better Big-O.
 
 ---
 

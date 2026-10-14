@@ -115,3 +115,50 @@ It does **not** change `engine_rec` or \(\tau\).
 `--estimate` also emits `wall_kind`: `collapse` on thin residuals
 (circle 32× is collapse, not pairing), `leftover` on fat/hollow exact
 (figure-8 \(n=2000\) / torus), `construction` on H0 / scale / sparse.
+
+## Axis scaling (T / noise / density / dimension)
+
+1-thread, 8 s budget, `axis_scaling.json`. Local \(p\) here is
+\(\log(t_{i+1}/t_i)/\log(x_{i+1}/x_i)\) along the **axis**, not \(n\).
+Empirical. \(\tau\) unchanged.
+
+### Threshold \(T\) (circle \(n=400\))
+
+| \(T\) | PITH exact | RedZeD | Ripser | giotto t1 | GUDHI | scale |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 0.4 | 0.004 | 0.003 | 0.007 | 0.011 | 0.037 | 0.004 |
+| 1.2 | 0.010 | 0.007 | 0.061 | 0.075 | 0.452 | 0.005 |
+| 2.0 | 0.023 | 0.013 | 0.261 | 0.314 | 3.207 | 0.006 |
+
+Ripser / giotto \(p_T\approx 2.6\)–\(3.2\) after \(T>0.8\). GUDHI
+\(p_T=5.37\) on \(1.6\to 2.0\) (explicit simplex tree; combinatorial,
+not a claimed exponential). PITH exact \(p_T\approx 0.5\)–\(1.9\).
+Scale / sparse stay 4–7 ms. At \(T\ge 1.6\) the circle fills
+(ess \(H_1=0\)). Figure-8 \(n=800\), \(T=1.1\to 1.4\): Ripser
+\(p_T=5.02\), PITH auto \(0.90\).
+
+### Noise \(\sigma\) (circle \(n=500\), \(T=1.5\))
+
+More noise makes exact VR **cheaper**: Ripser \(0.30\) s at \(\sigma=0\)
+→ \(0.034\) s at \(\sigma=0.3\). ess \(H_1\) is lost at \(\sigma\ge 0.15\).
+That is residual thinning, not a speedup to keep. Scale stays 5–9 ms.
+
+### Density \(T\) (uniform2 \(n=800\))
+
+GUDHI explicit is the **first failure** on this axis: timeout at
+\(T=0.55\). At that point PITH exact is 19 ms, Ripser 104 ms, scale 10 ms.
+GUDHI \(p_T=3.6\)–\(4.1\) on \(0.12\to 0.35\).
+
+### Ambient dimension (uniform, fixed \(T\))
+
+Higher \(d\) at the same \(T\) is **sparser** (typical distances grow)
+and faster: Ripser \(n=400\) \(d=2\to 4\) is \(17\to 8\) ms. Do **not**
+treat ambient dimension as a hardness proxy; use edge-frac / \(\lvert E\rvert\).
+`--mode scale` exists only for \(d\in\{2,3\}\).
+
+### CPU (1-thread cells)
+
+PITH `--threads 1`: `cpu_s / wall_s` \(\approx 1\). Ripser is 1 thread.
+giotto’s first cell includes interpreter import (cpu \(\gg\) wall);
+later cells track wall. GUDHI cpu tracks wall at large \(T\).
+The T-axis ratios are not a multi-core artifact.

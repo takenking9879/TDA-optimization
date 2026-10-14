@@ -587,3 +587,268 @@ Agreement 20/20. Measured kind is the largest of metric/collapse/reduce (n≥400
 | uniform2 | 5000 | 0.398 | 3.246 | 8.15× | 287 | pith:auto-redzed |
 | sphere | 2000 | 0.092 | 0.784 | 8.48× | 61 | pith:auto-redzed |
 | blobs | 4000 | 0.165 | 2.131 | 12.94× | 145 | pith:auto-redzed-cc |
+
+## Axis scaling (T / noise / density / dimension)
+Budget 8 s. PITH `--threads 1`. Ripser 1 thread. Hardware 4 CPUs. Empirical.
+| axis | family | n | x | method | wall (s) | cpu (s) | threads | |E| | reduce (ms) | ok |
+| --- | --- | ---: | ---: | --- | ---: | ---: | ---: | ---: | ---: | --- |
+| threshold | circle_noisy | 400 | 0.4 | pith:exact:auto | 0.004 | 0.004 | 1 |  | 1 | True |
+| threshold | circle_noisy | 400 | 0.4 | pith:exact:redzed | 0.003 | 0.003 | 1 |  | 1 | True |
+| threshold | circle_noisy | 400 | 0.4 | ripser | 0.007 |  | 1 |  |  | True |
+| threshold | circle_noisy | 400 | 0.4 | pith:scale:auto | 0.004 | 0.004 | 1 | 6630 | 0 | True |
+| threshold | circle_noisy | 400 | 0.4 | pith:sparse:auto | 0.004 | 0.004 | 1 | 5362 | 1 | True |
+| threshold | circle_noisy | 400 | 0.4 | giotto-ph:t1 | 0.011 | 1.453 | 1 |  |  | True |
+| threshold | circle_noisy | 400 | 0.4 | gudhi-rips | 0.037 | 0.382 | 1 |  |  | True |
+| threshold | circle_noisy | 400 | 0.8 | pith:exact:auto | 0.006 | 0.006 | 1 |  | 2 | True |
+| threshold | circle_noisy | 400 | 0.8 | pith:exact:redzed | 0.005 | 0.004 | 1 |  | 2 | True |
+| threshold | circle_noisy | 400 | 0.8 | ripser | 0.017 |  | 1 |  |  | True |
+| threshold | circle_noisy | 400 | 0.8 | pith:scale:auto | 0.005 | 0.005 | 1 | 8373 | 1 | True |
+| threshold | circle_noisy | 400 | 0.8 | pith:sparse:auto | 0.004 | 0.004 | 1 | 6521 | 2 | True |
+| threshold | circle_noisy | 400 | 0.8 | giotto-ph:t1 | 0.024 | 1.459 | 1 |  |  | True |
+| threshold | circle_noisy | 400 | 0.8 | gudhi-rips | 0.173 | 0.588 | 1 |  |  | True |
+| threshold | circle_noisy | 400 | 1.2 | pith:exact:auto | 0.010 | 0.010 | 1 | 32412 | 0 | True |
+| threshold | circle_noisy | 400 | 1.2 | pith:exact:redzed | 0.007 | 0.007 | 1 |  | 5 | True |
+| threshold | circle_noisy | 400 | 1.2 | ripser | 0.061 |  | 1 |  |  | True |
+| threshold | circle_noisy | 400 | 1.2 | pith:scale:auto | 0.005 | 0.005 | 1 | 9297 | 1 | True |
+| threshold | circle_noisy | 400 | 1.2 | pith:sparse:auto | 0.006 | 0.006 | 1 | 7556 | 3 | True |
+| threshold | circle_noisy | 400 | 1.2 | giotto-ph:t1 | 0.075 | 1.523 | 1 |  |  | True |
+| threshold | circle_noisy | 400 | 1.2 | gudhi-rips | 0.452 | 0.876 | 1 |  |  | True |
+| threshold | circle_noisy | 400 | 1.6 | pith:exact:auto | 0.015 | 0.015 | 1 | 47258 | 0 | True |
+| threshold | circle_noisy | 400 | 1.6 | pith:exact:redzed | 0.011 | 0.011 | 1 |  | 8 | True |
+| threshold | circle_noisy | 400 | 1.6 | ripser | 0.133 |  | 1 |  |  | True |
+| threshold | circle_noisy | 400 | 1.6 | pith:scale:auto | 0.006 | 0.005 | 1 | 9080 | 1 | True |
+| threshold | circle_noisy | 400 | 1.6 | pith:sparse:auto | 0.007 | 0.006 | 1 | 8194 | 3 | True |
+| threshold | circle_noisy | 400 | 1.6 | giotto-ph:t1 | 0.157 | 1.597 | 1 |  |  | True |
+| threshold | circle_noisy | 400 | 1.6 | gudhi-rips | 0.967 | 1.400 | 1 |  |  | True |
+| threshold | circle_noisy | 400 | 2.0 | pith:exact:auto | 0.023 | 0.022 | 1 |  | 11 | True |
+| threshold | circle_noisy | 400 | 2.0 | pith:exact:redzed | 0.013 | 0.013 | 1 |  | 11 | True |
+| threshold | circle_noisy | 400 | 2.0 | ripser | 0.261 |  | 1 |  |  | True |
+| threshold | circle_noisy | 400 | 2.0 | pith:scale:auto | 0.006 | 0.005 | 1 | 10165 | 1 | True |
+| threshold | circle_noisy | 400 | 2.0 | pith:sparse:auto | 0.007 | 0.007 | 1 | 8936 | 4 | True |
+| threshold | circle_noisy | 400 | 2.0 | giotto-ph:t1 | 0.314 | 1.744 | 1 |  |  | True |
+| threshold | circle_noisy | 400 | 2.0 | gudhi-rips | 3.207 | 3.686 | 1 |  |  | True |
+| threshold | figure8 | 800 | 0.5 | pith:exact:auto | 0.008 | 0.008 | 1 |  | 2 | True |
+| threshold | figure8 | 800 | 0.5 | pith:exact:redzed | 0.007 | 0.007 | 1 |  | 2 | True |
+| threshold | figure8 | 800 | 0.5 | ripser | 0.026 |  | 1 |  |  | True |
+| threshold | figure8 | 800 | 0.5 | pith:scale:auto | 0.009 | 0.009 | 1 | 16263 | 1 | True |
+| threshold | figure8 | 800 | 0.5 | pith:sparse:auto | 0.008 | 0.008 | 1 | 12081 | 3 | True |
+| threshold | figure8 | 800 | 0.5 | giotto-ph:t1 | 0.033 | 1.467 | 1 |  |  | True |
+| threshold | figure8 | 800 | 0.5 | gudhi-rips | 0.204 | 0.619 | 1 |  |  | True |
+| threshold | figure8 | 800 | 0.8 | pith:exact:auto | 0.011 | 0.011 | 1 |  | 3 | True |
+| threshold | figure8 | 800 | 0.8 | pith:exact:redzed | 0.010 | 0.009 | 1 |  | 3 | True |
+| threshold | figure8 | 800 | 0.8 | ripser | 0.045 |  | 1 |  |  | True |
+| threshold | figure8 | 800 | 0.8 | pith:scale:auto | 0.010 | 0.010 | 1 | 20298 | 1 | True |
+| threshold | figure8 | 800 | 0.8 | pith:sparse:auto | 0.009 | 0.009 | 1 | 14183 | 4 | True |
+| threshold | figure8 | 800 | 0.8 | giotto-ph:t1 | 0.057 | 1.488 | 1 |  |  | True |
+| threshold | figure8 | 800 | 0.8 | gudhi-rips | 0.702 | 1.128 | 1 |  |  | True |
+| threshold | figure8 | 800 | 1.1 | pith:exact:auto | 0.023 | 0.023 | 1 | 78240 | 0 | True |
+| threshold | figure8 | 800 | 1.1 | pith:exact:redzed | 0.013 | 0.013 | 1 |  | 9 | True |
+| threshold | figure8 | 800 | 1.1 | ripser | 0.097 |  | 1 |  |  | True |
+| threshold | figure8 | 800 | 1.1 | pith:scale:auto | 0.010 | 0.010 | 1 | 22391 | 1 | True |
+| threshold | figure8 | 800 | 1.1 | pith:sparse:auto | 0.011 | 0.010 | 1 | 15694 | 5 | True |
+| threshold | figure8 | 800 | 1.1 | giotto-ph:t1 | 0.117 | 1.546 | 1 |  |  | True |
+| threshold | figure8 | 800 | 1.1 | gudhi-rips | 1.524 | 1.967 | 1 |  |  | True |
+| threshold | figure8 | 800 | 1.4 | pith:exact:auto | 0.029 | 0.028 | 1 | 106275 | 0 | True |
+| threshold | figure8 | 800 | 1.4 | pith:exact:redzed | 0.023 | 0.023 | 1 |  | 19 | True |
+| threshold | figure8 | 800 | 1.4 | ripser | 0.325 |  | 1 |  |  | True |
+| threshold | figure8 | 800 | 1.4 | pith:scale:auto | 0.013 | 0.013 | 1 | 27772 | 3 | True |
+| threshold | figure8 | 800 | 1.4 | pith:sparse:auto | 0.013 | 0.013 | 1 | 16273 | 6 | True |
+| threshold | figure8 | 800 | 1.4 | giotto-ph:t1 | 0.373 | 1.816 | 1 |  |  | True |
+| threshold | figure8 | 800 | 1.4 | gudhi-rips | 2.963 | 3.436 | 1 |  |  | True |
+| noise | circle_noisy | 500 | 0.0 | pith:exact:auto | 0.017 | 0.017 | 1 | 67373 | 0 | True |
+| noise | circle_noisy | 500 | 0.0 | pith:exact:redzed | 0.017 | 0.017 | 1 |  | 14 | True |
+| noise | circle_noisy | 500 | 0.0 | ripser | 0.299 |  | 1 |  |  | True |
+| noise | circle_noisy | 500 | 0.0 | pith:scale:auto | 0.005 | 0.005 | 1 | 6232 | 1 | True |
+| noise | circle_noisy | 500 | 0.0 | pith:sparse:auto | 0.007 | 0.007 | 1 | 7581 | 3 | True |
+| noise | circle_noisy | 500 | 0.0 | giotto-ph:t1 | 0.343 | 1.767 | 1 |  |  | True |
+| noise | circle_noisy | 500 | 0.0 | gudhi-rips | 1.831 | 2.280 | 1 |  |  | True |
+| noise | circle_noisy | 500 | 0.05 | pith:exact:auto | 0.017 | 0.017 | 1 | 67086 | 0 | True |
+| noise | circle_noisy | 500 | 0.05 | pith:exact:redzed | 0.016 | 0.016 | 1 |  | 13 | True |
+| noise | circle_noisy | 500 | 0.05 | ripser | 0.266 |  | 1 |  |  | True |
+| noise | circle_noisy | 500 | 0.05 | pith:scale:auto | 0.007 | 0.007 | 1 | 13229 | 1 | True |
+| noise | circle_noisy | 500 | 0.05 | pith:sparse:auto | 0.008 | 0.008 | 1 | 10637 | 4 | True |
+| noise | circle_noisy | 500 | 0.05 | giotto-ph:t1 | 0.311 | 1.748 | 1 |  |  | True |
+| noise | circle_noisy | 500 | 0.05 | gudhi-rips | 1.822 | 2.275 | 1 |  |  | True |
+| noise | circle_noisy | 500 | 0.15 | pith:exact:auto | 0.014 | 0.014 | 1 |  | 8 | True |
+| noise | circle_noisy | 500 | 0.15 | pith:exact:redzed | 0.010 | 0.010 | 1 |  | 7 | True |
+| noise | circle_noisy | 500 | 0.15 | ripser | 0.101 |  | 1 |  |  | True |
+| noise | circle_noisy | 500 | 0.15 | pith:scale:auto | 0.009 | 0.008 | 1 | 16062 | 1 | True |
+| noise | circle_noisy | 500 | 0.15 | pith:sparse:auto | 0.011 | 0.010 | 1 | 14695 | 7 | True |
+| noise | circle_noisy | 500 | 0.15 | giotto-ph:t1 | 0.123 | 1.700 | 1 |  |  | True |
+| noise | circle_noisy | 500 | 0.15 | gudhi-rips | 1.680 | 2.128 | 1 |  |  | True |
+| noise | circle_noisy | 500 | 0.3 | pith:exact:auto | 0.010 | 0.010 | 1 |  | 4 | True |
+| noise | circle_noisy | 500 | 0.3 | pith:exact:redzed | 0.007 | 0.007 | 1 |  | 4 | True |
+| noise | circle_noisy | 500 | 0.3 | ripser | 0.034 |  | 1 |  |  | True |
+| noise | circle_noisy | 500 | 0.3 | pith:scale:auto | 0.007 | 0.007 | 1 | 13793 | 1 | True |
+| noise | circle_noisy | 500 | 0.3 | pith:sparse:auto | 0.011 | 0.010 | 1 | 16949 | 6 | True |
+| noise | circle_noisy | 500 | 0.3 | giotto-ph:t1 | 0.048 | 1.481 | 1 |  |  | True |
+| noise | circle_noisy | 500 | 0.3 | gudhi-rips | 1.704 | 2.153 | 1 |  |  | True |
+| density | uniform2 | 800 | 0.12 | pith:exact:auto | 0.006 | 0.006 | 1 |  | 1 | True |
+| density | uniform2 | 800 | 0.12 | pith:exact:redzed | 0.005 | 0.005 | 1 |  | 1 | True |
+| density | uniform2 | 800 | 0.12 | ripser | 0.011 |  | 1 |  |  | True |
+| density | uniform2 | 800 | 0.12 | pith:scale:auto | 0.009 | 0.009 | 1 | 11764 | 2 | True |
+| density | uniform2 | 800 | 0.12 | pith:sparse:auto | 0.008 | 0.008 | 1 | 9499 | 3 | True |
+| density | uniform2 | 800 | 0.12 | giotto-ph:t1 | 0.017 | 1.449 | 1 |  |  | True |
+| density | uniform2 | 800 | 0.12 | gudhi-rips | 0.033 | 0.366 | 1 |  |  | True |
+| density | uniform2 | 800 | 0.2 | pith:exact:auto | 0.009 | 0.009 | 1 |  | 2 | True |
+| density | uniform2 | 800 | 0.2 | pith:exact:redzed | 0.008 | 0.008 | 1 |  | 2 | True |
+| density | uniform2 | 800 | 0.2 | ripser | 0.025 |  | 1 |  |  | True |
+| density | uniform2 | 800 | 0.2 | pith:scale:auto | 0.010 | 0.009 | 1 | 17284 | 2 | True |
+| density | uniform2 | 800 | 0.2 | pith:sparse:auto | 0.012 | 0.012 | 1 | 15620 | 6 | True |
+| density | uniform2 | 800 | 0.2 | giotto-ph:t1 | 0.034 | 1.465 | 1 |  |  | True |
+| density | uniform2 | 800 | 0.2 | gudhi-rips | 0.204 | 0.619 | 1 |  |  | True |
+| density | uniform2 | 800 | 0.35 | pith:exact:auto | 0.013 | 0.013 | 1 |  | 6 | True |
+| density | uniform2 | 800 | 0.35 | pith:exact:redzed | 0.011 | 0.011 | 1 |  | 6 | True |
+| density | uniform2 | 800 | 0.35 | ripser | 0.053 |  | 1 |  |  | True |
+| density | uniform2 | 800 | 0.35 | pith:scale:auto | 0.009 | 0.009 | 1 | 19395 | 1 | True |
+| density | uniform2 | 800 | 0.35 | pith:sparse:auto | 0.015 | 0.015 | 1 | 24105 | 8 | True |
+| density | uniform2 | 800 | 0.35 | giotto-ph:t1 | 0.071 | 1.501 | 1 |  |  | True |
+| density | uniform2 | 800 | 0.35 | gudhi-rips | 2.066 | 2.517 | 1 |  |  | True |
+| density | uniform2 | 800 | 0.55 | pith:exact:auto | 0.019 | 0.019 | 1 |  | 10 | True |
+| density | uniform2 | 800 | 0.55 | pith:exact:redzed | 0.016 | 0.016 | 1 |  | 10 | True |
+| density | uniform2 | 800 | 0.55 | ripser | 0.104 |  | 1 |  |  | True |
+| density | uniform2 | 800 | 0.55 | pith:scale:auto | 0.010 | 0.010 | 1 | 22394 | 2 | True |
+| density | uniform2 | 800 | 0.55 | pith:sparse:auto | 0.018 | 0.018 | 1 | 28952 | 10 | True |
+| density | uniform2 | 800 | 0.55 | giotto-ph:t1 | 0.136 | 1.574 | 1 |  |  | True |
+| density | uniform2 | 800 | 0.55 | gudhi-rips |  | 6.369 | 1 |  |  | False |
+| dimension | uniform | 400 | 2 | pith:exact:auto | 0.008 | 0.008 | 1 |  | 2 | True |
+| dimension | uniform | 400 | 2 | pith:exact:redzed | 0.005 | 0.005 | 1 |  | 2 | True |
+| dimension | uniform | 400 | 2 | ripser | 0.017 |  | 1 |  |  | True |
+| dimension | uniform | 400 | 2 | pith:scale:auto | 0.005 | 0.005 | 1 | 8457 | 1 | True |
+| dimension | uniform | 400 | 2 | pith:sparse:auto | 0.006 | 0.006 | 1 | 10410 | 3 | True |
+| dimension | uniform | 400 | 2 | giotto-ph:t1 | 0.026 | 1.457 | 1 |  |  | True |
+| dimension | uniform | 400 | 2 | gudhi-rips | 0.437 | 0.854 | 1 |  |  | True |
+| dimension | uniform | 400 | 3 | pith:exact:auto | 0.008 | 0.008 | 1 |  | 1 | True |
+| dimension | uniform | 400 | 3 | pith:exact:redzed | 0.005 | 0.005 | 1 |  | 1 | True |
+| dimension | uniform | 400 | 3 | ripser | 0.013 |  | 1 |  |  | True |
+| dimension | uniform | 400 | 3 | pith:scale:auto | 0.011 | 0.011 | 1 | 16821 | 1 | True |
+| dimension | uniform | 400 | 3 | pith:sparse:auto | 0.009 | 0.008 | 1 | 11780 | 5 | True |
+| dimension | uniform | 400 | 3 | giotto-ph:t1 | 0.019 | 1.444 | 1 |  |  | True |
+| dimension | uniform | 400 | 3 | gudhi-rips | 0.099 | 0.509 | 1 |  |  | True |
+| dimension | uniform | 400 | 4 | pith:exact:auto | 0.005 | 0.005 | 1 |  | 1 | True |
+| dimension | uniform | 400 | 4 | pith:exact:redzed | 0.004 | 0.004 | 1 |  | 2 | True |
+| dimension | uniform | 400 | 4 | ripser | 0.008 |  | 1 |  |  | True |
+| dimension | uniform | 400 | 4 | pith:sparse:auto | 0.007 | 0.007 | 1 | 7575 | 4 | True |
+| dimension | uniform | 400 | 4 | giotto-ph:t1 | 0.014 | 1.439 | 1 |  |  | True |
+| dimension | uniform | 400 | 4 | gudhi-rips | 0.022 | 0.313 | 1 |  |  | True |
+| dimension | uniform | 800 | 2 | pith:exact:auto | 0.015 | 0.015 | 1 |  | 8 | True |
+| dimension | uniform | 800 | 2 | pith:exact:redzed | 0.012 | 0.012 | 1 |  | 7 | True |
+| dimension | uniform | 800 | 2 | ripser | 0.067 |  | 1 |  |  | True |
+| dimension | uniform | 800 | 2 | pith:scale:auto | 0.010 | 0.010 | 1 | 20049 | 2 | True |
+| dimension | uniform | 800 | 2 | pith:sparse:auto | 0.016 | 0.016 | 1 | 25631 | 9 | True |
+| dimension | uniform | 800 | 2 | giotto-ph:t1 | 0.088 | 1.520 | 1 |  |  | True |
+| dimension | uniform | 800 | 2 | gudhi-rips | 3.168 | 3.644 | 1 |  |  | True |
+| dimension | uniform | 800 | 3 | pith:exact:auto | 0.014 | 0.013 | 1 |  | 3 | True |
+| dimension | uniform | 800 | 3 | pith:exact:redzed | 0.012 | 0.012 | 1 |  | 3 | True |
+| dimension | uniform | 800 | 3 | ripser | 0.043 |  | 1 |  |  | True |
+| dimension | uniform | 800 | 3 | pith:scale:auto | 0.027 | 0.027 | 1 | 49467 | 3 | True |
+| dimension | uniform | 800 | 3 | pith:sparse:auto | 0.025 | 0.024 | 1 | 30713 | 17 | True |
+| dimension | uniform | 800 | 3 | giotto-ph:t1 | 0.058 | 1.499 | 1 |  |  | True |
+| dimension | uniform | 800 | 3 | gudhi-rips | 0.530 | 0.955 | 1 |  |  | True |
+
+### Local exponents along each axis
+| axis | family | n | method | x0→x1 | p_time |
+| --- | --- | ---: | --- | --- | ---: |
+| threshold | circle_noisy | 400 | pith:exact:auto | 0.4→0.8 | 0.52 |
+| threshold | circle_noisy | 400 | pith:exact:auto | 0.8→1.2 | 1.32 |
+| threshold | circle_noisy | 400 | pith:exact:auto | 1.2→1.6 | 1.26 |
+| threshold | circle_noisy | 400 | pith:exact:auto | 1.6→2.0 | 1.88 |
+| threshold | circle_noisy | 400 | pith:exact:redzed | 0.4→0.8 | 0.51 |
+| threshold | circle_noisy | 400 | pith:exact:redzed | 0.8→1.2 | 1.20 |
+| threshold | circle_noisy | 400 | pith:exact:redzed | 1.2→1.6 | 1.47 |
+| threshold | circle_noisy | 400 | pith:exact:redzed | 1.6→2.0 | 0.70 |
+| threshold | circle_noisy | 400 | ripser | 0.4→0.8 | 1.35 |
+| threshold | circle_noisy | 400 | ripser | 0.8→1.2 | 3.19 |
+| threshold | circle_noisy | 400 | ripser | 1.2→1.6 | 2.68 |
+| threshold | circle_noisy | 400 | ripser | 1.6→2.0 | 3.04 |
+| threshold | circle_noisy | 400 | pith:scale:auto | 0.4→0.8 | 0.24 |
+| threshold | circle_noisy | 400 | pith:scale:auto | 0.8→1.2 | 0.24 |
+| threshold | circle_noisy | 400 | pith:scale:auto | 1.2→1.6 | 0.08 |
+| threshold | circle_noisy | 400 | pith:scale:auto | 1.6→2.0 | 0.00 |
+| threshold | circle_noisy | 400 | pith:sparse:auto | 0.4→0.8 | 0.23 |
+| threshold | circle_noisy | 400 | pith:sparse:auto | 0.8→1.2 | 0.63 |
+| threshold | circle_noisy | 400 | pith:sparse:auto | 1.2→1.6 | 0.50 |
+| threshold | circle_noisy | 400 | pith:sparse:auto | 1.6→2.0 | 0.41 |
+| threshold | circle_noisy | 400 | giotto-ph:t1 | 0.4→0.8 | 1.08 |
+| threshold | circle_noisy | 400 | giotto-ph:t1 | 0.8→1.2 | 2.81 |
+| threshold | circle_noisy | 400 | giotto-ph:t1 | 1.2→1.6 | 2.56 |
+| threshold | circle_noisy | 400 | giotto-ph:t1 | 1.6→2.0 | 3.11 |
+| threshold | circle_noisy | 400 | gudhi-rips | 0.4→0.8 | 2.22 |
+| threshold | circle_noisy | 400 | gudhi-rips | 0.8→1.2 | 2.37 |
+| threshold | circle_noisy | 400 | gudhi-rips | 1.2→1.6 | 2.64 |
+| threshold | circle_noisy | 400 | gudhi-rips | 1.6→2.0 | 5.37 |
+| threshold | figure8 | 800 | pith:exact:auto | 0.5→0.8 | 0.78 |
+| threshold | figure8 | 800 | pith:exact:auto | 0.8→1.1 | 2.30 |
+| threshold | figure8 | 800 | pith:exact:auto | 1.1→1.4 | 0.90 |
+| threshold | figure8 | 800 | pith:exact:redzed | 0.5→0.8 | 0.75 |
+| threshold | figure8 | 800 | pith:exact:redzed | 0.8→1.1 | 0.96 |
+| threshold | figure8 | 800 | pith:exact:redzed | 1.1→1.4 | 2.42 |
+| threshold | figure8 | 800 | ripser | 0.5→0.8 | 1.20 |
+| threshold | figure8 | 800 | ripser | 0.8→1.1 | 2.41 |
+| threshold | figure8 | 800 | ripser | 1.1→1.4 | 5.02 |
+| threshold | figure8 | 800 | pith:scale:auto | 0.5→0.8 | 0.26 |
+| threshold | figure8 | 800 | pith:scale:auto | 0.8→1.1 | 0.03 |
+| threshold | figure8 | 800 | pith:scale:auto | 1.1→1.4 | 1.26 |
+| threshold | figure8 | 800 | pith:sparse:auto | 0.5→0.8 | 0.23 |
+| threshold | figure8 | 800 | pith:sparse:auto | 0.8→1.1 | 0.48 |
+| threshold | figure8 | 800 | pith:sparse:auto | 1.1→1.4 | 0.83 |
+| threshold | figure8 | 800 | giotto-ph:t1 | 0.5→0.8 | 1.16 |
+| threshold | figure8 | 800 | giotto-ph:t1 | 0.8→1.1 | 2.25 |
+| threshold | figure8 | 800 | giotto-ph:t1 | 1.1→1.4 | 4.82 |
+| threshold | figure8 | 800 | gudhi-rips | 0.5→0.8 | 2.63 |
+| threshold | figure8 | 800 | gudhi-rips | 0.8→1.1 | 2.43 |
+| threshold | figure8 | 800 | gudhi-rips | 1.1→1.4 | 2.76 |
+| noise | circle_noisy | 500 | pith:exact:auto | 0.05→0.15 | -0.14 |
+| noise | circle_noisy | 500 | pith:exact:auto | 0.15→0.3 | -0.47 |
+| noise | circle_noisy | 500 | pith:exact:redzed | 0.05→0.15 | -0.38 |
+| noise | circle_noisy | 500 | pith:exact:redzed | 0.15→0.3 | -0.59 |
+| noise | circle_noisy | 500 | ripser | 0.05→0.15 | -0.88 |
+| noise | circle_noisy | 500 | ripser | 0.15→0.3 | -1.56 |
+| noise | circle_noisy | 500 | pith:scale:auto | 0.05→0.15 | 0.19 |
+| noise | circle_noisy | 500 | pith:scale:auto | 0.15→0.3 | -0.35 |
+| noise | circle_noisy | 500 | pith:sparse:auto | 0.05→0.15 | 0.24 |
+| noise | circle_noisy | 500 | pith:sparse:auto | 0.15→0.3 | -0.00 |
+| noise | circle_noisy | 500 | giotto-ph:t1 | 0.05→0.15 | -0.84 |
+| noise | circle_noisy | 500 | giotto-ph:t1 | 0.15→0.3 | -1.35 |
+| noise | circle_noisy | 500 | gudhi-rips | 0.05→0.15 | -0.07 |
+| noise | circle_noisy | 500 | gudhi-rips | 0.15→0.3 | 0.02 |
+| density | uniform2 | 800 | pith:exact:auto | 0.12→0.2 | 0.83 |
+| density | uniform2 | 800 | pith:exact:auto | 0.2→0.35 | 0.72 |
+| density | uniform2 | 800 | pith:exact:auto | 0.35→0.55 | 0.80 |
+| density | uniform2 | 800 | pith:exact:redzed | 0.12→0.2 | 0.95 |
+| density | uniform2 | 800 | pith:exact:redzed | 0.2→0.35 | 0.55 |
+| density | uniform2 | 800 | pith:exact:redzed | 0.35→0.55 | 0.76 |
+| density | uniform2 | 800 | ripser | 0.12→0.2 | 1.57 |
+| density | uniform2 | 800 | ripser | 0.2→0.35 | 1.33 |
+| density | uniform2 | 800 | ripser | 0.35→0.55 | 1.48 |
+| density | uniform2 | 800 | pith:scale:auto | 0.12→0.2 | 0.17 |
+| density | uniform2 | 800 | pith:scale:auto | 0.2→0.35 | -0.05 |
+| density | uniform2 | 800 | pith:scale:auto | 0.35→0.55 | 0.14 |
+| density | uniform2 | 800 | pith:sparse:auto | 0.12→0.2 | 0.78 |
+| density | uniform2 | 800 | pith:sparse:auto | 0.2→0.35 | 0.42 |
+| density | uniform2 | 800 | pith:sparse:auto | 0.35→0.55 | 0.45 |
+| density | uniform2 | 800 | giotto-ph:t1 | 0.12→0.2 | 1.40 |
+| density | uniform2 | 800 | giotto-ph:t1 | 0.2→0.35 | 1.33 |
+| density | uniform2 | 800 | giotto-ph:t1 | 0.35→0.55 | 1.44 |
+| density | uniform2 | 800 | gudhi-rips | 0.12→0.2 | 3.57 |
+| density | uniform2 | 800 | gudhi-rips | 0.2→0.35 | 4.13 |
+| dimension | uniform | 400 | pith:exact:auto | 2.0→3.0 | 0.07 |
+| dimension | uniform | 400 | pith:exact:auto | 3.0→4.0 | -1.41 |
+| dimension | uniform | 400 | pith:exact:redzed | 2.0→3.0 | 0.02 |
+| dimension | uniform | 400 | pith:exact:redzed | 3.0→4.0 | -1.12 |
+| dimension | uniform | 400 | ripser | 2.0→3.0 | -0.78 |
+| dimension | uniform | 400 | ripser | 3.0→4.0 | -1.44 |
+| dimension | uniform | 400 | pith:scale:auto | 2.0→3.0 | 1.95 |
+| dimension | uniform | 400 | pith:sparse:auto | 2.0→3.0 | 0.72 |
+| dimension | uniform | 400 | pith:sparse:auto | 3.0→4.0 | -0.72 |
+| dimension | uniform | 400 | giotto-ph:t1 | 2.0→3.0 | -0.76 |
+| dimension | uniform | 400 | giotto-ph:t1 | 3.0→4.0 | -1.11 |
+| dimension | uniform | 400 | gudhi-rips | 2.0→3.0 | -3.67 |
+| dimension | uniform | 400 | gudhi-rips | 3.0→4.0 | -5.28 |
+| dimension | uniform | 800 | pith:exact:auto | 2.0→3.0 | -0.21 |
+| dimension | uniform | 800 | pith:exact:redzed | 2.0→3.0 | -0.02 |
+| dimension | uniform | 800 | ripser | 2.0→3.0 | -1.13 |
+| dimension | uniform | 800 | pith:scale:auto | 2.0→3.0 | 2.49 |
+| dimension | uniform | 800 | pith:sparse:auto | 2.0→3.0 | 0.98 |
+| dimension | uniform | 800 | giotto-ph:t1 | 2.0→3.0 | -1.06 |
+| dimension | uniform | 800 | gudhi-rips | 2.0→3.0 | -4.41 |
