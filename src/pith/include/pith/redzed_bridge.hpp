@@ -47,10 +47,11 @@ bool delaunay_thicken_extras(const std::vector<std::vector<value_t>>& pts, value
                              std::vector<Edge>& inout, value_t floor = 0, bool adapt = false);
 
 // I282: α(n) = min(2.75, 1.75 + 0.125 log2(max(n/400, 1))).
-// 1.75 closed blobs; n=8000 reaches ≥2.25 (I279 exact). Empirical.
+// I305: cap 2.25 (I279 measured exact constant). Extra thicken past
+// 2.25 was adding edges, not essential H1, at n≥8000.
 inline value_t delaunay_auto_alpha(int n) {
     const double nn = std::max(static_cast<double>(n) / 400.0, 1.0);
-    return static_cast<value_t>(std::min(2.75, 1.75 + 0.125 * std::log2(nn)));
+    return static_cast<value_t>(std::min(2.25, 1.75 + 0.125 * std::log2(nn)));
 }
 
 // I291: α=1 Delaunay is ~3n–7n (I207 collapse tax). Auto-α thicken
