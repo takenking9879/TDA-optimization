@@ -30,10 +30,12 @@
 namespace {
 thread_local bool g_deljump = false;
 thread_local bool g_delhier = false;
+thread_local bool g_deldev = false;
 }
 
 void pith::set_delaunay_jump(bool on) { g_deljump = on; }
 void pith::set_delaunay_hier(bool on) { g_delhier = on; }
+void pith::set_delaunay_devillers(bool on) { g_deldev = on; }
 
 // I245: same buckets / finish_buckets as vendor build_edges, but the two
 // n² scans and the per-bucket sorts run on a thread pool. Final order is
@@ -1866,6 +1868,435 @@ static uint64_t tet_face_key(int a, int b, int c) {
            (static_cast<uint64_t>(static_cast<uint32_t>(b)) << 21) | static_cast<uint32_t>(c);
 }
 
+// I332: one incremental 3D Bowyer–Watson mesh (no cavity-slot reuse).
+// Used as a level in the Devillers stack (coarse / mid / fine).
+struct IncTetMesh {
+    const std::vector<double>* xs = nullptr;
+    const std::vector<double>* ys = nullptr;
+    const std::vector<double>* zs = nullptr;
+    int n = 0;
+    struct Tet {
+        int v[4];
+        int nbor[4];
+        bool live;
+    };
+    std::vector<Tet> tets;
+    std::vector<int> stamp, live_ids, live_at, vert_tet;
+    int gen = 1;
+    int hint = 0;
+    int last_near = -1;
+
+    static void face_opp(const int* v, int i, int f[3]) {
+        int k = 0;
+        for (int j = 0; j < 4; ++j)
+            if (j != i) f[k++] = v[j];
+    }
+    bool live_t(int t) const {
+        return t >= 0 && t < static_cast<int>(tets.size()) && tets[static_cast<size_t>(t)].live;
+    }
+    void add_live(int t) {
+        if (live_at.size() < tets.size()) live_at.resize(tets.size(), -1);
+        live_at[static_cast<size_t>(t)] = static_cast<int>(live_ids.size());
+        live_ids.push_back(t);
+    }
+    void drop_live(int t) {
+        if (t < 0 || static_cast<size_t>(t) >= live_at.size()) return;
+        const int pos = live_at[static_cast<size_t>(t)];
+        if (pos < 0) return;
+        const int last = live_ids.back();
+        live_ids[static_cast<size_t>(pos)] = last;
+        live_at[static_cast<size_t>(last)] = pos;
+        live_ids.pop_back();
+        live_at[static_cast<size_t>(t)] = -1;
+    }
+    bool boot(const std::vector<double>& x, const std::vector<double>& y, const std::vector<double>& z,
+              int nv) {
+        xs = &x;
+        ys = &y;
+        zs = &z;
+        n = nv;
+        tets.clear();
+        stamp.clear();
+        live_ids.clear();
+        live_at.clear();
+        tets.reserve(static_cast<size_t>(n) * 8 + 8);
+        stamp.reserve(static_cast<size_t>(n) * 8 + 8);
+        live_ids.reserve(static_cast<size_t>(n) * 8 + 8);
+        live_at.reserve(static_cast<size_t>(n) * 8 + 8);
+        tets.push_back({{n, n + 1, n + 2, n + 3}, {-1, -1, -1, -1}, true});
+        stamp.push_back(0);
+        live_ids.push_back(0);
+        live_at.push_back(0);
+        vert_tet.assign(static_cast<size_t>(n) + 4, 0);
+        gen = 1;
+        hint = 0;
+        last_near = -1;
+        return true;
+    }
+    double o3(int a, int b, int c, int d) const {
+        return delaunay_orient3((*xs)[static_cast<size_t>(a)], (*ys)[static_cast<size_t>(a)],
+                                (*zs)[static_cast<size_t>(a)], (*xs)[static_cast<size_t>(b)],
+                                (*ys)[static_cast<size_t>(b)], (*zs)[static_cast<size_t>(b)],
+                                (*xs)[static_cast<size_t>(c)], (*ys)[static_cast<size_t>(c)],
+                                (*zs)[static_cast<size_t>(c)], (*xs)[static_cast<size_t>(d)],
+                                (*ys)[static_cast<size_t>(d)], (*zs)[static_cast<size_t>(d)]);
+    }
+    bool insphere_t(int t, double px, double py, double pz) const {
+        const int* v = tets[static_cast<size_t>(t)].v;
+        return delaunay_insphere((*xs)[static_cast<size_t>(v[0])], (*ys)[static_cast<size_t>(v[0])],
+                                 (*zs)[static_cast<size_t>(v[0])], (*xs)[static_cast<size_t>(v[1])],
+                                 (*ys)[static_cast<size_t>(v[1])], (*zs)[static_cast<size_t>(v[1])],
+                                 (*xs)[static_cast<size_t>(v[2])], (*ys)[static_cast<size_t>(v[2])],
+                                 (*zs)[static_cast<size_t>(v[2])], (*xs)[static_cast<size_t>(v[3])],
+                                 (*ys)[static_cast<size_t>(v[3])], (*zs)[static_cast<size_t>(v[3])],
+                                 px, py, pz);
+    }
+    bool contains(int t, double px, double py, double pz) const {
+        if (!live_t(t)) return false;
+        const Tet& tr = tets[static_cast<size_t>(t)];
+        for (int i = 0; i < 4; ++i) {
+            int f[3];
+            face_opp(tr.v, i, f);
+            const double ov = delaunay_orient3(
+                (*xs)[static_cast<size_t>(f[0])], (*ys)[static_cast<size_t>(f[0])],
+                (*zs)[static_cast<size_t>(f[0])], (*xs)[static_cast<size_t>(f[1])],
+                (*ys)[static_cast<size_t>(f[1])], (*zs)[static_cast<size_t>(f[1])],
+                (*xs)[static_cast<size_t>(f[2])], (*ys)[static_cast<size_t>(f[2])],
+                (*zs)[static_cast<size_t>(f[2])], (*xs)[static_cast<size_t>(tr.v[i])],
+                (*ys)[static_cast<size_t>(tr.v[i])], (*zs)[static_cast<size_t>(tr.v[i])]);
+            double op = delaunay_orient3(
+                (*xs)[static_cast<size_t>(f[0])], (*ys)[static_cast<size_t>(f[0])],
+                (*zs)[static_cast<size_t>(f[0])], (*xs)[static_cast<size_t>(f[1])],
+                (*ys)[static_cast<size_t>(f[1])], (*zs)[static_cast<size_t>(f[1])],
+                (*xs)[static_cast<size_t>(f[2])], (*ys)[static_cast<size_t>(f[2])],
+                (*zs)[static_cast<size_t>(f[2])], px, py, pz);
+            if (ov < 0.0) op = -op;
+            if (op < 0.0) return false;
+        }
+        return true;
+    }
+    int locate_scan(double px, double py, double pz) const {
+        for (int t : live_ids)
+            if (contains(t, px, py, pz)) return t;
+        return -1;
+    }
+    int walk(int start, double px, double py, double pz) {
+        int t = start;
+        if (!live_t(t)) t = locate_scan(px, py, pz);
+        if (t < 0) return -1;
+        const int guard = n * 8 + 64;
+        for (int step = 0; step < guard; ++step) {
+            if (!live_t(t)) return locate_scan(px, py, pz);
+            const Tet& tr = tets[static_cast<size_t>(t)];
+            bool moved = false;
+            bool hole = false;
+            for (int i = 0; i < 4; ++i) {
+                int f[3];
+                face_opp(tr.v, i, f);
+                const double ov = delaunay_orient3(
+                    (*xs)[static_cast<size_t>(f[0])], (*ys)[static_cast<size_t>(f[0])],
+                    (*zs)[static_cast<size_t>(f[0])], (*xs)[static_cast<size_t>(f[1])],
+                    (*ys)[static_cast<size_t>(f[1])], (*zs)[static_cast<size_t>(f[1])],
+                    (*xs)[static_cast<size_t>(f[2])], (*ys)[static_cast<size_t>(f[2])],
+                    (*zs)[static_cast<size_t>(f[2])], (*xs)[static_cast<size_t>(tr.v[i])],
+                    (*ys)[static_cast<size_t>(tr.v[i])], (*zs)[static_cast<size_t>(tr.v[i])]);
+                double op = delaunay_orient3(
+                    (*xs)[static_cast<size_t>(f[0])], (*ys)[static_cast<size_t>(f[0])],
+                    (*zs)[static_cast<size_t>(f[0])], (*xs)[static_cast<size_t>(f[1])],
+                    (*ys)[static_cast<size_t>(f[1])], (*zs)[static_cast<size_t>(f[1])],
+                    (*xs)[static_cast<size_t>(f[2])], (*ys)[static_cast<size_t>(f[2])],
+                    (*zs)[static_cast<size_t>(f[2])], px, py, pz);
+                if (ov < 0.0) op = -op;
+                if (op < 0.0) {
+                    const int nb = tr.nbor[i];
+                    if (live_t(nb)) {
+                        t = nb;
+                        moved = true;
+                        break;
+                    }
+                    hole = true;
+                }
+            }
+            if (!moved) return hole ? locate_scan(px, py, pz) : t;
+        }
+        return locate_scan(px, py, pz);
+    }
+    int downward_from(int tet) const {
+        if (!live_t(tet)) return hint;
+        const int* v = tets[static_cast<size_t>(tet)].v;
+        for (int k = 0; k < 4; ++k) {
+            const int id = vert_tet[static_cast<size_t>(v[k])];
+            if (live_t(id)) return id;
+        }
+        return hint;
+    }
+    // 1 = inserted, 0 = skipped near-duplicate, -1 = fail
+    int insert(int p, int start) {
+        last_near = -1;
+        const double px = (*xs)[static_cast<size_t>(p)], py = (*ys)[static_cast<size_t>(p)],
+                     pz = (*zs)[static_cast<size_t>(p)];
+        int t0 = walk(start, px, py, pz);
+        if (t0 < 0) t0 = locate_scan(px, py, pz);
+        if (t0 < 0) return -1;
+        {
+            const int* v = tets[static_cast<size_t>(t0)].v;
+            int best = -1;
+            double best2 = 1e300;
+            for (int k = 0; k < 4; ++k) {
+                if (v[k] >= n) continue;
+                const double ddx = (*xs)[static_cast<size_t>(v[k])] - px;
+                const double ddy = (*ys)[static_cast<size_t>(v[k])] - py;
+                const double ddz = (*zs)[static_cast<size_t>(v[k])] - pz;
+                const double d2 = ddx * ddx + ddy * ddy + ddz * ddz;
+                if (d2 < best2) {
+                    best2 = d2;
+                    best = v[k];
+                }
+            }
+            if (best >= 0 && (best2 < 1e-24 || !insphere_t(t0, px, py, pz))) {
+                last_near = best;
+                vert_tet[static_cast<size_t>(p)] = t0;
+                return 0;
+            }
+        }
+        ++gen;
+        if (gen == 0x7fffffff) {
+            std::fill(stamp.begin(), stamp.end(), 0);
+            gen = 1;
+        }
+        std::vector<int> cavity, q, newids;
+        cavity.reserve(32);
+        q.reserve(32);
+        q.push_back(t0);
+        stamp[static_cast<size_t>(t0)] = gen;
+        cavity.push_back(t0);
+        for (size_t qi = 0; qi < q.size(); ++qi) {
+            const int t = q[qi];
+            for (int i = 0; i < 4; ++i) {
+                const int nb = tets[static_cast<size_t>(t)].nbor[i];
+                if (!live_t(nb) || stamp[static_cast<size_t>(nb)] == gen) continue;
+                if (!insphere_t(nb, px, py, pz)) continue;
+                stamp[static_cast<size_t>(nb)] = gen;
+                q.push_back(nb);
+                cavity.push_back(nb);
+            }
+        }
+        struct BFace {
+            int a, b, c, outer, oface;
+        };
+        std::vector<BFace> bfaces;
+        bfaces.reserve(32);
+        for (int t : cavity) {
+            for (int i = 0; i < 4; ++i) {
+                const int nb = tets[static_cast<size_t>(t)].nbor[i];
+                if (live_t(nb) && stamp[static_cast<size_t>(nb)] == gen) continue;
+                int oface = -1;
+                if (live_t(nb)) {
+                    for (int k = 0; k < 4; ++k)
+                        if (tets[static_cast<size_t>(nb)].nbor[k] == t) {
+                            oface = k;
+                            break;
+                        }
+                    if (oface < 0) return -1;
+                }
+                int f[3];
+                face_opp(tets[static_cast<size_t>(t)].v, i, f);
+                bfaces.push_back({f[0], f[1], f[2], live_t(nb) ? nb : -1, oface});
+            }
+        }
+        if (bfaces.size() < 4) return -1;
+        for (int t : cavity) {
+            tets[static_cast<size_t>(t)].live = false;
+            tets[static_cast<size_t>(t)].nbor[0] = -1;
+            tets[static_cast<size_t>(t)].nbor[1] = -1;
+            tets[static_cast<size_t>(t)].nbor[2] = -1;
+            tets[static_cast<size_t>(t)].nbor[3] = -1;
+            drop_live(t);
+        }
+        newids.clear();
+        std::unordered_map<uint64_t, std::pair<int, int>> pending;
+        pending.reserve(64);
+        auto link = [&](int t, int eidx, int a, int b, int c) {
+            const uint64_t k = tet_face_key(a, b, c);
+            const auto it = pending.find(k);
+            if (it == pending.end()) {
+                pending.emplace(k, std::pair<int, int>{t, eidx});
+                return true;
+            }
+            const int t2 = it->second.first, e2 = it->second.second;
+            tets[static_cast<size_t>(t)].nbor[eidx] = t2;
+            tets[static_cast<size_t>(t2)].nbor[e2] = t;
+            pending.erase(it);
+            return true;
+        };
+        for (size_t i = 0; i < bfaces.size(); ++i) {
+            int a = bfaces[i].a, b = bfaces[i].b, c = bfaces[i].c;
+            if (o3(a, b, c, p) <= 0.0) std::swap(a, b);
+            if (o3(a, b, c, p) <= 0.0) return -1;
+            const int id = static_cast<int>(tets.size());
+            tets.push_back({{a, b, c, p}, {-1, -1, -1, bfaces[i].outer}, true});
+            stamp.push_back(0);
+            add_live(id);
+            newids.push_back(id);
+            if (bfaces[i].outer >= 0) {
+                int oe = bfaces[i].oface;
+                if (oe < 0) return -1;
+                tets[static_cast<size_t>(bfaces[i].outer)].nbor[oe] = id;
+            }
+            if (!link(id, 0, b, c, p) || !link(id, 1, a, c, p) || !link(id, 2, a, b, p)) return -1;
+        }
+        if (!pending.empty()) return -1;
+        hint = newids[0];
+        for (int id : newids) {
+            const int* vv = tets[static_cast<size_t>(id)].v;
+            for (int k = 0; k < 4; ++k) vert_tet[static_cast<size_t>(vv[k])] = id;
+        }
+        return 1;
+    }
+};
+
+static int devillers_height(int i) {
+    uint32_t x = static_cast<uint32_t>(i) * 1664525u + 1013904223u;
+    int h = 0;
+    while (h < 2 && (x % 3u) == 0u) {
+        ++h;
+        x /= 3u;
+    }
+    return h;
+}
+
+static bool delaunay_edges_3d_devillers(const std::vector<std::vector<value_t>>& pts,
+                                        std::vector<SpatEdge>& out) {
+    const int n = static_cast<int>(pts.size());
+    if (n < 4 || static_cast<int>(pts[0].size()) != 3) return false;
+    std::vector<double> xs(static_cast<size_t>(n) + 4), ys(static_cast<size_t>(n) + 4),
+        zs(static_cast<size_t>(n) + 4);
+    double xmin = static_cast<double>(pts[0][0]), xmax = xmin;
+    double ymin = static_cast<double>(pts[0][1]), ymax = ymin;
+    double zmin = static_cast<double>(pts[0][2]), zmax = zmin;
+    for (int i = 0; i < n; ++i) {
+        xs[static_cast<size_t>(i)] = static_cast<double>(pts[static_cast<size_t>(i)][0]);
+        ys[static_cast<size_t>(i)] = static_cast<double>(pts[static_cast<size_t>(i)][1]);
+        zs[static_cast<size_t>(i)] = static_cast<double>(pts[static_cast<size_t>(i)][2]);
+        xmin = std::min(xmin, xs[static_cast<size_t>(i)]);
+        xmax = std::max(xmax, xs[static_cast<size_t>(i)]);
+        ymin = std::min(ymin, ys[static_cast<size_t>(i)]);
+        ymax = std::max(ymax, ys[static_cast<size_t>(i)]);
+        zmin = std::min(zmin, zs[static_cast<size_t>(i)]);
+        zmax = std::max(zmax, zs[static_cast<size_t>(i)]);
+    }
+    const double dx = std::max(xmax - xmin, 1e-9);
+    const double dy = std::max(ymax - ymin, 1e-9);
+    const double dz = std::max(zmax - zmin, 1e-9);
+    const double mid_x = 0.5 * (xmin + xmax), mid_y = 0.5 * (ymin + ymax),
+                 mid_z = 0.5 * (zmin + zmax);
+    const double span = 30.0 * (dx + dy + dz);
+    xs[static_cast<size_t>(n)] = mid_x - span;
+    ys[static_cast<size_t>(n)] = mid_y - span;
+    zs[static_cast<size_t>(n)] = mid_z - span;
+    xs[static_cast<size_t>(n) + 1] = mid_x + span;
+    ys[static_cast<size_t>(n) + 1] = mid_y - span;
+    zs[static_cast<size_t>(n) + 1] = mid_z - span;
+    xs[static_cast<size_t>(n) + 2] = mid_x;
+    ys[static_cast<size_t>(n) + 2] = mid_y + span;
+    zs[static_cast<size_t>(n) + 2] = mid_z - span;
+    xs[static_cast<size_t>(n) + 3] = mid_x;
+    ys[static_cast<size_t>(n) + 3] = mid_y;
+    zs[static_cast<size_t>(n) + 3] = mid_z + span;
+    if (delaunay_orient3(xs[static_cast<size_t>(n)], ys[static_cast<size_t>(n)], zs[static_cast<size_t>(n)],
+                         xs[static_cast<size_t>(n) + 1], ys[static_cast<size_t>(n) + 1],
+                         zs[static_cast<size_t>(n) + 1], xs[static_cast<size_t>(n) + 2],
+                         ys[static_cast<size_t>(n) + 2], zs[static_cast<size_t>(n) + 2],
+                         xs[static_cast<size_t>(n) + 3], ys[static_cast<size_t>(n) + 3],
+                         zs[static_cast<size_t>(n) + 3]) <= 0.0) {
+        std::swap(xs[static_cast<size_t>(n) + 2], xs[static_cast<size_t>(n) + 3]);
+        std::swap(ys[static_cast<size_t>(n) + 2], ys[static_cast<size_t>(n) + 3]);
+        std::swap(zs[static_cast<size_t>(n) + 2], zs[static_cast<size_t>(n) + 3]);
+    }
+    if (delaunay_orient3(xs[static_cast<size_t>(n)], ys[static_cast<size_t>(n)], zs[static_cast<size_t>(n)],
+                         xs[static_cast<size_t>(n) + 1], ys[static_cast<size_t>(n) + 1],
+                         zs[static_cast<size_t>(n) + 1], xs[static_cast<size_t>(n) + 2],
+                         ys[static_cast<size_t>(n) + 2], zs[static_cast<size_t>(n) + 2],
+                         xs[static_cast<size_t>(n) + 3], ys[static_cast<size_t>(n) + 3],
+                         zs[static_cast<size_t>(n) + 3]) <= 0.0)
+        return false;
+
+    IncTetMesh L2, L1, L0;
+    if (!L2.boot(xs, ys, zs, n) || !L1.boot(xs, ys, zs, n) || !L0.boot(xs, ys, zs, n)) return false;
+
+    std::vector<int> order(static_cast<size_t>(n));
+    std::iota(order.begin(), order.end(), 0);
+    {
+        std::vector<uint32_t> code(static_cast<size_t>(n));
+        const double invx = 1023.0 / dx, invy = 1023.0 / dy, invz = 1023.0 / dz;
+        for (int i = 0; i < n; ++i) {
+            const uint32_t qx = static_cast<uint32_t>(
+                std::lround(std::min(1023.0, std::max(0.0, (xs[static_cast<size_t>(i)] - xmin) * invx))));
+            const uint32_t qy = static_cast<uint32_t>(
+                std::lround(std::min(1023.0, std::max(0.0, (ys[static_cast<size_t>(i)] - ymin) * invy))));
+            const uint32_t qz = static_cast<uint32_t>(
+                std::lround(std::min(1023.0, std::max(0.0, (zs[static_cast<size_t>(i)] - zmin) * invz))));
+            code[static_cast<size_t>(i)] = delaunay_morton3(qx, qy, qz);
+        }
+        std::sort(order.begin(), order.end(),
+                  [&](int a, int b) { return code[static_cast<size_t>(a)] < code[static_cast<size_t>(b)]; });
+    }
+
+    std::vector<SpatEdge> extra;
+    extra.reserve(32);
+    for (int pi = 0; pi < n; ++pi) {
+        const int p = order[static_cast<size_t>(pi)];
+        const int h = devillers_height(p);
+        const double px = xs[static_cast<size_t>(p)], py = ys[static_cast<size_t>(p)],
+                     pz = zs[static_cast<size_t>(p)];
+        const int t2 = L2.walk(L2.hint, px, py, pz);
+        if (h >= 2) {
+            const int rc = L2.insert(p, t2 >= 0 ? t2 : L2.hint);
+            if (rc < 0) return false;
+        } else if (t2 >= 0) {
+            L2.hint = t2;
+        }
+        const int start1 = L1.downward_from(t2);
+        const int t1 = L1.walk(start1, px, py, pz);
+        if (h >= 1) {
+            const int rc = L1.insert(p, t1 >= 0 ? t1 : start1);
+            if (rc < 0) return false;
+        } else if (t1 >= 0) {
+            L1.hint = t1;
+        }
+        const int start0 = L0.downward_from(t1 >= 0 ? t1 : start1);
+        const int rc0 = L0.insert(p, start0);
+        if (rc0 < 0) return false;
+        if (rc0 == 0 && L0.last_near >= 0)
+            extra.push_back(
+                {point_dist(pts, p, L0.last_near), std::min(p, L0.last_near), std::max(p, L0.last_near)});
+    }
+
+    std::unordered_set<uint64_t> seen;
+    seen.reserve(static_cast<size_t>(n) * 8);
+    out.clear();
+    out.reserve(static_cast<size_t>(n) * 4 + extra.size());
+    for (int ti : L0.live_ids) {
+        const auto& tr = L0.tets[static_cast<size_t>(ti)];
+        const int eij[6][2] = {{0, 1}, {0, 2}, {0, 3}, {1, 2}, {1, 3}, {2, 3}};
+        for (const auto& e : eij) {
+            int a = tr.v[e[0]], b = tr.v[e[1]];
+            if (a >= n || b >= n) continue;
+            if (a > b) std::swap(a, b);
+            const uint64_t key = (static_cast<uint64_t>(static_cast<uint32_t>(a)) << 32) |
+                                 static_cast<uint32_t>(b);
+            if (!seen.insert(key).second) continue;
+            out.push_back({point_dist(pts, a, b), a, b});
+        }
+    }
+    for (const SpatEdge& e : extra)
+        if (e.u != e.v &&
+            seen.insert((static_cast<uint64_t>(static_cast<uint32_t>(e.u)) << 32) | static_cast<uint32_t>(e.v))
+                .second)
+            out.push_back(e);
+    return out.size() >= static_cast<size_t>(n - 1);
+}
+
 // I275: incremental Bowyer–Watson, no cavity-slot reuse. I274 walk fell
 // off the mesh (nbor=-1 at Morton p=183) because a reused index is a
 // different tet than the live outers still point at. Dead tets stay
@@ -1876,6 +2307,7 @@ static bool delaunay_edges_3d_walk(const std::vector<std::vector<value_t>>& pts,
                                    std::vector<SpatEdge>& out) {
     const int n = static_cast<int>(pts.size());
     if (n < 4 || static_cast<int>(pts[0].size()) != 3) return false;
+    if (g_deldev && n >= 32) return delaunay_edges_3d_devillers(pts, out);
     std::vector<double> xs(static_cast<size_t>(n) + 4), ys(static_cast<size_t>(n) + 4),
         zs(static_cast<size_t>(n) + 4);
     double xmin = static_cast<double>(pts[0][0]), xmax = xmin;

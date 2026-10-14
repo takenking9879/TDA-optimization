@@ -33,6 +33,7 @@ Public runners and receipts. They talk only in `--mode` / `--engine` /
 | `eval_approx_net.py` | Sample-farthest greedy net vs FPS sparse Rips (not exact VR) |
 | `eval_delaunay_jump.py` | 3D nearest-vertex jump locate vs last-cavity walk |
 | `eval_delaunay_hier.py` | 2-level 3D Delaunay hierarchy vs Morton + last-cavity |
+| `eval_delaunay_devillers.py` | 3-level Devillers stack vs last-cavity walk |
 | `run_consolidation.py` | Main scaling pack |
 | `plot_consolidation.py` | Figures + `TABLES.md` |
 | `plot_pd.py` | Persistence-diagram figures |

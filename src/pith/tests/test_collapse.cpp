@@ -1035,6 +1035,19 @@ int main() {
             return 1;
         }
         std::cout << "ok I329 3D hierarchy |E|=" << e0.size() << "\n";
+        set_delaunay_devillers(true);
+        std::vector<Edge> e3;
+        if (!delaunay_one_skeleton(pts, e3)) {
+            set_delaunay_devillers(false);
+            std::cerr << "I332 Devillers 3D skeleton failed\n";
+            return 1;
+        }
+        set_delaunay_devillers(false);
+        if (e0.size() != e3.size()) {
+            std::cerr << "I332 Devillers |E| " << e3.size() << " vs " << e0.size() << "\n";
+            return 1;
+        }
+        std::cout << "ok I332 3D Devillers |E|=" << e0.size() << "\n";
     }
 
     // I276: Delaunay-flag keeps essential H1 on a circle (not exact VR).
