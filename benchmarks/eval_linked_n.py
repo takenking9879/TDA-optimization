@@ -25,7 +25,7 @@ OUT = BENCH / "results" / "consolidation"
 
 SERIES = [
     ("linked_circles", linked_circles, 1.3, 1, [800, 1200, 2000, 3000, 4000]),
-    ("sheared_loops", sheared_loops, 1.3, 1, [800, 1200, 2000]),
+    ("sheared_loops", sheared_loops, 1.3, 1, [800, 1200, 2000, 3000, 4000, 5000]),
 ]
 
 
@@ -33,9 +33,12 @@ def main() -> int:
     if not PITH.exists() or not RIPSER.exists():
         print("PITH or Ripser missing", file=sys.stderr)
         return 2
+    only = sys.argv[1] if len(sys.argv) > 1 else None
     rng = np.random.default_rng(23)
     recs = []
     for name, fn, T, dim, ns in SERIES:
+        if only and name != only:
+            continue
         prev = None
         for n in ns:
             path = cloud(f"link_{name}", n, fn, rng)
@@ -79,6 +82,12 @@ def main() -> int:
                 prev = rec
             if rec["ripser_timeout"]:
                 break
+    OUT.mkdir(parents=True, exist_ok=True)
+    path = OUT / "linked_ratio_n.json"
+    if only and path.exists():
+        prev = json.loads(path.read_text())
+        keep = [r for r in prev.get("receipts") or [] if r.get("name") != only]
+        recs = keep + recs
     ge10 = [r for r in recs if r.get("ratio") and r["ratio"] >= 10]
     out = {
         "note": (
@@ -89,8 +98,6 @@ def main() -> int:
         "n_ratio_ge10": len(ge10),
         "receipts": recs,
     }
-    OUT.mkdir(parents=True, exist_ok=True)
-    path = OUT / "linked_ratio_n.json"
     path.write_text(json.dumps(out, indent=2))
     print(f"wrote {path} {len(ge10)}/{len(recs)} ≥10×", flush=True)
     return 0

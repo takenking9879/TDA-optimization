@@ -5,6 +5,14 @@ Do not paste long reasoning here.
 
 ---
 
+## 2026-10-14 — sheared_loops leftover n-series (pending live)
+
+- **Question:** Does sheared_loops leftover 6.5× at n=2000 reach 10× as n grows? Any new 2026 exact-VR batch engine?
+- **Work:** Literature: still only RedZeD as published batch exact-VR pairing alternative. incremental-ph is streaming insert/remove vs rebuild, not a leftover 10× class. `eval_linked_n.py sheared_loops` seed 23 n=3000–5000. τ frozen.
+- **Result:** pending live sweep (script committed first).
+- **Decision:** Measurement, not leftover-skip hunting. Goal not complete.
+- **Class:** experiment (pending)
+
 ## 2026-10-14 — Post-freeze leftover n-series (linked_circles grows)
 
 - **Question:** Does linked_circles leftover 10.7× at n=1200 hold as n grows?
