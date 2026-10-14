@@ -551,3 +551,28 @@ Oracle 5/9. New misses: none. Known misses waived; τ frozen.
 | two_spheres_apart | 300 | redzed | implicit | True | True | 2.71 |
 | nonuniform_circle | 400 | implicit | redzed | True | True | 1.59 |
 | nested_loops | 1000 | redzed | redzed | False | False | 1.00 |
+
+## `wall_kind` vs measured share (`eval_wall_kind.py`)
+Agreement 20/20. Measured kind is the largest of metric/collapse/reduce (n≥400, ≥1 ms).
+| family | n | measured | estimate | regime | agree |
+| --- | ---: | --- | --- | --- | --- |
+| circle_noisy | 500 | collapse | collapse | thin | True |
+| circle_noisy | 1000 | collapse | collapse | thin | True |
+| figure8 | 500 | collapse | collapse | thin | True |
+| figure8 | 1000 | leftover | leftover | hollow | True |
+| figure8 | 2000 | leftover | leftover | hollow | True |
+| sphere | 400 | collapse | collapse | thin | True |
+| uniform2 | 500 | leftover | leftover | fat | True |
+| uniform2 | 1000 | leftover | leftover | fat | True |
+| nested_loops | 400 | leftover | leftover | fat | True |
+| nested_loops | 1000 | leftover | leftover | fat | True |
+| torus | 400 | leftover | leftover | hollow | True |
+| torus | 1000 | leftover | leftover | hollow | True |
+| disconnected_circles | 400 | collapse | collapse | thin | True |
+| disconnected_circles | 1000 | collapse | collapse | thin | True |
+| random_geometric_sparse | 500 | leftover | leftover | hollow | True |
+| random_geometric_sparse | 1000 | leftover | leftover | hollow | True |
+| random_geometric_dense | 400 | leftover | leftover | fat | True |
+| random_geometric_dense | 800 | leftover | leftover | fat | True |
+| grid_holes | 800 | leftover | leftover | hollow | True |
+| nonuniform_circle | 400 | collapse | collapse | thin | True |
