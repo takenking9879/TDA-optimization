@@ -50,12 +50,15 @@ do not treat the diagram as VR.
 It **does** thin the flag (figure-8 \(n=400\): 5.6k edges vs 80k pairs;
 \(n=8000\): 380k vs 32M). Euclidean point clouds no longer allocate an
 n×n distance matrix; farthest-point insertion is still \(\Theta(n^2)\).
-figure-8 \(n=8000\) is **0.75 s / 28 MB** (was 1.01 s with a dense
-matrix). Essential \(H_1\) is usually kept; finite bars differ (8–52
-unmatched) and a few families can add extra essential loops
-(`nested_loops` \(n=400\): 4 vs VR 1). \(H_2\) is slow (two spheres
-\(n=300\): 3.7 s) or times out (sphere \(n=400\)). Prefer `--mode scale`
-on Euclidean \(d\in\{2,3\}\).
+figure-8 \(n=8000\) is **0.65 s / 28 MB**; \(n=24000\) is **5.56 s / 101 MB /
+ess \(H_1=2\)** (local \(p\approx 1.9\)–\(2.0\), the FPS wall). Scale on
+the same \(n=24000\) cloud is **0.82 s**. Essential \(H_1\) is usually
+kept; finite bars differ (8–52 unmatched) and a few families can add
+extra essential loops (`nested_loops` \(n=400\): 4 vs VR 1). \(H_2\) is
+slow (two spheres \(n=300\): 3.7 s) or times out (sphere \(n=400\);
+4D fat \(H_2\)). Prefer `--mode scale` on Euclidean \(d\in\{2,3\}\).
+`--mode auto` selects sparse on a held-out 4D cloud when exact VR is
+marked impractical.
 
 GUDHI **Alpha** is a third complex: on this suite it **drops** essential
 \(H_1/H_2\) (loops and voids become 0). We do not use it as a VR stand-in.
@@ -241,6 +244,7 @@ python3 benchmarks/run_consolidation_limits.py
 python3 benchmarks/eval_mode_auto.py
 python3 benchmarks/run_baseline_pack.py
 python3 benchmarks/run_sparse_limits.py
+python3 benchmarks/run_sparse_scale.py
 python3 benchmarks/fit_growth.py
 python3 benchmarks/plot_consolidation.py
 ```

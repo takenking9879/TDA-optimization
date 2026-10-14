@@ -5,6 +5,14 @@ Do not paste long reasoning here.
 
 ---
 
+## 2026-10-14 — fused sparse limits + estimate \(n^2\) model
+
+- **Question:** How far does fused `--mode sparse` go on this box, and does `--estimate` describe it without retuning τ?
+- **Work:** `est_sparse_runtime_s` / `skips_dense_matrix`. `uniform4` generator. `run_sparse_scale.py`. `--mode auto` on uniform4 n=5000 maxdim=1.
+- **Result:** figure8 sparse n=8k **0.65 s / 28 MB**; n=16k **2.59 s**; n=24k **5.56 s / 101 MB / ess H1=2**, local \(p\approx 1.9\)–\(2.0\). Scale n=24k **0.82 s**. circle / nested / disconnected keep ess H1 through n=8–12k. uniform4 auto→sparse **agrees** (2.1 s). Fat 4D H2 n=250 auto→sparse **timed out 25 s** — H2 outside d=2,3 is still impractical. Estimate 2D \(C=1.3e-8\): n=24k predicted 7.5 s vs 5.56 s.
+- **Decision:** Hold. Scale stays the Euclidean large-n path. Sparse is the d≥4 / abstract fallback for H1. τ unchanged. Goal not complete.
+- **Class:** verified (measurements)
+
 ## 2026-10-14 — fused Euclidean `--mode sparse` construction
 
 - **Question:** Can `--mode sparse` skip the n×n pairwise matrix without changing the flag?

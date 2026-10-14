@@ -109,8 +109,9 @@ wrong. The flag **is** thinner: figure-8 \(n=400\) has 5 563 edges
 pairs. Euclidean `--points` now skip the n×n matrix (same edge set as
 the dense constructor: unit + CLI adversarial). Farthest-point
 insertion is still \(\Theta(n^2)\) **[derivation]**; emit is a \(T\)-ball
-hash when \(d\in\{2,3\}\). figure-8 \(n=8000\): **0.75 s / 28 MB**
-(was 1.01 s with a dense matrix). Essential \(H_1\) is usually kept;
+hash when \(d\in\{2,3\}\). figure-8 \(n=8000\): **0.65 s / 28 MB**;
+\(n=24000\): **5.56 s / 101 MB / ess \(H_1=2\)** (local \(p\approx 2\)).
+Scale on that \(n=24000\) cloud is **0.82 s**. Essential \(H_1\) is usually kept;
 `nested_loops` \(n=400\) can report extra essential loops (4 vs VR 1)
 **[empirical]**. Unmatched finite bars 8–52; \(H_2\) is slow or times
 out. Scale is still the faster Euclidean alternative (0.22 s on the

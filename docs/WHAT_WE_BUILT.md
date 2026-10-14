@@ -78,7 +78,7 @@ combinations** of known complexes and known reductions.
 | Constant-factor exact H1 | RedZeD vs Ripser on connected \(G_T\): measured \(5\)–\(14\times\) **[empirical]**. vs giotto-ph 0.2.4 (1 thread) the same families are \(\sim 6\)–\(36\times\) **[empirical]**; giotto 4-thread does not close that gap on \(H_1\). Worst-case class unchanged. |
 | Better size class, exact | \(H_0\) in \(d\in\{2,3\}\): Kruskal on Delaunay, \(\Theta(n)\) edges **[citation + derivation]**. |
 | Better size class, **not** exact VR | `--mode scale`: \(\Theta(n)\)–\(O(n)\) flag of a Delaunay / thicken graph **[derivation of size; empirical topology]**. |
-| Approx with a theorem | `--mode sparse` (Sheehy-style greedy net) **[citation]**; owned \(\varepsilon=0.6\) Max **does** thin the flag **[empirical]** (figure-8 \(n=8000\): 380k vs \(C(n,2)=32\)M). Euclidean `--points` skip the n×n store; FPS is still \(\Theta(n^2)\) **[derivation]**. |
+| Approx with a theorem | `--mode sparse` (Sheehy-style greedy net) **[citation]**; owned \(\varepsilon=0.6\) Max **does** thin the flag **[empirical]** (figure-8 \(n=24000\): 1.56M edges / 5.56 s / ess \(H_1=2\)). Euclidean `--points` skip the n×n store; FPS is still \(\Theta(n^2)\) (local \(p\approx 2\)) **[derivation + empirical]**. |
 
 ## Exact vs not exact
 

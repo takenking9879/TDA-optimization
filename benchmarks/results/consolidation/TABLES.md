@@ -394,6 +394,18 @@ draw). The table rows below are the earlier matrix-path suite.
 | figure8 | 2000 |  | 0.034 | 0.055 | 56626 |  |  |  |
 | figure8 | 8000 |  | 0.229 | 1.013 | 381386 |  |  |  |
 
+Fused constructor re-timed (1 thread, 12 s budget, `sparse_scale.json`):
+
+| family | n | sparse (s) | scale (s) | sparse \|E\| | sparse RSS | local p (sparse) | ess H1 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| figure8 | 8000 | 0.65 | 0.22 | 383k | 28 MB | 1.98 | 2 |
+| figure8 | 16000 | 2.59 | 0.50 | 929k | 63 MB | 2.00 | 2 |
+| figure8 | 24000 | 5.56 | 0.82 | 1.56M | 101 MB | 1.89 | 2 |
+| circle_noisy | 12000 | 1.93 | 0.36 | 793k | 58 MB | 1.68 | 1 |
+| nested_loops | 8000 | 0.76 | 0.20 | 326k | 37 MB | 2.17 | 1 |
+| disconnected_circles | 8000 | 0.63 | 0.22 | 383k | 28 MB | 1.93 | 2 |
+| uniform4 (d=4) | 1600 | 0.27 | n/a | 267k | 36 MB | 1.91 | 0 |
+
 ## Failure pushes (12 s)
 | family | n | PITH exact | Ripser | giotto t1 |
 | --- | ---: | --- | --- | --- |

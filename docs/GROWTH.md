@@ -82,3 +82,24 @@ runtime band (`est_runtime_lo_s` / `est_runtime_hi_s`) and
 `leaving_cheap_regime`. Engine \(\tau\) is unchanged. On mixed 1D/2D/3D
 \(n=300\) it reports leave=true / mode=scale; sphere \(n=400\) predicted
 0.006–0.019 s and measured 0.017 s.
+
+When the probe recommends sparse it also reports `est_sparse_runtime_s`
+(\(t\approx C n^2\): \(C=1.3\times 10^{-8}\) in \(d\in\{2,3\}\),
+\(8\times 10^{-8}\) otherwise) and `skips_dense_matrix`.
+
+## Fused sparse vs scale (local \(p\), 1 thread)
+
+From `sparse_scale.json`. Not theorems.
+
+| series | n0→n1 | p_wall | p_edges |
+| --- | --- | ---: | ---: |
+| figure8 sparse | 8k→12k / 12k→16k / 16k→24k | 2.01 / 2.00 / 1.89 | ~1.4 |
+| figure8 scale | same | 1.24 / 1.11 / 1.22 | ~1.1 |
+| circle sparse | 4k→8k / 8k→12k | 1.96 / 1.68 | ~1.3 |
+| circle scale | same | 1.34 / 1.10 | ~1.1 |
+| nested / disconnected sparse | 4k→8k | 2.17 / 1.93 | ~1.3 |
+| uniform4 sparse (d=4) | 800→1600 | 1.91 | ~1.5 |
+
+Sparse \(H_1\) stays inside the 12 s budget through figure-8 \(n=24000\)
+(**5.56 s / 101 MB / ess \(H_1=2\)**). Scale is still ~7× faster there.
+The sparse exponent is the FPS \(\Theta(n^2)\) wall, not leftover algebra.
