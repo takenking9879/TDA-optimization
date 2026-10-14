@@ -1605,47 +1605,6 @@ static bool delaunay_insphere(double ax, double ay, double az, double bx, double
     return det * o > 0.0;
 }
 
-// I310: circumcenter + r². ||p-c||² < r² is the same predicate as
-// det*orient > 0 when the tet is non-sliver. Parallel array so Tet
-// stays compact (I309 in-struct osign wrecked walk cache). Slivers
-// (|6V| tiny vs edge²) keep the 4×4 det.
-struct CircumBall {
-    double cx, cy, cz, r2;
-    bool ok;
-};
-
-static CircumBall delaunay_circumball(double ax, double ay, double az, double bx, double by, double bz,
-                                     double cx0, double cy0, double cz0, double dx, double dy, double dz) {
-    const double bax = bx - ax, bay = by - ay, baz = bz - az;
-    const double cax = cx0 - ax, cay = cy0 - ay, caz = cz0 - az;
-    const double dax = dx - ax, day = dy - ay, daz = dz - az;
-    const double ba2 = bax * bax + bay * bay + baz * baz;
-    const double ca2 = cax * cax + cay * cay + caz * caz;
-    const double da2 = dax * dax + day * day + daz * daz;
-    const double caxda_x = cay * daz - caz * day;
-    const double caxda_y = caz * dax - cax * daz;
-    const double caxda_z = cax * day - cay * dax;
-    const double denom = bax * caxda_x + bay * caxda_y + baz * caxda_z;
-    CircumBall b{};
-    if (!(std::abs(denom) > 1e-18 * (ba2 + ca2 + da2))) return b;
-    const double daxba_x = day * baz - daz * bay;
-    const double daxba_y = daz * bax - dax * baz;
-    const double daxba_z = dax * bay - day * bax;
-    const double baxca_x = bay * caz - baz * cay;
-    const double baxca_y = baz * cax - bax * caz;
-    const double baxca_z = bax * cay - bay * cax;
-    const double inv = 0.5 / denom;
-    const double ox = (ba2 * caxda_x + ca2 * daxba_x + da2 * baxca_x) * inv;
-    const double oy = (ba2 * caxda_y + ca2 * daxba_y + da2 * baxca_y) * inv;
-    const double oz = (ba2 * caxda_z + ca2 * daxba_z + da2 * baxca_z) * inv;
-    b.cx = ax + ox;
-    b.cy = ay + oy;
-    b.cz = az + oz;
-    b.r2 = ox * ox + oy * oy + oz * oz;
-    b.ok = std::isfinite(b.r2);
-    return b;
-}
-
 static uint32_t delaunay_morton3(uint32_t x, uint32_t y, uint32_t z) {
     auto part = [](uint32_t n) {
         n &= 0x3ffu;
@@ -1730,18 +1689,10 @@ static bool delaunay_edges_3d_walk(const std::vector<std::vector<value_t>>& pts,
     };
     std::vector<Tet> tets;
     std::vector<int> stamp;
-    std::vector<CircumBall> balls;
     tets.reserve(static_cast<size_t>(n) * 8 + 8);
     stamp.reserve(static_cast<size_t>(n) * 8 + 8);
-    balls.reserve(static_cast<size_t>(n) * 8 + 8);
     tets.push_back({{n, n + 1, n + 2, n + 3}, {-1, -1, -1, -1}, true});
     stamp.push_back(0);
-    balls.push_back(delaunay_circumball(xs[static_cast<size_t>(n)], ys[static_cast<size_t>(n)],
-                                       zs[static_cast<size_t>(n)], xs[static_cast<size_t>(n) + 1],
-                                       ys[static_cast<size_t>(n) + 1], zs[static_cast<size_t>(n) + 1],
-                                       xs[static_cast<size_t>(n) + 2], ys[static_cast<size_t>(n) + 2],
-                                       zs[static_cast<size_t>(n) + 2], xs[static_cast<size_t>(n) + 3],
-                                       ys[static_cast<size_t>(n) + 3], zs[static_cast<size_t>(n) + 3]));
     int gen = 1;
     // I308: I275 keeps dead tets (no slot reuse). locate_scan / edge
     // extract were Θ(all historical tets). Track live ids only.
@@ -1776,13 +1727,6 @@ static bool delaunay_edges_3d_walk(const std::vector<std::vector<value_t>>& pts,
         live_at[static_cast<size_t>(t)] = -1;
     };
     auto insphere_t = [&](int t, double px, double py, double pz) {
-        const CircumBall& b = balls[static_cast<size_t>(t)];
-        if (b.ok) {
-            const double ddx = px - b.cx;
-            const double ddy = py - b.cy;
-            const double ddz = pz - b.cz;
-            return ddx * ddx + ddy * ddy + ddz * ddz < b.r2;
-        }
         const int* v = tets[static_cast<size_t>(t)].v;
         return delaunay_insphere(xs[static_cast<size_t>(v[0])], ys[static_cast<size_t>(v[0])],
                                  zs[static_cast<size_t>(v[0])], xs[static_cast<size_t>(v[1])],
@@ -1991,11 +1935,6 @@ static bool delaunay_edges_3d_walk(const std::vector<std::vector<value_t>>& pts,
             const int id = static_cast<int>(tets.size());
             tets.push_back({{a, b, c, p}, {-1, -1, -1, bfaces[i].outer}, true});
             stamp.push_back(0);
-            balls.push_back(delaunay_circumball(
-                xs[static_cast<size_t>(a)], ys[static_cast<size_t>(a)], zs[static_cast<size_t>(a)],
-                xs[static_cast<size_t>(b)], ys[static_cast<size_t>(b)], zs[static_cast<size_t>(b)],
-                xs[static_cast<size_t>(c)], ys[static_cast<size_t>(c)], zs[static_cast<size_t>(c)],
-                xs[static_cast<size_t>(p)], ys[static_cast<size_t>(p)], zs[static_cast<size_t>(p)]));
             add_live(id);
             newids.push_back(id);
             if (bfaces[i].outer >= 0) {

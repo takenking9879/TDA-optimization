@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-14 — I310 circumball insphere (revert)
+
+- **Question:** Does replacing the 4×4 `insphere` det with cached circumcenter+\(r^2\) (`||p-c||^2 < r^2`, sliver-det fallback, parallel array so Tet stays compact) cut the 80k Delaunay wall?
+- **Hypothesis:** I309 said the det dominates. Same predicate when the tet is non-sliver. Shape-agnostic Euclidean H0+H1+H2.
+- **Work:** `CircumBall` + `delaunay_circumball`. Wave 170 vs I306. Hard: sphere n=100000, figure8 n=24000.
+- **Result:** **Reject.** 2D/exact hold (figure8 n=16000 **0.54 s / ess1=2**, n=24000 **0.86 s**; auto 5/5). 3D mesh **changed**: sphere n=16000 |E| **80659 vs 80641**; n=50000 ess2 **2 vs 1** (invented void); n=80000 ess2=3 / 6.49 s; n=100000 ess2=3 / **15.0 s**. Near-cospherical float disagrees with `det*orient`. Wrong cavities also blow locate_scan.
+- **Decision:** **Reject and revert.** Do not replace the 4×4 det with circumcenter. Do not retry a non-conservative ball predicate. Filter-only (det when near the sphere) is a different lever. Do not mark the goal complete.
+- **Class:** experiment (reject; not exact; reverted)
+
 ## 2026-10-14 — I309 insphere osign (revert)
 
 - **Question:** Does storing the tet `orient3` sign at birth (already computed to order the new tet) cut 80k Delaunay metric by skipping that orient on every cavity `insphere`?
