@@ -14,6 +14,8 @@ including mixed \(n=300\) → exact and held-out 4D `uniform4` n=5000 maxdim=1
 (exit 3, `auto_will_run=false`) instead of hanging; explicit `--mode sparse`
 still runs.
 Engine oracle on new held-out families is **5/9** (do not retune \(\tau\)).
+Held-out mode stress: `ncc_auto.json` **0/11**, `adversarial.json` seed 17
+**0/11** timeout misses / **0/8** exact barcode mismatches.
 Equal-hardware: PITH `--threads 1` still beats Ripser, giotto-ph 0.2.4
 (`n_threads=1` and `4`), and GUDHI 3.13 Rips on the measured suite.
 `--estimate` reports empirical `growth_p` and a runtime band; τ is frozen.
