@@ -685,15 +685,15 @@ empty-seed skips, leftover XOR/noop, G_t apparent, add-R, D(e) memo,
 collapse-on-thicken at n≥4000, RCM/Morton on thicken, leftover
 adj/hash on |E|>16n. Sparse FPS squared-distance **and** 2D/3D AABB
 skips are spent (exact λ, no clock cut). Remaining walls: leftover
-`ae_seeded` on a connected fat \(G_T\); persist_sparse H2 on a high-\(\Delta\)
-flag (forced implicit now hands that H2 to RedZeD); 3D Lawson+insphere;
+`ae_seeded` on a connected fat \(G_T\); fat H2 still cheaper as RedZeD
+than I313 implicit cohomology (mixed \(n=300\) 22 vs 73 ms); 3D Lawson+insphere;
 sparse FPS \(\Theta(n^2)\)
 (approximate net with a stated interleaving, or a different
 subquadratic structure). τ is frozen. Euclidean fat-H2 dispatch
 uses \(n_{cc}\ge 800\), not \(n\ge 200\).
 
 1. **CLI default:** `--engine auto` (I235+I236+I239+I240+I241+I263+I271+I275). H1 τ=0.04; H2 τ=0.15; hollow edge-frac <0.25 → redzed.
-2. **Forced engines:** `--engine implicit` = I193+I197+I202+I203 only;
+2. **Forced engines:** `--engine implicit` = I193+I197+I202+I203+I313 (H2 cohomology);
    `--engine redzed` = I228+I239+I240+I244+I245+I246+I250+I251+I252+I256+I257+I258+I259+I260+I261+I263+I270+I271+I275; H0 = Kruskal / I271 2D / I275 3D walk-locate Delaunay.
 3. **Owned optional approx:** `--sparse-eps 0.6 --sparse-cap max` (I213/I218)
    when n grows past exact VR. **`--delaunay-vr` (I276)** for Euclidean

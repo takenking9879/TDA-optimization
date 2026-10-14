@@ -5,6 +5,14 @@ Do not paste long reasoning here.
 
 ---
 
+## 2026-10-14 — I313 implicit cohomology H2
+
+- **Question:** Can `--engine implicit` do exact H2 without `persist_sparse` tet lists (the remaining fat-H2 wall), without leftover-skip hunting?
+- **Work:** Port Ripser dim-2 implicit cohomology onto `Graph`: on-the-fly tet cofacets, apparent/emergent pairs, clear H1 death triangles. Fixed 3-way neighbor intersection (advance the lagging pointers). `--engine implicit` no longer splits fat flags to RedZeD H2; `--engine homology` still does. τ frozen. Not a new pairing class **[citation: Bauer, Ripser]**.
+- **Result:** `pith_test` green (K6 / octahedron match homology H2). Live `eval_implicit_h2.py` **0 unmatched vs Ripser** (8 cells, 1 thread). Sphere n=600 implicit 31 ms vs Ripser 4.39 s (**139×**, collapse still the clock). mixed n=300 implicit **73 ms** (old persist_sparse timeout) vs RedZeD 22 ms vs Ripser 127 ms. implicit faster than RedZeD **6/8** (thin/collapse); slower on mixed 160/300 (0.40× / 0.31×). Auto stays RedZeD-cc on fat mixed. Not a leftover 10×.
+- **Decision:** Keep. Do not retune τ / auto. Goal not complete.
+- **Class:** verified (live)
+
 ## 2026-10-14 — Stable Python wrapper
 
 - **Question:** Can a user call exact / scale / estimate / auto without the CLI or I-numbers?

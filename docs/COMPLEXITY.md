@@ -1,6 +1,6 @@
 # Complexity notes for PITH
 
-Updated 2026-10-14 after iterations I001–I312 plus consolidation measurements.
+Updated 2026-10-14 after iterations I001–I313 plus consolidation measurements.
 This is a **complexity ledger**,
 not a theorem paper and not a selected-algorithm rewrite. It restates what the
 literature already proves, what follows from those statements by a short
@@ -192,7 +192,12 @@ These facts are inherited. PITH does not improve them.
 
 Parent: Bauer, *Ripser*, *J. Appl. Comput. Topol.* 2021; arXiv:1908.02518.
 Pinned SHA `01add51`. PITH `--engine implicit` is this algorithm on a
-(possibly collapsed) flag 1-skeleton.
+(possibly collapsed) flag 1-skeleton. I313 extends that path to
+dimension 2 (on-the-fly tet cofacets, apparent/emergent pairs, H1-death
+clearing). Same worst-case class as Bauer; the tet *list* is gone, not
+the tet *probes* on columns that reduce **[citation]**. Live
+`implicit_h2.json`: **0 unmatched** vs Ripser; mixed \(n=300\) 73 ms vs
+RedZeD 22 ms **[empirical]**. Auto still prefers RedZeD on fat \(H_2\).
 
 ### Proven worst case
 

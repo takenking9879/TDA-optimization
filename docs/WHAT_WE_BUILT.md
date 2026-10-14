@@ -74,10 +74,13 @@ scale — that clock lies on figure8 \(n=16000\) **[empirical,
 leftover_miss_dispatch.json; eval_mode_auto 11/11]**. Held-out
 `ncc_auto.json` (seed 11): **0/11** timeout misses after that clause
 (complete sphere \(n=700\) T=2.5 was the miss that forced it). Mixed
-\(n=300\) is exact RedZeD-cc at 33 ms; mixed \(n=2000\) goes to scale. The old mixed \(n=300\) “exact timeout” was forced
-`--engine implicit` tet enumeration; implicit now uses RedZeD for H2
-when \(\lvert E\rvert>16n\) or \(\Delta>24\) (53 ms, unmatched 0)
-**[empirical, fat_h2.json]**. Held-out seed-17 `adversarial.json`:
+\(n=300\) is exact RedZeD-cc at 22–33 ms; mixed \(n=2000\) goes to scale.
+`--engine implicit` now runs Ripser-style cohomology H2 (no tet list;
+Bauer **[citation]**). Live `implicit_h2.json`: **0 unmatched** vs
+Ripser on 8 cells; mixed \(n=300\) implicit **73 ms** vs RedZeD 22 ms
+vs Ripser 127 ms. Auto stays RedZeD on fat mixed. The old mixed
+\(n=300\) “exact timeout” was `persist_sparse` tet enumeration
+**[empirical, implicit_h2.json]**. Held-out seed-17 `adversarial.json`:
 **0/11** timeout misses, **0/8** exact-vs-Ripser mismatches.
 Post-freeze seed 23 (`postfreeze.json`): **0/10** timeout misses;
 one thin-circle `|E|>8e6` scale miss (nonuniform_circle \(n=6000\),

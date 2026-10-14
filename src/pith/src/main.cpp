@@ -1045,25 +1045,23 @@ int main(int argc, char** argv) {
         } else if (delaunay_vr && maxdim >= 1) {
             r = persist_redzed_from_edges(g.n, g.edges, maxdim, threshold);
             used_redzed_thicken = true;
-        } else if (maxdim >= 2 && (use_implicit || engine == "homology") && [&]() {
+        } else if (maxdim >= 2 && engine == "homology" && [&]() {
                        int max_deg = 0;
                        if (g.neighbors.size() == static_cast<size_t>(std::max(g.n, 0))) {
                            for (const auto& nb : g.neighbors)
                                max_deg = std::max(max_deg, static_cast<int>(nb.size()));
                        }
                        // persist_sparse H2 is Θ(C(Δ,4)) on a clique component.
+                       // I313 implicit cohomology H2 no longer uses that path,
+                       // so --engine implicit stays on persist_implicit_coh.
                        // mixed n=300 after collapse can have |E|≤16n and still
-                       // a near-complete sphere (Δ≈99). Thin flags stay on
-                       // persist_sparse (sphere n=400 / planar Delaunay).
+                       // a near-complete sphere (Δ≈99).
                        return g.edges.size() > 16ull * static_cast<size_t>(std::max(g.n, 1)) ||
                               max_deg > 24;
                    }()) {
             // persist_sparse H2 enumerates tets (mixed n=300 timeout).
-            // Same flag; RedZeD H2 is exact VR. Thin flags (|E|≤16n)
-            // keep persist_sparse — RedZeD generate_stream was a tax on
-            // planar Delaunay H2 (figure8 n=16000).
-            Result r1 = use_implicit ? persist_implicit_coh(g, 1, threshold, ratio)
-                                     : persist_sparse(g, 1, threshold, ratio);
+            // Same flag; RedZeD H2 is exact VR.
+            Result r1 = persist_sparse(g, 1, threshold, ratio);
             Result r2 = persist_redzed_from_edges(g.n, g.edges, maxdim, threshold);
             r.pairs.reserve(r1.pairs.size() + r2.pairs.size());
             for (const auto& p : r1.pairs)
