@@ -279,8 +279,9 @@ tens of milliseconds, not a change of regime. Mixed 1D/2D/3D at
 unmatched 0). Default exact-auto is RedZeD-cc
 and finishes at \(n=300\) in 33 ms (Ripser 0.14 s). `--estimate` now
 models cost on the largest T-component \(n_{cc}\) and recommends scale
-only when \(n_{cc}\ge 800\) (mixed \(n=2000\)). Auto-dispatch probes
-from \(n\ge 64\).
+when \(n_{cc}\ge 800\) or the flag is nearly complete
+(`edge_frac≥0.5` and \(n_{cc}\ge 600\)). Held-out `ncc_auto.json`:
+**0/11** timeout misses. Auto-dispatch probes from \(n\ge 64\).
 
 A later high-d control (`uniform10`, \(d=10\), \(T=1.8\)) is outside the
 frozen engine pack. Exact RedZeD stays cheap through \(n=8000\) (2.79 s).
@@ -380,6 +381,7 @@ python3 benchmarks/reverify_coperto.py
 python3 benchmarks/reverify_fat_h2.py
 python3 benchmarks/run_uniform10.py
 python3 benchmarks/eval_highd_auto.py
+python3 benchmarks/eval_ncc_auto.py
 python3 benchmarks/collect_topology_claims.py
 python3 benchmarks/run_baseline_pack.py
 python3 benchmarks/run_sparse_limits.py

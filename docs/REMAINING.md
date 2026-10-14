@@ -44,7 +44,7 @@ Named leftover follow-ups after I202 are **spent**. That includes
 
 ## What literature still offers
 
-Search on 2026-10-14:
+Search on 2026-10-14 (repeated later the same day):
 
 - **RedZeD** (Kapulkin–Kershaw, arXiv:2606.06310) is the current
   published exact-VR alternative to Ripser. We already wrap vendor
@@ -92,8 +92,12 @@ Search on 2026-10-14:
 - **Involuted PH** (Čufar 2023) and **wrapping cycles** (Bauer 2024)
   are representative / geometric papers. They do not change the
   leftover pairing class on a connected fat \(G_T\).
+- **Reduced VR** (Koyama–Mémoli–Robins–Turner) is exact \(H_1\) on a
+  thinner 2-complex; we already timed it (I224) and lost the clock to
+  construction. Not a leftover pairing class.
 - No 2026 paper we found claims a better **worst-case** pairing class
-  than Ripser/RedZeD on a connected dense flag.
+  than Ripser/RedZeD on a connected dense flag. `redzed-tda` on PyPI
+  is the same RedZeD we already wrap.
 
 ## Remaining walls (not “try one more skip”)
 

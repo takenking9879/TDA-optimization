@@ -5,7 +5,8 @@ and the fused Euclidean sparse constructor.
 **Stable CLI:** `--mode exact|scale|sparse`, `--engine auto|redzed|implicit`,
 `--estimate`, `--threads N`, `--mode auto`. Auto-dispatch probes at \(n\ge 64\).
 `--estimate` marks Euclidean fat `maxdim≥2` impractical when the largest
-T-component has \(n_{cc}\ge 800\) (not at every \(n\ge 200\)).
+T-component has \(n_{cc}\ge 800\), or a near-complete flag
+(`edge_frac≥0.5` and \(n_{cc}\ge 600\)). Not at every \(n\ge 200\).
 `--mode auto` follows that recommendation (phase-2 8/8; current eval **11/11**,
 including mixed \(n=300\) → exact and held-out 4D `uniform4` n=5000 maxdim=1
 → exact plus fat 4D H2 `n=250` refuse). Fat `maxdim≥2` sparse on \(d\notin\{2,3\}\) is **refused**

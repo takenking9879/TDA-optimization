@@ -390,9 +390,14 @@ static Feasibility compute_feasibility(const std::vector<std::vector<value_t>>* 
     // Does not retune τ / engine_rec.
     const double ncc = static_cast<double>(std::max(n_cc, 1));
     const double fat_h2_exact = 8.0e-8 * ncc * ncc * ncc;
+    // Held-out sphere T=2.5 n=700: n_cc=700<800 but edge_frac=1
+    // (near-clique) timed out at 12 s. mixed n=1000 n_cc=667
+    // edge_frac≈0.26 is cheap (1.07 s) — do not use n_cc alone.
+    const bool dense_flag = edge_frac >= 0.50;
     const bool fat_h2_impractical =
         (maxdim >= 2 && fat && !(dim >= 2 && dim <= 3) && n >= 200) ||
-        (maxdim >= 2 && fat && dim >= 2 && dim <= 3 && n_cc >= 800);
+        (maxdim >= 2 && fat && dim >= 2 && dim <= 3 &&
+         (n_cc >= 800 || (dense_flag && n_cc >= 600)));
     if (fat_h2_impractical) {
         f.exact_ok = false;
         if (dim >= 2 && dim <= 3)

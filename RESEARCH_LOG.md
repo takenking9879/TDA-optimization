@@ -5,6 +5,14 @@ Do not paste long reasoning here.
 
 ---
 
+## 2026-10-14 — Held-out n_cc cutoff + dense-flag clause
+
+- **Question:** Does n_cc≥800 overfit mixed (seed 0)? Any 2026 exact-VR pairing engine we have not wrapped?
+- **Work:** `eval_ncc_auto.py` seed 11, 11 cells (two spheres, outliers, cavities, cage+ball, uniform3, complete sphere). Literature sweep: RedZeD / redzed-tda already wrapped; reduced VR already tried (I224); pedagogical `persistent-homology` is not a 10× class.
+- **Result:** First pass **1/11 timeout_miss**: complete sphere n=700 T=2.5, n_cc=700<800, edge_frac=1, exact 12 s fail (n=400 was 2.0 s). Added: Euclidean fat H2 impractical if n_cc≥800 **or** (edge_frac≥0.5 and n_cc≥600). Re-run **0/11 timeout_miss, 0/11 scale_miss**. mixed n=1000 stays exact (edge_frac 0.26). `eval_mode_auto` 11/11. τ frozen.
+- **Decision:** Keep the dense-flag clause. Not a new pairing algorithm. Goal not complete.
+- **Class:** verified (live)
+
 ## 2026-10-14 — Homology fat H2 + estimate re-score
 
 - **Question:** Does `--engine homology` still hang on mixed fat H2, and do the \(n_{cc}\) bands still cover recommended-mode walls?

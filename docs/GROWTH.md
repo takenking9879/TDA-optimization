@@ -56,8 +56,8 @@ Hardware: 4 CPU / 16 GB. Phase-2 exact times are 1-thread unless noted.
 - Do **not** call a 2-point slope “exponential.”
 
 The feasibility probe uses these regimes: fat `maxdim≥2` with
-\(n_{cc}\ge 800\) (Euclidean) or \(n\ge 200\) (no scale path), or
-conservative `|E|>8e6`, means exact VR is marked impractical.
+\(n_{cc}\ge 800\), or a dense flag (`edge_frac≥0.5` and \(n_{cc}\ge 600\)),
+or \(n\ge 200\) when there is no scale path, or conservative `|E|>8e6`.
 
 ## Phase-3 baselines (giotto-ph / GUDHI, local \(p\) only)
 

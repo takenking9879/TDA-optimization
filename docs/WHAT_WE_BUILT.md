@@ -64,8 +64,10 @@ unavailable and sparse is not clearly cheaper (live auto 0.74 s)
 \(d\notin\{2,3\}\) is unchanged. Euclidean fat \(H_2\) no longer uses
 the blunt \(n\ge 200\) cutoff: `--estimate` measures the largest
 T-component \(n_{cc}\) and marks exact impractical at \(n_{cc}\ge 800\)
-(mixed \(n=300\) is now exact RedZeD-cc at 33 ms; mixed \(n=2000\)
-goes to scale). The old mixed \(n=300\) “exact timeout” was forced
+or a dense flag (`edge_frac≥0.5`, \(n_{cc}\ge 600\)). Held-out
+`ncc_auto.json` (seed 11): **0/11** timeout misses after that clause
+(complete sphere \(n=700\) T=2.5 was the miss that forced it). Mixed
+\(n=300\) is exact RedZeD-cc at 33 ms; mixed \(n=2000\) goes to scale. The old mixed \(n=300\) “exact timeout” was forced
 `--engine implicit` tet enumeration; implicit now uses RedZeD for H2
 when \(\lvert E\rvert>16n\) or \(\Delta>24\) (54 ms, unmatched 0)
 **[empirical, fat_h2.json]**.
