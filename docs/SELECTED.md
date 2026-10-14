@@ -660,9 +660,11 @@ Held-out high-d / L1 sweep (`highd_auto.json`): **0/8** wrong.
 Named leftover follow-ups after I202 are **spent**. Do not reopen
 empty-seed skips, leftover XOR/noop, G_t apparent, add-R, D(e) memo,
 collapse-on-thicken at n≥4000, RCM/Morton on thicken, leftover
-adj/hash on |E|>16n. Remaining walls: leftover `ae_seeded` on a
-connected fat \(G_T\); fat exact H2 timeout; 3D Lawson+insphere;
-sparse FPS \(\Theta(n^2)\). τ is frozen.
+adj/hash on |E|>16n. Sparse FPS squared-distance **and** 2D/3D AABB
+skips are spent (exact λ, no clock cut). Remaining walls: leftover
+`ae_seeded` on a connected fat \(G_T\); fat exact H2 timeout; 3D
+Lawson+insphere; sparse FPS \(\Theta(n^2)\) (approximate net with a
+stated interleaving, or a different subquadratic structure). τ is frozen.
 
 1. **CLI default:** `--engine auto` (I235+I236+I239+I240+I241+I263+I271+I275). H1 τ=0.04; H2 τ=0.15; hollow edge-frac <0.25 → redzed.
 2. **Forced engines:** `--engine implicit` = I193+I197+I202+I203 only;

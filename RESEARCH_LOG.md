@@ -5,6 +5,14 @@ Do not paste long reasoning here.
 
 ---
 
+## 2026-10-14 — FPS AABB skip try (revert)
+
+- **Question:** Can a conservative 2D/3D axis bound skip Gonzalez updates (`|Δaxis|≥mind[j]`) without changing λ and cut the sparse FPS wall?
+- **Work:** Same start vertex / first-max ties. `pith_test` λ match + `n_dist < C(n,2)` on n=48. `test_sparse_points` 7/7. figure8 `--mode sparse --threads 1`.
+- **Result:** Exact same net. Skips fire (n=120: 4964 vs 7140 evals). **No clock cut:** n=8000 **0.72 s** (receipt 0.65–0.75); n=16000 **2.51 s**; n=24000 **5.47 s** (receipt 5.56 s). Early insertions still evaluate the cloud; argmax remains Θ(n²). Not the closed squared-distance try; same wall class.
+- **Decision:** Revert. Do not retry AABB / coord-reject constants on FPS. Remaining sparse wall is still Θ(n²) evaluations or an approximate net with a stated interleaving change. Goal not complete.
+- **Class:** experiment (reject)
+
 ## 2026-10-14 — Coperto quotient-cover approximation
 
 - **Question:** Is Coperto 0.1.7 (Leitão arXiv:2602.22784, log-3 interleaving) a better Euclidean scale-path than `--mode scale` / `--mode sparse`, or a hidden exact-VR 10×?

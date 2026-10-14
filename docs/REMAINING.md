@@ -35,6 +35,7 @@ These were tried, logged, and must not be reopened as micro-opts.
 | Reduced VR (I224) | Exact, loses clock | \(O(n^2)\) triangles; construction loses. |
 | Extra Morse / chunk on residual (H04) | Reject early | After collapse, circle remainder is tiny; torus remainder is \(\Theta(n^2)\) and matching is not a 10× lever. |
 | Sparse FPS squared-distance | Reject | Same greedy net; no clock cut. Wall is \(\Theta(n^2)\) evaluations. |
+| Sparse FPS AABB / axis reject (2D/3D) | Reject | Exact λ; fewer late evals; no clock cut (figure-8 \(n=8000\) 0.72 s, \(n=16000\) 2.51 s). Early insertions + Θ(n²) argmax remain. |
 | 3D Lawson bookkeeping (I307–I312) | Exhausted | Cheap locate/insphere skips done. Scale construction wall remains walk+insphere. |
 
 Named leftover follow-ups after I202 are **spent**. That includes
@@ -101,7 +102,7 @@ Search on 2026-10-14:
 | Leftover `ae_seeded` on connected fat \(G_T\) | Output-sensitive AE / implicit reduce on \(\lvert R\rvert\sim\lvert E\rvert\) | A **new pairing algorithm** with a stated complexity in \(\lvert R\rvert\), or a theorem that most leftovers are skippable **without** inventing bars. Not another inner-loop flag. |
 | Fat exact \(H_2\) | Tet tax; mixed 1D/2D/3D \(n=300\) times out | Lower \(T\), `--maxdim 1`, or `--mode scale` in \(d\in\{2,3\}\). Auto already refuses fat \(H_2\) sparse outside 2D/3D. |
 | 3D Lawson + insphere | Expected \(O(n\log n)\) incremental Delaunay; 80k sphere is still walk + predicates | A different 3D location structure, not I307–I312 bookkeeping. |
-| Sparse FPS \(\Theta(n^2)\) | Greedy net needs \(\Theta(n^2)\) distance evaluations | An approximate net with a **stated** interleaving change, or a subquadratic exact FPS in low \(d\). Squared-distance FPS is closed. |
+| Sparse FPS \(\Theta(n^2)\) | Greedy net needs \(\Theta(n^2)\) distance evaluations | An approximate net with a **stated** interleaving change, or a subquadratic exact FPS in low \(d\). Squared-distance and AABB/axis-reject are closed. |
 
 ## What would satisfy the original 10× goal
 

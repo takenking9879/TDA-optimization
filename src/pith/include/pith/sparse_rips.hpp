@@ -61,19 +61,13 @@ inline std::vector<value_t> greedy_insertion_radii(const std::vector<std::vector
 
 // Same greedy net as greedy_insertion_radii, but distances are computed
 // on the fly. Same starting vertex (0) and same tie-break (first max),
-// so λ matches the dense-matrix path on a Euclidean cloud. Memory is O(n).
-// After the first landmark, an unused point j can change only if
-// dist(best,j) < mind[j]. In d∈{2,3} a conservative axis bound
-// (|Δx|≥mind[j] or …) skips that evaluation without changing λ.
-// Worst-case evaluations stay Θ(n²); typical 2D/3D nets do fewer late
-// updates. This is not the closed squared-distance try (same eval count).
+// so λ matches the dense-matrix path on a Euclidean cloud. Still Θ(n²)
+// evaluations; memory is O(n) instead of O(n²).
 inline std::vector<value_t> greedy_insertion_radii_points(const std::vector<std::vector<value_t>>& pts,
                                                           std::int64_t* n_dist = nullptr) {
     const int n = static_cast<int>(pts.size());
     std::vector<value_t> lam(static_cast<size_t>(n), 0);
     if (n == 0) return lam;
-    const int dim = n ? static_cast<int>(pts[0].size()) : 0;
-    const bool aabb = (dim == 2 || dim == 3);
     std::vector<char> used(static_cast<size_t>(n), 0);
     std::vector<value_t> mind(static_cast<size_t>(n), kInf);
     used[0] = 1;
@@ -97,26 +91,11 @@ inline std::vector<value_t> greedy_insertion_radii_points(const std::vector<std:
         if (best < 0) break;
         used[static_cast<size_t>(best)] = 1;
         lam[static_cast<size_t>(best)] = best_d;
-        const auto& pb = pts[static_cast<size_t>(best)];
         for (int j = 0; j < n; ++j) {
             if (used[static_cast<size_t>(j)]) continue;
-            const value_t mj = mind[static_cast<size_t>(j)];
-            if (aabb) {
-                const auto& pj = pts[static_cast<size_t>(j)];
-                bool far = false;
-                for (int a = 0; a < dim; ++a) {
-                    const double df = static_cast<double>(pb[static_cast<size_t>(a)]) -
-                                      static_cast<double>(pj[static_cast<size_t>(a)]);
-                    if (std::fabs(df) >= static_cast<double>(mj)) {
-                        far = true;
-                        break;
-                    }
-                }
-                if (far) continue;
-            }
             const value_t d = euclid_dist(pts, best, j);
             if (n_dist) ++*n_dist;
-            mind[static_cast<size_t>(j)] = std::min(mj, d);
+            mind[static_cast<size_t>(j)] = std::min(mind[static_cast<size_t>(j)], d);
         }
     }
     return lam;
