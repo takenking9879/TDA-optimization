@@ -1913,9 +1913,9 @@ bool delaunay_vr_skeleton(const std::vector<std::vector<value_t>>& pts, value_t 
     const int cap = (d == 2) ? 16 : 8;
     const double floorR = (floor > 0) ? static_cast<double>(floor) * med : 0;
     const double a0 = (alpha > 0) ? static_cast<double>(alpha) : 1.0;
-    for (int i = 0; i < n; ++i) {
+    auto scan_vertex = [&](int i, std::vector<Edge>& local) {
         const double R = std::max(a0 * hop[static_cast<size_t>(i)], floorR);
-        if (!(R > 0)) continue;
+        if (!(R > 0)) return;
         const int reach = std::min(cap, std::max(1, static_cast<int>(std::ceil(R * inv + 1e-9))));
         int c0[3] = {0, 0, 0};
         cell_of(i, c0);
@@ -1925,7 +1925,6 @@ bool delaunay_vr_skeleton(const std::vector<std::vector<value_t>>& pts, value_t 
             for (int dy = -reach; dy <= reach; ++dy)
                 for (int dz = (d == 3 ? -reach : 0); dz <= (d == 3 ? reach : 0); ++dz) {
                     // I292: skip cells whose nearest corner is farther than R.
-                    // Cell size is med; axis gap is max(|d|-1, 0)·med.
                     if (dx || dy || dz) {
                         const double ax = (dx > 0 ? dx - 1 : (dx < 0 ? -dx - 1 : 0)) * med;
                         const double ay = (dy > 0 ? dy - 1 : (dy < 0 ? -dy - 1 : 0)) * med;
@@ -1940,14 +1939,41 @@ bool delaunay_vr_skeleton(const std::vector<std::vector<value_t>>& pts, value_t 
                     if (it == grid.end()) continue;
                     for (int j : it->second) {
                         // Query both ends: d≤α·r_i from i plus d≤α·r_j from j
-                        // is d≤α·max(r_i,r_j). have[] dedups.
+                        // is d≤α·max(r_i,r_j). Merge dedups.
                         if (j == i) continue;
                         const value_t dist = point_dist(pts, i, j);
                         if (dist > T || static_cast<double>(dist) > R) continue;
-                        if (!have.insert(ek(i, j)).second) continue;
-                        out.push_back({i, j, dist});
+                        local.push_back({i, j, dist});
                     }
                 }
+    };
+    // I294: per-vertex thicken queries are independent. Dedup on merge.
+    const int nth = std::max(1, static_cast<int>(std::thread::hardware_concurrency()));
+    if (nth <= 1 || n < 1024) {
+        std::vector<Edge> local;
+        local.reserve(static_cast<size_t>(n) * 8);
+        for (int i = 0; i < n; ++i) scan_vertex(i, local);
+        for (const Edge& e : local) {
+            if (have.insert(ek(e.u, e.v)).second) out.push_back(e);
+        }
+    } else {
+        std::vector<std::vector<Edge>> extras(static_cast<size_t>(nth));
+        std::vector<std::thread> pool;
+        pool.reserve(static_cast<size_t>(nth));
+        for (int t = 0; t < nth; ++t) {
+            pool.emplace_back([&, t]() {
+                const int i0 = n * t / nth;
+                const int i1 = n * (t + 1) / nth;
+                extras[static_cast<size_t>(t)].reserve(static_cast<size_t>(std::max(i1 - i0, 0)) * 8);
+                for (int i = i0; i < i1; ++i) scan_vertex(i, extras[static_cast<size_t>(t)]);
+            });
+        }
+        for (auto& th : pool) th.join();
+        for (const auto& vec : extras) {
+            for (const Edge& e : vec) {
+                if (have.insert(ek(e.u, e.v)).second) out.push_back(e);
+            }
+        }
     }
     return true;
 }
