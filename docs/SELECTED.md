@@ -1,6 +1,6 @@
 # Selected algorithm (living)
 
-Updated 2026-10-14 after iterations I001–I319 plus consolidation (phase 3)
+Updated 2026-10-14 after iterations I001–I320 plus consolidation (phase 3)
 and the fused Euclidean sparse constructor.
 **Stable CLI:** `--mode exact|scale|sparse|auto`, `--engine auto|redzed|implicit`,
 `--estimate`, `--threads N`. Public runners import `generate_datasets` /
@@ -363,6 +363,12 @@ RedZeD. Live `young_cap_fair.json`: **0 unmatched**, faster than auto
 **0/8**. Reduce can drop (anisotropic \(n=8000\) 1026→435 ms); Graph+trim
 does not pay (wall 3.79 vs 1.30 s). Not selected. Collapse
 preprocessors closed.
+
+### I320 SparseDist dense \(G_T\) (not default)
+
+Finite-T extract + hash, no collapse. Live `sparsegt.json`: **0 unmatched**.
+Reduce ~2.4×; wall loses (anisotropic \(n=8000\) 5.5× vs old 8.8×).
+Reverted. Not selected.
 
 ### I227 real RedZeD (H09, MIT, not default)
 

@@ -1,10 +1,10 @@
 # Complexity notes for PITH
 
-Updated 2026-10-14 after iterations I001–I319 plus consolidation measurements.
+Updated 2026-10-14 after iterations I001–I320 plus consolidation measurements.
 This is a **complexity ledger**,
 not a theorem paper and not a selected-algorithm rewrite. It restates what the
 literature already proves, what follows from those statements by a short
-derivation, and what the I204 / I218 / I227–I319 receipts only measure.
+derivation, and what the I204 / I218 / I227–I320 receipts only measure.
 
 **Honest contribution.** PITH does **not** introduce a new worst-case Big-O for
 exact Vietoris–Rips (VR) \(H_1\) on a connected threshold graph \(G_T\). The

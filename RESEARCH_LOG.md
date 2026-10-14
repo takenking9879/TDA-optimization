@@ -5,6 +5,14 @@ Do not paste long reasoning here.
 
 ---
 
+## 2026-10-14 — I320 SparseDist G_T on dense leftover
+
+- **Question:** I319 residual RedZeD on SparseDist was ~2.4× cheaper reduce than dense leftover_coface. Does that representation win leftover *wall* if we skip Graph+collapse?
+- **Work:** Finite-T all-pairs fill, extract \(d\le T\), `persist_redzed_from_edges` (SparseDist + EdgeList). Same VR≤T. Live `sparsegt.json` vs Ripser. 1 thread. τ frozen. Not a leftover skip.
+- **Result:** **0 unmatched**. Reduce drops as predicted (anisotropic n=8000 1026→442 ms; uniform2 n=5000 284→124 ms). Wall **loses**: hash+EdgeList of 11M edges is the tax (anisotropic n=8000 2.05 s / **5.5×** vs old 1.22 s / 8.8×; uniform2 n=2000 4.8× vs 7.3×). Leftover pack still **3/6** (figure8/torus/blobs unchanged spatial/cc).
+- **Decision:** Reject as default. Revert the dense path. Not a new pairing class. Goal not complete.
+- **Class:** verified (live)
+
 ## 2026-10-14 — I319 fair G_T young-cap then RedZeD
 
 - **Question:** Were I317/I318 slow only because they paid an extra pairwise Graph + DenseTimes n² that auto RedZeD does not?
