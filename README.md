@@ -134,9 +134,13 @@ On **this** hardware (4 CPUs, 16 GB, no GPU), under a **12 s** wall budget.
 | Mixed 1D/2D/3D, \(n=300\), `maxdim=2` | 0.13 s | — | — | — | **timeout** (fat H2) | **5 ms** |
 
 The headline exact ratios **hold at 1 thread**, and they still hold against
-**4-thread giotto-ph**. Hardware threads (4) change circle \(n=1000\) from
-0.068 s to 0.069 s — not the source of the 32×. giotto-ph’s 4 threads help
-sphere \(H_2\) (1.12→0.62 s) and do **not** speed up \(H_1\).
+**4-thread giotto-ph**. A live re-measure on this box: circle \(n=1000\)
+**31.2×** (0.070 vs 2.17 s); sphere \(n=400\) **58.3×** (0.018 vs 1.02 s).
+On the circle the wall is **collapse** (46 ms of 68 ms), not pairing
+(1 ms). On figure-8 \(n=2000\) the wall is **reduce** (100 ms of 152 ms).
+Hardware threads (4) change circle \(n=1000\) from 0.068 s to 0.069 s —
+not the source of the 32×. giotto-ph’s 4 threads help sphere \(H_2\)
+(1.12→0.62 s) and do **not** speed up \(H_1\).
 
 Pushed to the 12 s wall: circle \(n=2000\) PITH **0.34 s**, Ripser and
 giotto timeout; figure-8 \(n=4000\) PITH **1.02 s**, giotto timeout;
