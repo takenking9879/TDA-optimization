@@ -57,6 +57,7 @@ static void usage_experimental() {
         << "  --witness-n M  --witness-nu K  --knn K  --gic-n M  --gic-k K\n"
         << "  --reduced-vr  --delaunay-vr  --delaunay-alpha A|auto\n"
         << "  --dense-metric          force all-pairs RedZeD metric (no spatial G_T)\n"
+        << "  --knn-mark              k-NN triangle mark of leftover_coface (H1)\n"
         << "  --delaunay-adapt  --delaunay-floor F\n"
         << "  --probe-only  --probe-vertex\n"
         << "Iteration numbers live in RESEARCH_LOG.md, not this interface.\n";
@@ -639,6 +640,7 @@ int main(int argc, char** argv) {
     int gic_k = 16;
     bool reduced_vr = false;
     bool dense_metric = false;
+    bool knn_mark = false;
     bool delaunay_vr = false;
     value_t delaunay_alpha = 1;
     value_t delaunay_floor = 0;
@@ -672,6 +674,7 @@ int main(int argc, char** argv) {
         else if (a == "--gic-k") gic_k = std::stoi(need("--gic-k"));
         else if (a == "--reduced-vr") reduced_vr = true;
         else if (a == "--dense-metric") dense_metric = true;
+        else if (a == "--knn-mark") knn_mark = true;
         else if (a == "--delaunay-vr") delaunay_vr = true;
         else if (a == "--delaunay-alpha") {
             const std::string v = need("--delaunay-alpha");
@@ -1032,7 +1035,7 @@ int main(int argc, char** argv) {
             }
         } else if (engine == "redzed") {
             if (have_pts && dist.empty()) {
-                r = persist_redzed_from_points(pts, maxdim, threshold, dense_metric);
+                r = persist_redzed_from_points(pts, maxdim, threshold, dense_metric, knn_mark);
                 c.n_distances = r.counters.n_distances;
                 c.metric_ms = r.counters.metric_ms;
             } else if (!edges_path.empty()) {

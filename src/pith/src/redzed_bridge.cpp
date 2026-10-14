@@ -225,6 +225,7 @@ struct AlgCount {
     std::int64_t ae_seeded = 0;
     std::int64_t keep_singleton = 0;
     std::int64_t coface = 0;
+    std::int64_t knn_mark = 0;
 };
 static thread_local AlgCount g_alg;
 
@@ -233,6 +234,7 @@ static void take_alg(pith::Result& r) {
     r.counters.n_columns_reduced = g_alg.ae_seeded + g_alg.keep_singleton;
     r.counters.n_columns_apparent = g_alg.empty_skip;
     r.counters.n_cofacet_probes = g_alg.coface;
+    r.counters.n_columns_cleared = g_alg.knn_mark;
     g_alg = AlgCount{};
 }
 
@@ -635,8 +637,99 @@ static void generate_stream_h2_adj(const EdgeList& edges, int nv, const Binomial
 // I244: VR≤T does not need enclosing (cone). Finite T → thr=T is exact.
 // I245: parallel build_edges when no prebuilt EdgeList.
 // I246: lazy R/Ri insert on top-dimension AE.
+// I322: exact subset of leftover_coface successes. For each vertex w,
+// each pair of its k nearest G_T neighbors u,v: if uv is leftover,
+// max(d(wu),d(wv))≤t_uv, and coface_ready, mark. leftover_coface only
+// runs on unmarked leftovers. Marks at most n·C(k,2) leftovers, so on
+// a fat leftover G_T (|L|∼n²) coverage is O(k²/n). k=12 default.
+static constexpr int kKnnMarkK = 12;
+
+static void knn_mark_leftovers(State& st, const std::vector<uint32_t>& leftover_e,
+                               std::vector<uint8_t>& marked) {
+    const EdgeList& ed = st.edges;
+    const int nv = st.nv;
+    marked.assign(ed.count + 1, 0);
+    const size_t nl = leftover_e.size();
+    if (nl == 0 || nv < 3 || ed.count == 0) return;
+
+    struct LefKey {
+        uint64_t k;
+        uint32_t e;
+    };
+    std::vector<LefKey> keys(nl);
+    for (size_t i = 0; i < nl; ++i) {
+        const uint32_t e = leftover_e[i];
+        const int lo = ed.verts[2 * (static_cast<size_t>(e) - 1)];
+        const int hi = ed.verts[2 * (static_cast<size_t>(e) - 1) + 1];
+        keys[i].k = SparseDist::pack(lo, hi);
+        keys[i].e = e;
+    }
+    std::sort(keys.begin(), keys.end(),
+              [](const LefKey& a, const LefKey& b) { return a.k < b.k; });
+    auto find_leftover = [&](int u, int v) -> uint32_t {
+        const uint64_t k = SparseDist::pack(u, v);
+        auto it = std::lower_bound(keys.begin(), keys.end(), k,
+                                   [](const LefKey& a, uint64_t kk) { return a.k < kk; });
+        if (it == keys.end() || it->k != k) return 0;
+        return it->e;
+    };
+
+    struct Nbr {
+        value_t d;
+        int v;
+    };
+    const int K = kKnnMarkK;
+    std::vector<std::vector<Nbr>> knn(static_cast<size_t>(nv));
+    for (auto& row : knn) row.reserve(static_cast<size_t>(K));
+    auto farther = [](const Nbr& a, const Nbr& b) { return a.d < b.d; };
+    auto consider = [&](int u, int v, value_t d) {
+        auto& row = knn[static_cast<size_t>(u)];
+        if (static_cast<int>(row.size()) < K) {
+            row.push_back({d, v});
+            if (static_cast<int>(row.size()) == K)
+                std::make_heap(row.begin(), row.end(), farther);
+        } else if (d < row.front().d) {
+            std::pop_heap(row.begin(), row.end(), farther);
+            row.back() = {d, v};
+            std::push_heap(row.begin(), row.end(), farther);
+        }
+    };
+    for (size_t e = 0; e < ed.count; ++e) {
+        const int u = ed.verts[2 * e];
+        const int v = ed.verts[2 * e + 1];
+        const value_t d = ed.diam[e];
+        consider(u, v, d);
+        consider(v, u, d);
+    }
+
+    int32_t xv[2];
+    for (int w = 0; w < nv; ++w) {
+        const auto& row = knn[static_cast<size_t>(w)];
+        const int m = static_cast<int>(row.size());
+        for (int i = 0; i < m; ++i) {
+            for (int j = i + 1; j < m; ++j) {
+                const int u = row[static_cast<size_t>(i)].v;
+                const int v = row[static_cast<size_t>(j)].v;
+                const value_t dwu = row[static_cast<size_t>(i)].d;
+                const value_t dwv = row[static_cast<size_t>(j)].d;
+                const uint32_t e = find_leftover(u, v);
+                if (!e) continue;
+                const value_t t = ed.diam[static_cast<size_t>(e) - 1];
+                if (!(std::max(dwu, dwv) <= t)) continue;
+                xv[0] = ed.verts[2 * (static_cast<size_t>(e) - 1)];
+                xv[1] = ed.verts[2 * (static_cast<size_t>(e) - 1) + 1];
+                const comb_t xidx = comb_index(xv, 2, st.binom);
+                if (coface_ready_any(st.coface_buf.data(), xv, 2, static_cast<int32_t>(w), xidx, t,
+                                     st))
+                    marked[e] = 1;
+            }
+        }
+    }
+}
+
 static std::vector<std::vector<std::pair<value_t, value_t>>>
-redzed_vr(DistanceMatrix& distIn, int n, value_t threshold, EdgeList* prebuilt) {
+redzed_vr(DistanceMatrix& distIn, int n, value_t threshold, EdgeList* prebuilt,
+          bool knn_mark = false) {
     g_alg = AlgCount{};
     int nv = distIn.n;
     value_t thr = threshold;
@@ -713,6 +806,12 @@ redzed_vr(DistanceMatrix& distIn, int n, value_t threshold, EdgeList* prebuilt) 
         SetDict* R1 = want_h1 ? &st.R[1] : nullptr;
         SetDict* Ri1 = want_h1 ? &st.Ri[1] : nullptr;
         const EdgeList& ed = st.edges;
+        const bool use_knn = knn_mark && n == 1 && want_h1;
+        std::vector<uint32_t> leftover_e;
+        if (use_knn)
+            leftover_e.reserve(ed.count > static_cast<size_t>(nv)
+                                   ? ed.count - static_cast<size_t>(nv) + 1
+                                   : 16);
         for (size_t e = 1; e <= ed.count; ++e) {
             int lo = ed.verts[2 * (e - 1)];
             int hi = ed.verts[2 * (e - 1) + 1];
@@ -720,6 +819,9 @@ redzed_vr(DistanceMatrix& distIn, int n, value_t threshold, EdgeList* prebuilt) 
             value_t ediam = ed.diam[e - 1];
             if (a == b) {
                 if (want_h1) {
+                    if (use_knn) {
+                        leftover_e.push_back(static_cast<uint32_t>(e));
+                    } else {
                     rank_t er = (rank_t)e;
                     if (n == 1) {
                         // I251: inline the 97% empty-seed leftover-coface skip so
@@ -750,11 +852,53 @@ redzed_vr(DistanceMatrix& distIn, int n, value_t threshold, EdgeList* prebuilt) 
                         R1->singleton(er, er);
                         Ri1->singleton(er, er);
                     }
+                    }
                 }
             } else {
                 int32_t jj = std::max(a, b), oo = std::min(a, b);
                 uf.parent[jj] = oo;
                 if (ediam != 0.0) st.pairs[0].push_back({0.0, ediam});
+            }
+        }
+        if (use_knn) {
+            std::vector<uint8_t> marked;
+            knn_mark_leftovers(st, leftover_e, marked);
+            for (uint32_t e : leftover_e) {
+                const rank_t er = (rank_t)e;
+                const int lo = ed.verts[2 * (static_cast<size_t>(e) - 1)];
+                const int hi = ed.verts[2 * (static_cast<size_t>(e) - 1) + 1];
+                const value_t ediam = ed.diam[static_cast<size_t>(e) - 1];
+                const bool knn_skip = marked[e] != 0;
+                ++g_alg.leftover;
+                st.top_buf[0] = lo;
+                st.top_buf[1] = hi;
+                const int32_t* xv = &ed.verts[2 * (static_cast<size_t>(e) - 1)];
+                if (knn_skip && st.act.slot_of.count == 0) {
+                    ++g_alg.empty_skip;
+                    ++g_alg.knn_mark;
+                    continue;
+                }
+                ae_prepare(st, st.top_buf.data(), ediam);
+                if (st.seedverts.empty()) {
+                    if (knn_skip) {
+                        ++g_alg.empty_skip;
+                        ++g_alg.knn_mark;
+                        continue;
+                    }
+                    const comb_t xidx = comb_index(xv, 2, st.binom);
+                    ++g_alg.coface;
+                    if (leftover_coface_h1_noseen(st, xv, xidx, ediam)) {
+                        ++g_alg.empty_skip;
+                        continue;
+                    }
+                    ++g_alg.keep_singleton;
+                    ae_keep_singleton(st, er, st.top_buf.data(), ediam);
+                } else {
+                    const comb_t xidx = comb_index(xv, 2, st.binom);
+                    ++g_alg.ae_seeded;
+                    ++g_alg.coface;
+                    ae_seeded(st, er, xidx, st.top_buf.data(), ediam);
+                }
             }
         }
     }
@@ -2434,7 +2578,7 @@ Result persist_redzed(const std::vector<std::vector<value_t>>& dist, int maxdim,
 }
 
 Result persist_redzed_from_points(const std::vector<std::vector<value_t>>& pts, int maxdim,
-                                 value_t threshold, bool dense_metric) {
+                                 value_t threshold, bool dense_metric, bool knn_mark) {
     const int n = static_cast<int>(pts.size());
     if (n <= 0 || maxdim < 0) {
         Result r;
@@ -2558,7 +2702,7 @@ Result persist_redzed_from_points(const std::vector<std::vector<value_t>>& pts, 
     };
     const SparseGuard guard(spatial ? &csr : nullptr);
     const auto t0 = std::chrono::steady_clock::now();
-    auto bars = redzed_vr(D, dim, threshold, pre_ptr);
+    auto bars = redzed_vr(D, dim, threshold, pre_ptr, knn_mark);
     Result r;
     append_bars(r, bars, dim);
     ::take_alg(r);
@@ -2570,6 +2714,7 @@ Result persist_redzed_from_points(const std::vector<std::vector<value_t>>& pts, 
     r.counters.metric_ms = std::chrono::duration<double, std::milli>(tfill1 - tfill0).count();
     r.counters.reduce_ms = std::chrono::duration<double, std::milli>(t1 - t0).count();
     r.counters.pipeline = spatial ? "pith:redzed-spatial" : "pith:redzed-thr";
+    if (knn_mark) r.counters.pipeline += "-knn-mark";
     return r;
 }
 
