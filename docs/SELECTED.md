@@ -663,9 +663,9 @@ empty-seed skips, leftover XOR/noop, G_t apparent, add-R, D(e) memo,
 collapse-on-thicken at n≥4000, RCM/Morton on thicken, leftover
 adj/hash on |E|>16n. Sparse FPS squared-distance **and** 2D/3D AABB
 skips are spent (exact λ, no clock cut). Remaining walls: leftover
-`ae_seeded` on a connected fat \(G_T\); fat implicit H2 tet tax
-(default exact-auto is RedZeD-cc; mixed \(n=1000\) 1.07 s, \(n=2000\)
-leaves 12 s); 3D Lawson+insphere; sparse FPS \(\Theta(n^2)\)
+`ae_seeded` on a connected fat \(G_T\); persist_sparse H2 on a high-\(\Delta\)
+flag (forced implicit now hands that H2 to RedZeD); 3D Lawson+insphere;
+sparse FPS \(\Theta(n^2)\)
 (approximate net with a stated interleaving, or a different
 subquadratic structure). τ is frozen. Euclidean fat-H2 dispatch
 uses \(n_{cc}\ge 800\), not \(n\ge 200\).

@@ -100,7 +100,7 @@ Search on 2026-10-14:
 | Wall | Why it is still there | What would count as progress |
 | --- | --- | --- |
 | Leftover `ae_seeded` on connected fat \(G_T\) | Output-sensitive AE / implicit reduce on \(\lvert R\rvert\sim\lvert E\rvert\) | A **new pairing algorithm** with a stated complexity in \(\lvert R\rvert\), or a theorem that most leftovers are skippable **without** inventing bars. Not another inner-loop flag. |
-| Fat exact \(H_2\) | Forced `--engine implicit` `persist_sparse` enumerates tets (mixed \(n=300\) timeout). Default exact-auto is RedZeD-cc and finishes through \(n=1000\) (1.07 s vs Ripser 7.25 s); both leave a 12 s budget near \(n=2000\) | A cohomology H2 path that does not materialize tets, or stay on RedZeD-cc / `--mode scale` when \(n_{cc}\ge 800\). High-d fat H2 sparse remains refused. |
+| Fat exact \(H_2\) | Default exact-auto is RedZeD-cc (mixed \(n=1000\) 1.07 s vs Ripser 7.25 s). Forced implicit now routes H2 to RedZeD when \(\lvert E\rvert>16n\) or \(\Delta>24\) (mixed \(n=300\) 54 ms, unmatched 0). Thin flags still use `persist_sparse`. Both exact and Ripser leave a 12 s budget near mixed \(n=2000\) | A true cohomology H2 (no tets, no second engine), or `--mode scale` when \(n_{cc}\ge 800\). High-d fat H2 sparse remains refused. |
 | 3D Lawson + insphere | Expected \(O(n\log n)\) incremental Delaunay; 80k sphere is still walk + predicates | A different 3D location structure, not I307–I312 bookkeeping. |
 | Sparse FPS \(\Theta(n^2)\) | Greedy net needs \(\Theta(n^2)\) distance evaluations | An approximate net with a **stated** interleaving change, or a subquadratic exact FPS in low \(d\). Squared-distance and AABB/axis-reject are closed. |
 

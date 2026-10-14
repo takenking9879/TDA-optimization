@@ -5,6 +5,14 @@ Do not paste long reasoning here.
 
 ---
 
+## 2026-10-14 — Implicit fat H2 uses RedZeD, not persist_sparse
+
+- **Question:** Can forced `--engine implicit` stop hanging on mixed fat H2 without a leftover skip or τ change?
+- **Work:** After collapse, if `|E|>16n` **or** max degree `>24`, take H0/H1 from implicit cohomology and H2 from `persist_redzed_from_edges` on the same residual. Thin flags keep `persist_sparse` (sphere n=400 / planar Delaunay). `|E|>16n` alone missed mixed n=300 (collapsed `|E|≤16n`, Δ≈99 clique).
+- **Result:** mixed n=160/300/600 implicit **0.010 / 0.054 / 0.46 s**, unmatched 0 vs Ripser. sphere n=400 still persist_sparse **14 ms**, unmatched 0. figure-8 H1 unchanged. `pith_test` + CLI + `eval_mode_auto` **11/11**. Not a new pairing class.
+- **Decision:** Keep. Do not retune τ. Goal not complete.
+- **Class:** verified (live)
+
 ## 2026-10-14 — Fat H2 is implicit tet tax; dispatcher uses n_cc
 
 - **Question:** Is mixed 1D/2D/3D \(n=300\) `maxdim=2` still an exact timeout vs Ripser (~0.13 s), and is that dispatch or the H2 engine?

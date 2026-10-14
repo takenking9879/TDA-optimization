@@ -274,7 +274,9 @@ probe. A **1-thread oracle** (run both exact engines):
 \(\tau\) was **not** retuned after the post-freeze misses — they cost
 tens of milliseconds, not a change of regime. Mixed 1D/2D/3D at
 `maxdim=2` is a **fat H2** residual, but the hang was forced
-`--engine implicit` (tet enumeration). Default exact-auto is RedZeD-cc
+`--engine implicit` (tet enumeration); implicit now hands fat H2
+(\(\lvert E\rvert>16n\) or \(\Delta>24\)) to RedZeD (mixed \(n=300\) 54 ms,
+unmatched 0). Default exact-auto is RedZeD-cc
 and finishes at \(n=300\) in 33 ms (Ripser 0.14 s). `--estimate` now
 models cost on the largest T-component \(n_{cc}\) and recommends scale
 only when \(n_{cc}\ge 800\) (mixed \(n=2000\)). Auto-dispatch probes

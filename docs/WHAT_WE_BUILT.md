@@ -66,7 +66,9 @@ the blunt \(n\ge 200\) cutoff: `--estimate` measures the largest
 T-component \(n_{cc}\) and marks exact impractical at \(n_{cc}\ge 800\)
 (mixed \(n=300\) is now exact RedZeD-cc at 33 ms; mixed \(n=2000\)
 goes to scale). The old mixed \(n=300\) “exact timeout” was forced
-`--engine implicit` tet enumeration **[empirical, fat_h2.json]**.
+`--engine implicit` tet enumeration; implicit now uses RedZeD for H2
+when \(\lvert E\rvert>16n\) or \(\Delta>24\) (54 ms, unmatched 0)
+**[empirical, fat_h2.json]**.
 
 `--estimate` exposes that probe as a feasibility guess with a
 **conservative |E| band** (probe fraction ×1.25), a residual-size band,

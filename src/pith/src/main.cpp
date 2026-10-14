@@ -716,6 +716,7 @@ int main(int argc, char** argv) {
         Graph g_h2;
         bool delaunay_split = false;
         bool used_redzed_thicken = false;
+        bool used_redzed_h2 = false;
         std::vector<std::vector<value_t>> dist;
         std::vector<std::vector<value_t>> pts;
         bool have_pts = false;
@@ -1009,6 +1010,39 @@ int main(int argc, char** argv) {
         } else if (delaunay_vr && maxdim >= 1) {
             r = persist_redzed_from_edges(g.n, g.edges, maxdim, threshold);
             used_redzed_thicken = true;
+        } else if (use_implicit && maxdim >= 2 && [&]() {
+                       int max_deg = 0;
+                       if (g.neighbors.size() == static_cast<size_t>(std::max(g.n, 0))) {
+                           for (const auto& nb : g.neighbors)
+                               max_deg = std::max(max_deg, static_cast<int>(nb.size()));
+                       }
+                       // persist_sparse H2 is Θ(C(Δ,4)) on a clique component.
+                       // mixed n=300 after collapse can have |E|≤16n and still
+                       // a near-complete sphere (Δ≈99). Thin flags stay on
+                       // persist_sparse (sphere n=400 / planar Delaunay).
+                       return g.edges.size() > 16ull * static_cast<size_t>(std::max(g.n, 1)) ||
+                              max_deg > 24;
+                   }()) {
+            // persist_sparse H2 enumerates tets (mixed n=300 timeout).
+            // Same flag; RedZeD H2 is exact VR. Thin flags (|E|≤16n)
+            // keep persist_sparse — RedZeD generate_stream was a tax on
+            // planar Delaunay H2 (figure8 n=16000).
+            Result r1 = persist_implicit_coh(g, 1, threshold, ratio);
+            Result r2 = persist_redzed_from_edges(g.n, g.edges, maxdim, threshold);
+            r.pairs.reserve(r1.pairs.size() + r2.pairs.size());
+            for (const auto& p : r1.pairs)
+                if (p.dim <= 1) r.pairs.push_back(p);
+            for (const auto& p : r2.pairs)
+                if (p.dim >= 2) r.pairs.push_back(p);
+            r.counters = r1.counters;
+            r.counters.n_simplices_enumerated += r2.counters.n_simplices_enumerated;
+            r.counters.n_columns_assembled += r2.counters.n_columns_assembled;
+            r.counters.n_columns_reduced += r2.counters.n_columns_reduced;
+            r.counters.n_additions += r2.counters.n_additions;
+            r.counters.n_cofacet_probes += r2.counters.n_cofacet_probes;
+            r.counters.reduce_ms += r2.counters.reduce_ms;
+            r.counters.n_vertices = g.n;
+            used_redzed_h2 = true;
         } else {
             r = use_implicit ? persist_implicit_coh(g, maxdim, threshold, ratio)
                              : persist_sparse(g, maxdim, threshold, ratio);
@@ -1087,6 +1121,7 @@ int main(int argc, char** argv) {
                                                           (use_implicit ? "+implicit_coh"
                                                                         : "+homology")));
             if (used_redzed_thicken) r.counters.pipeline += "-redzed";
+            if (used_redzed_h2) r.counters.pipeline += "-redzed-h2";
         }
         std::sort(r.pairs.begin(), r.pairs.end(), [](const PersistencePair& a, const PersistencePair& b) {
             if (a.dim != b.dim) return a.dim < b.dim;
