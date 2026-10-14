@@ -207,6 +207,77 @@ int main() {
         std::cout << "ok implicit K6 vs homology H1 bars=" << ba.size() << "\n";
     }
 
+    // I313: implicit cohomology H2 must match persist_sparse (homology) barcodes.
+    {
+        auto h2_bars = [](const Result& r) {
+            std::vector<std::pair<float, float>> out;
+            int ess = 0;
+            for (const auto& p : r.pairs) {
+                if (p.dim != 2) continue;
+                if (!std::isfinite(p.death))
+                    ++ess;
+                else
+                    out.push_back({p.birth, p.death});
+            }
+            std::sort(out.begin(), out.end());
+            return std::pair<int, std::vector<std::pair<float, float>>>{ess, out};
+        };
+        auto match_h2 = [&](const Graph& g, value_t T, const char* tag) -> bool {
+            Result a = persist_sparse(g, 2, T, 1);
+            Result b = persist_implicit_coh(g, 2, T, 1);
+            auto ba = h2_bars(a), bb = h2_bars(b);
+            if (ba.first != bb.first || ba.second.size() != bb.second.size()) {
+                std::cerr << "I313 " << tag << " ess/fin=" << bb.first << "/" << bb.second.size()
+                          << " vs sparse " << ba.first << "/" << ba.second.size() << "\n";
+                return false;
+            }
+            for (size_t i = 0; i < ba.second.size(); ++i) {
+                if (std::fabs(ba.second[i].first - bb.second[i].first) > 1e-5f ||
+                    std::fabs(ba.second[i].second - bb.second[i].second) > 1e-5f) {
+                    std::cerr << "I313 " << tag << " bar mismatch\n";
+                    return false;
+                }
+            }
+            return true;
+        };
+
+        Graph k6;
+        k6.n = 6;
+        int t = 1;
+        for (int i = 0; i < 6; ++i)
+            for (int j = i + 1; j < 6; ++j)
+                k6.edges.push_back({i, j, static_cast<float>(t++)});
+        rebuild_neighbors(k6);
+        if (!match_h2(k6, 100, "K6")) return 1;
+        std::cout << "ok implicit K6 vs homology H2\n";
+
+        const value_t T = 1.5f;
+        std::vector<std::vector<value_t>> pts = {
+            {1, 0, 0}, {-1, 0, 0}, {0, 1, 0}, {0, -1, 0}, {0, 0, 1}, {0, 0, -1},
+        };
+        std::vector<std::vector<value_t>> dist(6, std::vector<value_t>(6, 0));
+        for (int i = 0; i < 6; ++i)
+            for (int j = i + 1; j < 6; ++j) {
+                value_t d = 0;
+                for (int k = 0; k < 3; ++k) {
+                    const value_t u = pts[i][k] - pts[j][k];
+                    d += u * u;
+                }
+                dist[i][j] = dist[j][i] = std::sqrt(d);
+            }
+        Graph oct = graph_from_distance(dist, T);
+        if (!match_h2(oct, T, "octahedron")) return 1;
+        Result ro = persist_implicit_coh(oct, 2, T, 1);
+        int ess2 = 0;
+        for (const auto& p : ro.pairs)
+            if (p.dim == 2 && !std::isfinite(p.death)) ++ess2;
+        if (ess2 != 1) {
+            std::cerr << "I313 octahedron ess H2=" << ess2 << "\n";
+            return 1;
+        }
+        std::cout << "ok implicit octahedron vs homology H2 ess=1\n";
+    }
+
     // I149/I150: DC and forward keep PH of C4+diagonals (later diagonal trimmed
     // or barcode-equivalent). Compare H1 of collapsed graphs.
     {

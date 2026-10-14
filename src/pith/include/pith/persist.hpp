@@ -656,6 +656,204 @@ inline bool zero_apparent_facet(const Graph& g, std::uint64_t tri_key, value_t t
     return true;
 }
 
+// I313: Ripser dim-2 cohomology on the same Graph. Tet keys are the three
+// smallest vertices (pack3) plus the largest. Combinatorial tet index is
+// lexicographic on (d,c,b,a), so this order matches Ripser's binomial index
+// on diameter ties. Not a new pairing class — Bauer, Ripser [citation].
+struct TetKey {
+    std::uint64_t abc = 0;
+    index_t d = -1;
+    bool operator==(const TetKey& o) const { return abc == o.abc && d == o.d; }
+};
+
+struct TetKeyHash {
+    std::size_t operator()(TetKey k) const {
+        return static_cast<std::size_t>(
+            k.abc ^ (static_cast<std::uint64_t>(static_cast<std::uint32_t>(k.d) + 1) *
+                     0x9E3779B97F4A7C15ull));
+    }
+};
+
+inline TetKey make_tet(index_t a, index_t b, index_t c, index_t w) {
+    index_t v[4] = {a, b, c, w};
+    std::sort(v, v + 4);
+    return TetKey{pack3(v[0], v[1], v[2]), v[3]};
+}
+
+inline bool tet_key_less(TetKey x, TetKey y) {
+    if (x.d != y.d) return x.d < y.d;
+    return x.abc < y.abc;
+}
+
+struct CohTet {
+    value_t t = kNegInf;
+    TetKey key{};
+};
+
+struct CohTetLess {
+    bool operator()(CohTet a, CohTet b) const {
+        if (a.t != b.t) return a.t > b.t;
+        return tet_key_less(a.key, b.key);
+    }
+};
+
+using CohTetHeap = std::priority_queue<CohTet, std::vector<CohTet>, CohTetLess>;
+
+inline CohTet pop_pivot_tet(CohTetHeap& h) {
+    while (!h.empty()) {
+        const CohTet p = h.top();
+        h.pop();
+        if (h.empty() || h.top().t != p.t || !(h.top().key == p.key)) return p;
+        h.pop();
+    }
+    return {};
+}
+
+inline CohTet peek_pivot_tet(CohTetHeap& h) {
+    const CohTet p = pop_pivot_tet(h);
+    if (p.t != kNegInf) h.push(p);
+    return p;
+}
+
+inline value_t tri_time(const Graph& g, index_t a, index_t b, index_t c) {
+    return std::max({edge_time(g, a, b), edge_time(g, a, c), edge_time(g, b, c)});
+}
+
+template <class Fn>
+inline bool for_cofacets_tri_hi(const Graph& g, index_t a, index_t b, index_t c, value_t ttri,
+                                value_t T, Fn&& fn) {
+    const auto& na = g.neighbors[a];
+    const auto& nb = g.neighbors[b];
+    const auto& nc = g.neighbors[c];
+    int i = static_cast<int>(na.size()) - 1;
+    int j = static_cast<int>(nb.size()) - 1;
+    int k = static_cast<int>(nc.size()) - 1;
+    while (i >= 0 && j >= 0 && k >= 0) {
+        const index_t ia = na[static_cast<size_t>(i)].first;
+        const index_t ib = nb[static_cast<size_t>(j)].first;
+        const index_t ic = nc[static_cast<size_t>(k)].first;
+        const index_t mx = std::max({ia, ib, ic});
+        if (ia != mx || ib != mx || ic != mx) {
+            if (ia == mx) --i;
+            if (ib == mx) --j;
+            if (ic == mx) --k;
+            continue;
+        }
+        const index_t w = mx;
+        if (w != a && w != b && w != c) {
+            const value_t td = std::max({ttri, na[static_cast<size_t>(i)].second,
+                                         nb[static_cast<size_t>(j)].second,
+                                         nc[static_cast<size_t>(k)].second});
+            if (td <= T) {
+                CohTet e{td, make_tet(a, b, c, w)};
+                using R = decltype(fn(e));
+                if constexpr (std::is_same_v<R, bool>) {
+                    if (!fn(e)) return false;
+                } else {
+                    fn(e);
+                }
+            }
+        }
+        --i;
+        --j;
+        --k;
+    }
+    return true;
+}
+
+template <class Fn>
+inline void for_cofacets_tri(const Graph& g, index_t a, index_t b, index_t c, value_t ttri,
+                             value_t T, Fn&& fn) {
+    const auto& na = g.neighbors[a];
+    const auto& nb = g.neighbors[b];
+    const auto& nc = g.neighbors[c];
+    size_t i = 0, j = 0, k = 0;
+    while (i < na.size() && j < nb.size() && k < nc.size()) {
+        const index_t ia = na[i].first, ib = nb[j].first, ic = nc[k].first;
+        const index_t mn = std::min({ia, ib, ic});
+        if (ia != mn || ib != mn || ic != mn) {
+            if (ia == mn) ++i;
+            if (ib == mn) ++j;
+            if (ic == mn) ++k;
+            continue;
+        }
+        const index_t w = mn;
+        if (w != a && w != b && w != c) {
+            const value_t td = std::max({ttri, na[i].second, nb[j].second, nc[k].second});
+            if (td <= T) fn(CohTet{td, make_tet(a, b, c, w)});
+        }
+        ++i;
+        ++j;
+        ++k;
+    }
+}
+
+inline bool zero_pivot_facet_tet(const Graph& g, TetKey key, value_t t_tet, index_t* oa,
+                                 index_t* ob, index_t* oc, value_t* ot) {
+    index_t v[4];
+    unpack3(key.abc, v[0], v[1], v[2]);
+    v[3] = key.d;
+    const int omit[4] = {3, 2, 1, 0};
+    for (int s = 0; s < 4; ++s) {
+        index_t f[3];
+        int n = 0;
+        for (int i = 0; i < 4; ++i)
+            if (i != omit[s]) f[n++] = v[i];
+        const value_t t = tri_time(g, f[0], f[1], f[2]);
+        if (t == t_tet) {
+            *oa = f[0];
+            *ob = f[1];
+            *oc = f[2];
+            *ot = t;
+            return true;
+        }
+    }
+    return false;
+}
+
+inline bool zero_pivot_cofacet_tri(const Graph& g, index_t a, index_t b, index_t c, value_t ttri,
+                                   value_t T, CohTet* out, Counters* ctr = nullptr) {
+    bool found = false;
+    for_cofacets_tri_hi(g, a, b, c, ttri, T, [&](CohTet tau) -> bool {
+        if (ctr) ++ctr->n_cofacet_apparent_probes;
+        if (tau.t == ttri) {
+            *out = tau;
+            found = true;
+            return false;
+        }
+        return true;
+    });
+    return found;
+}
+
+inline bool zero_apparent_cofacet_tri(const Graph& g, index_t a, index_t b, index_t c, value_t ttri,
+                                      value_t T, CohTet* out, Counters* ctr = nullptr) {
+    CohTet tau;
+    if (!zero_pivot_cofacet_tri(g, a, b, c, ttri, T, &tau, ctr)) return false;
+    index_t fa, fb, fc;
+    value_t ft;
+    if (!zero_pivot_facet_tet(g, tau.key, tau.t, &fa, &fb, &fc, &ft)) return false;
+    if (pack3(fa, fb, fc) != pack3(a, b, c)) return false;
+    if (out) *out = tau;
+    return true;
+}
+
+inline bool zero_apparent_facet_tet(const Graph& g, TetKey key, value_t t_tet, value_t T,
+                                    index_t* oa, index_t* ob, index_t* oc, value_t* ot,
+                                    Counters* ctr = nullptr) {
+    index_t a, b, c;
+    value_t t;
+    if (!zero_pivot_facet_tet(g, key, t_tet, &a, &b, &c, &t)) return false;
+    CohTet tau;
+    if (!zero_pivot_cofacet_tri(g, a, b, c, t, T, &tau, ctr)) return false;
+    if (!(tau.key == key)) return false;
+    *oa = a;
+    *ob = b;
+    *oc = c;
+    *ot = t;
+    return true;
+}
+
 // I163: leftover-apparent rate + MST scale. Used to decide whether collapse
 // can beat Ripser (circle T≈1.5: low apparent / long leftover tail).
 struct RoiProbe {
@@ -890,15 +1088,161 @@ inline Result persist_implicit_coh(const Graph& g, int maxdim, value_t threshold
     }
 
     if (maxdim >= 2) {
-        Result h = persist_sparse(g, maxdim, threshold, ratio);
-        for (const auto& p : h.pairs) {
-            if (p.dim >= 2) r.pairs.push_back(p);
+        // I313: dim-2 implicit cohomology. Columns are triangles that are
+        // neither an H1 death (cleared / apparent with an edge) nor an
+        // apparent pair with a tet. Cofacets are enumerated on the fly;
+        // the tet list is never stored. Bauer, Ripser [citation].
+        struct LTri {
+            index_t a, b, c;
+            value_t t;
+        };
+        std::vector<LTri> cols2;
+        cols2.reserve(g.edges.size() / 4 + 8);
+        for (const Edge& e : g.edges) {
+            if (e.t > threshold) continue;
+            const auto& nu = g.neighbors[e.u];
+            const auto& nv = g.neighbors[e.v];
+            size_t i = 0, j = 0;
+            while (i < nu.size() && j < nv.size()) {
+                if (nu[i].first < nv[j].first) {
+                    ++i;
+                    continue;
+                }
+                if (nv[j].first < nu[i].first) {
+                    ++j;
+                    continue;
+                }
+                const index_t w = nu[i].first;
+                if (w != e.u && w != e.v && w > e.u && w > e.v) {
+                    const value_t td = std::max({e.t, nu[i].second, nv[j].second});
+                    if (td <= threshold) {
+                        ++c.n_simplices_enumerated;
+                        const std::uint64_t tkey = pack3(e.u, e.v, w);
+                        index_t au = 0, av = 0;
+                        value_t at = 0;
+                        if (pivot.find(tkey) != pivot.end()) {
+                            ++c.n_columns_cleared;
+                        } else if (zero_apparent_facet(g, tkey, td, threshold, &au, &av, &at, &c)) {
+                            ++c.n_columns_apparent;
+                        } else if (zero_apparent_cofacet_tri(g, e.u, e.v, w, td, threshold, nullptr,
+                                                            &c)) {
+                            ++c.n_columns_apparent;
+                        } else {
+                            cols2.push_back({e.u, e.v, w, td});
+                        }
+                    }
+                }
+                ++i;
+                ++j;
+            }
         }
-        c.n_simplices_enumerated += h.counters.n_simplices_enumerated;
-        c.n_columns_assembled += h.counters.n_columns_assembled;
-        c.n_columns_reduced += h.counters.n_columns_reduced;
-        c.n_additions += h.counters.n_additions;
-        c.n_cofacet_probes += h.counters.n_cofacet_probes;
+
+        std::sort(cols2.begin(), cols2.end(), [](const LTri& a, const LTri& b) {
+            if (a.t != b.t) return a.t > b.t;
+            return pack3(a.a, a.b, a.c) < pack3(b.a, b.b, b.c);
+        });
+
+        std::unordered_map<TetKey, int, TetKeyHash> pivot2;
+        pivot2.reserve(cols2.size() * 2);
+        std::vector<std::vector<LTri>> red2(cols2.size());
+
+        auto add_tri_coboundary = [&](const LTri& tr, std::vector<LTri>& vred, CohTetHeap& cob) {
+            vred.push_back(tr);
+            for_cofacets_tri(g, tr.a, tr.b, tr.c, tr.t, threshold, [&](CohTet x) {
+                ++c.n_cofacet_probes;
+                cob.push(x);
+            });
+        };
+
+        auto compress_vtris = [](std::vector<LTri>& v) {
+            if (v.size() < 2) return;
+            std::sort(v.begin(), v.end(), [](const LTri& a, const LTri& b) {
+                return pack3(a.a, a.b, a.c) < pack3(b.a, b.b, b.c);
+            });
+            std::vector<LTri> out;
+            out.reserve(v.size());
+            for (const LTri& tr : v) {
+                if (!out.empty() && pack3(out.back().a, out.back().b, out.back().c) ==
+                                        pack3(tr.a, tr.b, tr.c))
+                    out.pop_back();
+                else
+                    out.push_back(tr);
+            }
+            v.swap(out);
+        };
+
+        for (int i = 0; i < static_cast<int>(cols2.size()); ++i) {
+            ++c.n_columns_assembled;
+            CohTetHeap working_cob;
+            std::vector<LTri> working_red;
+            std::vector<CohTet> collected;
+            collected.reserve(8);
+
+            bool check_emergent = true;
+            bool have_emergent = false;
+            CohTet emergent{};
+            for_cofacets_tri_hi(g, cols2[i].a, cols2[i].b, cols2[i].c, cols2[i].t, threshold,
+                                [&](CohTet tau) -> bool {
+                                    ++c.n_cofacet_probes;
+                                    if (have_emergent) return false;
+                                    collected.push_back(tau);
+                                    if (check_emergent && tau.t == cols2[i].t) {
+                                        if (pivot2.find(tau.key) == pivot2.end()) {
+                                            index_t aa, bb, cc;
+                                            value_t at;
+                                            if (!zero_apparent_facet_tet(g, tau.key, tau.t,
+                                                                         threshold, &aa, &bb, &cc,
+                                                                         &at, &c)) {
+                                                have_emergent = true;
+                                                emergent = tau;
+                                                collected.clear();
+                                                return false;
+                                            }
+                                        }
+                                        check_emergent = false;
+                                    }
+                                    return true;
+                                });
+
+            CohTet piv;
+            if (have_emergent) {
+                piv = emergent;
+            } else {
+                for (const CohTet& x : collected) working_cob.push(x);
+                piv = peek_pivot_tet(working_cob);
+            }
+            ++c.n_columns_reduced;
+
+            while (true) {
+                if (piv.t == kNegInf) {
+                    r.pairs.push_back({2, cols2[i].t, kInf});
+                    break;
+                }
+                auto it = pivot2.find(piv.key);
+                if (it != pivot2.end()) {
+                    const int j = it->second;
+                    add_tri_coboundary(cols2[j], working_red, working_cob);
+                    for (const LTri& tr : red2[j])
+                        add_tri_coboundary(tr, working_red, working_cob);
+                    ++c.n_additions;
+                    piv = peek_pivot_tet(working_cob);
+                    continue;
+                }
+                index_t aa = 0, bb = 0, cc = 0;
+                value_t at = 0;
+                if (zero_apparent_facet_tet(g, piv.key, piv.t, threshold, &aa, &bb, &cc, &at, &c)) {
+                    add_tri_coboundary({aa, bb, cc, at}, working_red, working_cob);
+                    ++c.n_additions;
+                    piv = peek_pivot_tet(working_cob);
+                    continue;
+                }
+                if (piv.t > cols2[i].t * ratio) r.pairs.push_back({2, cols2[i].t, piv.t});
+                pivot2[piv.key] = i;
+                compress_vtris(working_red);
+                red2[i] = std::move(working_red);
+                break;
+            }
+        }
     }
 
     const auto t1 = std::chrono::steady_clock::now();
