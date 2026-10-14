@@ -5,6 +5,13 @@ Do not paste long reasoning here.
 
 ---
 
+## 2026-10-14 — sparse scaling figures + auto 9/9 with 4D
+
+- **Work:** `plot_consolidation.py` reads `sparse_scale.json`. New `runtime_sparse.svg`. `--mode auto` re-eval including `uniform4`.
+- **Result:** Auto **9/9** (4D → sparse). Figures now show sparse \(p\approx 2\) vs scale \(p\approx 1.2\) through figure-8 \(n=24000\).
+- **Decision:** Hold. Goal not complete.
+- **Class:** verified
+
 ## 2026-10-14 — fused sparse limits + estimate \(n^2\) model
 
 - **Question:** How far does fused `--mode sparse` go on this box, and does `--estimate` describe it without retuning τ?

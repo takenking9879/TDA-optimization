@@ -5,8 +5,8 @@ and the fused Euclidean sparse constructor.
 **Stable CLI:** `--mode exact|scale|sparse`, `--engine auto|redzed|implicit`,
 `--estimate`, `--threads N`, `--mode auto`. Auto-dispatch probes at \(n\ge 64\).
 `--estimate` marks fat `maxdim≥2` residuals as exact-infeasible.
-`--mode auto` follows that recommendation (phase-2 8/8; phase-3 post-freeze 9/9 vs probe;
-held-out 4D `uniform4` n=5000 maxdim=1 → sparse).
+`--mode auto` follows that recommendation (phase-2 8/8; current eval **9/9** vs probe,
+including held-out 4D `uniform4` n=5000 maxdim=1 → sparse).
 Engine oracle on new held-out families is **5/9** (do not retune \(\tau\)).
 Equal-hardware: PITH `--threads 1` still beats Ripser, giotto-ph 0.2.4
 (`n_threads=1` and `4`), and GUDHI 3.13 Rips on the measured suite.
