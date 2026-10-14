@@ -1,10 +1,10 @@
 # Complexity notes for PITH
 
-Updated 2026-10-14 after iterations I001–I326 plus consolidation measurements.
+Updated 2026-10-14 after iterations I001–I327 plus consolidation measurements.
 This is a **complexity ledger**,
 not a theorem paper and not a selected-algorithm rewrite. It restates what the
 literature already proves, what follows from those statements by a short
-derivation, and what the I204 / I218 / I227–I326 receipts only measure.
+derivation, and what the I204 / I218 / I227–I327 receipts only measure.
 
 **Honest contribution.** PITH does **not** introduce a new worst-case Big-O for
 exact Vietoris–Rips (VR) \(H_1\) on a connected threshold graph \(G_T\). The
@@ -727,6 +727,13 @@ motivated by that size class, not a re-proof of Sheehy’s net-tree.
   evaluations, emit is a finite-\(T\) hash in \(d\in\{2,3\}\). figure-8
   \(n=8000\): 0.75 s / 28 MB vs 1.01 s with a dense store **[empirical]**.
   This is **not** Sheehy’s \(O(n\log n)\) net-tree construction.
+- I327 `--sparse-net dyadic` replaces Gonzalez FPS with hierarchical
+  s-nets (cell width s, insert when \(d(p,N)>s\)). \(L_s\) is an s-net
+  **[derivation]**. Distance count drops (figure8 \(n=8000\): 21M vs
+  53M) but batched dyadic λ **densifies** the 1-skeleton (2.92M vs
+  384k edges) and the wall **loses** (18.6 vs 0.64 s; n=16000 timeout
+  30 s). ess \(H_1\) kept; finite bars differ (`dyadic_net.json`)
+  **[empirical]**. Default sparse stays FPS.
 - Do **not** write “\(O(n^{1.2})\)” as a complexity theorem. I218’s
   \(n^{1.3}\)–\(n^{1.4}\) edge slopes are the measured pre-asymptotic
   window.
@@ -1019,7 +1026,7 @@ worst-case Big-O theorem versus Ripser on connected \(G_T\).
 | Boissonnat–Pritam, *Edge collapse and persistence of flag complexes*, SoCG 2020 | Exact flag collapse; \(O(\lvert E\rvert\,\lvert R\rvert\,\Delta^2)\) |
 | Glisse–Pritam, *Swap, shift and trim*, arXiv:2203.07022 | Backward collapse; \(O(\lvert E\rvert\Delta^3)\) |
 | Sheehy, *Linear-size approximations to the VR filtration*, DCG 2013; arXiv:1203.6786 | \(O(n)\) sparse Rips, \(O(n\log n)\) build, multiplicative guarantee |
-| Cavanna–Jahanseir–Sheehy, CCCG 2015 | Geometric / GUDHI sparse variant |
+| Cavanna–Jahanseir–Sheehy, CCCG 2015 | Geometric / GUDHI sparse variant; I327 dyadic s-nets (`dyadic_net.json`) densify vs FPS |
 | Kapulkin–Kershaw, *RedZeD*, arXiv:2606.06310 | Zero-differential reduction; active enumeration; Prop. 3.2 |
 | Burella Pérez et al., *giotto-ph*, arXiv:2107.05412 | Parallel CPU VR + collapse; AGPL oracle only (not vendored) |
 | Aggarwal–Periwal, *Dory*, *J. Comput. Sci.* 2024; doi:10.1016/j.jocs.2024.102290 | VR up to dim 2; `pydory` 1.1.137 1-thread oracle (not vendored); tracks Ripser on leftover \(H_1\) |
@@ -1040,7 +1047,7 @@ worst-case Big-O theorem versus Ripser on connected \(G_T\).
 | Seidel (Delaunay size) | 3D \(\Theta(n^2)\) worst case; \(\Theta(n^{\lceil d/2\rceil})\) |
 | Kruskal 1956; Tarjan union-find | \(H_0\) |
 
-Project ledgers: `docs/SELECTED.md` (living algorithm, through I312),
+Project ledgers: `docs/SELECTED.md` (living algorithm, through I327),
 `docs/PAPERS.md`, `docs/ALGORITHM_COMPARISON.md`, `docs/COMPLEXES.md`,
 `docs/EDGE_COLLAPSE_SPEC.md`, `src/pith/include/pith/redzed_bridge.hpp`,
 `RESEARCH_LOG.md` I228, I235, I263, I271, I275, I276, I282, I300–I306,

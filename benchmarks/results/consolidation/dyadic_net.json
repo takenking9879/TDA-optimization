@@ -1,0 +1,241 @@
+{
+  "note": "I327 dyadic hierarchical s-net vs FPS sparse Rips. Not exact VR. Default --mode sparse stays FPS. Stated slack: Sheehy/CJS interleaving times factor-2 dyadic.",
+  "threads": 1,
+  "budget_s": 30,
+  "receipts": [
+    {
+      "name": "figure8",
+      "n": 400,
+      "T": 1.1,
+      "maxdim": 1,
+      "fps": {
+        "ok": true,
+        "error": null,
+        "timed_out": false,
+        "wall_s": 0.005439411994302645,
+        "pipeline": "pith:sparse",
+        "edges_in": 5782,
+        "distances": 132414,
+        "ess1": 2,
+        "n_pairs": 433,
+        "threads_used": 1,
+        "net": "fps"
+      },
+      "dyadic": {
+        "ok": true,
+        "error": null,
+        "timed_out": false,
+        "wall_s": 0.01163401998928748,
+        "pipeline": "pith:sparse-dyadic",
+        "edges_in": 10928,
+        "distances": 58593,
+        "ess1": 2,
+        "n_pairs": 435,
+        "threads_used": 1,
+        "net": "dyadic"
+      },
+      "ripser": {
+        "ok": true,
+        "wall_s": 0.020463553999434225,
+        "threads_used": 1
+      },
+      "fps_over_dyadic": 0.46754363490102435,
+      "unmatched_vs_fps": 22,
+      "unmatched_vs_vr": 18,
+      "threads": 1
+    },
+    {
+      "name": "figure8",
+      "n": 2000,
+      "T": 1.1,
+      "maxdim": 1,
+      "fps": {
+        "ok": true,
+        "error": null,
+        "timed_out": false,
+        "wall_s": 0.05078461799712386,
+        "pipeline": "pith:sparse",
+        "edges_in": 57995,
+        "distances": 3283713,
+        "ess1": 2,
+        "n_pairs": 2372,
+        "threads_used": 1,
+        "net": "fps"
+      },
+      "dyadic": {
+        "ok": true,
+        "error": null,
+        "timed_out": false,
+        "wall_s": 0.522390304991859,
+        "pipeline": "pith:sparse-dyadic",
+        "edges_in": 209036,
+        "distances": 1324611,
+        "ess1": 2,
+        "n_pairs": 2358,
+        "threads_used": 1,
+        "net": "dyadic"
+      },
+      "ripser": {
+        "ok": true,
+        "wall_s": 3.528019000994391,
+        "threads_used": 1
+      },
+      "fps_over_dyadic": 0.09721585089125132,
+      "unmatched_vs_fps": 114,
+      "unmatched_vs_vr": 65,
+      "threads": 1
+    },
+    {
+      "name": "figure8",
+      "n": 8000,
+      "T": 1.1,
+      "maxdim": 1,
+      "fps": {
+        "ok": true,
+        "error": null,
+        "timed_out": false,
+        "wall_s": 0.6375288910057861,
+        "pipeline": "pith:sparse",
+        "edges_in": 383539,
+        "distances": 52718196,
+        "ess1": 2,
+        "n_pairs": 10022,
+        "threads_used": 1,
+        "net": "fps"
+      },
+      "dyadic": {
+        "ok": true,
+        "error": null,
+        "timed_out": false,
+        "wall_s": 18.563284176008892,
+        "pipeline": "pith:sparse-dyadic",
+        "edges_in": 2920791,
+        "distances": 20941736,
+        "ess1": 2,
+        "n_pairs": 9981,
+        "threads_used": 1,
+        "net": "dyadic"
+      },
+      "ripser": null,
+      "fps_over_dyadic": 0.03434353991249704,
+      "unmatched_vs_fps": 741,
+      "unmatched_vs_vr": null,
+      "threads": 1
+    },
+    {
+      "name": "figure8",
+      "n": 16000,
+      "T": 1.1,
+      "maxdim": 1,
+      "fps": {
+        "ok": true,
+        "error": null,
+        "timed_out": false,
+        "wall_s": 2.546222621007473,
+        "pipeline": "pith:sparse",
+        "edges_in": 935590,
+        "distances": 211011436,
+        "ess1": 2,
+        "n_pairs": 20220,
+        "threads_used": 1,
+        "net": "fps"
+      },
+      "dyadic": {
+        "ok": false,
+        "error": "Command '['/workspace/src/pith/build/pith', '--points', '/workspace/benchmarks/datasets/generated/dyadic_figure8_n16000.csv', '--maxdim', '1', '--threshold', '1.1', '--mode', 'sparse', '--sparse-net', 'dyadic', '--threads', '1', '--no-enclosing']' timed out after 30 seconds",
+        "timed_out": true,
+        "wall_s": null,
+        "pipeline": null,
+        "edges_in": null,
+        "distances": null,
+        "ess1": 0,
+        "n_pairs": 0,
+        "threads_used": 1,
+        "net": "dyadic"
+      },
+      "ripser": null,
+      "fps_over_dyadic": null,
+      "unmatched_vs_fps": null,
+      "unmatched_vs_vr": null,
+      "threads": 1
+    },
+    {
+      "name": "circle_noisy",
+      "n": 2000,
+      "T": 1.5,
+      "maxdim": 1,
+      "fps": {
+        "ok": true,
+        "error": null,
+        "timed_out": false,
+        "wall_s": 0.083819275998394,
+        "pipeline": "pith:sparse",
+        "edges_in": 76348,
+        "distances": 3998000,
+        "ess1": 1,
+        "n_pairs": 2474,
+        "threads_used": 1,
+        "net": "fps"
+      },
+      "dyadic": {
+        "ok": true,
+        "error": null,
+        "timed_out": false,
+        "wall_s": 2.6101457829936408,
+        "pipeline": "pith:sparse-dyadic",
+        "edges_in": 416959,
+        "distances": 2044277,
+        "ess1": 1,
+        "n_pairs": 2459,
+        "threads_used": 1,
+        "net": "dyadic"
+      },
+      "ripser": {
+        "ok": true,
+        "wall_s": 28.606532150006387,
+        "threads_used": 1
+      },
+      "fps_over_dyadic": 0.03211287145128714,
+      "unmatched_vs_fps": 147,
+      "unmatched_vs_vr": 78,
+      "threads": 1
+    },
+    {
+      "name": "sphere",
+      "n": 2000,
+      "T": 1.4,
+      "maxdim": 2,
+      "fps": {
+        "ok": true,
+        "error": null,
+        "timed_out": false,
+        "wall_s": 1.563322451998829,
+        "pipeline": "pith:sparse",
+        "edges_in": 101569,
+        "distances": 3998000,
+        "ess1": 0,
+        "n_pairs": 2618,
+        "threads_used": 1,
+        "net": "fps"
+      },
+      "dyadic": {
+        "ok": true,
+        "error": null,
+        "timed_out": false,
+        "wall_s": 29.629006193004898,
+        "pipeline": "pith:sparse-dyadic",
+        "edges_in": 311987,
+        "distances": 2052412,
+        "ess1": 0,
+        "n_pairs": 2604,
+        "threads_used": 1,
+        "net": "dyadic"
+      },
+      "ripser": null,
+      "fps_over_dyadic": 0.052763242945621076,
+      "unmatched_vs_fps": 334,
+      "unmatched_vs_vr": null,
+      "threads": 1
+    }
+  ]
+}

@@ -5,6 +5,14 @@ Do not paste long reasoning here.
 
 ---
 
+## 2026-10-14 — I327 dyadic hierarchical s-net sparse constructor
+
+- **Question:** Can a Cavanna–Jahanseir–Sheehy hierarchical s-net (factor-2 dyadic slack) replace Θ(n²) Gonzalez FPS in `--mode sparse` without losing essential topology, and is it faster?
+- **Work:** Experimental `--sparse-net dyadic`. Grid-accelerated insert when d(p,N)>s. Same sparse-Rips edge rule. Default FPS unchanged. Live `dyadic_net.json`. Unit: n=48 n_dist 373 vs FPS 1128, ess H1 kept. 1 thread. τ frozen.
+- **Result:** Distance count drops (~2–3×) but the 1-skeleton **densifies** (figure8 n=8000: 2.92M vs 384k edges). Wall **loses**: figure8 n=2000 0.52 vs 0.051 s; n=8000 18.6 vs 0.64 s; n=16000 **timeout 30 s** (FPS 2.55 s). circle n=2000 2.61 vs 0.084 s. ess H1 kept (figure8=2, circle=1). Finite bars differ (unmatched vs FPS 22–741; vs VR 18–78 on n≤2000).
+- **Decision:** Reject as default. Batched dyadic λ keeps too many edges; pairing tax exceeds the FPS save. Keep `--sparse-net dyadic` experimental. Goal not complete.
+- **Class:** verified (live)
+
 ## 2026-10-14 — I326 HomCloud / PHAT leftover oracle
 
 - **Question:** Is HomCloud 5.4.0 (or its PHAT-simplicial path) a leftover 10× pairing class we have not timed? Anything after June 2026 besides RedZeD?

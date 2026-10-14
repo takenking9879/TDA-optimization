@@ -1,6 +1,6 @@
 # Selected algorithm (living)
 
-Updated 2026-10-14 after iterations I001–I326 plus consolidation (phase 3)
+Updated 2026-10-14 after iterations I001–I327 plus consolidation (phase 3)
 and the fused Euclidean sparse constructor.
 **Stable CLI:** `--mode exact|scale|sparse|auto`, `--engine auto|redzed|implicit`,
 `--estimate`, `--threads N`. Public runners import `generate_datasets` /
@@ -403,6 +403,14 @@ I272. `--delaunay-only` stays experimental. Not selected.
 Skip non-Del leftovers that miss every active vertex. Live
 `seed_incident.json`: **0 unmatched**, faster than auto **3/8**,
 than I323 **0/8**. figure8 n=2000 2.15 vs 0.15 s. Not selected.
+
+### I327 dyadic hierarchical s-net (not default)
+
+`--sparse-net dyadic`: Cavanna–Jahanseir–Sheehy s-nets, factor-2 slack vs
+Gonzalez FPS. Live `dyadic_net.json`: ess H1 kept; distance count drops;
+1-skeleton densifies (figure8 n=8000 2.92M vs 384k). Wall **10–29×
+slower**; n=16000 timeout 30 s. Default `--mode sparse` stays FPS. Not
+selected.
 
 ### I326 HomCloud / PHAT leftover oracle (not vendored)
 

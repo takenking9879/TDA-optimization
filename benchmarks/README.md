@@ -29,6 +29,7 @@ Public runners and receipts. They talk only in `--mode` / `--engine` /
 | `eval_wall_kind.py` | collapse vs leftover vs construction |
 | `reverify_*.py` | Headline / leftover / oracle re-measures |
 | `eval_homcloud.py` | HomCloud 5.4.0 / PHAT leftover oracle (GPL, not vendored) |
+| `eval_dyadic_net.py` | Dyadic s-net vs FPS sparse Rips (not exact VR) |
 | `run_consolidation.py` | Main scaling pack |
 | `plot_consolidation.py` | Figures + `TABLES.md` |
 | `plot_pd.py` | Persistence-diagram figures |
