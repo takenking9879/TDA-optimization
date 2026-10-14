@@ -972,10 +972,10 @@ Held-out high-d / L1 clock-compare. τ frozen. wrong=recommended mode was the sl
 Fat H2 uniform6_h2_refuse n=200: refuse_ok=True.
 
 ## Fat exact H2 (live `fat_h2.json`)
-mixed n=300 exact-auto is RedZeD-cc and finishes; forced implicit persist_sparse is the tet tax. Both exact and Ripser leave a 15 s budget near n=2000. Dispatcher uses n_cc_max^3, not n≥200. τ unchanged.
+mixed n=300 exact-auto is RedZeD-cc and finishes. Forced implicit used to hang on persist_sparse tets; after the Δ>24 / |E|>16n gate it hands H2 to RedZeD (live 53 ms, unmatched 0). Both exact and Ripser leave a 15 s budget near n=2000. Dispatcher uses n_cc and dense-flag, not n≥200. τ unchanged.
 | family | n | exact-auto (s) | Ripser (s) | scale (s) | implicit | rec | n_cc |
 | --- | ---: | ---: | ---: | ---: | --- | --- | ---: |
-| mixed_1d2d3d | 300 | 0.033 | 0.139 | 0.006 | timeout | exact | 200 |
+| mixed_1d2d3d | 300 | 0.033 | 0.139 | 0.006 | 0.053 | exact | 200 |
 | mixed_1d2d3d | 600 | 0.237 | 1.165 | 0.011 |  | exact | 400 |
 | mixed_1d2d3d | 1000 | 1.074 | 7.247 | 0.019 |  | exact | 667 |
 | mixed_1d2d3d | 2000 | 13.617 |  | 0.051 |  | scale | 1334 |
@@ -986,3 +986,35 @@ mixed n=300 exact-auto is RedZeD-cc and finishes; forced implicit persist_sparse
 | sphere_complete | 250 | 0.468 | 1.899 | 0.004 |  | exact | 250 |
 | uniform3 | 200 | 0.010 | 0.205 | 0.004 |  | exact | 200 |
 | uniform3 | 300 | 0.019 | 0.686 | 0.006 |  | exact | 300 |
+
+## Held-out Euclidean fat H2 (`eval_ncc_auto.py`, seed 11)
+timeout_miss 0/11, scale_miss 0/11. Held-out seed 11. timeout_miss = recommended exact but 12 s fail. scale_miss = recommended scale but exact finished under 8 s (conservative; user loses exact VR). Euclidean fat H2 cutoff: n_cc>=800 or (edge_frac>=0.5 and n_cc>=600). τ frozen.
+| family | n | n_cc | rec | exact (s) | scale (s) | timeout_miss | scale_miss |
+| --- | ---: | ---: | --- | ---: | ---: | --- | --- |
+| two_spheres_apart | 400 | 200 | exact | 0.050 | 0.007 | False | False |
+| two_spheres_apart | 1200 | 600 | exact | 4.672 | 0.021 | False | False |
+| outliers_sphere | 400 | 380 | exact | 0.015 | 0.006 | False | False |
+| outliers_sphere | 900 | 855 | exact | 0.064 | 0.013 | False | False |
+| multi_cavities | 400 | 134 | exact | 0.022 | 0.006 | False | False |
+| multi_cavities | 900 | 300 | exact | 0.270 | 0.014 | False | False |
+| cage_and_ball | 400 | 200 | exact | 0.114 | 0.007 | False | False |
+| cage_and_ball | 1600 | 800 | scale |  | 0.032 | False | False |
+| uniform3 | 400 | 400 | exact | 0.027 | 0.007 | False | False |
+| sphere_complete | 400 | 400 | exact | 2.039 | 0.006 | False | False |
+| sphere_complete | 700 | 700 | scale |  | 0.010 | False | False |
+
+## Held-out adversarial pack (`eval_adversarial.py`, seed 17)
+timeout_miss 0/11, scale_miss 0/11, exact vs Ripser mismatches 0/8. Held-out seed 17. timeout_miss = recommended exact but 12 s fail. scale_miss = recommended scale but exact finished under 8 s. τ / n_cc / dense-flag frozen.
+| family | n | rec | exact (s) | scale (s) | unmatched | ess exact H1 | ess scale H1 |
+| --- | ---: | --- | ---: | ---: | ---: | ---: | ---: |
+| many_loops | 400 | exact | 0.004 | 0.006 | 0 | 5 | 5 |
+| loops_with_bridges | 400 | exact | 0.009 | 0.006 | 0 | 2 | 2 |
+| anisotropic_blob | 400 | exact | 0.007 | 0.005 | 0 | 0 | 0 |
+| clustered | 600 | exact | 0.004 | 0.007 | None | 0 | 0 |
+| heavy_noise_circle | 400 | exact | 0.015 | 0.006 | 0 | 0 | 0 |
+| near_degenerate | 500 | exact | 0.004 | 0.005 | None | 0 | 0 |
+| multi_scale_loops_smallT | 400 | exact | 0.006 | 0.005 | 0 | 1 | 1 |
+| multi_scale_loops_largeT | 400 | exact | 0.007 | 0.005 | 0 | 1 | 1 |
+| torus | 400 | exact | 0.009 | 0.013 | 0 | 1 | 1 |
+| mixed_1d2d3d | 400 | exact | 0.053 | 0.006 | 0 | 1 | 1 |
+| l1_circle | 300 | exact | 0.013 |  | None | 1 |  |

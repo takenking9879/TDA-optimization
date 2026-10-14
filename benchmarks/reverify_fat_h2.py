@@ -77,7 +77,7 @@ def main() -> int:
             ]
             if name == "mixed_1d2d3d" and n <= 300:
                 methods.append(
-                    ("implicit", lambda: run_pith(path, T, dim, "exact", "implicit", threads=1, timeout=8))
+                    ("implicit", lambda: run_pith(path, T, dim, "exact", "implicit", threads=1, timeout=15))
                 )
             ref = None
             for key, fn_run in methods:

@@ -69,8 +69,9 @@ or a dense flag (`edge_frac≥0.5`, \(n_{cc}\ge 600\)). Held-out
 (complete sphere \(n=700\) T=2.5 was the miss that forced it). Mixed
 \(n=300\) is exact RedZeD-cc at 33 ms; mixed \(n=2000\) goes to scale. The old mixed \(n=300\) “exact timeout” was forced
 `--engine implicit` tet enumeration; implicit now uses RedZeD for H2
-when \(\lvert E\rvert>16n\) or \(\Delta>24\) (54 ms, unmatched 0)
-**[empirical, fat_h2.json]**.
+when \(\lvert E\rvert>16n\) or \(\Delta>24\) (53 ms, unmatched 0)
+**[empirical, fat_h2.json]**. Held-out seed-17 `adversarial.json`:
+**0/11** timeout misses, **0/8** exact-vs-Ripser mismatches.
 
 `--estimate` exposes that probe as a feasibility guess with a
 **conservative |E| band** (probe fraction ×1.25), a residual-size band,

@@ -9,9 +9,9 @@ Do not paste long reasoning here.
 
 - **Question:** Can a user run the selected path without I-numbers or wave scripts, and does the frozen dispatcher survive a seed-17 adversarial pack?
 - **Work:** `figure8` + `ph_metrics` are public helpers. Consolidation runners no longer import `run_wave*.py`. `benchmarks/README.md` + `run_stable.py` isolate the research ledger. `eval_adversarial.py` (seed 17) covers loops, bridges, anisotropy, clusters, noise, degeneracy, multi-scale T, mixed 1D/2D/3D, and L1.
-- **Result:** pending live `eval_adversarial.py` + `run_stable.py` (cheap tests). τ / n_cc / dense-flag frozen. Goal not complete.
-- **Decision:** Keep isolating the public interface. No leftover micro-opt hunting.
-- **Class:** experiment
+- **Result:** `run_stable.py` cheap tests pass. `eval_adversarial.py` seed 17: **0/11 timeout_miss, 0/11 scale_miss, 0/8 exact-vs-Ripser mismatches**. Live mixed \(n=300\) `--engine implicit` is **53 ms** (`+implicit_coh-redzed-h2`), unmatched 0 vs auto (stale `fat_h2.json` had an 8 s implicit timeout from before the Δ gate).
+- **Decision:** Keep isolating the public interface. Refresh the implicit receipt. No leftover micro-opt hunting. Goal not complete.
+- **Class:** verified (live)
 
 ## 2026-10-14 — Held-out n_cc cutoff + dense-flag clause
 

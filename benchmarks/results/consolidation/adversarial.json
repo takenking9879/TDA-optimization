@@ -1,0 +1,417 @@
+{
+  "note": "Held-out seed 17. timeout_miss = recommended exact but 12 s fail. scale_miss = recommended scale but exact finished under 8 s. \u03c4 / n_cc / dense-flag frozen.",
+  "n": 11,
+  "n_timeout_miss": 0,
+  "n_scale_miss": 0,
+  "n_exact_checked": 8,
+  "n_exact_mismatch": 0,
+  "receipts": [
+    {
+      "name": "many_loops",
+      "n": 400,
+      "T": 1.2,
+      "maxdim": 1,
+      "distances": false,
+      "n_cc_max": 80,
+      "n_components": 5,
+      "mode_recommended": "exact",
+      "engine_recommended": "redzed",
+      "residual_regime": "hollow",
+      "exact_feasible": true,
+      "est_exact_runtime_s": 0.00563814,
+      "exact_ok": true,
+      "exact_s": 0.0038118430093163624,
+      "exact_pipeline": "pith:auto-redzed-cc",
+      "exact_ess": {
+        "H0": 5,
+        "H1": 5,
+        "H2": 0
+      },
+      "scale_s": 0.005578100011916831,
+      "scale_ess": {
+        "H0": 5,
+        "H1": 5,
+        "H2": 0
+      },
+      "ripser_s": 0.005394429012085311,
+      "ripser_ess": {
+        "H0": 5,
+        "H1": 5,
+        "H2": 0
+      },
+      "exact_vs_ripser_unmatched": 0,
+      "timeout_miss": false,
+      "scale_miss": false
+    },
+    {
+      "name": "loops_with_bridges",
+      "n": 400,
+      "T": 1.3,
+      "maxdim": 1,
+      "distances": false,
+      "n_cc_max": 400,
+      "n_components": 1,
+      "mode_recommended": "exact",
+      "engine_recommended": "implicit",
+      "residual_regime": "thin",
+      "exact_feasible": true,
+      "est_exact_runtime_s": 0.0114,
+      "exact_ok": true,
+      "exact_s": 0.008644073008326814,
+      "exact_pipeline": "pith:auto-collapse",
+      "exact_ess": {
+        "H0": 1,
+        "H1": 2,
+        "H2": 0
+      },
+      "scale_s": 0.005874712995137088,
+      "scale_ess": {
+        "H0": 1,
+        "H1": 2,
+        "H2": 0
+      },
+      "ripser_s": 0.01432593000936322,
+      "ripser_ess": {
+        "H0": 1,
+        "H1": 2,
+        "H2": 0
+      },
+      "exact_vs_ripser_unmatched": 0,
+      "timeout_miss": false,
+      "scale_miss": false
+    },
+    {
+      "name": "anisotropic_blob",
+      "n": 400,
+      "T": 2.5,
+      "maxdim": 1,
+      "distances": false,
+      "n_cc_max": 400,
+      "n_components": 1,
+      "mode_recommended": "exact",
+      "engine_recommended": "redzed",
+      "residual_regime": "fat",
+      "exact_feasible": true,
+      "est_exact_runtime_s": 0.00771333,
+      "exact_ok": true,
+      "exact_s": 0.007174941012635827,
+      "exact_pipeline": "pith:auto-redzed-spatial",
+      "exact_ess": {
+        "H0": 1,
+        "H1": 0,
+        "H2": 0
+      },
+      "scale_s": 0.00519106000137981,
+      "scale_ess": {
+        "H0": 1,
+        "H1": 0,
+        "H2": 0
+      },
+      "ripser_s": 0.013524224996217526,
+      "ripser_ess": {
+        "H0": 1,
+        "H1": 0,
+        "H2": 0
+      },
+      "exact_vs_ripser_unmatched": 0,
+      "timeout_miss": false,
+      "scale_miss": false
+    },
+    {
+      "name": "clustered",
+      "n": 600,
+      "T": 0.8,
+      "maxdim": 1,
+      "distances": false,
+      "n_cc_max": 90,
+      "n_components": 8,
+      "mode_recommended": "exact",
+      "engine_recommended": "redzed",
+      "residual_regime": "hollow",
+      "exact_feasible": true,
+      "est_exact_runtime_s": 0.00722915,
+      "exact_ok": true,
+      "exact_s": 0.004247571006999351,
+      "exact_pipeline": "pith:auto-redzed-cc",
+      "exact_ess": {
+        "H0": 8,
+        "H1": 0,
+        "H2": 0
+      },
+      "scale_s": 0.007308403990464285,
+      "scale_ess": {
+        "H0": 8,
+        "H1": 0,
+        "H2": 0
+      },
+      "ripser_s": null,
+      "ripser_ess": {
+        "H0": null,
+        "H1": null,
+        "H2": null
+      },
+      "exact_vs_ripser_unmatched": null,
+      "timeout_miss": false,
+      "scale_miss": false
+    },
+    {
+      "name": "heavy_noise_circle",
+      "n": 400,
+      "T": 1.5,
+      "maxdim": 1,
+      "distances": false,
+      "n_cc_max": 400,
+      "n_components": 1,
+      "mode_recommended": "exact",
+      "engine_recommended": "implicit",
+      "residual_regime": "thin",
+      "exact_feasible": true,
+      "est_exact_runtime_s": 0.0114,
+      "exact_ok": true,
+      "exact_s": 0.014884345000609756,
+      "exact_pipeline": "pith:auto-collapse",
+      "exact_ess": {
+        "H0": 1,
+        "H1": 0,
+        "H2": 0
+      },
+      "scale_s": 0.005855891009559855,
+      "scale_ess": {
+        "H0": 1,
+        "H1": 0,
+        "H2": 0
+      },
+      "ripser_s": 0.02956275899487082,
+      "ripser_ess": {
+        "H0": 1,
+        "H1": 0,
+        "H2": 0
+      },
+      "exact_vs_ripser_unmatched": 0,
+      "timeout_miss": false,
+      "scale_miss": false
+    },
+    {
+      "name": "near_degenerate",
+      "n": 500,
+      "T": 0.12,
+      "maxdim": 1,
+      "distances": false,
+      "n_cc_max": 500,
+      "n_components": 1,
+      "mode_recommended": "exact",
+      "engine_recommended": "redzed",
+      "residual_regime": "hollow",
+      "exact_feasible": true,
+      "est_exact_runtime_s": 0.00642726,
+      "exact_ok": true,
+      "exact_s": 0.004249838995747268,
+      "exact_pipeline": "pith:auto-redzed-spatial",
+      "exact_ess": {
+        "H0": 1,
+        "H1": 0,
+        "H2": 0
+      },
+      "scale_s": 0.00542725199193228,
+      "scale_ess": {
+        "H0": 1,
+        "H1": 0,
+        "H2": 0
+      },
+      "ripser_s": null,
+      "ripser_ess": {
+        "H0": null,
+        "H1": null,
+        "H2": null
+      },
+      "exact_vs_ripser_unmatched": null,
+      "timeout_miss": false,
+      "scale_miss": false
+    },
+    {
+      "name": "multi_scale_loops_smallT",
+      "n": 400,
+      "T": 0.8,
+      "maxdim": 1,
+      "distances": false,
+      "n_cc_max": 200,
+      "n_components": 2,
+      "mode_recommended": "exact",
+      "engine_recommended": "redzed",
+      "residual_regime": "fat",
+      "exact_feasible": true,
+      "est_exact_runtime_s": 0.0071862,
+      "exact_ok": true,
+      "exact_s": 0.006398514000466093,
+      "exact_pipeline": "pith:auto-redzed-cc",
+      "exact_ess": {
+        "H0": 2,
+        "H1": 1,
+        "H2": 0
+      },
+      "scale_s": 0.005121166992466897,
+      "scale_ess": {
+        "H0": 2,
+        "H1": 1,
+        "H2": 0
+      },
+      "ripser_s": 0.025231569990864955,
+      "ripser_ess": {
+        "H0": 2,
+        "H1": 1,
+        "H2": 0
+      },
+      "exact_vs_ripser_unmatched": 0,
+      "timeout_miss": false,
+      "scale_miss": false
+    },
+    {
+      "name": "multi_scale_loops_largeT",
+      "n": 400,
+      "T": 2.8,
+      "maxdim": 1,
+      "distances": false,
+      "n_cc_max": 200,
+      "n_components": 2,
+      "mode_recommended": "exact",
+      "engine_recommended": "redzed",
+      "residual_regime": "fat",
+      "exact_feasible": true,
+      "est_exact_runtime_s": 0.00773281,
+      "exact_ok": true,
+      "exact_s": 0.00691050999739673,
+      "exact_pipeline": "pith:auto-redzed-cc",
+      "exact_ess": {
+        "H0": 2,
+        "H1": 1,
+        "H2": 0
+      },
+      "scale_s": 0.005463231995236129,
+      "scale_ess": {
+        "H0": 2,
+        "H1": 1,
+        "H2": 0
+      },
+      "ripser_s": 0.026850713999010623,
+      "ripser_ess": {
+        "H0": 2,
+        "H1": 1,
+        "H2": 0
+      },
+      "exact_vs_ripser_unmatched": 0,
+      "timeout_miss": false,
+      "scale_miss": false
+    },
+    {
+      "name": "torus",
+      "n": 400,
+      "T": 1.6,
+      "maxdim": 1,
+      "distances": false,
+      "n_cc_max": 400,
+      "n_components": 1,
+      "mode_recommended": "exact",
+      "engine_recommended": "redzed",
+      "residual_regime": "hollow",
+      "exact_feasible": true,
+      "est_exact_runtime_s": 0.00687085,
+      "exact_ok": true,
+      "exact_s": 0.008732778005651198,
+      "exact_pipeline": "pith:auto-redzed-spatial",
+      "exact_ess": {
+        "H0": 1,
+        "H1": 1,
+        "H2": 0
+      },
+      "scale_s": 0.01281998900230974,
+      "scale_ess": {
+        "H0": 1,
+        "H1": 1,
+        "H2": 0
+      },
+      "ripser_s": 0.02584402599313762,
+      "ripser_ess": {
+        "H0": 1,
+        "H1": 1,
+        "H2": 0
+      },
+      "exact_vs_ripser_unmatched": 0,
+      "timeout_miss": false,
+      "scale_miss": false
+    },
+    {
+      "name": "mixed_1d2d3d",
+      "n": 400,
+      "T": 1.4,
+      "maxdim": 2,
+      "distances": false,
+      "n_cc_max": 267,
+      "n_components": 2,
+      "mode_recommended": "exact",
+      "engine_recommended": "redzed",
+      "residual_regime": "fat",
+      "exact_feasible": true,
+      "est_exact_runtime_s": 1.52773,
+      "exact_ok": true,
+      "exact_s": 0.052700713989906944,
+      "exact_pipeline": "pith:auto-redzed-cc",
+      "exact_ess": {
+        "H0": 2,
+        "H1": 1,
+        "H2": 0
+      },
+      "scale_s": 0.0058158559986623,
+      "scale_ess": {
+        "H0": 2,
+        "H1": 1,
+        "H2": 0
+      },
+      "ripser_s": 0.26110912799777,
+      "ripser_ess": {
+        "H0": 2,
+        "H1": 1,
+        "H2": 0
+      },
+      "exact_vs_ripser_unmatched": 0,
+      "timeout_miss": false,
+      "scale_miss": false
+    },
+    {
+      "name": "l1_circle",
+      "n": 300,
+      "T": 1.5,
+      "maxdim": 1,
+      "distances": true,
+      "n_cc_max": 300,
+      "n_components": 1,
+      "mode_recommended": "exact",
+      "engine_recommended": "implicit",
+      "residual_regime": "thin",
+      "exact_feasible": true,
+      "est_exact_runtime_s": 0.0086,
+      "exact_ok": true,
+      "exact_s": 0.012910336998174898,
+      "exact_pipeline": "pith:auto-collapse",
+      "exact_ess": {
+        "H0": 1,
+        "H1": 1,
+        "H2": 0
+      },
+      "scale_s": null,
+      "scale_ess": {
+        "H0": null,
+        "H1": null,
+        "H2": null
+      },
+      "ripser_s": null,
+      "ripser_ess": {
+        "H0": null,
+        "H1": null,
+        "H2": null
+      },
+      "exact_vs_ripser_unmatched": null,
+      "timeout_miss": false,
+      "scale_miss": false
+    }
+  ]
+}

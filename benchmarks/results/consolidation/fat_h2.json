@@ -1,8 +1,8 @@
 {
-  "note": "mixed n=300 exact-auto is RedZeD-cc and finishes; forced implicit persist_sparse is the tet tax. Both exact and Ripser leave a 15 s budget near n=2000. Dispatcher uses n_cc_max^3, not n\u2265200. \u03c4 unchanged.",
-  "hardware": "4 CPU / 16 GB, --threads 1, 15 s (implicit 8 s)",
+  "note": "mixed n=300 exact-auto is RedZeD-cc and finishes. Forced implicit used to hang on persist_sparse tets; after the \u0394>24 / |E|>16n gate it hands H2 to RedZeD (live 53 ms, unmatched 0). Both exact and Ripser leave a 15 s budget near n=2000. Dispatcher uses n_cc and dense-flag, not n\u2265200. \u03c4 unchanged.",
+  "hardware": "4 CPU / 16 GB, --threads 1, 15 s",
   "agree_mixed300_exact": true,
-  "implicit_is_the_tax": true,
+  "implicit_is_the_tax": false,
   "series": [
     {
       "name": "mixed_1d2d3d",
@@ -110,15 +110,15 @@
         },
         "implicit": {
           "method": "pith:exact:implicit:t1",
-          "ok": false,
-          "error": "Command '['/workspace/src/pith/build/pith', '--points', '/workspace/benchmarks/datasets/generated/mixed_1d2d3d_n300.csv', '--maxdim', '2', '--threshold', '1.4', '--mode', 'exact', '--engine', 'implicit', '--no-enclosing', '--threads', '1']' timed out after 8 seconds",
-          "timed_out": true,
+          "ok": true,
+          "error": null,
+          "timed_out": false,
           "oom": false,
-          "wall_s": null,
-          "cpu_s": 8.219318,
+          "wall_s": 0.052852376000373624,
+          "cpu_s": null,
           "threads_claimed": 1,
-          "threads_pith": null,
-          "rss_delta": 0,
+          "threads_pith": 1,
+          "rss_delta": null,
           "rss_pith": null,
           "n_dist": null,
           "n_edges_in": null,
@@ -126,12 +126,12 @@
           "metric_ms": null,
           "collapse_ms": null,
           "reduce_ms": null,
-          "pipeline": null,
+          "pipeline": "pith:threshold+collapse-1+implicit_coh-redzed-h2",
           "residual_frac": null,
-          "n_pairs": 0,
-          "ess0": null,
-          "ess1": null,
-          "ess2": null
+          "n_pairs": 350,
+          "ess0": 2,
+          "ess1": 1,
+          "ess2": 0
         }
       },
       "ess_match": true
@@ -1212,5 +1212,6 @@
       "ess_match": true,
       "local_p_n": 1.5056392617137582
     }
-  ]
+  ],
+  "implicit_now_redzed_h2": true
 }

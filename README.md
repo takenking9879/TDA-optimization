@@ -281,7 +281,10 @@ and finishes at \(n=300\) in 33 ms (Ripser 0.14 s). `--estimate` now
 models cost on the largest T-component \(n_{cc}\) and recommends scale
 when \(n_{cc}\ge 800\) or the flag is nearly complete
 (`edge_frac≥0.5` and \(n_{cc}\ge 600\)). Held-out `ncc_auto.json`:
-**0/11** timeout misses. Auto-dispatch probes from \(n\ge 64\).
+**0/11** timeout misses. Seed-17 `adversarial.json` (loops, bridges,
+anisotropy, clusters, noise, degeneracy, multi-scale \(T\), mixed,
+L1): **0/11** timeout misses, **0/8** exact-vs-Ripser mismatches.
+Auto-dispatch probes from \(n\ge 64\).
 
 A later high-d control (`uniform10`, \(d=10\), \(T=1.8\)) is outside the
 frozen engine pack. Exact RedZeD stays cheap through \(n=8000\) (2.79 s).
@@ -306,8 +309,11 @@ Full numbers: [`benchmarks/results/consolidation/TABLES.md`](benchmarks/results/
 
 - Worst-case exact \(H_1\) on a **connected** dense \(G_T\) is still
   the same complexity class as Ripser (active leftover visits).
-- Exact \(H_2\) on a **fat** residual can time out at a few hundred points
-  (mixed 1D/2D/3D). Use `--estimate` or `--mode scale`.
+- Exact \(H_2\) on a **fat** residual leaves a 12 s budget near mixed
+  \(n=2000\) (13.6 s measured). Forced `--engine implicit` used to hang
+  at a few hundred points; it now hands fat H2 to RedZeD (~53 ms at
+  mixed \(n=300\)). Use `--estimate` or `--mode scale` when \(n_{cc}\)
+  is large or the flag is nearly complete.
 - `--mode auto` **refuses** fat \(H_2\) sparse when \(d\notin\{2,3\}\)
   (exit 3, `auto_will_run=false`). That path hung at 25 s on 4D
   `uniform4` \(n=250\). Explicit `--mode sparse` still runs.
