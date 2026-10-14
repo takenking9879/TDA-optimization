@@ -46,7 +46,17 @@ def main():
     if js.get("kind") != "estimate" or "engine_recommended" not in js:
         print("estimate JSON incomplete", js, file=sys.stderr)
         return 1
-    for key in ("residual_regime", "est_edges_hi", "est_residual_edges", "confidence", "threads"):
+    for key in (
+        "residual_regime",
+        "est_edges_hi",
+        "est_residual_edges",
+        "confidence",
+        "threads",
+        "est_runtime_lo_s",
+        "est_runtime_hi_s",
+        "growth_p",
+        "leaving_cheap_regime",
+    ):
         if key not in js:
             print("estimate JSON missing", key, js, file=sys.stderr)
             return 1

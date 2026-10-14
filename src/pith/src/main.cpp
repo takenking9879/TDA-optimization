@@ -306,6 +306,10 @@ struct Feasibility {
     double est_r_hi = -1;
     double est_del = -1;
     double est_runtime = -1;
+    double est_runtime_lo = -1;
+    double est_runtime_hi = -1;
+    double growth_p = -1;
+    bool leaving_cheap = false;
     std::string regime = "unknown";
     std::string engine_rec = "implicit";
     std::string mode_rec = "exact";
@@ -393,9 +397,24 @@ static Feasibility compute_feasibility(const std::vector<std::vector<value_t>>* 
     } else if (f.est_e_hi > 0) {
         f.est_runtime = 8.0e-8 * f.est_e_hi;
     }
+    // Empirical local-exponent bands from the consolidation fits
+    // (docs/GROWTH.md). Informational — does not retune τ or engine_rec.
+    if (maxdim < 1) f.growth_p = 1.0;
+    else if (f.mode_rec == "scale") f.growth_p = 1.2;
+    else if (maxdim >= 2 && fat) f.growth_p = 3.2;
+    else if (thin) f.growth_p = 2.2;
+    else if (hollow) f.growth_p = 1.8;
+    else f.growth_p = 2.4;
+    if (f.est_runtime > 0) {
+        f.est_runtime_lo = 0.4 * f.est_runtime;
+        f.est_runtime_hi = (maxdim >= 2 && fat) ? 6.0 * f.est_runtime : 3.0 * f.est_runtime;
+    }
+    f.leaving_cheap = (maxdim >= 1 && n >= 2000 && (fat || (f.est_r_hi > 1.0e5 && !thin))) ||
+                      (maxdim >= 2 && fat && n >= 200);
     f.runtime_class = !f.exact_ok ? "impractical-or-scale"
-                                  : (f.est_runtime > 1.0 || (n >= 4000 && maxdim >= 1) ? "seconds"
-                                                                                      : "sub-second");
+                                  : (f.leaving_cheap ? "leaving-cheap-regime"
+                                                     : (f.est_runtime > 1.0 || (n >= 4000 && maxdim >= 1) ? "seconds"
+                                                                                                          : "sub-second"));
     return f;
 }
 
@@ -422,6 +441,10 @@ static int print_estimate(const std::vector<std::vector<value_t>>* pts,
                   << "  \"est_residual_edges_hi\": " << f.est_r_hi << ",\n"
                   << "  \"est_delaunay_edges\": " << f.est_del << ",\n"
                   << "  \"est_runtime_s\": " << f.est_runtime << ",\n"
+                  << "  \"est_runtime_lo_s\": " << f.est_runtime_lo << ",\n"
+                  << "  \"est_runtime_hi_s\": " << f.est_runtime_hi << ",\n"
+                  << "  \"growth_p\": " << f.growth_p << ",\n"
+                  << "  \"leaving_cheap_regime\": " << (f.leaving_cheap ? "true" : "false") << ",\n"
                   << "  \"engine_recommended\": \"" << f.engine_rec << "\",\n"
                   << "  \"mode_recommended\": \"" << f.mode_rec << "\",\n"
                   << "  \"exact_feasible\": " << (f.exact_ok ? "true" : "false") << ",\n"
@@ -438,7 +461,9 @@ static int print_estimate(const std::vector<std::vector<value_t>>* pts,
                   << " est_residual=" << f.est_r << " est_delaunay=" << f.est_del
                   << " engine=" << f.engine_rec << " mode=" << f.mode_rec
                   << " exact_feasible=" << (f.exact_ok ? 1 : 0) << " runtime=" << f.runtime_class
-                  << " est_runtime_s=" << f.est_runtime << " confidence=" << f.confidence
+                  << " est_runtime_s=" << f.est_runtime << " est_runtime_hi_s=" << f.est_runtime_hi
+                  << " growth_p=" << f.growth_p << " leaving_cheap=" << (f.leaving_cheap ? 1 : 0)
+                  << " confidence=" << f.confidence
                   << " threads=" << nthreads() << "\n# " << f.reason << "\n";
     }
     return 0;

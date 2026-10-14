@@ -225,6 +225,7 @@ python3 benchmarks/run_consolidation.py
 python3 benchmarks/run_consolidation_limits.py
 python3 benchmarks/eval_mode_auto.py
 python3 benchmarks/run_baseline_pack.py
+python3 benchmarks/run_sparse_limits.py
 python3 benchmarks/fit_growth.py
 python3 benchmarks/plot_consolidation.py
 ```

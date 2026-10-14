@@ -13,6 +13,8 @@ LIM_PATH = BENCH / "results" / "consolidation" / "limits.json"
 LIM = json.loads(LIM_PATH.read_text()) if LIM_PATH.exists() else {}
 BASE_PATH = BENCH / "results" / "consolidation" / "baselines.json"
 BASE = json.loads(BASE_PATH.read_text()) if BASE_PATH.exists() else {}
+SPARSE_PATH = BENCH / "results" / "consolidation" / "sparse_limits.json"
+SPARSE = json.loads(SPARSE_PATH.read_text()) if SPARSE_PATH.exists() else {}
 FIG = BENCH / "results" / "consolidation" / "figures"
 FIG.mkdir(parents=True, exist_ok=True)
 
@@ -483,6 +485,42 @@ if BASE:
             "n",
             "wall seconds",
         )
+
+if SPARSE:
+    rows.append("")
+    rows.append("## Sparse Rips (ε=0.6 greedy net) vs VR / scale")
+    rows.append("Not exact VR. Sheehy-style interleaving is the literature guarantee; numbers are measured.")
+    rows.append("| family | n | exact (s) | scale (s) | sparse (s) | sparse |E| | sparse unmatched | sparse ess | scale unmatched |")
+    rows.append("| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- | ---: |")
+    for t in SPARSE.get("sparse") or []:
+        if t.get("larger"):
+            continue
+        sp = t.get("sparse_vs_ripser") or {}
+        sc = t.get("scale_vs_ripser") or {}
+        walls = t.get("walls") or {}
+        nd = t.get("n_dist") or {}
+        ess_s = t.get("ess_sparse") or {}
+        rows.append(
+            f"| {t['name']} | {t['n']} | {'' if walls.get('exact') is None else f'{walls['exact']:.3f}'} | "
+            f"{'' if walls.get('scale') is None else f'{walls['scale']:.3f}'} | "
+            f"{'' if walls.get('sparse') is None else f'{walls['sparse']:.3f}'} | {nd.get('sparse')} | "
+            f"{sp.get('unmatched')} | H1={ess_s.get(1, ess_s.get('1'))} H2={ess_s.get(2, ess_s.get('2'))} | "
+            f"{sc.get('unmatched')} |"
+        )
+    rows.append("")
+    rows.append("## Failure pushes (12 s)")
+    rows.append("| family | n | PITH exact | Ripser | giotto t1 |")
+    rows.append("| --- | ---: | --- | --- | --- |")
+    for r in SPARSE.get("failures") or []:
+        def w(key):
+            run = (r.get("runs") or {}).get(key) or {}
+            if run.get("wall_s"):
+                return f"{run['wall_s']:.3f}"
+            if run.get("error") and "timed out" in str(run.get("error")).lower():
+                return "timeout"
+            return run.get("error") or ""
+
+        rows.append(f"| {r['name']} | {r['n']} | {w('pith_exact')} | {w('ripser')} | {w('giotto_t1')} |")
 
 (BENCH / "results" / "consolidation" / "TABLES.md").write_text("\n".join(rows) + "\n")
 print("wrote figures and TABLES.md")
