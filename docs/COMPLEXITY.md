@@ -850,9 +850,12 @@ edge-frac \(<0.25\) → RedZeD; `maxdim=0` → Kruskal / Delaunay.
   \(n=2000\), figure8 \(n=4000\), sphere \(H_2\) \(n=800\). Mixed 1D/2D/3D
   \(n=300\) `maxdim=2`: the stale exact timeout was forced implicit tet
   tax; RedZeD-cc is **0.033 s vs Ripser 0.14 s**, \(n=1000\) **1.07 vs
-  7.25 s**, \(n=2000\) 13.6 s (Ripser 15 s timeout). `--estimate` uses
+  7.25 s**, \(n=2000\) 13.6 s (Ripser 15 s timeout).   `--estimate` uses
   \(n_{cc}\) and marks Euclidean fat H2 impractical at \(n_{cc}\ge 800\)
-  or a dense flag (`edge_frac≥0.5` and \(n_{cc}\ge 600\))
+  or a dense flag (`edge_frac≥0.5` and \(n_{cc}\ge 600\)). Runtime bands
+  cover **80/82** leftover/post-freeze recommended-mode walls; figure8
+  \(n=3000\) leftover pairing and nested_loops \(n=2000\) sit outside
+  (τ frozen)
   **[empirical, fat_h2.json, ncc_auto.json]**. Forced implicit on mixed
   \(n=300\) is now **53 ms** (`+implicit_coh-redzed-h2`, unmatched 0).
   Held-out mode stress: `ncc_auto` **0/11**, `adversarial` seed 17
