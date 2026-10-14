@@ -48,11 +48,14 @@ do not treat the diagram as VR.
 
 **`--mode sparse`** is a Sheehy-style sparse Rips approximation (ε=0.6).
 It **does** thin the flag (figure-8 \(n=400\): 5.6k edges vs 80k pairs;
-\(n=8000\): 381k vs 32M). Construction is still \(\Theta(n^2)\) (greedy
-net on a dense matrix) — that, not the leftover algebra, is the large-\(n\)
-wall. Essential \(H_1\) is kept; finite bars differ (8–52 unmatched);
-\(H_2\) is slow (two spheres \(n=300\): 3.7 s) or times out (sphere
-\(n=400\)). Prefer `--mode scale` on Euclidean \(d\in\{2,3\}\).
+\(n=8000\): 380k vs 32M). Euclidean point clouds no longer allocate an
+n×n distance matrix; farthest-point insertion is still \(\Theta(n^2)\).
+figure-8 \(n=8000\) is **0.75 s / 28 MB** (was 1.01 s with a dense
+matrix). Essential \(H_1\) is usually kept; finite bars differ (8–52
+unmatched) and a few families can add extra essential loops
+(`nested_loops` \(n=400\): 4 vs VR 1). \(H_2\) is slow (two spheres
+\(n=300\): 3.7 s) or times out (sphere \(n=400\)). Prefer `--mode scale`
+on Euclidean \(d\in\{2,3\}\).
 
 GUDHI **Alpha** is a third complex: on this suite it **drops** essential
 \(H_1/H_2\) (loops and voids become 0). We do not use it as a VR stand-in.
@@ -231,6 +234,7 @@ Full numbers: [`benchmarks/results/consolidation/TABLES.md`](benchmarks/results/
 ```sh
 python3 benchmarks/generate_datasets.py --list
 python3 benchmarks/test_cli_stable.py
+python3 benchmarks/test_sparse_points.py
 python3 benchmarks/test_baseline_hooks.py
 python3 benchmarks/run_consolidation.py
 python3 benchmarks/run_consolidation_limits.py

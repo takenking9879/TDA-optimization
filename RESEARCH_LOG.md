@@ -5,6 +5,14 @@ Do not paste long reasoning here.
 
 ---
 
+## 2026-10-14 — fused Euclidean `--mode sparse` construction
+
+- **Question:** Can `--mode sparse` skip the n×n pairwise matrix without changing the flag?
+- **Work:** `greedy_insertion_radii_points` + `sparse_rips_graph_points` (T-ball emit when d∈{2,3} and T finite). `--points` no longer calls `pairwise()`. `--distances` keeps the matrix path. Unit + CLI: C4, noisy circle, tet, figure8, grid_holes, disconnected, clustered, anisotropic — edge sets match.
+- **Result:** Same complex. figure8 n=8000: **0.75 s / 28 MB / 380k edges / ess H1=2** vs previous 1.01 s with a dense matrix (old `metric_ms` 297 was pairwise only). FPS is still \(\Theta(n^2)\) (`distances` 52.6M = FPS + spatial). Scale still faster (0.22 s). nested_loops n=400 sparse ess H1 can exceed VR (4 vs 1) — approximation, both constructors agree.
+- **Decision:** Keep. Public `--mode sparse` is now usable without an n×n allocation. Do not claim \(O(n\log n)\) construction. Goal not complete.
+- **Class:** experiment (support; same complex, less memory)
+
 ## 2026-10-14 — correction: sparse |E| is edges_in, not distances
 
 - **Question:** Was “sparse does not thin (\(\lvert E\rvert=C(n,2)\))” using the wrong counter?

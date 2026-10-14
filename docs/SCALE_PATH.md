@@ -105,10 +105,16 @@ Owned sparse Rips (greedy net, ε=0.6, Max cap) has a Sheehy-style
 interleaving **[citation]**. An earlier write-up used the `distances`
 counter (\(C(n,2)\) pairwise evaluations) as \(\lvert E\rvert\); that was
 wrong. The flag **is** thinner: figure-8 \(n=400\) has 5 563 edges
-(vs 79 800 pairs / 19 060 exact-VR edges); \(n=8000\) has 381k vs 32M
-pairs. Construction is still \(\Theta(n^2)\). Essential \(H_1\) is kept;
-unmatched finite bars 8–52; \(H_2\) is slow or times out. Scale avoids
-the dense matrix and is the practical Euclidean alternative.
+(vs 79 800 pairs / 19 060 exact-VR edges); \(n=8000\) has ~380k vs 32M
+pairs. Euclidean `--points` now skip the n×n matrix (same edge set as
+the dense constructor: unit + CLI adversarial). Farthest-point
+insertion is still \(\Theta(n^2)\) **[derivation]**; emit is a \(T\)-ball
+hash when \(d\in\{2,3\}\). figure-8 \(n=8000\): **0.75 s / 28 MB**
+(was 1.01 s with a dense matrix). Essential \(H_1\) is usually kept;
+`nested_loops` \(n=400\) can report extra essential loops (4 vs VR 1)
+**[empirical]**. Unmatched finite bars 8–52; \(H_2\) is slow or times
+out. Scale is still the faster Euclidean alternative (0.22 s on the
+same figure-8).
 
 ## When not to use it
 

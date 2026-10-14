@@ -376,7 +376,11 @@ PITH `--threads 1`. Ripser 1 thread. giotto-ph `n_threads=1` and `n_threads=4` (
 
 ## Sparse Rips (ε=0.6 greedy net) vs VR / scale
 Not exact VR. Sheehy-style interleaving is the literature guarantee; numbers are measured.
-`distances` is the pairwise construction (\(C(n,2)\)); \(\lvert E\rvert\) below is `edges_in`.
+\(\lvert E\rvert\) below is `edges_in`. After the fused Euclidean constructor,
+`--points` no longer stores an n×n matrix; `distances` counts FPS + T-ball
+evals (still \(\Theta(n^2)\)). Re-timed figure-8 \(n=8000\): **0.75 s / 28 MB /
+380k edges / ess \(H_1=2\)** (was 1.01 s with a dense matrix on a different
+draw). The table rows below are the earlier matrix-path suite.
 | family | n | exact (s) | scale (s) | sparse (s) | sparse |E| | sparse unmatched | sparse ess | scale unmatched |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- | ---: |
 | figure8 | 400 | 0.007 | 0.005 | 0.004 | 5563 | 14 | H1=2 H2=None | 0 |

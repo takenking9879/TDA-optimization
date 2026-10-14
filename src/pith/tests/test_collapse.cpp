@@ -305,6 +305,91 @@ int main() {
         std::cout << "ok sparse-rips C4 H1 edges=" << sp.edges.size() << "\n";
     }
 
+    // Euclidean points-path sparse Rips must match the dense-matrix path
+    // (same FPS, same keep predicate) on C4, a noisy 2D cloud, and a 3D tet.
+    {
+        auto same_edges = [](Graph a, Graph b) -> bool {
+            if (a.n != b.n || a.edges.size() != b.edges.size()) return false;
+            auto key = [](const Edge& e) {
+                Edge x = e;
+                normalize_edge(x);
+                return std::tuple<index_t, index_t, value_t>(x.u, x.v, x.t);
+            };
+            std::sort(a.edges.begin(), a.edges.end(),
+                      [&](const Edge& p, const Edge& q) { return key(p) < key(q); });
+            std::sort(b.edges.begin(), b.edges.end(),
+                      [&](const Edge& p, const Edge& q) { return key(p) < key(q); });
+            for (size_t i = 0; i < a.edges.size(); ++i) {
+                if (key(a.edges[i]) != key(b.edges[i])) return false;
+            }
+            return true;
+        };
+        auto pairwise_pts = [](const std::vector<std::vector<value_t>>& pts) {
+            const int n = static_cast<int>(pts.size());
+            std::vector<std::vector<value_t>> dist(static_cast<size_t>(n),
+                                                   std::vector<value_t>(static_cast<size_t>(n), 0));
+            for (int i = 0; i < n; ++i)
+                for (int j = i + 1; j < n; ++j) {
+                    const value_t d = euclid_dist(pts, i, j);
+                    dist[static_cast<size_t>(i)][static_cast<size_t>(j)] =
+                        dist[static_cast<size_t>(j)][static_cast<size_t>(i)] = d;
+                }
+            return dist;
+        };
+        const std::vector<std::vector<value_t>> c4 = {{0, 0}, {1, 0}, {1, 1}, {0, 1}};
+        const auto d4 = pairwise_pts(c4);
+        // T below the diagonal: both paths keep the 4-cycle.
+        Graph m4 = sparse_rips_graph(d4, 1.2f, 0.6f, SparseCap::Max);
+        Graph p4 = sparse_rips_graph_points(c4, 1.2f, 0.6f, SparseCap::Max);
+        if (!same_edges(m4, p4) || m4.edges.size() != 4) {
+            std::cerr << "points-path C4 mismatch edges=" << p4.edges.size()
+                      << " matrix=" << m4.edges.size() << "\n";
+            return 1;
+        }
+        Result rc4 = persist_implicit_coh(p4, 1, 1.2f, 1);
+        Result rm4 = persist_implicit_coh(m4, 1, 1.2f, 1);
+        int ess1 = 0;
+        for (const auto& p : rc4.pairs)
+            if (p.dim == 1 && !std::isfinite(p.death)) ++ess1;
+        if (ess1 < 1 || rc4.pairs.size() != rm4.pairs.size()) {
+            std::cerr << "points-path C4 PH mismatch ess1=" << ess1 << "\n";
+            return 1;
+        }
+        Graph m4b = sparse_rips_graph(d4, 2.0f, 0.6f, SparseCap::Max);
+        Graph p4b = sparse_rips_graph_points(c4, 2.0f, 0.6f, SparseCap::Max);
+        if (!same_edges(m4b, p4b)) {
+            std::cerr << "points-path C4 T=2 mismatch\n";
+            return 1;
+        }
+        std::vector<std::vector<value_t>> cloud;
+        cloud.reserve(48);
+        for (int i = 0; i < 48; ++i) {
+            const value_t ang = static_cast<value_t>(0.1309 * i);
+            const value_t jitter = static_cast<value_t>((i % 5) * 0.01);
+            cloud.push_back({std::cos(ang) + jitter, std::sin(ang) - jitter});
+        }
+        const auto dc = pairwise_pts(cloud);
+        for (SparseCap cap : {SparseCap::Max, SparseCap::Min}) {
+            Graph mm = sparse_rips_graph(dc, 1.5f, 0.6f, cap);
+            Graph pp = sparse_rips_graph_points(cloud, 1.5f, 0.6f, cap);
+            if (!same_edges(mm, pp)) {
+                std::cerr << "points-path noisy circle mismatch cap="
+                          << (cap == SparseCap::Min ? "min" : "max") << "\n";
+                return 1;
+            }
+        }
+        const std::vector<std::vector<value_t>> tet = {
+            {0, 0, 0}, {1, 0, 0}, {0.5f, 0.866f, 0}, {0.5f, 0.289f, 0.816f}};
+        const auto dt = pairwise_pts(tet);
+        Graph mt = sparse_rips_graph(dt, 2.0f, 0.6f, SparseCap::Max);
+        Graph pt = sparse_rips_graph_points(tet, 2.0f, 0.6f, SparseCap::Max);
+        if (!same_edges(mt, pt)) {
+            std::cerr << "points-path tet mismatch\n";
+            return 1;
+        }
+        std::cout << "ok sparse-rips points==matrix C4/cloud/tet\n";
+    }
+
     // I216: lazy witness on all 4 square vertices keeps essential H1.
     {
         const value_t inf = 10;

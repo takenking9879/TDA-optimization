@@ -1,6 +1,7 @@
 # Selected algorithm (living)
 
-Updated 2026-10-14 after iterations I001–I312 plus consolidation (phase 3).
+Updated 2026-10-14 after iterations I001–I312 plus consolidation (phase 3)
+and the fused Euclidean sparse constructor.
 **Stable CLI:** `--mode exact|scale|sparse`, `--engine auto|redzed|implicit`,
 `--estimate`, `--threads N`, `--mode auto`. Auto-dispatch probes at \(n\ge 64\).
 `--estimate` marks fat `maxdim≥2` residuals as exact-infeasible.
@@ -9,8 +10,9 @@ Engine oracle on new held-out families is **5/9** (do not retune \(\tau\)).
 Equal-hardware: PITH `--threads 1` still beats Ripser, giotto-ph 0.2.4
 (`n_threads=1` and `4`), and GUDHI 3.13 Rips on the measured suite.
 `--estimate` reports empirical `growth_p` and a runtime band; τ is frozen.
-`--mode sparse` (ε=0.6 Max) thins the flag (figure-8 \(n=8000\): 381k vs 32M pairs)
-but still builds a dense metric. An earlier note that \(\lvert E\rvert=C(n,2)\)
+`--mode sparse` (ε=0.6 Max) thins the flag (figure-8 \(n=8000\): 380k vs 32M pairs)
+and **skips the n×n matrix** on Euclidean `--points` (on-the-fly FPS + T-ball
+emit). FPS is still \(\Theta(n^2)\). An earlier note that \(\lvert E\rvert=C(n,2)\)
 confused the `distances` counter with `edges_in`.
 Iteration numbers stay in this file and `RESEARCH_LOG.md`.
 **CLI default `--engine`

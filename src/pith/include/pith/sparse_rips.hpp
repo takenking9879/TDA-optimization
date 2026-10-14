@@ -3,9 +3,23 @@
 #include "graph.hpp"
 
 #include <algorithm>
+#include <cmath>
+#include <cstdint>
+#include <unordered_map>
 #include <vector>
 
 namespace pith {
+
+inline value_t euclid_dist(const std::vector<std::vector<value_t>>& pts, int i, int j) {
+    const int d = static_cast<int>(pts[static_cast<size_t>(i)].size());
+    double s = 0;
+    for (int k = 0; k < d; ++k) {
+        const double df = static_cast<double>(pts[static_cast<size_t>(i)][static_cast<size_t>(k)]) -
+                          static_cast<double>(pts[static_cast<size_t>(j)][static_cast<size_t>(k)]);
+        s += df * df;
+    }
+    return static_cast<value_t>(std::sqrt(s));
+}
 
 // I210: insertion radii of a farthest-point (greedy) permutation.
 // λ[p_0] is the covering radius after the first point; later λ[p] is the
@@ -45,9 +59,58 @@ inline std::vector<value_t> greedy_insertion_radii(const std::vector<std::vector
     return lam;
 }
 
+// Same greedy net as greedy_insertion_radii, but distances are computed
+// on the fly. Same starting vertex (0) and same tie-break (first max),
+// so λ matches the dense-matrix path on a Euclidean cloud. Still Θ(n²)
+// evaluations; memory is O(n) instead of O(n²).
+inline std::vector<value_t> greedy_insertion_radii_points(const std::vector<std::vector<value_t>>& pts,
+                                                          std::int64_t* n_dist = nullptr) {
+    const int n = static_cast<int>(pts.size());
+    std::vector<value_t> lam(static_cast<size_t>(n), 0);
+    if (n == 0) return lam;
+    std::vector<char> used(static_cast<size_t>(n), 0);
+    std::vector<value_t> mind(static_cast<size_t>(n), kInf);
+    used[0] = 1;
+    value_t cover = 0;
+    for (int j = 1; j < n; ++j) {
+        mind[static_cast<size_t>(j)] = euclid_dist(pts, 0, j);
+        if (n_dist) ++*n_dist;
+        cover = std::max(cover, mind[static_cast<size_t>(j)]);
+    }
+    lam[0] = cover;
+    for (int k = 1; k < n; ++k) {
+        int best = -1;
+        value_t best_d = -1;
+        for (int j = 0; j < n; ++j) {
+            if (used[static_cast<size_t>(j)]) continue;
+            if (mind[static_cast<size_t>(j)] > best_d) {
+                best_d = mind[static_cast<size_t>(j)];
+                best = j;
+            }
+        }
+        if (best < 0) break;
+        used[static_cast<size_t>(best)] = 1;
+        lam[static_cast<size_t>(best)] = best_d;
+        for (int j = 0; j < n; ++j) {
+            if (used[static_cast<size_t>(j)]) continue;
+            const value_t d = euclid_dist(pts, best, j);
+            if (n_dist) ++*n_dist;
+            mind[static_cast<size_t>(j)] = std::min(mind[static_cast<size_t>(j)], d);
+        }
+    }
+    return lam;
+}
+
 // How the insertion-radius cap is combined. I210 used Max (looser, denser).
 // I212 tries Min (closer to GUDHI's thinner 1-skeleton).
 enum class SparseCap { Max, Min };
+
+inline bool sparse_rips_keep(value_t d, value_t T, value_t li, value_t lj, value_t c,
+                             SparseCap cap) {
+    if (d > T) return false;
+    const value_t rad = (cap == SparseCap::Min) ? std::min(li, lj) : std::max(li, lj);
+    return d <= c * rad;
+}
 
 // Cavanna–Jahanseir–Sheehy / GUDHI-style sparse Rips 1-skeleton.
 // Keep (i,j) iff d(i,j) ≤ T and d(i,j) ≤ ((1+ε)/ε) · cap(λ_i, λ_j).
@@ -64,12 +127,102 @@ inline Graph sparse_rips_graph(const std::vector<std::vector<value_t>>& dist, va
     for (int i = 0; i < n; ++i) {
         for (int j = i + 1; j < n; ++j) {
             const value_t d = dist[static_cast<size_t>(i)][static_cast<size_t>(j)];
-            if (d > T) continue;
-            const value_t li = lam[static_cast<size_t>(i)];
-            const value_t lj = lam[static_cast<size_t>(j)];
-            const value_t rad = (cap == SparseCap::Min) ? std::min(li, lj) : std::max(li, lj);
-            if (d <= c * rad) g.edges.push_back({i, j, d});
+            if (sparse_rips_keep(d, T, lam[static_cast<size_t>(i)], lam[static_cast<size_t>(j)], c, cap))
+                g.edges.push_back({i, j, d});
         }
+    }
+    rebuild_neighbors(g);
+    return g;
+}
+
+// I240-style cell pack (21 bits / axis). Same Moore neighborhood as
+// spatial_edges: every Euclidean pair with d≤T is visited when the cell
+// width is T.
+inline uint64_t sparse_pack_cell(const int* c, int d) {
+    uint64_t k = 0;
+    for (int i = 0; i < d; ++i) {
+        const uint64_t w = static_cast<uint32_t>(c[i]) & 0x1FFFFFu;
+        k |= w << (21 * i);
+    }
+    return k;
+}
+
+template <class Fn>
+inline bool for_each_tball_pair(const std::vector<std::vector<value_t>>& pts, value_t T, Fn&& fn) {
+    const int n = static_cast<int>(pts.size());
+    const int d = n ? static_cast<int>(pts[0].size()) : 0;
+    if (n <= 1 || d < 2 || d > 3 || !(T > 0) || !std::isfinite(T)) return false;
+    const double inv = 1.0 / static_cast<double>(T);
+    std::unordered_map<uint64_t, std::vector<int>> grid;
+    grid.reserve(static_cast<size_t>(n) * 2);
+    std::vector<int> cell0(static_cast<size_t>(n) * 3, 0);
+    for (int i = 0; i < n; ++i) {
+        int c[3] = {0, 0, 0};
+        for (int k = 0; k < d; ++k)
+            c[k] = static_cast<int>(
+                std::floor(static_cast<double>(pts[static_cast<size_t>(i)][static_cast<size_t>(k)]) * inv));
+        cell0[static_cast<size_t>(i) * 3 + 0] = c[0];
+        cell0[static_cast<size_t>(i) * 3 + 1] = c[1];
+        cell0[static_cast<size_t>(i) * 3 + 2] = c[2];
+        grid[sparse_pack_cell(c, d)].push_back(i);
+    }
+    const int z1 = (d == 3) ? 1 : 0;
+    for (int i = 0; i < n; ++i) {
+        int c[3] = {0, 0, 0};
+        const int* c0 = &cell0[static_cast<size_t>(i) * 3];
+        for (int dx = -1; dx <= 1; ++dx)
+            for (int dy = -1; dy <= 1; ++dy)
+                for (int dz = -z1; dz <= z1; ++dz) {
+                    c[0] = c0[0] + dx;
+                    c[1] = c0[1] + dy;
+                    c[2] = (d == 3) ? c0[2] + dz : 0;
+                    const auto it = grid.find(sparse_pack_cell(c, d));
+                    if (it == grid.end()) continue;
+                    for (int j : it->second) {
+                        if (j <= i) continue;
+                        fn(i, j);
+                    }
+                }
+    }
+    return true;
+}
+
+// Euclidean constructor: same edge set as sparse_rips_graph(pairwise(pts), T, ε).
+// Farthest-point insertion is still Θ(n²). Emit uses a T-ball spatial hash
+// when d∈{2,3} and T is finite; otherwise an on-the-fly all-pairs walk.
+// Does not allocate an n×n matrix.
+inline Graph sparse_rips_graph_points(const std::vector<std::vector<value_t>>& pts, value_t T,
+                                      value_t eps, SparseCap cap = SparseCap::Max,
+                                      std::int64_t* n_dist = nullptr) {
+    const int n = static_cast<int>(pts.size());
+    Graph g;
+    g.n = n;
+    if (n <= 1) return g;
+    g.edges.reserve(static_cast<size_t>(n) * 8);
+    auto emit_pair = [&](int i, int j, value_t li, value_t lj, value_t cfac, bool use_eps) {
+        const value_t dist = euclid_dist(pts, i, j);
+        if (n_dist) ++*n_dist;
+        if (use_eps) {
+            if (sparse_rips_keep(dist, T, li, lj, cfac, cap)) g.edges.push_back({i, j, dist});
+        } else if (dist <= T) {
+            g.edges.push_back({i, j, dist});
+        }
+    };
+    const bool use_eps = (eps > 0 && eps < 1);
+    std::vector<value_t> lam;
+    value_t cfac = 0;
+    if (use_eps) {
+        lam = greedy_insertion_radii_points(pts, n_dist);
+        cfac = (1 + eps) / eps;
+    }
+    auto visit = [&](int i, int j) {
+        const value_t li = use_eps ? lam[static_cast<size_t>(i)] : 0;
+        const value_t lj = use_eps ? lam[static_cast<size_t>(j)] : 0;
+        emit_pair(i, j, li, lj, cfac, use_eps);
+    };
+    if (!for_each_tball_pair(pts, T, visit)) {
+        for (int i = 0; i < n; ++i)
+            for (int j = i + 1; j < n; ++j) visit(i, j);
     }
     rebuild_neighbors(g);
     return g;

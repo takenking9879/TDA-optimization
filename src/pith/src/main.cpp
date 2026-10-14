@@ -31,7 +31,7 @@ static void usage() {
         << "  --mode exact|scale|sparse|auto\n"
         << "                          exact  = exact VR≤T (default)\n"
         << "                          scale  = Euclidean Delaunay-flag path (d=2,3; not exact VR)\n"
-        << "                          sparse = greedy-net sparse Rips (approx; still O(n²) metric)\n"
+        << "                          sparse = greedy-net sparse Rips (approx; Euclidean points skip the n×n matrix)\n"
         << "                          auto   = follow the feasibility probe (exact/scale/sparse)\n"
         << "  --engine auto|redzed|implicit\n"
         << "                          exact-mode engine (default auto: pick redzed or collapse)\n"
@@ -673,9 +673,10 @@ int main(int argc, char** argv) {
                 const bool hollow = have_pts && probe_edge_frac_points(pts, threshold) < 0.25;
                 if (fat || hollow) engine = "redzed";
             }
-            const bool skip_full_metric = ((engine == "redzed" || delaunay_vr) && have_pts &&
-                                           gic_n == 0 && knn_k == 0 && witness_n == 0 &&
-                                           !reduced_vr && !(sparse_eps > 0 && sparse_eps < 1));
+            const bool want_sparse = (sparse_eps > 0 && sparse_eps < 1);
+            const bool skip_full_metric =
+                have_pts && gic_n == 0 && knn_k == 0 && witness_n == 0 && !reduced_vr &&
+                (want_sparse || engine == "redzed" || delaunay_vr);
             if (!skip_full_metric) {
                 if (dist.empty() && have_pts) dist = pairwise(pts, c);
                 if (use_enclosing && !dist.empty()) {
@@ -699,8 +700,18 @@ int main(int argc, char** argv) {
             } else if (sparse_eps > 0 && sparse_eps < 1) {
                 // I210: flag of a greedy-net sparse 1-skeleton. Default
                 // collapse off — I207 found collapse is a tax on sparse graphs.
-                g = sparse_rips_graph(dist, threshold, sparse_eps, sparse_cap);
+                // Euclidean --points skip the n×n matrix: FPS on the fly,
+                // emit via a T-ball hash when d∈{2,3} and T is finite.
+                const auto t_sp0 = std::chrono::steady_clock::now();
+                if (have_pts && dist.empty()) {
+                    g = sparse_rips_graph_points(pts, threshold, sparse_eps, sparse_cap,
+                                                 &c.n_distances);
+                } else {
+                    g = sparse_rips_graph(dist, threshold, sparse_eps, sparse_cap);
+                }
                 if (collapse_iters < 0) collapse_iters = 0;
+                const auto t_sp1 = std::chrono::steady_clock::now();
+                c.metric_ms += std::chrono::duration<double, std::milli>(t_sp1 - t_sp0).count();
             } else if (delaunay_vr && have_pts) {
                 // I276: Delaunay 1-skeleton. I277–I282: H1 local-radius
                 // thicken. I286: maxdim≥2 + thicken → H1 on the thick

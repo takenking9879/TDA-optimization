@@ -715,7 +715,12 @@ motivated by that size class, not a re-proof of Sheehy’s net-tree.
   exact.
 - Essential \(H_1\) held on every measured family; finite-bar bottleneck
   typically 0.005–0.055 **[empirical]** (I207–I218). figure8 / two_circles:
-  ess \(H_1\) 3=3, bn 0.011 / 0.034.
+  ess \(H_1\) 3=3, bn 0.011 / 0.034. Consolidation `nested_loops` \(n=400\)
+  can report extra essential loops (4 vs VR 1) **[empirical]**.
+- Euclidean `--points` skip the n×n matrix: FPS is still \(\Theta(n^2)\)
+  evaluations, emit is a finite-\(T\) hash in \(d\in\{2,3\}\). figure-8
+  \(n=8000\): 0.75 s / 28 MB vs 1.01 s with a dense store **[empirical]**.
+  This is **not** Sheehy’s \(O(n\log n)\) net-tree construction.
 - Do **not** write “\(O(n^{1.2})\)” as a complexity theorem. I218’s
   \(n^{1.3}\)–\(n^{1.4}\) edge slopes are the measured pre-asymptotic
   window.
@@ -852,7 +857,7 @@ edge-frac \(<0.25\) → RedZeD; `maxdim=0` → Kruskal / Delaunay.
 | Kruskal \(H_0\) | Yes (\(H_0\)) | \(O(\lvert E\rvert\log\lvert E\rvert)\) after listing | Spatial listing \(O(\lvert E\rvert)\) | \(\sim 1.9\times\) vs Ripser \(H_0\) if \(G_T\) is listed |
 | 2D/3D Del \(H_0\) | Yes (\(H_0\), Euclidean) | 2D size \(\Theta(n)\), construct \(O(n\log n)\) (classical Del); 3D size \(O(n^2)\) worst | Expected \(O(n\log n)\) walk under standard RIC hypotheses | Blobs 25k **515×**; sphere 30k **288×** |
 | Delaunay-flag | **No** | Flag of Del: 2D \(\lvert E\rvert=\Theta(n)\); persist as §3/§6 on that graph | Typical \(\bar d=O(1)\Rightarrow\lvert K_k\rvert=O(n)\) | Ess kept; finite unmatched 3–209; 3D 80k **1.09 s** |
-| Sheehy sparse | **No** (interleaving) | \(O(n)\) size, \(O(n\log n)\) build, \((1/\varepsilon)^{O(k\delta)}\) | Bounded doubling | Owned \(\varepsilon=0.6\) Max **thins** the flag (figure-8 8k: 381k vs 32M pairs) **[empirical]**; build is still \(\Theta(n^2)\); \(H_2\) timeout at \(n=400\) |
+| Sheehy sparse | **No** (interleaving) | \(O(n)\) size, \(O(n\log n)\) build, \((1/\varepsilon)^{O(k\delta)}\) | Bounded doubling | Owned \(\varepsilon=0.6\) Max **thins** the flag (figure-8 8k: 380k vs 32M pairs) **[empirical]**; FPS build is still \(\Theta(n^2)\) (no n×n store on Euclidean `--points`); \(H_2\) timeout at \(n=400\) |
 | Auto dispatch | Yes (exact engines only) | Worse engine on connected dense \(G_T\) | Probe \(O(1)\) in \(n\); pick thin vs fat vs hollow vs \(H_0\) | Shape-agnostic 0 unmatched; portfolio ratios above |
 | CSR leftover-adj | Yes (same flag) | Dense: no win | \(\lvert E\rvert\le 16n\): \(O(\lvert E\rvert\Delta)\) vs \(O(\lvert E\rvert n/64)\) | Sphere 50k 0.84→0.65 s; fat thicken stays rbits |
 
