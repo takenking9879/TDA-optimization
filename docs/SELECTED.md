@@ -1,6 +1,6 @@
 # Selected algorithm (living)
 
-Updated 2026-10-14 after iterations I001–I321 plus consolidation (phase 3)
+Updated 2026-10-14 after iterations I001–I322 plus consolidation (phase 3)
 and the fused Euclidean sparse constructor.
 **Stable CLI:** `--mode exact|scale|sparse|auto`, `--engine auto|redzed|implicit`,
 `--estimate`, `--threads N`. Public runners import `generate_datasets` /
@@ -376,6 +376,14 @@ Leftover cardinality matches Ripser. leftover-miss empty-seed skip
 99.3–99.85%. Algebraic 10× in cofacet-`next` only on figure8/torus
 (already wall ≥10×). GUDHI flag cohomology timeouts at 15 s. Not a
 pairing algorithm. Counters kept.
+
+### I322 k-NN leftover witness mark (not default)
+
+Exact subset of leftover_coface via k-NN triangles (k=12). Live
+`knn_mark.json`: **0 unmatched**, faster than auto **1/8**. Coverage
+41%→1.1% (anisotropic \(n=8000\) 2.26 vs 1.28 s). Marks at most
+\(n\cdot C(k,2)\). Sparse witness marks closed. `--knn-mark` stays
+experimental.
 
 ### I227 real RedZeD (H09, MIT, not default)
 

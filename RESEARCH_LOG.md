@@ -5,6 +5,14 @@ Do not paste long reasoning here.
 
 ---
 
+## 2026-10-14 — I322 k-NN leftover witness mark
+
+- **Question:** Can an exact subset of leftover_coface successes be pre-marked from k-NN triangles (k=12) so leftover-miss does not call leftover_coface on \(\lvert E\rvert\) leftovers?
+- **Work:** Experimental `--knn-mark`. After Kruskal, mark leftover uv if some w has u,v among its k nearest G_T neighbors, \(\max(d(wu),d(wv))\le t_{uv}\), and `coface_ready`. leftover_coface only on unmarked. Default auto unchanged. Live `knn_mark.json`. 1 thread. τ frozen.
+- **Result:** **0 unmatched** vs auto (8/8) and vs Ripser (figure8 n=200). Faster than auto **1/8** (n=200 noise). Coverage 41%→1.1% as n grows (anisotropic n=8000: 119k / 10.9M). leftover-miss wall **loses** (2.26 s vs auto 1.28 s). figure8 n=2000 0.19 vs 0.15 s. Combinatorial cap: a k-NN scheme marks at most \(n\cdot C(k,2)\) leftovers, so on fat \(G_T\) (\(\lvert L\rvert\sim n^2\)) coverage is \(O(k^2/n)\). k∼n is inverted triangle marking (already closed).
+- **Decision:** Reject. Sparse witness marks closed. Keep `--knn-mark` experimental. Do not change `--engine auto`. Goal not complete.
+- **Class:** verified (live)
+
 ## 2026-10-14 — I321 leftover algebraic counts vs Ripser
 
 - **Question:** Is leftover-miss a smaller \(|R|\) (algebraic 10×) or the same leftover set with a cheaper per-edge test? Does GUDHI flag cohomology beat RedZeD?
