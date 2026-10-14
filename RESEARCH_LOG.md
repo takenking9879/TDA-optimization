@@ -5,6 +5,14 @@ Do not paste long reasoning here.
 
 ---
 
+## 2026-10-14 — I331 sample-farthest greedy net
+
+- **Question:** Can a c-approximate greedy permutation (stride sample + exact-ish d to the prefix net) stay thin vs Gonzalez FPS and cut the Θ(n²) sparse construction clock? I327 densified because batched dyadic λ is coarse.
+- **Work:** Experimental `--sparse-net approx`. n<256 falls back to FPS. Else FIND on s=max(48,⌈2.5√n⌉) stored mind values; λ from a 64-cap net NN; UPDATE only the sample. Same sparse-Rips edge rule. Default FPS unchanged. Live `approx_net.json`. Unit n=320: 16.6k vs 51k dist, 3232 vs 4487 edges, ess H1. 1 thread. τ frozen.
+- **Result:** Stays **thin** (figure8 n=8000 260k vs 384k; I327 was 2.92M). Distance count drops ~2.3× (22.5M vs 52.7M; n=16000 87M vs 210M). ess H1 kept. Finite bars differ (unmatched vs FPS 17–1851). Wall **loses** on the FPS-scale family: figure8 n=8000 0.66 vs 0.62 s; n=16000 3.36 vs 2.70 s. circle n=2000 0.064 vs 0.073 s. sphere n=2000 0.52 vs 1.71 s is pairing on a thinner H2 flag, not a construction class.
+- **Decision:** Reject as default. Sample+NN+rebuild tax exceeds the distance save on figure8. Keep `--sparse-net approx` experimental. Not subquadratic exact FPS. Goal not complete.
+- **Class:** verified (live)
+
 ## 2026-10-14 — I330 unused pairing class (literature + vendor)
 
 - **Question:** Is there an unused in-tree or 2026 CPU exact-VR pairing class besides RedZeD AE / Ripser implicit, or a vendor path we wrap as output only?

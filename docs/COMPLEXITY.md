@@ -1,10 +1,10 @@
 # Complexity notes for PITH
 
-Updated 2026-10-14 after iterations I001–I330 plus consolidation measurements.
+Updated 2026-10-14 after iterations I001–I331 plus consolidation measurements.
 This is a **complexity ledger**,
 not a theorem paper and not a selected-algorithm rewrite. It restates what the
 literature already proves, what follows from those statements by a short
-derivation, and what the I204 / I218 / I227–I330 receipts only measure.
+derivation, and what the I204 / I218 / I227–I331 receipts only measure.
 
 **Honest contribution.** PITH does **not** introduce a new worst-case Big-O for
 exact Vietoris–Rips (VR) \(H_1\) on a connected threshold graph \(G_T\). The
@@ -739,6 +739,13 @@ motivated by that size class, not a re-proof of Sheehy’s net-tree.
   384k edges) and the wall **loses** (18.6 vs 0.64 s; n=16000 timeout
   30 s). ess \(H_1\) kept; finite bars differ (`dyadic_net.json`)
   **[empirical]**. Default sparse stays FPS.
+- I331 `--sparse-net approx` is a sample-farthest greedy permutation
+  (one insert per step, λ = d to the prefix net, 64-cap NN). Stated
+  slack: Sheehy times the approx-farthest factor **[derivation]**.
+  Stays thin (figure8 \(n=8000\) 260k vs 384k) and drops the distance
+  count ~2.3×, but the wall **loses** on that family (0.66 vs 0.62 s;
+  \(n=16000\) 3.36 vs 2.70 s) **[empirical, approx_net.json]**. Default
+  sparse stays FPS.
 - Do **not** write “\(O(n^{1.2})\)” as a complexity theorem. I218’s
   \(n^{1.3}\)–\(n^{1.4}\) edge slopes are the measured pre-asymptotic
   window.
@@ -1052,7 +1059,7 @@ worst-case Big-O theorem versus Ripser on connected \(G_T\).
 | Seidel (Delaunay size) | 3D \(\Theta(n^2)\) worst case; \(\Theta(n^{\lceil d/2\rceil})\) |
 | Kruskal 1956; Tarjan union-find | \(H_0\) |
 
-Project ledgers: `docs/SELECTED.md` (living algorithm, through I330),
+Project ledgers: `docs/SELECTED.md` (living algorithm, through I331),
 `docs/PAPERS.md`, `docs/ALGORITHM_COMPARISON.md`, `docs/COMPLEXES.md`,
 `docs/EDGE_COLLAPSE_SPEC.md`, `src/pith/include/pith/redzed_bridge.hpp`,
 `RESEARCH_LOG.md` I228, I235, I263, I271, I275, I276, I282, I300–I306,

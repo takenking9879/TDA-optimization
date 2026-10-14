@@ -495,24 +495,35 @@ int main() {
                       << " ess1=" << ess1 << "\n";
         }
         {
-            // I331: sample-farthest greedy. Cheaper than Θ(n²) FPS, must
-            // not densify like I327, and must keep ess H1.
+            // I331: n<256 falls back to exact FPS (sample overhead is a tax).
+            // Medium n: fewer distances than Gonzalez, must not densify, keep ess H1.
+            std::int64_t n_small = 0;
+            const auto lam_s = approx_insertion_radii_points(cloud, &n_small);
+            if (lam_s.size() != cloud.size() || !(lam_s[0] > 0)) {
+                std::cerr << "approx small λ empty/cover\n";
+                return 1;
+            }
+            std::vector<std::vector<value_t>> med;
+            med.reserve(320);
+            for (int i = 0; i < 320; ++i) {
+                const value_t ang = static_cast<value_t>(0.019635 * i);
+                const value_t jitter = static_cast<value_t>((i % 7) * 0.008);
+                med.push_back({std::cos(ang) + jitter, std::sin(ang) - jitter});
+            }
             std::int64_t n_ap = 0, n_fps = 0;
-            const auto lam_a = approx_insertion_radii_points(cloud, &n_ap);
-            const auto lam_f = greedy_insertion_radii_points(cloud, &n_fps);
-            if (lam_a.size() != cloud.size() || !(lam_a[0] > 0)) {
+            const auto lam_a = approx_insertion_radii_points(med, &n_ap);
+            const auto lam_f = greedy_insertion_radii_points(med, &n_fps);
+            if (lam_a.size() != med.size() || !(lam_a[0] > 0)) {
                 std::cerr << "approx λ empty/cover\n";
                 return 1;
             }
-            const std::int64_t pairs =
-                static_cast<std::int64_t>(cloud.size()) * (static_cast<std::int64_t>(cloud.size()) - 1);
-            if (n_ap >= pairs / 3) {
+            if (n_ap >= n_fps) {
                 std::cerr << "approx not cheaper n_dist=" << n_ap << " fps=" << n_fps << "\n";
                 return 1;
             }
-            Graph pa = sparse_rips_graph_points(cloud, 1.5f, 0.6f, SparseCap::Max, nullptr,
+            Graph pa = sparse_rips_graph_points(med, 1.5f, 0.6f, SparseCap::Max, nullptr,
                                                 SparseNet::Approx);
-            Graph pf = sparse_rips_graph_points(cloud, 1.5f, 0.6f, SparseCap::Max, nullptr,
+            Graph pf = sparse_rips_graph_points(med, 1.5f, 0.6f, SparseCap::Max, nullptr,
                                                 SparseNet::Fps);
             if (pa.edges.size() > pf.edges.size() * 3 + 32) {
                 std::cerr << "approx densified edges=" << pa.edges.size() << " fps=" << pf.edges.size()

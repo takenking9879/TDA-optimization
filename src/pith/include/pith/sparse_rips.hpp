@@ -250,6 +250,17 @@ inline value_t approx_net_nn(const std::vector<std::vector<value_t>>& pts, int p
                              const std::unordered_map<DyadicCell, std::vector<int>, DyadicCellHash>& grid,
                              double w, int d, std::int64_t* n_dist) {
     if (net.empty()) return kInf;
+    const int brute_n = std::min(static_cast<int>(net.size()), 64);
+    if (static_cast<int>(net.size()) <= 64 || !(w > 0) || !std::isfinite(w) || grid.empty()) {
+        value_t best = kInf;
+        // Newest landmarks first — they are the likely nearest.
+        for (int t = static_cast<int>(net.size()) - 1, seen = 0; t >= 0 && seen < brute_n; --t, ++seen) {
+            const value_t dd = euclid_dist(pts, p, net[static_cast<size_t>(t)]);
+            if (n_dist) ++*n_dist;
+            if (dd < best) best = dd;
+        }
+        return best;
+    }
     auto cell_of = [&](int i) {
         DyadicCell c;
         const double inv = 1.0 / w;
@@ -260,19 +271,11 @@ inline value_t approx_net_nn(const std::vector<std::vector<value_t>>& pts, int p
                 std::floor(static_cast<double>(pts[static_cast<size_t>(i)][2]) * inv));
         return c;
     };
-    if (static_cast<int>(net.size()) <= 24 || !(w > 0) || !std::isfinite(w) || grid.empty()) {
-        value_t best = kInf;
-        for (int j : net) {
-            const value_t dd = euclid_dist(pts, p, j);
-            if (n_dist) ++*n_dist;
-            if (dd < best) best = dd;
-        }
-        return best;
-    }
     const DyadicCell c0 = cell_of(p);
     value_t best = kInf;
+    int seen = 0;
     const int z1 = (d == 3) ? 1 : 0;
-    for (int r = 0; r <= 48; ++r) {
+    for (int r = 0; r <= 8 && seen < 64; ++r) {
         if (r >= 1 && best < kInf) {
             const double mind = static_cast<double>(r - 1) * w;
             if (mind >= static_cast<double>(best)) break;
@@ -289,15 +292,17 @@ inline value_t approx_net_nn(const std::vector<std::vector<value_t>>& pts, int p
                     const auto it = grid.find(c);
                     if (it == grid.end()) continue;
                     for (int j : it->second) {
+                        if (seen >= 64) break;
                         const value_t dd = euclid_dist(pts, p, j);
                         if (n_dist) ++*n_dist;
+                        ++seen;
                         if (dd < best) best = dd;
                     }
                 }
     }
     if (!(best < kInf)) {
-        for (int j : net) {
-            const value_t dd = euclid_dist(pts, p, j);
+        for (int t = static_cast<int>(net.size()) - 1, s2 = 0; t >= 0 && s2 < 64; --t, ++s2) {
+            const value_t dd = euclid_dist(pts, p, net[static_cast<size_t>(t)]);
             if (n_dist) ++*n_dist;
             if (dd < best) best = dd;
         }
@@ -310,19 +315,21 @@ inline std::vector<value_t> approx_insertion_radii_points(const std::vector<std:
     const int n = static_cast<int>(pts.size());
     const int d = n ? static_cast<int>(pts[0].size()) : 0;
     if (n == 0) return {};
-    if (d < 2 || d > 3) return greedy_insertion_radii_points(pts, n_dist);
+    // Small clouds: exact Gonzalez is cheaper than sample+NN overhead.
+    if (d < 2 || d > 3 || n < 256) return greedy_insertion_radii_points(pts, n_dist);
 
     std::vector<value_t> lam(static_cast<size_t>(n), 0);
     std::vector<char> used(static_cast<size_t>(n), 0);
+    std::vector<value_t> mind(static_cast<size_t>(n), kInf);
     std::vector<int> net;
     net.reserve(static_cast<size_t>(n));
     used[0] = 1;
     net.push_back(0);
     value_t cover = 0;
     for (int j = 1; j < n; ++j) {
-        const value_t dj = euclid_dist(pts, 0, j);
+        mind[static_cast<size_t>(j)] = euclid_dist(pts, 0, j);
         if (n_dist) ++*n_dist;
-        cover = std::max(cover, dj);
+        cover = std::max(cover, mind[static_cast<size_t>(j)]);
     }
     lam[0] = cover;
     if (!(cover > 0) || !std::isfinite(static_cast<double>(cover))) return lam;
@@ -346,6 +353,8 @@ inline std::vector<value_t> approx_insertion_radii_points(const std::vector<std:
     };
     rebuild(grid_w);
 
+    // FIND looks at s stored mind values (free). One exact NN for λ.
+    // UPDATE only the sample (not all unused): mind is an upper bound.
     const int s_cap = std::max(48, static_cast<int>(std::ceil(2.5 * std::sqrt(static_cast<double>(n)))));
     std::vector<int> unused;
     unused.reserve(static_cast<size_t>(n));
@@ -356,28 +365,42 @@ inline std::vector<value_t> approx_insertion_radii_points(const std::vector<std:
         const int left = static_cast<int>(unused.size());
         if (left <= 0) break;
         const int s = std::min(left, s_cap);
-        const int stride = std::max(1, left / s);
-        const int phase = k % stride;
-        int best = unused[static_cast<size_t>(phase % left)];
+        const unsigned phase = static_cast<unsigned>(k) * 0x9e3779b1u;
+        int best = unused[0];
         value_t best_d = -1;
         for (int t = 0; t < s; ++t) {
-            const int p = unused[static_cast<size_t>((phase + static_cast<long long>(t) * stride) % left)];
-            const value_t md = approx_net_nn(pts, p, net, grid, grid_w, d, n_dist);
+            const int idx = static_cast<int>(
+                (phase + static_cast<unsigned>(t) * 0x85ebca6bu) % static_cast<unsigned>(left));
+            const int p = unused[static_cast<size_t>(idx)];
+            const value_t md = mind[static_cast<size_t>(p)];
             if (md > best_d) {
                 best_d = md;
                 best = p;
             }
         }
-        if (best < 0) break;
+        const value_t exact = approx_net_nn(pts, best, net, grid, grid_w, d, n_dist);
         used[static_cast<size_t>(best)] = 1;
-        lam[static_cast<size_t>(best)] = (best_d > 0) ? best_d : 0;
+        lam[static_cast<size_t>(best)] = (exact > 0 && exact < kInf) ? exact : std::max(best_d, value_t(0));
         net.push_back(best);
-        if (best_d > 0 && static_cast<double>(best_d) < 0.5 * grid_w) {
-            grid_w = static_cast<double>(best_d);
-            if (!(grid_w > 0) || !std::isfinite(grid_w)) grid_w = static_cast<double>(best_d);
-            rebuild(grid_w);
+        if (exact > 0 && std::isfinite(static_cast<double>(exact))) {
+            if (static_cast<double>(exact) < 0.5 * grid_w || (k & 15) == 0) {
+                grid_w = std::max(static_cast<double>(exact), grid_w * 0.5);
+                if (!(grid_w > 0) || !std::isfinite(grid_w)) grid_w = static_cast<double>(exact);
+                rebuild(grid_w);
+            } else {
+                grid[cell_of(best, grid_w)].push_back(best);
+            }
         } else {
             grid[cell_of(best, grid_w)].push_back(best);
+        }
+        for (int t = 0; t < s; ++t) {
+            const int idx = static_cast<int>(
+                (phase + static_cast<unsigned>(t) * 0x85ebca6bu) % static_cast<unsigned>(left));
+            const int q = unused[static_cast<size_t>(idx)];
+            if (used[static_cast<size_t>(q)]) continue;
+            const value_t dd = euclid_dist(pts, best, q);
+            if (n_dist) ++*n_dist;
+            if (dd < mind[static_cast<size_t>(q)]) mind[static_cast<size_t>(q)] = dd;
         }
     }
     return lam;
