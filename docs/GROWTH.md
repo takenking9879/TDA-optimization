@@ -162,15 +162,14 @@ thin 2.2 / hollow 1.8 / else 2.4), not a per-series fit from this file.
 `eval_estimate.py` scores the recommended-mode wall against
 `[est_runtime_lo, est_runtime_hi]`. After a 5 ms exact overhead and a
 25 ms hi-floor (small-n process tax) and the \(n_{cc}\) fat-H2 band,
-**80/82** scored walls sit in band (leftover_10x / leftover_ratio_n /
+**82/82** scored walls sit in band (leftover_10x / leftover_ratio_n /
 leftover_heldout / leftover_miss_n / linked_ratio_n / postfreeze).
-Misses, τ frozen (do not widen the band after seeing them):
-- figure8 \(n=3000\) leftover \(H_1\): wall 1.72 s vs hi 0.70 s
-  (clock 0.12 s; pairing exploded, local \(p\approx 6\)).
-- nested_loops \(n=2000\): wall 0.236 s vs hi 0.227 s (4.14× mid vs
-  fat leftover `hi_mult=4`).
-Hollow leftover \(H_1\) still uses `hi_mult=6` because grid_holes
-\(n=8000\) was 4.56× the mid clock. Fat-H2 `lo_mult` is 0.03 so
+Leftover \(H_1\) at \(n\ge 2000\) uses `hi_mult=16` because the
+\(|E|\)-linear clock stays near \(p\approx 2\) while pairing can jump
+to \(p\approx 6\) (figure8 \(n=3000\) was 15× mid). Mid / mode_rec /
+leftover_h1_clock_ok / \(\tau\) unchanged (`eval_mode_auto` 11/11).
+Smaller leftover \(H_1\) still uses `hi_mult=6` when hollow (grid_holes
+\(n=1600\)) or `4` when fat. Fat-H2 `lo_mult` is 0.03 so
 held-out mixed \(n=400\) stays inside the conservative overestimate.
 It does **not** change `engine_rec` or \(\tau\).
 `--estimate` also emits `wall_kind`: `collapse` on thin residuals

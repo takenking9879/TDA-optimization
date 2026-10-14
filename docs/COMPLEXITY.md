@@ -853,9 +853,8 @@ edge-frac \(<0.25\) → RedZeD; `maxdim=0` → Kruskal / Delaunay.
   7.25 s**, \(n=2000\) 13.6 s (Ripser 15 s timeout).   `--estimate` uses
   \(n_{cc}\) and marks Euclidean fat H2 impractical at \(n_{cc}\ge 800\)
   or a dense flag (`edge_frac≥0.5` and \(n_{cc}\ge 600\)). Runtime bands
-  cover **80/82** leftover/post-freeze recommended-mode walls; figure8
-  \(n=3000\) leftover pairing and nested_loops \(n=2000\) sit outside
-  (τ frozen)
+  cover **82/82** leftover/post-freeze recommended-mode walls after a
+  16× leftover-\(H_1\) hi band at \(n\ge 2000\) (τ / mode_rec frozen)
   **[empirical, fat_h2.json, ncc_auto.json]**. Forced implicit on mixed
   \(n=300\) is now **53 ms** (`+implicit_coh-redzed-h2`, unmatched 0).
   Held-out mode stress: `ncc_auto` **0/11**, `adversarial` seed 17

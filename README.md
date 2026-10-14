@@ -33,7 +33,7 @@ hollow, exact \(H_0\) on the 2D/3D Delaunay skeleton, and an optional
 | Exact VR, same barcode as Ripser | An **automatic engine**: collapse + implicit cohomology when the residual is thin; RedZeD (active enumeration) when it is not. Sparse \(G_T\) when the cloud is hollow. |
 | Exact \(H_0\) in 2D/3D | Kruskal on the Delaunay 1-skeleton (the MST sits inside Delaunay). \(\Theta(n)\) edges instead of all pairs. |
 | Large Euclidean clouds | `--mode scale`: flag of a Delaunay / local-radius graph. **Not** Vietoris–Rips. Essential loops and voids are kept on the tested families; finite bars differ. |
-| Feasibility | `--estimate` guesses graph size, residual regime, `wall_kind` (collapse vs leftover vs construction), and whether exact VR is reasonable (`auto_will_run` is false when the recommended path is known to hang). Runtime lo/hi bands cover **80/82** scored recommended-mode walls (`eval_estimate.py`, leftover / post-freeze packs included). Misses: figure8 \(n=3000\) leftover pairing exploded (wall 1.72 s vs hi 0.70 s); nested_loops \(n=2000\) sat 4.14× mid vs a 4× hi band. The probe is not a certificate. `wall_kind` matches measured collapse vs leftover share **20/20**. `--mode auto` follows that probe (default stays `--mode exact` so scripts do not silently change complex). |
+| Feasibility | `--estimate` guesses graph size, residual regime, `wall_kind` (collapse vs leftover vs construction), and whether exact VR is reasonable (`auto_will_run` is false when the recommended path is known to hang). Runtime lo/hi bands cover **82/82** scored recommended-mode walls (`eval_estimate.py`, leftover / post-freeze packs included). Leftover \(H_1\) at \(n\ge 2000\) uses a 16× hi band because the \(|E|\) clock stays near \(p\approx 2\) while pairing can jump to \(p\approx 6\). Mid / mode_rec / τ unchanged. The probe is not a certificate. `wall_kind` matches measured collapse vs leftover share **20/20**. `--mode auto` follows that probe (default stays `--mode exact` so scripts do not silently change complex). |
 | Fair timing | `--threads N` caps workers. Measured 1-thread vs hardware vs Ripser (always 1 thread). |
 
 Internal experiment numbers live in [`RESEARCH_LOG.md`](RESEARCH_LOG.md),
@@ -336,7 +336,8 @@ frozen. Fat \(H_2\) `uniform10` \(n=250\) still refuses (exit 3).
 
 `--estimate` `growth_p` is a **regime bucket** (H0 1.0 / scale 1.2 /
 sparse 2.0 / thin 2.2 / hollow 1.8 / fat leftover 2.4 / fat H2 3.2),
-not a least-squares fit. Observed local exponents live in
+not a least-squares fit. Leftover \(H_1\) at \(n\ge 2000\) uses a 16×
+hi band. Observed local exponents live in
 [`docs/GROWTH.md`](docs/GROWTH.md).
 
 Claim-to-receipt map: [`benchmarks/results/consolidation/topology_claims.json`](benchmarks/results/consolidation/topology_claims.json)
@@ -360,9 +361,9 @@ Full numbers: [`benchmarks/results/consolidation/TABLES.md`](benchmarks/results/
   (exit 3, `auto_will_run=false`). That path hung at 25 s on 4D
   `uniform4` \(n=250\). Explicit `--mode sparse` still runs.
 - `--estimate` is a probe plus conservative cutoffs. Runtime bands covered
-  **80/82** scored walls after leftover / post-freeze ingest. Misses are
-  leftover pairing explosions (figure8 \(n=3000\); nested_loops \(n=2000\)
-  just past the 4× hi band). τ / `hi_mult` were **not** retuned.
+  **82/82** scored walls after leftover / post-freeze ingest. Leftover
+  \(H_1\) at \(n\ge 2000\) uses `hi_mult=16` (pairing can outrun the
+  \(|E|\) clock). Mid / mode_rec / τ unchanged.
   It can still pick the slower exact engine (see `heavy_noise_circle`,
   `disconnected_circles`, `two_spheres_apart`).   On high-d `uniform10`
   \(n=4000\) it still marks exact uncomfortable, but `--mode auto` now

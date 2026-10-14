@@ -84,10 +84,10 @@ one thin-circle `|E|>8e6` scale miss (nonuniform_circle \(n=6000\),
 exact 5.67 s) is now overridden when the thin leftover H1 clock is
 under 4 s **[empirical]**.
 
-`--estimate` bands cover **80/82** scored recommended-mode walls
+`--estimate` bands cover **82/82** scored recommended-mode walls
 (`eval_estimate.py`, leftover / post-freeze packs included)
-**[empirical]**. Two leftover \(H_1\) explosions sit outside the band
-(figure8 \(n=3000\); nested_loops \(n=2000\)). τ was not retuned.
+**[empirical]**. Leftover \(H_1\) at \(n\ge 2000\) uses a 16× hi band
+so pairing explosions stay inside it; mid / mode_rec / τ unchanged.
 Hollow leftover \(H_1\) still uses a 6× hi band. Mixed \(n=300\) exact
 matches Ripser (unmatched 0, 355 bars) **[empirical]**. `--estimate` exposes that probe as a feasibility guess with a
 **conservative |E| band** (probe fraction ×1.25), a residual-size band,

@@ -5,6 +5,14 @@ Do not paste long reasoning here.
 
 ---
 
+## 2026-10-14 — Leaving-cheap leftover H1 hi-band (16×)
+
+- **Question:** Can leftover_ratio_n (figure8 pairing p≈6 vs |E| clock p≈2 at n=2k→3k) fix the 80/82 band misses without changing mode_rec or τ?
+- **Work:** When leftover H1 (fat or hollow) and n≥2000, `hi_mult=16` on the reported band only. Mid / leftover_h1_clock_ok / engine_rec / τ unchanged. Literature still only RedZeD as batch exact-VR pairing alternative; incremental-ph is streaming.
+- **Result:** Live `eval_estimate.py` **82/82**. figure8 n=3000 wall 1.72 now inside hi 1.86. nested_loops n=2000 inside hi 0.91. `eval_mode_auto` **11/11** (figure8 n=16000 still scale; anisotropic n=8000 still exact). Not a pairing algorithm.
+- **Decision:** Keep. Goal not complete.
+- **Class:** verified (live)
+
 ## 2026-10-14 — Estimate ingest of leftover/post-freeze (80/82)
 
 - **Question:** Do `--estimate` bands still cover recommended-mode walls after leftover_10x / leftover_ratio_n / leftover_heldout / linked_ratio_n / postfreeze ingest?

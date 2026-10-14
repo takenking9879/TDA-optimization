@@ -7,7 +7,7 @@ One place for mode / estimate / engine / wall-kind / held-out packs. τ is froze
 | pack | score | note |
 | --- | --- | --- |
 | `eval_mode_auto` | 11/11 | recommended mode executed (incl. fat-H2 refuse) |
-| `eval_estimate` | 80/82 | recommended-mode wall inside lo/hi band |
+| `eval_estimate` | 82/82 | recommended-mode wall inside lo/hi band |
 | `eval_engine_auto` | 5/9 | 1-thread oracle; 4 known misses waived, τ frozen |
 | `eval_wall_kind` | 20/20 | collapse vs leftover vs construction |
 | `eval_adversarial` seed 17 | 0/11 timeout, 0/8 mismatch | held-out after dispatcher freeze |
@@ -510,14 +510,14 @@ Agreement 11/11. `refuse` means the probe named sparse but auto exits 3 instead 
 | uniform4 | 250 | 2 | sparse | refuse | True | True |
 
 ## `--estimate` vs measured wall (`eval_estimate.py`)
-Recommended-mode wall inside `[est_runtime_lo, est_runtime_hi]`: 80/82. Empirical bands; τ frozen. in_band compares the recommended-mode wall to est_runtime_lo/hi. τ unchanged. Includes leftover_10x / leftover_ratio_n / leftover_heldout / leftover_miss_n / linked_ratio_n / postfreeze. Misses: figure8 n=3000 leftover explosion; nested_loops n=2000 just past hi_mult=4.
+Recommended-mode wall inside `[est_runtime_lo, est_runtime_hi]`: 82/82. Empirical bands; τ frozen. in_band compares the recommended-mode wall to est_runtime_lo/hi. τ unchanged. Includes leftover_10x / leftover_ratio_n / leftover_heldout / leftover_miss_n / linked_ratio_n / postfreeze.
 | family | n | maxdim | rec | wall (s) | lo | hi | ratio | in band |
 | --- | ---: | ---: | --- | ---: | ---: | ---: | ---: | --- |
-| anisotropic_blob | 2000 | 1 | exact | 0.093 | 0.028 | 0.277 | 1.34 | True |
-| anisotropic_blob | 4000 | 1 | exact | 0.411 | 0.110 | 1.103 | 1.49 | True |
-| anisotropic_blob | 6000 | 1 | exact | 0.670 | 0.248 | 2.479 | 1.08 | True |
-| anisotropic_blob | 8000 | 1 | exact | 1.831 | 0.402 | 4.019 | 1.82 | True |
-| blobs | 4000 | 1 | exact | 0.165 | 0.106 | 1.060 | 0.62 | True |
+| anisotropic_blob | 2000 | 1 | exact | 0.093 | 0.028 | 1.108 | 1.34 | True |
+| anisotropic_blob | 4000 | 1 | exact | 0.411 | 0.110 | 4.412 | 1.49 | True |
+| anisotropic_blob | 6000 | 1 | exact | 0.670 | 0.248 | 9.915 | 1.08 | True |
+| anisotropic_blob | 8000 | 1 | exact | 1.831 | 0.402 | 16.077 | 1.82 | True |
+| blobs | 4000 | 1 | exact | 0.165 | 0.106 | 4.242 | 0.62 | True |
 | circle_noisy | 200 | 1 | exact | 0.005 | 0.003 | 0.026 | 0.78 | True |
 | circle_noisy | 400 | 1 | exact | 0.014 | 0.005 | 0.046 | 1.26 | True |
 | circle_noisy | 500 | 1 | exact | 0.017 | 0.006 | 0.060 | 1.15 | True |
@@ -526,7 +526,7 @@ Recommended-mode wall inside `[est_runtime_lo, est_runtime_hi]`: 80/82. Empirica
 | circle_noisy | 4000 | 1 | exact |  | 0.258 | 2.580 |  | None |
 | circle_noisy | 8000 | 1 | exact |  | 1.026 | 10.260 |  | None |
 | circle_noisy | 12000 | 1 | scale | 0.361 | 0.168 | 1.680 | 0.86 | True |
-| clustered | 5000 | 1 | exact | 0.096 | 0.064 | 0.956 | 0.60 | True |
+| clustered | 5000 | 1 | exact | 0.096 | 0.064 | 2.548 | 0.60 | True |
 | disconnected_circles | 400 | 1 | exact | 0.008 | 0.005 | 0.046 | 0.67 | True |
 | disconnected_circles | 1000 | 1 | exact | 0.037 | 0.018 | 0.180 | 0.82 | True |
 | disconnected_circles | 2000 | 1 | exact | 0.183 | 0.066 | 0.660 | 1.11 | True |
@@ -535,28 +535,28 @@ Recommended-mode wall inside `[est_runtime_lo, est_runtime_hi]`: 80/82. Empirica
 | figure8 | 400 | 1 | exact | 0.007 | 0.003 | 0.041 | 1.03 | True |
 | figure8 | 500 | 1 | exact | 0.010 | 0.006 | 0.060 | 0.67 | True |
 | figure8 | 1000 | 1 | exact | 0.024 | 0.007 | 0.104 | 1.40 | True |
-| figure8 | 2000 | 1 | exact | 0.147 | 0.021 | 0.320 | 2.76 | True |
-| figure8 | 3000 | 1 | exact | 1.716 | 0.046 | 0.696 | 14.79 | False |
-| figure8 | 4000 | 1 | exact |  | 0.080 | 1.201 |  | None |
-| figure8 | 8000 | 1 | scale | 0.219 | 0.112 | 1.680 | 0.78 | True |
-| figure8 | 12000 | 1 | scale | 0.361 | 0.168 | 2.520 | 0.86 | True |
-| figure8 | 16000 | 1 | scale | 0.498 | 0.224 | 3.360 | 0.89 | True |
+| figure8 | 2000 | 1 | exact | 0.147 | 0.021 | 0.854 | 2.76 | True |
+| figure8 | 3000 | 1 | exact | 1.716 | 0.046 | 1.856 | 14.79 | True |
+| figure8 | 4000 | 1 | exact |  | 0.080 | 3.202 |  | None |
+| figure8 | 8000 | 1 | scale | 0.219 | 0.112 | 4.480 | 0.78 | True |
+| figure8 | 12000 | 1 | scale | 0.361 | 0.168 | 6.720 | 0.86 | True |
+| figure8 | 16000 | 1 | scale | 0.498 | 0.224 | 8.960 | 0.89 | True |
 | figure8 | 24000 | 1 | scale | 0.816 | 0.336 | 3.360 | 0.97 | True |
 | grid_holes | 400 | 1 | exact | 0.004 | 0.002 | 0.032 | 0.70 | True |
 | grid_holes | 800 | 1 | exact | 0.007 | 0.002 | 0.037 | 1.13 | True |
 | grid_holes | 1600 | 1 | exact | 0.015 | 0.004 | 0.061 | 1.45 | True |
-| grid_holes | 4000 | 1 | exact | 0.094 | 0.014 | 0.217 | 2.61 | True |
-| grid_holes | 8000 | 1 | exact | 0.640 | 0.056 | 0.843 | 4.56 | True |
+| grid_holes | 4000 | 1 | exact | 0.094 | 0.014 | 0.578 | 2.61 | True |
+| grid_holes | 8000 | 1 | exact | 0.640 | 0.056 | 2.248 | 4.56 | True |
 | linked_circles | 800 | 1 | exact | 0.019 | 0.007 | 0.075 | 1.03 | True |
 | linked_circles | 1200 | 1 | exact | 0.044 | 0.014 | 0.142 | 1.25 | True |
-| linked_circles | 2000 | 1 | exact | 0.109 | 0.037 | 0.373 | 1.17 | True |
-| linked_circles | 3000 | 1 | exact | 0.267 | 0.080 | 0.798 | 1.34 | True |
-| linked_circles | 4000 | 1 | exact | 0.531 | 0.144 | 1.437 | 1.48 | True |
+| linked_circles | 2000 | 1 | exact | 0.109 | 0.037 | 1.494 | 1.17 | True |
+| linked_circles | 3000 | 1 | exact | 0.267 | 0.080 | 3.194 | 1.34 | True |
+| linked_circles | 4000 | 1 | exact | 0.531 | 0.144 | 5.747 | 1.48 | True |
 | loops_with_bridges | 1000 | 1 | exact | 0.046 | 0.018 | 0.180 | 1.02 | True |
 | loops_with_bridges | 2000 | 1 | exact | 0.218 | 0.066 | 0.660 | 1.32 | True |
 | many_loops | 400 | 1 | exact | 0.004 | 0.002 | 0.034 | 0.65 | True |
 | many_loops | 1000 | 1 | exact | 0.009 | 0.004 | 0.054 | 0.96 | True |
-| many_loops | 2000 | 1 | exact | 0.027 | 0.008 | 0.126 | 1.27 | True |
+| many_loops | 2000 | 1 | exact | 0.027 | 0.008 | 0.337 | 1.27 | True |
 | mixed_1d2d3d | 300 | 2 | exact | 0.033 | 0.019 | 3.870 | 0.05 | True |
 | mixed_1d2d3d | 600 | 2 | exact | 0.237 | 0.154 | 30.750 | 0.05 | True |
 | mixed_1d2d3d | 1000 | 2 | exact | 1.074 | 0.712 | 142.466 | 0.05 | True |
@@ -566,42 +566,42 @@ Recommended-mode wall inside `[est_runtime_lo, est_runtime_hi]`: 80/82. Empirica
 | multi_scale_loops | 1000 | 1 | exact | 0.026 | 0.009 | 0.089 | 1.19 | True |
 | nested_loops | 400 | 1 | exact | 0.009 | 0.003 | 0.028 | 1.29 | True |
 | nested_loops | 1000 | 1 | exact | 0.036 | 0.007 | 0.071 | 2.01 | True |
-| nested_loops | 2000 | 1 | exact | 0.236 | 0.023 | 0.227 | 4.14 | False |
-| nested_loops | 4000 | 1 | exact |  | 0.083 | 0.831 |  | None |
-| nested_loops | 8000 | 1 | exact |  | 0.329 | 3.291 |  | None |
+| nested_loops | 2000 | 1 | exact | 0.236 | 0.023 | 0.910 | 4.14 | True |
+| nested_loops | 4000 | 1 | exact |  | 0.083 | 3.324 |  | None |
+| nested_loops | 8000 | 1 | exact |  | 0.329 | 13.162 |  | None |
 | nonuniform_circle | 400 | 1 | exact | 0.012 | 0.005 | 0.046 | 1.02 | True |
 | nonuniform_circle | 1000 | 1 | exact | 0.062 | 0.018 | 0.180 | 1.37 | True |
 | nonuniform_circle | 6000 | 1 | exact | 5.672 | 0.578 | 5.780 | 3.93 | True |
 | outliers_sphere | 400 | 2 | exact | 0.017 | 0.005 | 0.046 | 1.45 | True |
-| random_geometric | 6000 | 1 | exact | 0.088 | 0.016 | 0.236 | 2.24 | True |
+| random_geometric | 6000 | 1 | exact | 0.088 | 0.016 | 0.630 | 2.24 | True |
 | sheared_loops | 800 | 1 | exact | 0.014 | 0.005 | 0.052 | 1.05 | True |
 | sheared_loops | 1200 | 1 | exact | 0.025 | 0.009 | 0.094 | 1.08 | True |
-| sheared_loops | 2000 | 1 | exact | 0.068 | 0.024 | 0.239 | 1.14 | True |
-| sheared_loops | 3000 | 1 | exact | 0.149 | 0.049 | 0.490 | 1.22 | True |
-| sheared_loops | 4000 | 1 | exact | 0.295 | 0.078 | 1.170 | 1.51 | True |
-| sheared_loops | 5000 | 1 | exact | 0.469 | 0.125 | 1.881 | 1.50 | True |
-| sheared_loops | 8000 | 1 | scale |  | 0.112 | 1.680 |  | None |
+| sheared_loops | 2000 | 1 | exact | 0.068 | 0.024 | 0.954 | 1.14 | True |
+| sheared_loops | 3000 | 1 | exact | 0.149 | 0.049 | 1.961 | 1.22 | True |
+| sheared_loops | 4000 | 1 | exact | 0.295 | 0.078 | 3.119 | 1.51 | True |
+| sheared_loops | 5000 | 1 | exact | 0.469 | 0.125 | 5.016 | 1.50 | True |
+| sheared_loops | 8000 | 1 | scale |  | 0.112 | 4.480 |  | None |
 | sphere | 200 | 2 | exact | 0.007 | 0.003 | 0.026 | 1.10 | True |
 | sphere | 400 | 2 | exact | 0.017 | 0.005 | 0.046 | 1.53 | True |
 | sphere | 1000 | 1 | exact | 0.031 | 0.012 | 0.118 | 1.04 | True |
-| sphere | 2000 | 1 | exact | 0.091 | 0.041 | 0.411 | 0.88 | True |
-| sphere | 3000 | 1 | exact | 0.212 | 0.090 | 0.896 | 0.95 | True |
-| sphere | 4000 | 1 | exact | 0.381 | 0.159 | 1.586 | 0.96 | True |
+| sphere | 2000 | 1 | exact | 0.091 | 0.041 | 1.642 | 0.88 | True |
+| sphere | 3000 | 1 | exact | 0.212 | 0.090 | 3.584 | 0.95 | True |
+| sphere | 4000 | 1 | exact | 0.381 | 0.159 | 6.344 | 0.96 | True |
 | sphere_complete | 80 | 2 | exact | 0.013 | 0.001 | 0.276 | 0.29 | True |
 | sphere_complete | 150 | 2 | exact | 0.085 | 0.008 | 1.650 | 0.31 | True |
 | sphere_complete | 250 | 2 | exact | 0.468 | 0.038 | 7.530 | 0.37 | True |
-| swiss_roll | 2000 | 1 | exact | 0.020 | 0.006 | 0.091 | 1.32 | True |
-| swiss_roll | 8000 | 1 | exact | 0.319 | 0.071 | 1.067 | 1.79 | True |
+| swiss_roll | 2000 | 1 | exact | 0.020 | 0.006 | 0.244 | 1.32 | True |
+| swiss_roll | 8000 | 1 | exact | 0.319 | 0.071 | 2.847 | 1.79 | True |
 | torus | 400 | 1 | exact | 0.009 | 0.003 | 0.041 | 1.29 | True |
 | torus | 1000 | 1 | exact | 0.040 | 0.007 | 0.101 | 2.39 | True |
-| torus | 2000 | 1 | exact | 0.206 | 0.021 | 0.315 | 3.93 | True |
+| torus | 2000 | 1 | exact | 0.206 | 0.021 | 0.839 | 3.93 | True |
 | two_spheres_apart | 300 | 2 | exact | 0.019 | 0.002 | 0.025 | 3.11 | True |
 | uniform2 | 500 | 1 | exact | 0.008 | 0.003 | 0.034 | 0.91 | True |
 | uniform2 | 1000 | 1 | exact | 0.018 | 0.007 | 0.073 | 0.96 | True |
-| uniform2 | 2000 | 1 | exact | 0.061 | 0.025 | 0.250 | 0.97 | True |
-| uniform2 | 3500 | 1 | exact | 0.179 | 0.069 | 0.692 | 1.03 | True |
-| uniform2 | 5000 | 1 | exact | 0.391 | 0.149 | 1.494 | 1.05 | True |
-| uniform2 | 7000 | 1 | exact | 0.793 | 0.268 | 2.682 | 1.18 | True |
+| uniform2 | 2000 | 1 | exact | 0.061 | 0.025 | 1.000 | 0.97 | True |
+| uniform2 | 3500 | 1 | exact | 0.179 | 0.069 | 2.768 | 1.03 | True |
+| uniform2 | 5000 | 1 | exact | 0.391 | 0.149 | 5.977 | 1.05 | True |
+| uniform2 | 7000 | 1 | exact | 0.793 | 0.268 | 10.728 | 1.18 | True |
 | uniform3 | 200 | 2 | exact | 0.010 | 0.003 | 0.026 | 1.55 | True |
 | uniform3 | 300 | 2 | exact | 0.019 | 0.003 | 0.034 | 2.19 | True |
 | uniform4 | 400 | 1 | exact |  | 0.005 | 0.046 |  | None |
