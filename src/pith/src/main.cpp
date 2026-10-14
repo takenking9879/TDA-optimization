@@ -422,17 +422,22 @@ static Feasibility compute_feasibility(const std::vector<std::vector<value_t>>* 
     if (f.est_exact_runtime > 0) f.est_exact_runtime += 0.005;
     const bool leftover_h1_clock_ok =
         maxdim == 1 && f.est_exact_runtime > 0 && f.est_exact_runtime <= 4.0;
+    // Hollow leftover clocks underestimate pairing (figure8 n=16000:
+    // est 3.06 s, --mode auto timed out at 25 s). Do not override
+    // |E|>8e6 on hollow. Fat leftover H1 clocks track (anisotropic
+    // n=8000: est 1.07 s / wall 1.83 s).
+    const bool fat_h1_clock_ok = leftover_h1_clock_ok && fat;
     if (fat_h2_impractical) {
         f.exact_ok = false;
         if (dim >= 2 && dim <= 3)
             f.reason = "fat H2: largest T-component is past the cheap RedZeD-cc regime; Euclidean scale is safer";
         else
             f.reason = "fat residual at maxdim>=2 on a non-scaleable metric; sparse H2 may still be impractical — lower T or maxdim";
-    } else if (maxdim >= 1 && f.est_e_hi > 8.0e6 && !leftover_h1_clock_ok) {
+    } else if (maxdim >= 1 && f.est_e_hi > 8.0e6 && !fat_h1_clock_ok) {
         f.exact_ok = false;
         f.reason = "conservative |E| band exceeds 8e6; exact H1 on G_T is likely impractical";
-    } else if (maxdim >= 1 && f.est_e_hi > 8.0e6 && leftover_h1_clock_ok) {
-        f.reason = "conservative |E| band exceeds 8e6 but estimated exact clock is still under 4 s — stay on exact";
+    } else if (maxdim >= 1 && f.est_e_hi > 8.0e6 && fat_h1_clock_ok) {
+        f.reason = "conservative |E| band exceeds 8e6 but fat leftover H1 clock is still under 4 s — stay on exact";
     } else if (maxdim >= 1 && fat && f.est_r_hi > 1.5e6) {
         f.exact_ok = false;
         f.reason = "fat residual band exceeds 1.5e6 leftover edges; exact leftover visits explode";
@@ -440,7 +445,7 @@ static Feasibility compute_feasibility(const std::vector<std::vector<value_t>>* 
         f.exact_ok = false;
         f.reason = "dense G_T at n>20000 with a non-thin residual; exact H1 leaves the low-polynomial regime";
     } else if (maxdim >= 1 && fat && n > 6000 && dim >= 2 && dim <= 3 &&
-               !leftover_h1_clock_ok) {
+               !fat_h1_clock_ok) {
         f.reason = "fat Euclidean residual at n>6000: exact may still finish, scale is the safer option";
     } else if (maxdim >= 1 && thin && n > 8000 && dim >= 2 && dim <= 3) {
         f.reason = "thin residual: exact collapse+implicit is still the intended path; scale is optional";
@@ -448,7 +453,7 @@ static Feasibility compute_feasibility(const std::vector<std::vector<value_t>>* 
     f.mode_rec = "exact";
     if (!f.exact_ok && dim >= 2 && dim <= 3) f.mode_rec = "scale";
     else if (!f.exact_ok) f.mode_rec = "sparse";
-    else if (fat && n > 6000 && dim >= 2 && dim <= 3 && !leftover_h1_clock_ok)
+    else if (fat && n > 6000 && dim >= 2 && dim <= 3 && !fat_h1_clock_ok)
         f.mode_rec = "scale";
     const bool near_tau =
         residual_frac >= 0 && std::fabs(residual_frac - tau) < 0.02;
