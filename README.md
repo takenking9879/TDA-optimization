@@ -30,7 +30,7 @@ hollow, exact \(H_0\) on the 2D/3D Delaunay skeleton, and an optional
 | Exact VR, same barcode as Ripser | An **automatic engine**: collapse + implicit cohomology when the residual is thin; RedZeD (active enumeration) when it is not. Sparse \(G_T\) when the cloud is hollow. |
 | Exact \(H_0\) in 2D/3D | Kruskal on the Delaunay 1-skeleton (the MST sits inside Delaunay). \(\Theta(n)\) edges instead of all pairs. |
 | Large Euclidean clouds | `--mode scale`: flag of a Delaunay / local-radius graph. **Not** Vietoris–Rips. Essential loops and voids are kept on the tested families; finite bars differ. |
-| Feasibility | `--estimate` guesses graph size, residual regime, and whether exact VR is reasonable (`auto_will_run` is false when the recommended path is known to hang). Runtime lo/hi bands cover **32/32** scored recommended-mode walls (`eval_estimate.py`). `--mode auto` follows that probe (default stays `--mode exact` so scripts do not silently change complex). |
+| Feasibility | `--estimate` guesses graph size, residual regime, `wall_kind` (collapse vs leftover vs construction), and whether exact VR is reasonable (`auto_will_run` is false when the recommended path is known to hang). Runtime lo/hi bands cover **32/32** scored recommended-mode walls (`eval_estimate.py`). `--mode auto` follows that probe (default stays `--mode exact` so scripts do not silently change complex). |
 | Fair timing | `--threads N` caps workers. Measured 1-thread vs hardware vs Ripser (always 1 thread). |
 
 Internal experiment numbers live in [`RESEARCH_LOG.md`](RESEARCH_LOG.md),
@@ -154,6 +154,8 @@ PITH **0.30 s** vs giotto **7.23 s** (24×).
 ![Peak memory](benchmarks/results/consolidation/figures/memory_exact.svg)
 
 ![Local exponents](benchmarks/results/consolidation/figures/exponents.svg)
+
+![Where exact time goes](benchmarks/results/consolidation/figures/wall_share.svg)
 
 ![Largest n under 12 s](benchmarks/results/consolidation/figures/max_practical.svg)
 

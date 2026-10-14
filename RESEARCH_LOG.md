@@ -5,6 +5,14 @@ Do not paste long reasoning here.
 
 ---
 
+## 2026-10-14 — wall_kind + construct/collapse/reduce figure
+
+- **Question:** Can `--estimate` tell the user whether the exact wall is collapse (circle 32×) or leftover pairing (figure-8 / torus), without retuning τ?
+- **Work:** `Feasibility.wall_kind` = construction / collapse / leftover from the same probe. `wall_share.svg` stacked shares from `baselines.json`.
+- **Result:** Circle / disconnected → collapse. Figure-8 n=2000 / nested / torus → leftover. Matches the construct/reduce table. τ unchanged.
+- **Decision:** Keep as estimate narration. Do not hunt leftover micro-opts. Goal not complete.
+- **Class:** experiment (dispatcher honesty)
+
 ## 2026-10-14 — engine-oracle gate + construct/reduce table
 
 - **Question:** Can we freeze the 5/9 held-out engine misses without retuning τ, and show where exact wall time actually goes?

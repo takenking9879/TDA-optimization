@@ -319,6 +319,7 @@ struct Feasibility {
     std::string mode_rec = "exact";
     std::string reason;
     std::string runtime_class;
+    std::string wall_kind = "unknown";
     std::string confidence = "low";
     bool exact_ok = true;
 };
@@ -441,6 +442,13 @@ static Feasibility compute_feasibility(const std::vector<std::vector<value_t>>* 
                                   : (f.leaving_cheap ? "leaving-cheap-regime"
                                                      : (f.est_runtime > 1.0 || (n >= 4000 && maxdim >= 1) ? "seconds"
                                                                                                           : "sub-second"));
+    // Where the measured wall actually is (baselines construct/reduce
+    // split). Informational — does not change mode_rec or τ.
+    if (maxdim < 1) f.wall_kind = "construction";
+    else if (f.mode_rec == "scale" || f.mode_rec == "sparse") f.wall_kind = "construction";
+    else if (thin) f.wall_kind = "collapse";
+    else if (fat || hollow) f.wall_kind = "leftover";
+    else f.wall_kind = "unknown";
     return f;
 }
 
@@ -478,6 +486,7 @@ static int print_estimate(const std::vector<std::vector<value_t>>* pts,
                   << "  \"mode_recommended\": \"" << f.mode_rec << "\",\n"
                   << "  \"exact_feasible\": " << (f.exact_ok ? "true" : "false") << ",\n"
                   << "  \"runtime_class\": \"" << f.runtime_class << "\",\n"
+                  << "  \"wall_kind\": \"" << f.wall_kind << "\",\n"
                   << "  \"confidence\": \"" << f.confidence << "\",\n"
                   << "  \"threads\": " << nthreads() << ",\n"
                   << "  \"reason\": \"" << f.reason << "\"\n"
@@ -495,6 +504,7 @@ static int print_estimate(const std::vector<std::vector<value_t>>* pts,
                   << " est_sparse_s=" << f.est_sparse_runtime
                   << " skips_dense_matrix=" << (f.skips_dense_matrix ? 1 : 0)
                   << " auto_will_run=" << (f.auto_will_run ? 1 : 0)
+                  << " wall_kind=" << f.wall_kind
                   << " confidence=" << f.confidence
                   << " threads=" << nthreads() << "\n# " << f.reason << "\n";
     }

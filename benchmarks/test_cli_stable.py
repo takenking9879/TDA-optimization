@@ -59,6 +59,7 @@ def main():
         "est_sparse_runtime_s",
         "skips_dense_matrix",
         "auto_will_run",
+        "wall_kind",
     ):
         if key not in js:
             print("estimate JSON missing", key, js, file=sys.stderr)

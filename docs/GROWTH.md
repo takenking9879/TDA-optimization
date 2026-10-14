@@ -112,3 +112,6 @@ thin 2.2 / hollow 1.8 / else 2.4), not a per-series fit from this file.
 `[est_runtime_lo, est_runtime_hi]`. After a 5 ms exact overhead and a
 25 ms hi-floor (small-n process tax), **32/32** scored walls sit in band.
 It does **not** change `engine_rec` or \(\tau\).
+`--estimate` also emits `wall_kind`: `collapse` on thin residuals
+(circle 32× is collapse, not pairing), `leftover` on fat/hollow exact
+(figure-8 \(n=2000\) / torus), `construction` on H0 / scale / sparse.

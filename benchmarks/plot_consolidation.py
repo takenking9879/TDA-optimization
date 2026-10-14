@@ -505,6 +505,54 @@ if BASE:
             f"{run.get('n_edges_in') or ''} | {run.get('residual_frac') or ''} |"
         )
 
+    picks = [
+        ("circle_noisy", 1000),
+        ("sphere", 400),
+        ("disconnected_circles", 1000),
+        ("figure8", 2000),
+        ("nested_loops", 1000),
+        ("torus", 1000),
+    ]
+    by_run = {(r["name"], r["n"]): (r.get("runs") or {}).get("pith_exact_t1") for r in BASE.get("comparisons") or []}
+    stack = []
+    for name, n in picks:
+        run = by_run.get((name, n)) or {}
+        if not run.get("ok"):
+            continue
+        met = (run.get("metric_ms") or 0) / 1000
+        col = (run.get("collapse_ms") or 0) / 1000
+        red = (run.get("reduce_ms") or 0) / 1000
+        tot = met + col + red
+        if tot <= 0:
+            continue
+        stack.append((f"{name} n={n}", met / tot, col / tot, red / tot, tot))
+    if stack:
+        sh, sw = 36 + 28 * len(stack), 720
+        svg = [
+            f"<svg xmlns='http://www.w3.org/2000/svg' width='{sw}' height='{sh}' font-family='sans-serif'>",
+            f"<rect width='{sw}' height='{sh}' fill='white'/>",
+            "<text x='360' y='18' text-anchor='middle' font-size='14'>Where exact VR time goes (share of construct+collapse+reduce)</text>",
+            "<rect x='430' y='6' width='10' height='10' fill='#7f7f7f'/>",
+            "<text x='444' y='15' font-size='11'>construct</text>",
+            "<rect x='520' y='6' width='10' height='10' fill='#1f77b4'/>",
+            "<text x='534' y='15' font-size='11'>collapse</text>",
+            "<rect x='600' y='6' width='10' height='10' fill='#d62728'/>",
+            "<text x='614' y='15' font-size='11'>leftover reduce</text>",
+        ]
+        y = 36
+        for lab, fm, fc, fr, tot in stack:
+            x0 = 200
+            wbar = 400
+            svg.append(f"<text x='12' y='{y+10}' font-size='11'>{lab}</text>")
+            svg.append(f"<rect x='{x0}' y='{y}' width='{wbar*fm:.1f}' height='14' fill='#7f7f7f'/>")
+            svg.append(f"<rect x='{x0+wbar*fm:.1f}' y='{y}' width='{wbar*fc:.1f}' height='14' fill='#1f77b4'/>")
+            svg.append(f"<rect x='{x0+wbar*(fm+fc):.1f}' y='{y}' width='{wbar*fr:.1f}' height='14' fill='#d62728'/>")
+            kind = "collapse" if fc >= fr else "leftover"
+            svg.append(f"<text x='610' y='{y+11}' font-size='11'>{kind} {tot:.3f}s</text>")
+            y += 26
+        svg.append("</svg>")
+        (FIG / "wall_share.svg").write_text("\n".join(svg))
+
     rows.append("")
     rows.append("## Phase-3 topology (exact engines vs Ripser; scale unmatched)")
     rows.append("| family | n | PITH match | giotto match | GUDHI match | scale unmatched | scale bn H1 |")
