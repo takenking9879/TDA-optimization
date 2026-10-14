@@ -404,6 +404,77 @@ static void active_enum_lazy(State& st, rank_t xrank, comb_t xidx, const int32_t
     ae_seeded(st, xrank, xidx, verts, sdiam);
 }
 
+// I301: H2 triangle stream on a sparse 1-skeleton. Same growing-G_<e
+// common-neighbor triangles as vendor generate_stream (d=2, need=1),
+// but adj-list intersection instead of an n×n bit graph. Exact flag PH.
+// Used when |E|≤16n (Delaunay flag). Do not use on dense G_T.
+template <class F>
+static void generate_stream_h2_adj(const EdgeList& edges, int nv, const BinomialTable& bt, F&& emit) {
+    if (edges.count == 0 || nv <= 0) return;
+    std::vector<std::vector<int>> adj(static_cast<size_t>(nv));
+    for (auto& a : adj) a.reserve(16);
+    auto add_undirected = [&](int u, int v) {
+        auto ins = [](std::vector<int>& a, int x) {
+            auto it = std::lower_bound(a.begin(), a.end(), x);
+            if (it == a.end() || *it != x) a.insert(it, x);
+        };
+        ins(adj[static_cast<size_t>(u)], v);
+        ins(adj[static_cast<size_t>(v)], u);
+    };
+    std::vector<comb_t> akey;
+    std::vector<int32_t> avert;
+    std::vector<uint32_t> ord;
+    int32_t tri[3];
+    const size_t E = edges.count;
+    size_t i = 0;
+    while (i < E) {
+        const value_t r = edges.diam[i];
+        size_t jend = i;
+        while (jend < E && edges.diam[jend] == r) ++jend;
+        const bool acc = (jend != i + 1);
+        akey.clear();
+        avert.clear();
+        for (size_t k = i; k < jend; ++k) {
+            const int u = edges.verts[2 * k];
+            const int v = edges.verts[2 * k + 1];
+            const auto& au = adj[static_cast<size_t>(u)];
+            const auto& av = adj[static_cast<size_t>(v)];
+            size_t p = 0, q = 0;
+            while (p < au.size() && q < av.size()) {
+                if (au[p] < av[q]) {
+                    ++p;
+                } else if (av[q] < au[p]) {
+                    ++q;
+                } else {
+                    const int x = au[p];
+                    ++p;
+                    ++q;
+                    if (x == u || x == v) continue;
+                    tri[0] = u;
+                    tri[1] = v;
+                    tri[2] = x;
+                    std::sort(tri, tri + 3);
+                    if (acc) {
+                        akey.push_back(comb_index(tri, 3, bt));
+                        avert.insert(avert.end(), tri, tri + 3);
+                    } else {
+                        emit(r, tri);
+                    }
+                }
+            }
+            add_undirected(u, v);
+        }
+        if (acc && !akey.empty()) {
+            const size_t c = akey.size();
+            ord.resize(c);
+            for (size_t t = 0; t < c; ++t) ord[t] = static_cast<uint32_t>(t);
+            std::sort(ord.begin(), ord.end(), [&](uint32_t a, uint32_t b) { return akey[a] < akey[b]; });
+            for (size_t t = 0; t < c; ++t) emit(r, &avert[static_cast<size_t>(ord[t]) * 3]);
+        }
+        i = jend;
+    }
+}
+
 // I244: VR≤T does not need enclosing (cone). Finite T → thr=T is exact.
 // I245: parallel build_edges when no prebuilt EdgeList.
 // I246: lazy R/Ri insert on top-dimension AE.
@@ -523,7 +594,7 @@ redzed_vr(DistanceMatrix& distIn, int n, value_t threshold, EdgeList* prebuilt) 
             Rid.side_vpc = m;
             rank_t next_rank = 0;
 
-            generate_stream(st.edges, st.dist, d, st.binom, [&](value_t sdiam, const int32_t* cv) {
+            auto emit_simp = [&](value_t sdiam, const int32_t* cv) {
                 rank_t sr = ++next_rank;
                 st.bar.clear();
                 for (int omit = 1; omit <= m; ++omit) {
@@ -544,7 +615,12 @@ redzed_vr(DistanceMatrix& distIn, int n, value_t threshold, EdgeList* prebuilt) 
                 } else {
                     resolve_bar(st, d, st.bar, sdiam);
                 }
-            });
+            };
+            // I301: sparse H2 uses adj intersection; dense / H≥3 keep vendor.
+            if (d == 2 && st.edges.count <= static_cast<size_t>(nv) * 16)
+                generate_stream_h2_adj(st.edges, nv, st.binom, emit_simp);
+            else
+                generate_stream(st.edges, st.dist, d, st.binom, emit_simp);
 
             st.cson = false;
             st.csmap.init(0);
