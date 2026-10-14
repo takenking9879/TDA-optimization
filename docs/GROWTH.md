@@ -89,6 +89,23 @@ The feasibility probe uses these regimes: fat `maxdim≥2` with
 \(n_{cc}\ge 800\), or a dense flag (`edge_frac≥0.5` and \(n_{cc}\ge 600\)),
 or \(n\ge 200\) when there is no scale path, or conservative `|E|>8e6`.
 
+`--estimate` `growth_p` is a **regime bucket**, not a least-squares fit
+from `growth.json`. The probe reports:
+
+| condition | `growth_p` | meaning |
+| --- | ---: | --- |
+| `maxdim=0` | 1.0 | Kruskal / MST |
+| recommended `scale` | 1.2 | Euclidean Delaunay-flag |
+| recommended `sparse` | 2.0 | FPS \(\Theta(n^2)\) wall |
+| fat `maxdim≥2` | 3.2 | tet / leftover \(H_2\) |
+| thin residual | 2.2 | collapse-dominated |
+| hollow leftover | 1.8 | sparse-flag leftover |
+| otherwise (fat leftover \(H_1\)) | 2.4 | connected leftover |
+
+These are conservative labels for `leaving_cheap_regime` and the
+runtime band, **not** theorems. Fitted local exponents above are the
+observed slopes; they are allowed to disagree with the bucket.
+
 ## Phase-3 baselines (giotto-ph / GUDHI, local \(p\) only)
 
 Two-point slopes from `baselines.json`. Same hardware. Not theorems.

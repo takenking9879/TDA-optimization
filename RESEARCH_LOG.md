@@ -5,6 +5,14 @@ Do not paste long reasoning here.
 
 ---
 
+## 2026-10-14 — Consolidation: scorecard + leftover estimate ingest
+
+- **Question:** Can the public story name a single dispatcher evaluation and ingest the leftover / post-freeze receipts without retuning τ?
+- **Work:** `eval_estimate.py` now also reads leftover_10x / leftover_ratio_n / leftover_heldout / linked_ratio_n / postfreeze. `plot_consolidation.py` writes a dispatcher scorecard plus memory_scale / memory_sparse / runtime_vs_dimension / pd_comparison. `growth_p` documented as a regime bucket, not a fitted exponent. WHAT_WE_BUILT opening no longer leads with I-numbers. `--help` stays I-number free.
+- **Result:** Scorecard: mode_auto 11/11, estimate 48/48 (pre-ingest), engine 5/9, wall_kind 20/20, adversarial 0/11 / 0/8, ncc 0/11, highd 0/8, postfreeze 0/10. sheared_loops 2.93→9.87→8.53× kept. Not a pairing algorithm.
+- **Decision:** Keep. Re-run estimate after this commit. Goal not complete.
+- **Class:** experiment
+
 ## 2026-10-14 — sheared_loops leftover n-series (peaks at 9.87×)
 
 - **Question:** Does sheared_loops leftover 6.5× at n=2000 reach 10× as n grows? Any new 2026 exact-VR batch engine?

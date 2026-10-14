@@ -224,6 +224,10 @@ PITH **0.30 s** vs giotto **7.23 s** (24×).
 
 ![Peak memory](benchmarks/results/consolidation/figures/memory_exact.svg)
 
+![Peak memory, scale path](benchmarks/results/consolidation/figures/memory_scale.svg)
+
+![Peak memory, sparse Rips](benchmarks/results/consolidation/figures/memory_sparse.svg)
+
 ![Local exponents](benchmarks/results/consolidation/figures/exponents.svg)
 
 ![Where exact time goes](benchmarks/results/consolidation/figures/wall_share.svg)
@@ -251,6 +255,8 @@ the 8 s budget (uniform2 \(n=800\), \(T=0.55\)).
 ![Wall time vs noise](benchmarks/results/consolidation/figures/runtime_vs_noise.svg)
 
 ![Wall time vs density](benchmarks/results/consolidation/figures/runtime_vs_density.svg)
+
+![Wall time vs ambient dimension](benchmarks/results/consolidation/figures/runtime_vs_dimension.svg)
 
 ## How accurate is the scale path?
 
@@ -282,6 +288,8 @@ sparse \(H_2\) timed out and Alpha drops the void.
 ![circle PD](benchmarks/results/consolidation/figures/pd_circle_noisy.svg)
 ![nested loops PD](benchmarks/results/consolidation/figures/pd_nested_loops.svg)
 ![sphere PD](benchmarks/results/consolidation/figures/pd_sphere.svg)
+
+![Essential / finite-bar comparison](benchmarks/results/consolidation/figures/pd_comparison.svg)
 
 ## Dispatcher: when it is right, and when it is wrong
 
@@ -323,6 +331,13 @@ frozen. Fat \(H_2\) `uniform10` \(n=250\) still refuses (exit 3).
 ![Dispatcher regime (engine)](benchmarks/results/consolidation/figures/dispatcher.svg)
 
 ![Mode dispatcher on held-out packs](benchmarks/results/consolidation/figures/dispatcher_modes.svg)
+
+![Dispatcher scorecard](benchmarks/results/consolidation/figures/dispatcher_scorecard.svg)
+
+`--estimate` `growth_p` is a **regime bucket** (H0 1.0 / scale 1.2 /
+sparse 2.0 / thin 2.2 / hollow 1.8 / fat leftover 2.4 / fat H2 3.2),
+not a least-squares fit. Observed local exponents live in
+[`docs/GROWTH.md`](docs/GROWTH.md).
 
 Claim-to-receipt map: [`benchmarks/results/consolidation/topology_claims.json`](benchmarks/results/consolidation/topology_claims.json)
 (`nested_loops` sparse \(W_1(H_1)=1.05\), 52 unmatched, ess \(H_1=1\)).

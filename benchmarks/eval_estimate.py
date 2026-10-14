@@ -100,18 +100,38 @@ def collect_measured() -> list[dict]:
                         "source": "limits",
                     }
                 )
-    miss = _load("leftover_miss_n.json")
-    for r in miss.get("receipts") or []:
-        if r.get("pith_ok") and r.get("pith_s"):
+    for pack in (
+        "leftover_10x.json",
+        "leftover_ratio_n.json",
+        "leftover_heldout.json",
+        "leftover_miss_n.json",
+        "linked_ratio_n.json",
+    ):
+        src = pack.replace(".json", "")
+        for r in _load(pack).get("receipts") or []:
+            if r.get("pith_ok") and r.get("pith_s"):
+                rows.append(
+                    {
+                        "name": r.get("name"),
+                        "n": r.get("n"),
+                        "T": r.get("T"),
+                        "maxdim": r.get("maxdim", 1),
+                        "mode": "exact",
+                        "wall_s": r["pith_s"],
+                        "source": src,
+                    }
+                )
+    for r in _load("postfreeze.json").get("receipts") or []:
+        if r.get("exact_ok") and r.get("exact_s"):
             rows.append(
                 {
                     "name": r.get("name"),
                     "n": r.get("n"),
                     "T": r.get("T"),
-                    "maxdim": 1,
+                    "maxdim": r.get("maxdim", 1),
                     "mode": "exact",
-                    "wall_s": r["pith_s"],
-                    "source": "leftover_miss_n",
+                    "wall_s": r["exact_s"],
+                    "source": "postfreeze",
                 }
             )
     fat = _load("fat_h2.json")

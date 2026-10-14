@@ -1,9 +1,11 @@
 # What we actually built
 
-This is a precise account of PITH after iterations I001–I312.
-It is **not** a claim that we found a new worst-case persistent-homology
-algorithm. Claims are tagged **[citation]**, **[derivation]**, or
-**[empirical]**. Complexity details: [`COMPLEXITY.md`](COMPLEXITY.md).
+This is a precise account of what PITH is after the consolidation
+campaign. It is **not** a claim that we found a new worst-case
+persistent-homology algorithm. Claims are tagged **[citation]**,
+**[derivation]**, or **[empirical]**. Iteration numbers live in
+[`RESEARCH_LOG.md`](../RESEARCH_LOG.md). Complexity details:
+[`COMPLEXITY.md`](COMPLEXITY.md).
 
 ## One-sentence contribution
 
@@ -31,9 +33,9 @@ not a new exact-VR complexity class on a connected \(G_T\).
 
 ### Representation improvements (owned, not new PH theorems)
 
-- Spatial / hash \(G_T\) instead of a dense lower triangle when the cloud is hollow **[empirical, I256–I263]**.
-- Growing adjacency for leftover cofaces and H2 streaming when \(\lvert E\rvert\le 16n\) **[derivation: \(O(\lvert E\rvert\deg)\) vs \(O(\lvert E\rvert n/64)\); I301–I306]**.
-- Walk-locate 2D/3D Delaunay construction (Bowyer–Watson, no cavity-slot reuse) **[derivation: expected \(O(n\log n)\) incremental Delaunay under standard location; I271/I275]**.
+- Spatial / hash \(G_T\) instead of a dense lower triangle when the cloud is hollow **[empirical]**.
+- Growing adjacency for leftover cofaces and H2 streaming when \(\lvert E\rvert\le 16n\) **[derivation: \(O(\lvert E\rvert\deg)\) vs \(O(\lvert E\rvert n/64)\)]**.
+- Walk-locate 2D/3D Delaunay construction (Bowyer–Watson, no cavity-slot reuse) **[derivation: expected \(O(n\log n)\) incremental Delaunay under standard location]**.
 
 ### New dispatch logic (owned combination)
 

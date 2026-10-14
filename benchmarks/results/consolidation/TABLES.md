@@ -1,6 +1,23 @@
 # Consolidation tables (this hardware: 4 CPU, 16 GB)
 
 Ripser is 1 thread. Phase-2 PITH times use `--threads 1` unless noted.
+
+## Dispatcher scorecard
+One place for mode / estimate / engine / wall-kind / held-out packs. τ is frozen. `growth_p` is a regime bucket, not a fitted exponent.
+| pack | score | note |
+| --- | --- | --- |
+| `eval_mode_auto` | 11/11 | recommended mode executed (incl. fat-H2 refuse) |
+| `eval_estimate` | 48/48 | recommended-mode wall inside lo/hi band |
+| `eval_engine_auto` | 5/9 | 1-thread oracle; 4 known misses waived, τ frozen |
+| `eval_wall_kind` | 20/20 | collapse vs leftover vs construction |
+| `eval_adversarial` seed 17 | 0/11 timeout, 0/8 mismatch | held-out after dispatcher freeze |
+| `eval_ncc_auto` seed 11 | 0/11 timeout | Euclidean fat H2 / n_cc cut |
+| `eval_highd_auto` | 0/8 wrong | high-d / L1 clock-compare (stay exact unless sparse clearly cheaper) |
+| `eval_postfreeze` seed 23 | 0/10 timeout, 0/2 mismatch, 10/10 in band | new families after leftover-H1 clock gate; first-pass scale_miss then thin override |
+| `leftover_miss_dispatch` | 11/11 | Seed 19 leftover-miss clouds after the fat-only |E|>8e6 clock override. Hollow leftover (figure8 n=16000) still goes to scale. τ and fat-H2 rules unchanged. 1 thread. Empirical. |
+
+![Dispatcher scorecard](figures/dispatcher_scorecard.svg)
+
 giotto-ph 0.2.4 (AGPL oracle) and GUDHI 3.13.0 are compared at equal hardware in the phase-3 tables below.
 
 ## Exact VR wall time (phase 1, PITH may use 4 threads)

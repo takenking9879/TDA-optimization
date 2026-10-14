@@ -57,6 +57,12 @@ NCC_PATH = BENCH / "results" / "consolidation" / "ncc_auto.json"
 NCC = json.loads(NCC_PATH.read_text()) if NCC_PATH.exists() else {}
 ADV_PATH = BENCH / "results" / "consolidation" / "adversarial.json"
 ADV = json.loads(ADV_PATH.read_text()) if ADV_PATH.exists() else {}
+PF_PATH = BENCH / "results" / "consolidation" / "postfreeze.json"
+PF = json.loads(PF_PATH.read_text()) if PF_PATH.exists() else {}
+L10MD_PATH = BENCH / "results" / "consolidation" / "leftover_miss_dispatch.json"
+L10MD = json.loads(L10MD_PATH.read_text()) if L10MD_PATH.exists() else {}
+PD_PATH = BENCH / "results" / "consolidation" / "pd_metrics.json"
+PD = json.loads(PD_PATH.read_text()) if PD_PATH.exists() else []
 FIG = BENCH / "results" / "consolidation" / "figures"
 FIG.mkdir(parents=True, exist_ok=True)
 
@@ -222,6 +228,102 @@ svg_scatter(
     "n",
     "bytes",
 )
+
+svg_scatter(
+    FIG / "memory_scale.svg",
+    [
+        {"name": "figure8 scale", "xy": collect("figure8", "pith_scale", rss=True)},
+        {"name": "sphere scale", "xy": collect("sphere", "pith_scale", rss=True)},
+        {"name": "figure8 exact", "xy": collect("figure8", "pith_exact", rss=True)},
+        {"name": "figure8 sparse", "xy": collect_sscale("figure8", "sparse", rss=True)},
+    ],
+    "Peak RSS vs n (scale path vs exact / sparse)",
+    "n",
+    "bytes",
+)
+
+svg_scatter(
+    FIG / "memory_sparse.svg",
+    [
+        {"name": "figure8 sparse", "xy": collect_sscale("figure8", "sparse", rss=True)},
+        {"name": "circle sparse", "xy": collect_sscale("circle_noisy", "sparse", rss=True)},
+        {"name": "figure8 scale", "xy": collect_sscale("figure8", "scale", rss=True) or collect("figure8", "pith_scale", rss=True)},
+        {"name": "circle scale", "xy": collect_sscale("circle_noisy", "scale", rss=True)},
+    ],
+    "Peak RSS vs n (sparse Rips vs scale)",
+    "n",
+    "bytes",
+)
+
+
+def collect_axis(axis, family, method):
+    by = {}
+    for r in AXIS.get("receipts") or []:
+        if r.get("axis") != axis or r.get("family") != family:
+            continue
+        if r.get("method") != method:
+            continue
+        if not r.get("ok") or not r.get("wall_s") or r.get("x") is None:
+            continue
+        by[r["x"]] = r["wall_s"]
+    return sorted(by.items())
+
+
+svg_scatter(
+    FIG / "runtime_vs_dimension.svg",
+    [
+        {"name": "PITH exact auto", "xy": collect_axis("dimension", "uniform", "pith:exact:auto")},
+        {"name": "PITH forced RedZeD", "xy": collect_axis("dimension", "uniform", "pith:exact:redzed")},
+        {"name": "Ripser", "xy": collect_axis("dimension", "uniform", "ripser")},
+        {"name": "PITH sparse", "xy": collect_axis("dimension", "uniform", "pith:sparse:auto")},
+        {"name": "giotto-ph 1t", "xy": collect_axis("dimension", "uniform", "giotto-ph:t1")},
+    ],
+    "Runtime vs ambient dimension (uniform n=400, 1 thread)",
+    "dimension",
+    "wall seconds",
+    logx=False,
+    logy=True,
+)
+
+# Combined persistence-diagram comparison (essential + finite counts).
+if PD:
+    methods = ["Ripser VR", "PITH exact", "PITH scale", "PITH sparse", "GUDHI Alpha"]
+    families = [d.get("name") for d in PD]
+    col_w, row_h = 110, 28
+    w = 80 + col_w * (len(methods) + 1)
+    h = 48 + row_h * (len(PD) + 1)
+    out = [
+        f"<svg xmlns='http://www.w3.org/2000/svg' width='{w}' height='{h}' font-family='sans-serif'>",
+        f"<rect width='{w}' height='{h}' fill='white'/>",
+        "<text x='12' y='20' font-size='13'>Essential / finite bars (scale and sparse are not VR)</text>",
+    ]
+    for i, m in enumerate(["family"] + methods):
+        out.append(
+            f"<text x='{12 + i * col_w}' y='44' font-size='11' font-weight='bold'>{m}</text>"
+        )
+    for ri, d in enumerate(PD):
+        y = 68 + ri * row_h
+        dim = d.get("plot_dim", 1)
+        out.append(f"<text x='12' y='{y}' font-size='11'>{d.get('name')} n={d.get('n')}</text>")
+        ref = d.get("Ripser VR") or {}
+        for i, m in enumerate(methods):
+            cell = d.get(m) or {}
+            if not cell.get("ok"):
+                label, col = "fail", "#d62728"
+            else:
+                ess = (cell.get("ess") or {}).get(str(dim), "?")
+                fin = cell.get("n_finite")
+                label = f"ess{dim}={ess} fin={fin}"
+                same = (
+                    ess == (ref.get("ess") or {}).get(str(dim))
+                    and fin == ref.get("n_finite")
+                )
+                col = "#2ca02c" if same else "#ff7f0e"
+            out.append(
+                f"<text x='{12 + (i + 1) * col_w}' y='{y}' font-size='11' fill='{col}'>{label}</text>"
+            )
+    out.append("</svg>")
+    (FIG / "pd_comparison.svg").write_text("\n".join(out))
 
 exp = []
 for e in SSCALE.get("exponents") or []:
@@ -472,6 +574,82 @@ rows = []
 rows.append("# Consolidation tables (this hardware: 4 CPU, 16 GB)")
 rows.append("")
 rows.append("Ripser is 1 thread. Phase-2 PITH times use `--threads 1` unless noted.")
+rows.append("")
+rows.append("## Dispatcher scorecard")
+rows.append(
+    "One place for mode / estimate / engine / wall-kind / held-out packs. "
+    "τ is frozen. `growth_p` is a regime bucket, not a fitted exponent."
+)
+score = [
+    (
+        "`eval_mode_auto`",
+        f"{MAUTO.get('n_agree', 0)}/{MAUTO.get('n', 0)}",
+        "recommended mode executed (incl. fat-H2 refuse)",
+    ),
+    (
+        "`eval_estimate`",
+        f"{EST.get('n_in_band', 0)}/{EST.get('n_scored', 0)}",
+        "recommended-mode wall inside lo/hi band",
+    ),
+    (
+        "`eval_engine_auto`",
+        f"{ENG.get('n_oracle_ok', 0)}/{ENG.get('n', 0)}",
+        "1-thread oracle; 4 known misses waived, τ frozen",
+    ),
+    (
+        "`eval_wall_kind`",
+        f"{sum(1 for r in (WALL.get('receipts') or []) if r.get('agree'))}/"
+        f"{len(WALL.get('receipts') or [])}",
+        "collapse vs leftover vs construction",
+    ),
+    (
+        "`eval_adversarial` seed 17",
+        f"{ADV.get('n_timeout_miss', '?')}/{ADV.get('n', '?')} timeout, "
+        f"{ADV.get('n_exact_mismatch', '?')}/{ADV.get('n_exact_checked', '?')} mismatch",
+        "held-out after dispatcher freeze",
+    ),
+    (
+        "`eval_ncc_auto` seed 11",
+        f"{NCC.get('n_timeout_miss', '?')}/{NCC.get('n', '?')} timeout",
+        "Euclidean fat H2 / n_cc cut",
+    ),
+    (
+        "`eval_highd_auto`",
+        f"{HIGHD.get('n_wrong', '?')}/{HIGHD.get('n_compared', '?')} wrong",
+        "high-d / L1 clock-compare (stay exact unless sparse clearly cheaper)",
+    ),
+    (
+        "`eval_postfreeze` seed 23",
+        f"{PF.get('n_timeout_miss', '?')}/{PF.get('n', '?')} timeout, "
+        f"{PF.get('n_exact_mismatch', '?')}/{PF.get('n_exact_checked', '?')} mismatch, "
+        f"{PF.get('n_in_band', '?')}/{PF.get('n_scored_band', '?')} in band",
+        "new families after leftover-H1 clock gate; first-pass scale_miss then thin override",
+    ),
+    (
+        "`leftover_miss_dispatch`",
+        L10MD.get("mode_auto", "—"),
+        L10MD.get("note", "fat leftover n=8000 stay exact; hollow figure8 n=16000 scale"),
+    ),
+]
+rows.append("| pack | score | note |")
+rows.append("| --- | --- | --- |")
+for name, val, note in score:
+    rows.append(f"| {name} | {val} | {note} |")
+sc_h = 40 + 18 * len(score)
+sc_svg = [
+    f"<svg xmlns='http://www.w3.org/2000/svg' width='760' height='{sc_h}' font-family='sans-serif'>",
+    f"<rect width='760' height='{sc_h}' fill='white'/>",
+    "<text x='12' y='22' font-size='14'>Dispatcher scorecard (τ frozen)</text>",
+]
+for i, (name, val, _note) in enumerate(score):
+    y = 44 + 16 * i
+    sc_svg.append(f"<text x='12' y='{y}' font-size='11'>{name}</text>")
+    sc_svg.append(f"<text x='220' y='{y}' font-size='11' font-weight='bold'>{val}</text>")
+sc_svg.append("</svg>")
+(FIG / "dispatcher_scorecard.svg").write_text("\n".join(sc_svg))
+rows.append("")
+rows.append("![Dispatcher scorecard](figures/dispatcher_scorecard.svg)")
+rows.append("")
 if BASE.get("have_giotto"):
     rows.append(
         f"giotto-ph {BASE.get('giotto')} (AGPL oracle) and GUDHI {BASE.get('gudhi')} "
