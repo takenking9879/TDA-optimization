@@ -5,6 +5,14 @@ Do not paste long reasoning here.
 
 ---
 
+## 2026-10-14 — Leftover 10× vs n (no new pairing)
+
+- **Question:** Do the sub-10× leftover families (uniform2, sphere H1) reach 10× as n grows? Any new 2026 exact-VR engine?
+- **Work:** Literature: still only RedZeD (already wrapped); giotto/PHAT/Dory already timed. `eval_leftover_ratio_n.py` measures ratio vs n. Does not retune τ or reopen leftover skips. RedZeD paper itself flags unit-square \(\mathbb{R}^2\) as the weak H1 case.
+- **Result:** pending live sweep.
+- **Decision:** Measure, do not invent a pairing skip. Goal not complete.
+- **Class:** experiment
+
 ## 2026-10-14 — Mode-dispatcher figure + fat-H2 band floor
 
 - **Question:** Does the public story still claim mixed n=300 → scale, and is the fat-H2 estimate band tight enough on held-out mixed?

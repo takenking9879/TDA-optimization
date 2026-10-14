@@ -376,6 +376,7 @@ python3 benchmarks/eval_engine_auto.py
 python3 benchmarks/reverify_headlines.py
 python3 benchmarks/eval_wall_kind.py
 python3 benchmarks/reverify_leftover_10x.py
+python3 benchmarks/eval_leftover_ratio_n.py
 python3 benchmarks/run_axis_scaling.py
 # optional oracle: pip install pydory  (not vendored; needs Python.h)
 python3 benchmarks/reverify_dory.py
