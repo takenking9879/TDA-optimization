@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-14 — I298 reuse Delaunay for split thicken
+
+- **Question:** Does building the Euclidean Delaunay 1-skeleton once (α=1 flag + thicken extras on a copy) cut I286/I297 split metric at more points, without changing edges or bars?
+- **Hypothesis:** Split paid two walk-locate triangulations. Extras only need the 1-skeleton. Same flag PH. 3D Delaunay is the part worth saving.
+- **Work:** `delaunay_thicken_extras`; split uses `delaunay_one_skeleton` once. Wave 158 vs I297 clocks.
+- **Result:** **Hold / keep.** Same edges (figure8 16k 977068 / 24k 1490848; sphere 16k 2283282 / 20k 2904919). figure8 n=2000 exact H1 57×. ess1=2 / ess2=1 held. Metric 365→353 ms (figure8 16k) and 916→905 ms (sphere 16k) — second walk was cheap vs the thicken scan. pith 0.623≈0.621 s / 3.08≈3.02 s. figure8 n=24000 **1.02 s**; sphere n=20000 **3.92 s**. Exact default held (H0 62×, figure8 17×, uniform2 10.7×, sphere H2 58×, circle 17×).
+- **Decision:** **Hold / keep** as the correct split construction. Not a selected pith lever. Remaining wall is RedZeD leftover on 2–3M thicken edges (reduce 2.0–2.5 s). Do not mark the goal complete.
+- **Class:** experiment (hold identity; keep construction)
+
 ## 2026-10-14 — I297 RedZeD on fat Delaunay thicken
 
 - **Question:** Does RedZeD AE on the explicit thicken 1-skeleton (SparseDist + prebuilt EdgeList, no n×n) beat implicit’s 199k-column / unique V-add wall (I296) for H0+H1+H2 at more Euclidean points?
