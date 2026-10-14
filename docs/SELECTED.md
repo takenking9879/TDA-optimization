@@ -22,7 +22,7 @@ Iteration numbers stay in this file and `RESEARCH_LOG.md`.
 **CLI default `--engine`
 auto` (I235+I236+I239+I240+I241+I263+I270+I271+I275):** subsample residual-frac dispatch,
 plus I263 edge-frac so hollow/manifold clouds take RedZeD. Fat →
-RedZeD (torus n=2000 **13.0×**). Thin-circle → collapse+implicit
+RedZeD (torus n=2000 live **12.6×**). Thin-circle → collapse+implicit
 (n=1000 **28×**; n=4000 still **140×**). Mixed figure8 n=4000 T=1.1
 **27× / 1.07 s** spatial. Disconnected G_T → spatial UF
 + parallel RedZeD per component (blobs n=4000 **24×**). **H0** is Kruskal; **I271** 2D and **I275** 3D
@@ -45,7 +45,7 @@ quantified (unmatched bars / bottleneck / interleaving).
 Current honest status: **`--engine auto` (I235+I236+I238+I239+I240+I241+I263+I270+I271+I275)** is
 shape-agnostic (0 unmatched) and picks the better exact engine from a
 250-point collapse probe plus I263 edge-frac. H1 τ=0.04; H2 τ=0.15;
-hollow edge-frac <0.25 → redzed. Torus n=2000 H1 **13.0×**;
+hollow edge-frac <0.25 → redzed. Torus n=2000 H1 live **12.6×**;
 circle n=1000 **28×**; mixed figure8 n=4000 **27× / 1.07 s**.
 Disconnected clouds (blobs) **24×** at n=4000 via I239 split +
 I240 spatial metric. **H0 is a better size+construction class** in
@@ -54,9 +54,11 @@ d=2,3: Θ(n) Delaunay edges, expected O(n log n) walk (blobs n=12000
 sphere n=30000 **288× / 0.221 s** — I285).
 **Worst-case H1 Big-O is not improved** on a connected G_T — that
 part is still a portfolio, not a new complexity class.
-Torus residual stays \(\Theta(n^2)\) (I204). Connected uniform2
-n=5000 H1 is **11.2×** (0.33 s). Sphere n=2000 H1 **10.1×**.
-Sparse n=20000 **5.6×** (1.11 s, 4.71M vs 200M).
+Torus residual stays \(\Theta(n^2)\) (I204). Live 1-thread re-measure
+(`leftover_10x.json`): torus n=2000 **12.6×**; figure8 n=2000 **17.0×**;
+blobs n=4000 **12.9×**; uniform2 n=5000 **8.1×** (was 11.2×); sphere
+n=2000 H1 **8.5×** (was 10.1×). **3/6 leftover families ≥10×** — not a
+general 10×. Sparse n=20000 **5.6×** (1.11 s, 4.71M vs 200M).
 **I228 `--engine redzed`** (with I239/I240 split) remains the
 single-engine general exact path. **I242 `--engine active`** is exact H1 AE (I236 pairing bug fixed)
 but loses to RedZeD (circle n=500 0.06×; uniform2 n=1000 0.33×).
@@ -607,16 +609,26 @@ Sphere n=2000 all-pairs, remesure **10.1×** (wave 9.58× noise).
 Torus **13.0×**. Circle collapse **16.5×**. Sphere H2 **58×**.
 Blobs H0 **1.8×** / H1 **24×**. Topology loss: **0**.
 
-## Next levers (still open after I275)
+## Living status (consolidation; leftover hunting closed)
 
-`--engine auto` is a shape-agnostic exact H0–H2 portfolio: circle H1
-10×, torus H1 **13.0×**, sphere H1 **10.1×** at n=2000, mixed
-figure8 n=4000 **27×**, sphere H2 **58×** at n=400, **disconnected
-blobs 24×** at n=4000 on one CLI path. Connected uniform2 H1 is
-**11.2×** at n=5000 (0.33 s). Sparse connected n=20000 **5.6×**
-(1.11 s, 4.71M vs 200M). I242/I243 owned AE is exact; rbit is
-~1.5× on circle AE and still 12× slower than RedZeD. GUDHI explicit
-Rips is exact and too slow.
+`--engine auto` is a shape-agnostic exact H0–H2 portfolio. Live
+1-thread leftover-family re-measure (`leftover_10x.json`): figure8
+n=2000 **17.0×**; torus n=2000 **12.6×**; blobs n=4000 **12.9×**;
+uniform2 n=5000 **8.1×** (historical 11.2× does not hold); sphere
+n=2000 H1 **8.5×** (historical 10.1× does not hold). **3/6 leftover
+families ≥10×** — not a general exact-H1 10×. Circle **31×** is
+collapse, not leftover pairing. Mixed figure8 n=4000 **27× / 1.07 s**
+and sphere H2 **58×** at n=400 remain I-wave collapse / H2 receipts.
+Sparse connected n=20000 **5.6×**. I242/I243 owned AE is exact; rbit
+is ~1.5× on circle AE and still 12× slower than RedZeD. GUDHI
+explicit Rips is exact and too slow.
+
+Named leftover follow-ups after I202 are **spent**. Do not reopen
+empty-seed skips, leftover XOR/noop, G_t apparent, add-R, D(e) memo,
+collapse-on-thicken at n≥4000, RCM/Morton on thicken, leftover
+adj/hash on |E|>16n. Remaining walls: leftover `ae_seeded` on a
+connected fat \(G_T\); fat exact H2 timeout; 3D Lawson+insphere;
+sparse FPS \(\Theta(n^2)\). τ is frozen.
 
 1. **CLI default:** `--engine auto` (I235+I236+I239+I240+I241+I263+I271+I275). H1 τ=0.04; H2 τ=0.15; hollow edge-frac <0.25 → redzed.
 2. **Forced engines:** `--engine implicit` = I193+I197+I202+I203 only;
@@ -638,9 +650,10 @@ Rips is exact and too slow.
    flag 52. two_spheres n=400 ess2 2=2, unmatched 2.
    I279 fixed 2.25 is the measured H1 constant. Default α=1 stays
    I276 ess-only. Not a VR identity.
-4. Connected uniform2 is **11.2×** at n=5000 (0.33 s).
-   Sphere n=2000 H1 **10.1×**. Torus n=2000 **13.0×**. Mixed
-   figure8 n=4000 is **27× / 1.07 s**. Sparse n=20000 is **5.6×**.
+4. Live leftover 1-thread (`leftover_10x.json`): uniform2 n=5000
+   **8.1×**; sphere n=2000 H1 **8.5×**; torus n=2000 **12.6×**.
+   Mixed figure8 n=4000 is **27× / 1.07 s** (I-wave). Sparse
+   n=20000 is **5.6×**. **3/6 leftover families ≥10×**.
    Remaining spatial-path wall is leftover *visits* (figure8 n=4000
    reduce 866 ms / 1.98M leftovers), not leftover-coface internals.
    I253–I255 / I265 leftover-coface skips are exact and reverted.

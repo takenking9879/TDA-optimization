@@ -5,6 +5,14 @@ Do not paste long reasoning here.
 
 ---
 
+## 2026-10-14 — leftover-family 10× re-measure (1 thread)
+
+- **Question:** Do SELECTED leftover-family 10× claims still hold vs Ripser on this box?
+- **Work:** `reverify_leftover_10x.py` — `--mode exact --engine auto --threads 1` vs Ripser. Living docs rewritten to the receipt.
+- **Result:** figure8 n=2000 **17.0×** (0.147 / 2.50, reduce 95 ms). torus n=2000 **12.6×** (0.206 / 2.61). blobs n=4000 **12.9×**. uniform2 n=2000 **5.8×**, n=5000 **8.1×** (SELECTED 11.2× does not hold). sphere n=2000 H1 **8.5×** (SELECTED 10.1× does not hold). **3/6 ≥10×**.
+- **Decision:** Living SELECTED / COMPLEXITY / WHAT_WE_BUILT now cite `leftover_10x.json`. Historical I-wave 11.2×/10.1×/13.0× lines stay as history. Leftover hunting closed. Axis-scaling runner added (`run_axis_scaling.py`) for T / noise / density / dimension. Do not retune τ. Goal not complete.
+- **Class:** verified (live)
+
 ## 2026-10-14 — leftover time-bucket / later-bits already spent
 
 - **Question:** Does the original I202 follow-up (time-bucket / later-bits / residual cofacet / emergent early-stop) still have an untried leftover lever?

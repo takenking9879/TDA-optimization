@@ -137,7 +137,10 @@ The headline exact ratios **hold at 1 thread**, and they still hold against
 **4-thread giotto-ph**. A live re-measure on this box: circle \(n=1000\)
 **31.2×** (0.070 vs 2.17 s); sphere \(n=400\) **58.3×** (0.018 vs 1.02 s).
 On the circle the wall is **collapse** (46 ms of 68 ms), not pairing
-(1 ms). On figure-8 \(n=2000\) the wall is **reduce** (100 ms of 152 ms).
+(1 ms). On figure-8 \(n=2000\) the wall is **reduce** (95 ms of 147 ms).
+Live leftover-family 1-thread ratios vs Ripser: figure-8 **17.0×**, torus
+**12.6×**, blobs **12.9×**, sphere H1 **8.5×**, uniform2 n=5000 **8.1×**
+(3/6 ≥10× — not a general 10×).
 Hardware threads (4) change circle \(n=1000\) from 0.068 s to 0.069 s —
 not the source of the 32×. giotto-ph’s 4 threads help sphere \(H_2\)
 (1.12→0.62 s) and do **not** speed up \(H_1\).
@@ -271,6 +274,8 @@ python3 benchmarks/eval_estimate.py
 python3 benchmarks/eval_engine_auto.py
 python3 benchmarks/reverify_headlines.py
 python3 benchmarks/eval_wall_kind.py
+python3 benchmarks/reverify_leftover_10x.py
+python3 benchmarks/run_axis_scaling.py
 python3 benchmarks/run_baseline_pack.py
 python3 benchmarks/run_sparse_limits.py
 python3 benchmarks/run_sparse_scale.py

@@ -576,3 +576,14 @@ Agreement 20/20. Measured kind is the largest of metric/collapse/reduce (n≥400
 | random_geometric_dense | 800 | leftover | leftover | fat | True |
 | grid_holes | 800 | leftover | leftover | hollow | True |
 | nonuniform_circle | 400 | collapse | collapse | thin | True |
+
+## Leftover-family exact H1 vs Ripser (`reverify_leftover_10x.py`)
+1-thread. 3/6 ≥10×. Same pairing class; constant-factor only.
+| family | n | PITH (s) | Ripser (s) | ratio | reduce (ms) | pipeline |
+| --- | ---: | ---: | ---: | ---: | ---: | --- |
+| figure8 | 2000 | 0.147 | 2.499 | 17.03× | 95 | pith:auto-redzed-spatial |
+| torus | 2000 | 0.206 | 2.607 | 12.64× | 150 | pith:auto-redzed-spatial |
+| uniform2 | 2000 | 0.077 | 0.444 | 5.76× | 46 | pith:auto-redzed |
+| uniform2 | 5000 | 0.398 | 3.246 | 8.15× | 287 | pith:auto-redzed |
+| sphere | 2000 | 0.092 | 0.784 | 8.48× | 61 | pith:auto-redzed |
+| blobs | 4000 | 0.165 | 2.131 | 12.94× | 145 | pith:auto-redzed-cc |

@@ -25,6 +25,10 @@ ENG_PATH = BENCH / "results" / "consolidation" / "engine_auto.json"
 ENG = json.loads(ENG_PATH.read_text()) if ENG_PATH.exists() else {}
 WALL_PATH = BENCH / "results" / "consolidation" / "wall_kind.json"
 WALL = json.loads(WALL_PATH.read_text()) if WALL_PATH.exists() else {}
+L10_PATH = BENCH / "results" / "consolidation" / "leftover_10x.json"
+L10 = json.loads(L10_PATH.read_text()) if L10_PATH.exists() else {}
+AXIS_PATH = BENCH / "results" / "consolidation" / "axis_scaling.json"
+AXIS = json.loads(AXIS_PATH.read_text()) if AXIS_PATH.exists() else {}
 FIG = BENCH / "results" / "consolidation" / "figures"
 FIG.mkdir(parents=True, exist_ok=True)
 
@@ -769,6 +773,122 @@ if WALL:
         rows.append(
             f"| {d.get('name')} | {d.get('n')} | {d.get('measured')} | {d.get('estimate')} | "
             f"{d.get('regime')} | {d.get('agree')} |"
+        )
+
+if L10:
+    rows.append("")
+    rows.append("## Leftover-family exact H1 vs Ripser (`reverify_leftover_10x.py`)")
+    rows.append(
+        f"1-thread. {L10.get('n_ratio_ge10')}/{L10.get('n')} ≥10×. "
+        "Same pairing class; constant-factor only."
+    )
+    rows.append("| family | n | PITH (s) | Ripser (s) | ratio | reduce (ms) | pipeline |")
+    rows.append("| --- | ---: | ---: | ---: | ---: | ---: | --- |")
+    for d in L10.get("receipts") or []:
+        ratio = d.get("ratio")
+        rows.append(
+            f"| {d.get('name')} | {d.get('n')} | "
+            f"{'' if d.get('pith_s') is None else f'{d['pith_s']:.3f}'} | "
+            f"{'' if d.get('ripser_s') is None else f'{d['ripser_s']:.3f}'} | "
+            f"{'' if ratio is None else f'{ratio:.2f}×'} | "
+            f"{'' if d.get('reduce_ms') is None else f'{d['reduce_ms']:.0f}'} | "
+            f"{d.get('pipeline')} |"
+        )
+
+if AXIS:
+    rows.append("")
+    rows.append("## Axis scaling (T / noise / density / dimension)")
+    hw = AXIS.get("hardware") or {}
+    rows.append(
+        f"Budget {hw.get('budget_s')} s. PITH `--threads {hw.get('threads_pith')}`. "
+        f"Ripser 1 thread. Hardware {hw.get('cpus')} CPUs. Empirical."
+    )
+    rows.append("| axis | family | n | x | method | wall (s) | cpu (s) | threads | |E| | reduce (ms) | ok |")
+    rows.append("| --- | --- | ---: | ---: | --- | ---: | ---: | ---: | ---: | ---: | --- |")
+    for d in AXIS.get("receipts") or []:
+        if d.get("skipped_after_fail"):
+            continue
+        wall = d.get("wall_s")
+        cpu = d.get("cpu_s")
+        red = d.get("reduce_ms")
+        thr = d.get("threads_used")
+        if thr is None:
+            thr = d.get("threads_claimed") or ""
+        rows.append(
+            "| {axis} | {fam} | {n} | {x} | {meth} | {wall} | {cpu} | {thr} | {ne} | {red} | {ok} |".format(
+                axis=d.get("axis"),
+                fam=d.get("family"),
+                n=d.get("n"),
+                x=d.get("x"),
+                meth=d.get("method"),
+                wall="" if wall is None else f"{wall:.3f}",
+                cpu="" if cpu is None else f"{cpu:.3f}",
+                thr=thr,
+                ne="" if d.get("n_edges") is None else d.get("n_edges"),
+                red="" if red is None else f"{red:.0f}",
+                ok=d.get("ok"),
+            )
+        )
+    if AXIS.get("exponents"):
+        rows.append("")
+        rows.append("### Local exponents along each axis")
+        rows.append("| axis | family | n | method | x0→x1 | p_time |")
+        rows.append("| --- | --- | ---: | --- | --- | ---: |")
+        for e in AXIS["exponents"]:
+            for p in e.get("p_time") or []:
+                rows.append(
+                    f"| {e.get('axis')} | {e.get('family')} | {e.get('n')} | {e.get('method')} | "
+                    f"{p.get('x0')}→{p.get('x1')} | {p.get('p'):.2f} |"
+                )
+
+    # Runtime vs T / noise / density figures
+    def _axis_series(axis_name, family, n, methods):
+        out = []
+        recs = [
+            r
+            for r in AXIS.get("receipts") or []
+            if r.get("axis") == axis_name
+            and r.get("family") == family
+            and r.get("n") == n
+            and r.get("ok")
+            and r.get("wall_s")
+        ]
+        for m in methods:
+            xy = sorted(
+                [(float(r["x"]), r["wall_s"]) for r in recs if r.get("method") == m],
+                key=lambda z: z[0],
+            )
+            if xy:
+                out.append({"name": m, "xy": xy})
+        return out
+
+    meths = ["pith_exact_auto", "pith_exact_redzed", "ripser", "pith_scale", "pith_sparse", "giotto_t1"]
+    t_series = _axis_series("threshold", "circle_noisy", 400, meths)
+    if t_series:
+        svg_scatter(
+            FIG / "runtime_vs_T.svg",
+            t_series,
+            "Wall time vs threshold T (circle n=400, 1 thread)",
+            "T",
+            "wall seconds",
+        )
+    n_series = _axis_series("noise", "circle_noisy", 500, meths)
+    if n_series:
+        svg_scatter(
+            FIG / "runtime_vs_noise.svg",
+            n_series,
+            "Wall time vs noise σ (circle n=500, T=1.5, 1 thread)",
+            "σ",
+            "wall seconds",
+        )
+    d_series = _axis_series("density", "uniform2", 800, meths)
+    if d_series:
+        svg_scatter(
+            FIG / "runtime_vs_density.svg",
+            d_series,
+            "Wall time vs density threshold T (uniform2 n=800, 1 thread)",
+            "T (proxy for density)",
+            "wall seconds",
         )
 
 (BENCH / "results" / "consolidation" / "TABLES.md").write_text("\n".join(rows) + "\n")

@@ -752,8 +752,9 @@ dense 10× and was reverted **[empirical]**.
 **Empirical-typical.** figure8 \(n=4000\) \(T=1.1\): 1.98M vs 8.0M pairs,
 **27×** **[empirical]** (I263). Sparse connected \(n=20000\) \(T=0.09\):
 4.71M vs 200M, **5.6–6.2×** **[empirical]** (I258–I261). Dense uniform2
-\(n=5000\) stays all-pairs **11.2×**. Worst-case connected \(G_T\) still
-\(\Theta(n^2)\).
+\(n=5000\) I-wave all-pairs was **11.2×**; live 1-thread leftover
+re-measure is **8.1×** (`leftover_10x.json`). Worst-case connected
+\(G_T\) still \(\Theta(n^2)\).
 
 ### 11.2 CSR leftover-adjacency on sparse flags (I301–I306)
 
@@ -827,13 +828,17 @@ edge-frac \(<0.25\) → RedZeD; `maxdim=0` → Kruskal / Delaunay.
 
 ### Empirical-typical
 
-- Torus \(n=2000\) H1 **13.0×**; circle \(n=1000\) **28×**; figure8
-  \(n=4000\) **27× / 1.07 s**; blobs \(n=4000\) H1 **24×**; connected
-  uniform2 \(n=5000\) **11.2×**; sphere \(n=2000\) H1 **10.1×**; sparse
-  \(n=20000\) **5.6×**; sphere \(n=400\) H2 **58×**; sphere \(n=800\) H2
-  **527× / 56 ms** (Ripser tet tax) **[empirical]** (SELECTED; I281).
-- Not a general \(H_1\) 10× (I229 losers stay 5–8× at \(n=4000\) until
-  other levers). Not a better worst-case class.
+- Live 1-thread leftover-family re-measure (`leftover_10x.json`)
+  **[empirical]**: torus \(n=2000\) H1 **12.6×**; figure8 \(n=2000\)
+  **17.0×**; blobs \(n=4000\) H1 **12.9×**; uniform2 \(n=5000\)
+  **8.1×**; sphere \(n=2000\) H1 **8.5×**; **3/6 leftover families
+  ≥10×**. Circle \(n=1000\) **31×** is collapse, not leftover.
+  I-wave mixed figure8 \(n=4000\) **27× / 1.07 s**; sphere \(n=400\)
+  H2 **58×**; sphere \(n=800\) H2 **527× / 56 ms** (Ripser tet tax);
+  sparse \(n=20000\) **5.6×** **[empirical]** (SELECTED; I281).
+- Not a general \(H_1\) 10×. Historical I-wave 11.2× / 10.1× /
+  13.0× leftover lines do **not** hold on this box. Not a better
+  worst-case class.
 - Consolidation phase-2, **1 thread**, 12 s budget **[empirical]**:
   circle \(n=1000\) **31×** (0.070 vs 2.21 s); sphere \(n=400\) H2 **60×**.
   Hardware threads do not move those ratios. Ripser timed out on circle
@@ -853,7 +858,7 @@ edge-frac \(<0.25\) → RedZeD; `maxdim=0` → Kruskal / Delaunay.
 | Ripser implicit coh. | Yes | VR \(k\)-skeleton + cubic residual reduce; implicit \(\neq\) smaller rank | Sparse \(G_T\): probes \(O(\Delta)\); coh+clearing skips births | Time \(n^{2.1}\)–\(n^{3.3}\) on I204 |
 | Collapse (B–P) | Yes | \(O(\lvert E\rvert\Delta^3)\) back; \(\lvert R\rvert\le\lvert E\rvert\) | Geometric cone-like links: \(\lvert R\rvert\ll\lvert E\rvert\) | \(\lvert R\rvert\sim n^{0.9}\)–\(n^{1.2}\) except torus \(\Theta(n^2)\) |
 | Collapse+implicit | Yes | **Same as Ripser if \(\lvert R\rvert\sim\lvert E\rvert\)** | Thin \(\lvert R\rvert\): wall is the \(\Theta(\lvert E\rvert)\) walk | Circle 28–140×; torus collapse loses |
-| RedZeD AE | Yes | Same pairing class; AE skips many \((k+1)\)-births, not worst-case \(o(\cdot)\) | Active-set / leftover output-sensitive; split on disconnected \(G_T\) | Torus 13×; time \(n^{2.0}\)–\(n^{2.4}\); connected 10× is a constant |
+| RedZeD AE | Yes | Same pairing class; AE skips many \((k+1)\)-births, not worst-case \(o(\cdot)\) | Active-set / leftover output-sensitive; split on disconnected \(G_T\) | Torus **12.6×** live; leftover 3/6 ≥10×; time \(n^{2.0}\)–\(n^{2.4}\); connected 10× is not general |
 | Kruskal \(H_0\) | Yes (\(H_0\)) | \(O(\lvert E\rvert\log\lvert E\rvert)\) after listing | Spatial listing \(O(\lvert E\rvert)\) | \(\sim 1.9\times\) vs Ripser \(H_0\) if \(G_T\) is listed |
 | 2D/3D Del \(H_0\) | Yes (\(H_0\), Euclidean) | 2D size \(\Theta(n)\), construct \(O(n\log n)\) (classical Del); 3D size \(O(n^2)\) worst | Expected \(O(n\log n)\) walk under standard RIC hypotheses | Blobs 25k **515×**; sphere 30k **288×** |
 | Delaunay-flag | **No** | Flag of Del: 2D \(\lvert E\rvert=\Theta(n)\); persist as §3/§6 on that graph | Typical \(\bar d=O(1)\Rightarrow\lvert K_k\rvert=O(n)\) | Ess kept; finite unmatched 3–209; 3D 80k **1.09 s** |
