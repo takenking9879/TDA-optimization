@@ -41,17 +41,18 @@ These were tried, logged, and must not be reopened as micro-opts.
 | SparseDist \(G_T\) on dense leftover (I320) | Exact, loses wall | Reduce ~2.4× (anisotropic n=8000 1026→442 ms) but hash+EdgeList of \(\lvert E\rvert\sim 11\)M exceeds the save (wall 2.05 s / 5.5× vs old 1.22 s / 8.8×). **0 unmatched**. Reverted. |
 | k-NN leftover witness mark (I322) | Exact, loses wall | Exact subset of leftover_coface. **0 unmatched**. Faster than auto **1/8** (`knn_mark.json`). Coverage 41%→1.1% (anisotropic n=8000 2.26 vs 1.28 s). Marks at most \(n\cdot C(k,2)\); fat \(\lvert L\rvert\sim n^2\) ⇒ coverage \(O(k^2/n)\). Sparse witness marks closed. |
 | Empty-seed non-Delaunay leftover skip (I323) | Exact, no 10× wall | I273 remeasured on leftover-miss. **0 unmatched**, **6/8** faster (`delaunay_skip.json`). leftover_coface \(O(n)\) (anisotropic n=8000 25k / 10.9M) but wall 1.16 vs 1.29 s. Kruskal+leftover walk stays \(\Theta(\lvert E\rvert)\). Euclidean Delaunay leftover skips closed. |
+| Leftover∩Delaunay pairing only (I324) | **Not exact** | Skips ae_seeded on non-Delaunay. **642 unmatched** (`delaunay_only.json`: figure8 n=200 4, n=2000 136; uniform2 284; torus 218). Faster by dropping necessary AE. Confirms I272: the leftover walk after keep_singleton is required. |
 | Extra Morse / chunk on residual (H04) | Reject early | After collapse, circle remainder is tiny; torus remainder is \(\Theta(n^2)\) and matching is not a 10× lever. |
 | Sparse FPS squared-distance | Reject | Same greedy net; no clock cut. Wall is \(\Theta(n^2)\) evaluations. |
 | Sparse FPS AABB / axis reject (2D/3D) | Reject | Exact λ; fewer late evals; no clock cut (figure-8 \(n=8000\) 0.72 s, \(n=16000\) 2.51 s). Early insertions + Θ(n²) argmax remain. |
 | 3D Lawson bookkeeping (I307–I312) | Exhausted | Cheap locate/insphere skips done. Scale construction wall remains walk+insphere. |
 
 Named leftover follow-ups after I202 are **spent**. That includes
-`ae_seeded`, leftover_coface **inner-loop** constants, and **sparse
-witness marks** (I322). I321 shows the leftover-miss clock is the
-*number of leftover_coface calls* (\(\sim\lvert E\rvert\)), not the AE
-inner loop. I322 shows a k-NN (or any \(o(n)\)-neighbor) prefilter
-cannot skip that set.
+`ae_seeded`, leftover_coface **inner-loop** constants, **sparse
+witness marks** (I322), and **Euclidean Delaunay leftover skips**
+(I273/I323). I321 shows leftover-miss leftover_coface is \(\sim\lvert E\rvert\).
+I323 can drop those *tests* to \(O(n)\) and still leave a \(\Theta(\lvert E\rvert)\)
+Kruskal/leftover walk.
 
 ## What literature still offers
 
@@ -114,7 +115,7 @@ Search on 2026-10-14 (third pass the same day):
 
 | Wall | Why it is still there | What would count as progress |
 | --- | --- | --- |
-| Leftover empty-seed `leftover_coface` on connected fat \(G_T\) | I321: leftover count **equals** Ripser. I322: k-NN marks \(o(\lvert E\rvert)\). I323: non-Delaunay leftovers are an exact skippable *set* (leftover_coface \(O(n)\)), but Kruskal + leftover identification still \(\Theta(\lvert E\rvert)\) and leftover-miss wall is 1.16 vs 1.29 s. Collapse / SparseDist / sparse-witness / Delaunay-skip closed (I315–I323) | A **new pairing algorithm** that avoids walking \(\lvert E\rvert\) leftovers at all (complexity in \(\lvert R\rvert\) or \(\lvert\mathrm{Del}\rvert\)), not a filter that still iterates leftovers. |
+| Leftover empty-seed `leftover_coface` on connected fat \(G_T\) | I321: leftover count **equals** Ripser. I323: leftover_coface on non-Delaunay is skippable (\(O(n)\) tests) but the leftover *walk* stays \(\Theta(\lvert E\rvert)\). I324: dropping that walk (pair leftover∩Del only) **invents bars**. Collapse / SparseDist / sparse-witness / Delaunay-skip / Del-only pairing closed (I315–I324) | A **new pairing algorithm** that finds the seeded leftovers from ActiveReg in \(o(\lvert E\rvert)\) (complexity in \(\lvert R\rvert\)), not a filter that drops ae_seeded. |
 | Fat exact \(H_2\) | Default exact-auto is still RedZeD-cc (mixed \(n=300\) 22 ms vs implicit 73 ms; mixed \(n=1000\) 1.07 s vs Ripser 7.25 s). I313 gives `--engine implicit` tet-free Ripser-style H2: mixed \(n=300\) **73 ms / unmatched 0** (the old persist_sparse timeout). Thin collapse residuals stay collapse-dominated (sphere \(n=600\) 31 ms, **139×** vs Ripser). Both exact and Ripser leave a 12 s budget near mixed \(n=2000\) | A faster pairing than RedZeD on a connected fat flag, or `--mode scale` when \(n_{cc}\ge 800\). High-d fat H2 sparse remains refused. Implicit H2 is the Ripser class, not a new Big-O. |
 | 3D Lawson + insphere | Expected \(O(n\log n)\) incremental Delaunay; 80k sphere is still walk + predicates | A different 3D location structure, not I307–I312 bookkeeping. |
 | Sparse FPS \(\Theta(n^2)\) | Greedy net needs \(\Theta(n^2)\) distance evaluations | An approximate net with a **stated** interleaving change, or a subquadratic exact FPS in low \(d\). Squared-distance and AABB/axis-reject are closed. |

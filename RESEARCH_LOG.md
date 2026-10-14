@@ -5,6 +5,14 @@ Do not paste long reasoning here.
 
 ---
 
+## 2026-10-14 — I324 leftover∩Delaunay pairing only
+
+- **Question:** I323 still walks \(\lvert E\rvert\) leftovers after the first keep_singleton so ae_seeded can run. If we never process non-Delaunay leftovers, is H1 still exact and does leftover-miss drop below Kruskal?
+- **Work:** Experimental `--delaunay-only`. Skip ae_seeded on non-Delaunay (I272 risk). Identity first (`delaunay_only.json`). 1 thread. τ frozen. Default auto unchanged.
+- **Result:** **Not exact.** unmatched vs auto: figure8 n=200 **4**, n=2000 **136**, uniform2 n=2000 **284**, torus n=2000 **218** (642 total). Faster 4/4 on those cells (figure8 n=2000 0.061 vs 0.149 s) by dropping necessary AE. leftover-miss wall not measured.
+- **Decision:** Reject. Pairing on leftover∩Del only invents/loses bars. Keep `--delaunay-only` experimental. Do not change `--engine auto`. The leftover walk after keep_singleton is required, not optional. Goal not complete.
+- **Class:** verified (live)
+
 ## 2026-10-14 — I323 empty-seed non-Delaunay leftover skip
 
 - **Question:** I273 was exact on figure8 (ae_seeded wall). I321 moved the leftover-miss clock to leftover_coface on \(\lvert E\rvert\). Does skipping prepare+coface on empty-ActiveReg non-Delaunay leftovers cut that wall? Never skip ae_seeded (I272).
