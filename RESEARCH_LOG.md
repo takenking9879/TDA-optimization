@@ -5,6 +5,14 @@ Do not paste long reasoning here.
 
 ---
 
+## 2026-10-14 — I317 collapse then RedZeD on the residual
+
+- **Question:** Does flag-edge-collapse + RedZeD AE on the residual 1-skeleton beat metric RedZeD on leftover cells? (I315 was collapse+implicit.)
+- **Work:** Experimental `--engine collapse-redzed` (`persist_redzed_from_edges` after adaptive collapse). Live `collapse_redzed.json` vs auto and GUDHI `collapse_edges(1)+persistence`. 1 thread. τ frozen. Not a leftover skip.
+- **Result:** **0 unmatched** vs Ripser. collapse-redzed faster than auto **0/8**. Residual reduce is 1–12 ms; collapse is the wall (figure8 124 ms / 15.5× vs auto 17.2×; torus 2.63 s / 0.92×; anisotropic n=8000 9.25 s / 1.31× vs auto 1.22 s). GUDHI collapse is slower still (anisotropic n=8000 254 s).
+- **Decision:** Reject as a leftover 10× engine. Keep the experimental flag. Do not change `--engine auto`. Goal not complete.
+- **Class:** verified (live)
+
 ## 2026-10-14 — I316 reduced VR at leftover scale
 
 - **Question:** Is EuclideanPH1 / `--reduced-vr` (Koyama–Mémoli–Robins–Turner) still a leftover-10× candidate if we later add kd-tree lunes?

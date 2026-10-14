@@ -1,6 +1,6 @@
 # Selected algorithm (living)
 
-Updated 2026-10-14 after iterations I001–I316 plus consolidation (phase 3)
+Updated 2026-10-14 after iterations I001–I317 plus consolidation (phase 3)
 and the fused Euclidean sparse constructor.
 **Stable CLI:** `--mode exact|scale|sparse|auto`, `--engine auto|redzed|implicit`,
 `--estimate`, `--threads N`. Public runners import `generate_datasets` /
@@ -342,6 +342,13 @@ connectivity. **I316 leftover scale:** figure8 \(n=2000\) build 17.9 s
 vs auto RedZeD 0.15 s; uniform2/sphere/anisotropic timeout 20 s.
 kd-tree lunes are not a leftover 10× path. Not selected as default.
 Topology loss: **0**.
+
+### I317 collapse + RedZeD on the residual (not default)
+
+Flag-edge-collapse then `persist_redzed_from_edges` (`--engine collapse-redzed`).
+Exact (**0 unmatched**). Residual AE is cheap (1–12 ms). Collapse is the
+tax. Faster than `--engine auto` **0/8** (`collapse_redzed.json`). GUDHI
+`collapse_edges` is slower (anisotropic \(n=8000\) 254 s). Not selected.
 
 ### I227 real RedZeD (H09, MIT, not default)
 

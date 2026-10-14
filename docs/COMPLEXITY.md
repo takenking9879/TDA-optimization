@@ -1,6 +1,6 @@
 # Complexity notes for PITH
 
-Updated 2026-10-14 after iterations I001–I316 plus consolidation measurements.
+Updated 2026-10-14 after iterations I001–I317 plus consolidation measurements.
 This is a **complexity ledger**,
 not a theorem paper and not a selected-algorithm rewrite. It restates what the
 literature already proves, what follows from those statements by a short
