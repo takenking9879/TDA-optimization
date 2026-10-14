@@ -1838,7 +1838,10 @@ static bool delaunay_edges_3d_walk(const std::vector<std::vector<value_t>>& pts,
         const double px = xs[static_cast<size_t>(p)], py = ys[static_cast<size_t>(p)],
                      pz = zs[static_cast<size_t>(p)];
         int t0 = walk(hint, px, py, pz);
-        if (t0 < 0 || !contains(t0, px, py, pz)) t0 = locate_scan(px, py, pz);
+        // I312: walk already tested 4 faces; locate_scan uses contains.
+        // I307 bundled this skip with fsign cache and lost on birth tax.
+        // Isolated skip — no extra bookkeeping.
+        if (t0 < 0) t0 = locate_scan(px, py, pz);
         if (t0 < 0) return false;
         {
             const int* v = tets[static_cast<size_t>(t0)].v;
