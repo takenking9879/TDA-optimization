@@ -45,8 +45,9 @@ These were tried, logged, and must not be reopened as micro-opts.
 | 3D Lawson bookkeeping (I307–I312) | Exhausted | Cheap locate/insphere skips done. Scale construction wall remains walk+insphere. |
 
 Named leftover follow-ups after I202 are **spent**. That includes
-`ae_seeded` inner-loop constants. Visiting leftovers on a connected fat
-\(G_T\) is the pairing work RedZeD already pays.
+`ae_seeded` and leftover_coface **inner-loop** constants. I321 shows the
+leftover-miss clock is the *number of leftover_coface calls* (\(\sim\lvert E\rvert\)),
+not the AE inner loop.
 
 ## What literature still offers
 
@@ -109,7 +110,7 @@ Search on 2026-10-14 (third pass the same day):
 
 | Wall | Why it is still there | What would count as progress |
 | --- | --- | --- |
-| Leftover `ae_seeded` on connected fat \(G_T\) | Output-sensitive AE / implicit reduce on \(\lvert R\rvert\sim\lvert E\rvert\). I315–I320: collapse variants and SparseDist rebuild of a dense \(G_T\) can cut *reduce* and still lose *wall*. Dense leftover_coface on the lower triangle remains the cheaper clock | A **new pairing algorithm** with a stated complexity in \(\lvert R\rvert\), or a theorem that most leftovers are skippable **without** inventing bars. Not another collapse preprocessor or another \(G_T\) hash. |
+| Leftover empty-seed `leftover_coface` on connected fat \(G_T\) | I321: leftover count **equals** Ripser. leftover-miss skips 99.3–99.85% as empty-seed; AE is 4k–16k of 0.57–10.9M leftovers. The clock is one leftover_coface per leftover, not `ae_seeded`. Ripser apparent-pairs even more leftovers and still pays 4–6× more cofacet `next()` on those cells (26–40× on figure8/torus). Collapse / SparseDist rebuilds closed (I315–I320) | A **new pairing algorithm** that avoids visiting \(\lvert E\rvert\) leftovers, with a stated complexity, or a theorem that most leftover_coface tests are skippable **without** inventing bars. Not another leftover_coface inner-loop constant. |
 | Fat exact \(H_2\) | Default exact-auto is still RedZeD-cc (mixed \(n=300\) 22 ms vs implicit 73 ms; mixed \(n=1000\) 1.07 s vs Ripser 7.25 s). I313 gives `--engine implicit` tet-free Ripser-style H2: mixed \(n=300\) **73 ms / unmatched 0** (the old persist_sparse timeout). Thin collapse residuals stay collapse-dominated (sphere \(n=600\) 31 ms, **139×** vs Ripser). Both exact and Ripser leave a 12 s budget near mixed \(n=2000\) | A faster pairing than RedZeD on a connected fat flag, or `--mode scale` when \(n_{cc}\ge 800\). High-d fat H2 sparse remains refused. Implicit H2 is the Ripser class, not a new Big-O. |
 | 3D Lawson + insphere | Expected \(O(n\log n)\) incremental Delaunay; 80k sphere is still walk + predicates | A different 3D location structure, not I307–I312 bookkeeping. |
 | Sparse FPS \(\Theta(n^2)\) | Greedy net needs \(\Theta(n^2)\) distance evaluations | An approximate net with a **stated** interleaving change, or a subquadratic exact FPS in low \(d\). Squared-distance and AABB/axis-reject are closed. |

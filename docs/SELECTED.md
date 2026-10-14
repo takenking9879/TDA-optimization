@@ -1,6 +1,6 @@
 # Selected algorithm (living)
 
-Updated 2026-10-14 after iterations I001–I320 plus consolidation (phase 3)
+Updated 2026-10-14 after iterations I001–I321 plus consolidation (phase 3)
 and the fused Euclidean sparse constructor.
 **Stable CLI:** `--mode exact|scale|sparse|auto`, `--engine auto|redzed|implicit`,
 `--estimate`, `--threads N`. Public runners import `generate_datasets` /
@@ -369,6 +369,13 @@ preprocessors closed.
 Finite-T extract + hash, no collapse. Live `sparsegt.json`: **0 unmatched**.
 Reduce ~2.4×; wall loses (anisotropic \(n=8000\) 5.5× vs old 8.8×).
 Reverted. Not selected.
+
+### I321 leftover algebraic counts (measurement)
+
+Leftover cardinality matches Ripser. leftover-miss empty-seed skip
+99.3–99.85%. Algebraic 10× in cofacet-`next` only on figure8/torus
+(already wall ≥10×). GUDHI flag cohomology timeouts at 15 s. Not a
+pairing algorithm. Counters kept.
 
 ### I227 real RedZeD (H09, MIT, not default)
 

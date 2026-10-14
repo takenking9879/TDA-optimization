@@ -5,6 +5,14 @@ Do not paste long reasoning here.
 
 ---
 
+## 2026-10-14 — I321 leftover algebraic counts vs Ripser
+
+- **Question:** Is leftover-miss a smaller \(|R|\) (algebraic 10×) or the same leftover set with a cheaper per-edge test? Does GUDHI flag cohomology beat RedZeD?
+- **Work:** Count leftover / empty-seed skip / AE in RedZeD (no pairing change). Instrumented Ripser leftover / apparent / reduced columns / cofacet `next()`. Live `algebraic.json`. GUDHI `RipsComplex` + `compute_persistence` on uniform2/sphere n=2000. 1 thread. τ frozen.
+- **Result:** Leftover cardinality **matches Ripser exactly**. leftover-miss empty-seed skip is **99.3–99.85%** (AE 4k–16k of 0.57–10.9M leftovers). Ripser apparent-pairs even more (cols_reduced 505–2192). figure8/torus cofacet-`next` vs leftover_coface *calls* is 26–40× (already wall ≥10×; units differ). leftover-miss that ratio is 4.2–6.2× — **not** a general algebraic 10×. GUDHI cohomology **timeout 15 s** on both leftover-miss cells (explicit 2-skeleton).
+- **Decision:** Keep the counters. The leftover-miss wall is **empty-seed leftover_coface on \(\lvert E\rvert\) leftovers**, not `ae_seeded`. Not a new pairing class. Do not start leftover_coface inner-loop opts. Goal not complete.
+- **Class:** verified (live)
+
 ## 2026-10-14 — I320 SparseDist G_T on dense leftover
 
 - **Question:** I319 residual RedZeD on SparseDist was ~2.4× cheaper reduce than dense leftover_coface. Does that representation win leftover *wall* if we skip Graph+collapse?
