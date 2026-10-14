@@ -5,6 +5,14 @@ Do not paste long reasoning here.
 
 ---
 
+## 2026-10-14 — I334 k-nearest thicken extras (3D maxdim=1)
+
+- **Question:** Does keeping only the K nearest non-Delaunay extras per vertex inside the existing auto-α ball cut the fat 3D `maxdim=1` thicken/PH wall (torus n=8000 ~16–26 s / 7.7M edges) while keeping essential H1?
+- **Work:** Experimental `--thicken-k K` (0=unlimited). Default `--mode scale` unchanged. Live `thicken_k.json`. Unit circle k=2: |E|=194 vs thin 125 vs unlimited 504, ess H1. 1 thread. τ frozen.
+- **Result:** ess H1 kept (figure8=2, torus=1). Wall **wins** the named cell: torus n=8000 **1.59 vs 25.98 s (16×)** at k=16 (176k vs 7.65M edges); k=32 1.62 s / 244k. torus n=2000 3.1×; figure8 n=2000 1.8×. Unmatched vs unlimited **1–2**. Metric still ~1.5 s (Delaunay locate, not extras).
+- **Decision:** Keep `--thicken-k` experimental. Do **not** change default `--mode scale` (full α-ball). This is a thinner thicken, not a cheaper unlimited one. Last planned iteration. Goal not complete.
+- **Class:** verified (live)
+
 ## 2026-10-14 — I333 prefix Gonzalez net (sparse vertices)
 
 - **Question:** If we keep only the first m=max(64,⌈4√n⌉) Gonzalez landmarks as vertices, does the sparse path stay thin *and* beat the Θ(n²) FPS wall while keeping essential H1?

@@ -32,6 +32,7 @@ Public runners and receipts. They talk only in `--mode` / `--engine` /
 | `eval_dyadic_net.py` | Dyadic s-net vs FPS sparse Rips (not exact VR) |
 | `eval_approx_net.py` | Sample-farthest greedy net vs FPS sparse Rips (not exact VR) |
 | `eval_prefix_net.py` | Prefix Gonzalez landmarks as sparse vertices (not exact VR) |
+| `eval_thicken_k.py` | k-nearest Delaunay extras vs unlimited auto-α (not exact VR) |
 | `eval_delaunay_jump.py` | 3D nearest-vertex jump locate vs last-cavity walk |
 | `eval_delaunay_hier.py` | 2-level 3D Delaunay hierarchy vs Morton + last-cavity |
 | `eval_delaunay_devillers.py` | 3-level Devillers stack vs last-cavity walk |

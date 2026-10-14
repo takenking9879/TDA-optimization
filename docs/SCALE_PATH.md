@@ -18,6 +18,9 @@ visits) and the data are Euclidean in dimension 2 or 3.
    `auto` uses \(\alpha=\min(2.25,\,1.75+0.125\log_2\max(n/400,1))\).
    The 2.25 cap is the measured constant that kept essential \(H_1\) on
    the figure-8 suite (I279/I305). **[empirical]**
+   Experimental `--thicken-k K` keeps only the K nearest extras per
+   vertex (I334). torus \(n=8000\) `maxdim=1` **16×** vs unlimited;
+   ess \(H_1\) kept; unmatched 1–2. Default K=0. **[empirical, thicken_k.json]**
 3. Persistence of the **flag** of that 1-skeleton (not the VR of all
    pairs \(\le T\)).
 4. Split (2D, `maxdim≥2`): \(H_1\) on the thicken, \(H_2\) on \(\alpha=1\).

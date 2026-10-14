@@ -12,7 +12,8 @@ This is the single “how far can each method go” table. Receipts:
 `linked_ratio_n.json`, `postfreeze.json`, `postband.json`, `knn_mark.json`,
 `delaunay_skip.json`, `delaunay_only.json`, `seed_incident.json`,
 `homcloud.json`, `dyadic_net.json`, `delaunay_jump.json`, `delaunay_hier.json`,
-`approx_net.json`, `delaunay_devillers.json`, `prefix_net.json`.
+`approx_net.json`, `delaunay_devillers.json`, `prefix_net.json`,
+`thicken_k.json`.
 I330: unused in-tree pairing closed (vendor AE already wrapped; no new
 2026 batch exact-VR paper besides RedZeD).
 
@@ -35,11 +36,12 @@ I330: unused in-tree pairing closed (vendor AE already wrapped; no new
 
 | Method | Typical last-OK | First clear failure | Threads | Topology vs VR |
 | --- | --- | --- | ---: | --- |
-| PITH `--mode scale` | figure-8 \(n=24000\) 0.79 s ess \(H_1=2\); sphere \(n=80000\) 1.08 s ess \(H_2=1\) | \(d\notin\{2,3\}\) unsupported | 1 | Essential loops/voids kept on the measured suite; finite bars differ (sphere \(n=400\): 52 unmatched, bn \(H_1=0.024\)). `--delaunay-jump` same |E|, 80k 1.10 vs 1.07 s (`delaunay_jump.json`). `--delaunay-hier` sphere 80k 1.01 vs 1.09 s; torus/uniform3 n=8000 no wall win (`delaunay_hier.json`). `--delaunay-devillers` same |E|, 80k 1.29 vs 1.07 s (`delaunay_devillers.json`). |
+| PITH `--mode scale` | figure-8 \(n=24000\) 0.79 s ess \(H_1=2\); sphere \(n=80000\) 1.08 s ess \(H_2=1\) | \(d\notin\{2,3\}\) unsupported | 1 | Essential loops/voids kept on the measured suite; finite bars differ (sphere \(n=400\): 52 unmatched, bn \(H_1=0.024\)). `--delaunay-jump` same |E|, 80k 1.10 vs 1.07 s (`delaunay_jump.json`). `--delaunay-hier` sphere 80k 1.01 vs 1.09 s; torus/uniform3 n=8000 no wall win (`delaunay_hier.json`). `--delaunay-devillers` same |E|, 80k 1.29 vs 1.07 s (`delaunay_devillers.json`). `--thicken-k 16` torus n=8000 maxdim=1 **1.59 vs 25.98 s** (176k vs 7.65M edges); ess \(H_1\) kept; unmatched vs unlimited 1–2. Not default (`thicken_k.json`). |
 | PITH `--mode sparse` | figure-8 \(n=24000\) 5.56 s / 1.56M edges / ess \(H_1=2\) | FPS \(\Theta(n^2)\) (\(p\approx 2\)); fat \(H_2\) on 4D timed out (25 s) | 1 | Sheehy-style. 2D loops usually kept; `nested_loops` \(W_1\approx 1.05\). |
 | PITH `--sparse-net dyadic` | figure-8 \(n=8000\) 18.6 s / 2.92M edges / ess \(H_1=2\) | figure-8 \(n=16000\) timeout 30 s (FPS 2.55 s) | 1 | Hierarchical s-net. Fewer distances, denser flag. Not default. (`dyadic_net.json`). |
 | PITH `--sparse-net approx` | figure-8 \(n=8000\) 0.66 s / 260k edges / ess \(H_1=2\) | figure-8 \(n=16000\) 3.36 s vs FPS 2.70 s | 1 | Sample-farthest greedy. Thin, fewer distances, wall loses on FPS-scale. Not default. (`approx_net.json`). |
 | PITH `--sparse-net prefix` | figure-8 \(n=16000\) 0.051 s / 9.9k edges / ess \(H_1=2\) | coarser barcode (20k unmatched vs FPS) | 1 | m=Θ(√n) landmarks only. 30–51× vs FPS. Not default. (`prefix_net.json`). |
+| PITH `--thicken-k 16` | torus \(n=8000\) maxdim=1 1.59 s / 176k edges / ess \(H_1=1\) | thinner than unlimited auto-α (25.98 s / 7.65M) | 1 | K nearest extras / vertex. 16× vs unlimited. Unmatched 1–2. Not default. (`thicken_k.json`). |
 | GUDHI Alpha | fast at these n | not a VR stand-in | 1 | Drops essential \(H_1/H_2\) on this suite. |
 | Coperto 0.1.7 | figure-8 \(n=8000\) 6.74 s / tower 31k | not a VR stand-in; default `greedy=True` drops \(H_1\) | 1 | Log-3 interleaving **[citation]**. Loops become finite (ess \(H_1=0\)). Slower and less faithful than scale on Euclidean \(d\in\{2,3\}\). Not vendored. |
 
