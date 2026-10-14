@@ -218,6 +218,24 @@ struct SparseDist {
 
 static thread_local const SparseDist* g_sparse = nullptr;
 
+// I321: algebraic leftover counts (not a pairing change).
+struct AlgCount {
+    std::int64_t leftover = 0;
+    std::int64_t empty_skip = 0;
+    std::int64_t ae_seeded = 0;
+    std::int64_t keep_singleton = 0;
+    std::int64_t coface = 0;
+};
+static thread_local AlgCount g_alg;
+
+static void take_alg(pith::Result& r) {
+    r.counters.n_columns_assembled = g_alg.leftover;
+    r.counters.n_columns_reduced = g_alg.ae_seeded + g_alg.keep_singleton;
+    r.counters.n_columns_apparent = g_alg.empty_skip;
+    r.counters.n_cofacet_probes = g_alg.coface;
+    g_alg = AlgCount{};
+}
+
 // I302: growing 1-skeleton adj for leftover_coface on sparse flags
 // (|E|≤16n). Skips the n×n rbit matrix (n=50000 → 313 MB).
 static thread_local std::vector<std::vector<int>> g_adj;
@@ -619,6 +637,7 @@ static void generate_stream_h2_adj(const EdgeList& edges, int nv, const Binomial
 // I246: lazy R/Ri insert on top-dimension AE.
 static std::vector<std::vector<std::pair<value_t, value_t>>>
 redzed_vr(DistanceMatrix& distIn, int n, value_t threshold, EdgeList* prebuilt) {
+    g_alg = AlgCount{};
     int nv = distIn.n;
     value_t thr = threshold;
     if (!std::isfinite(threshold)) {
@@ -707,16 +726,24 @@ redzed_vr(DistanceMatrix& distIn, int n, value_t threshold, EdgeList* prebuilt) 
                         // those leftovers do not enter active_enum_lazy.
                         // I254 skip-prepare on empty ActiveReg was exact but
                         // no pith cut (n=5000 0.31≈I252 0.30 s). Reverted.
+                        ++g_alg.leftover;
                         st.top_buf[0] = lo;
                         st.top_buf[1] = hi;
                         const int32_t* xv = &ed.verts[2 * (e - 1)];
                         ae_prepare(st, st.top_buf.data(), ediam);
                         if (st.seedverts.empty()) {
                             const comb_t xidx = comb_index(xv, 2, st.binom);
-                            if (leftover_coface_h1_noseen(st, xv, xidx, ediam)) continue;
+                            ++g_alg.coface;
+                            if (leftover_coface_h1_noseen(st, xv, xidx, ediam)) {
+                                ++g_alg.empty_skip;
+                                continue;
+                            }
+                            ++g_alg.keep_singleton;
                             ae_keep_singleton(st, er, st.top_buf.data(), ediam);
                         } else {
                             const comb_t xidx = comb_index(xv, 2, st.binom);
+                            ++g_alg.ae_seeded;
+                            ++g_alg.coface;
                             ae_seeded(st, er, xidx, st.top_buf.data(), ediam);
                         }
                     } else {
@@ -2334,6 +2361,7 @@ static Result finish_redzed(DistanceMatrix&& D, int maxdim, value_t threshold) {
     if (comps.size() <= 1) {
         auto bars = redzed_vr(D, dim, threshold, nullptr);
         append_bars(r, bars, dim);
+        ::take_alg(r);
         c.pipeline = "pith:redzed";
     } else {
         c.pipeline = "pith:redzed-cc";
@@ -2370,6 +2398,7 @@ static Result finish_redzed_from_points(const std::vector<std::vector<value_t>>&
                 D.mat[DistanceMatrix::offset(i, j)] = point_dist(pts, i, j);
         auto bars = redzed_vr(D, dim, threshold, nullptr);
         append_bars(r, bars, dim);
+        ::take_alg(r);
         c.pipeline = "pith:redzed-thr";
         c.n_distances = static_cast<std::int64_t>(n) * (n - 1) / 2;
     } else {
@@ -2532,6 +2561,7 @@ Result persist_redzed_from_points(const std::vector<std::vector<value_t>>& pts, 
     auto bars = redzed_vr(D, dim, threshold, pre_ptr);
     Result r;
     append_bars(r, bars, dim);
+    ::take_alg(r);
     const auto t1 = std::chrono::steady_clock::now();
     r.counters.n_vertices = n;
     r.counters.n_collapse_trims = 1;
@@ -2576,6 +2606,7 @@ Result persist_redzed_from_edges(int n, const std::vector<Edge>& edges, int maxd
     const auto t0 = std::chrono::steady_clock::now();
     auto bars = redzed_vr(D, maxdim, threshold, &pre);
     append_bars(r, bars, maxdim);
+    ::take_alg(r);
     const auto t1 = std::chrono::steady_clock::now();
     r.counters.n_vertices = n;
     r.counters.n_edges_in = static_cast<std::int64_t>(SE.size());
