@@ -5,6 +5,14 @@ Do not paste long reasoning here.
 
 ---
 
+## 2026-10-14 — Post-freeze leftover n-series (pending live)
+
+- **Question:** Does linked_circles leftover 10.7× at n=1200 hold as n grows?
+- **Work:** `eval_linked_n.py` seed 23. linked_circles T=1.3 n=800–4000; sheared_loops n=800–2000. 1 thread. τ frozen. No leftover-skip edits.
+- **Result:** pending live sweep (script committed first).
+- **Decision:** Measurement toward leftover 10× generality on a post-freeze family. Goal not complete.
+- **Class:** experiment (pending)
+
 ## 2026-10-14 — Post-freeze dispatcher pack (seed 23)
 
 - **Question:** Does the leftover-H1 clock gate overfit anisotropic / grid_holes / figure8?

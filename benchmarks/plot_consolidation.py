@@ -33,6 +33,8 @@ L10H_PATH = BENCH / "results" / "consolidation" / "leftover_heldout.json"
 L10H = json.loads(L10H_PATH.read_text()) if L10H_PATH.exists() else {}
 L10M_PATH = BENCH / "results" / "consolidation" / "leftover_miss_n.json"
 L10M = json.loads(L10M_PATH.read_text()) if L10M_PATH.exists() else {}
+L10L_PATH = BENCH / "results" / "consolidation" / "linked_ratio_n.json"
+L10L = json.loads(L10L_PATH.read_text()) if L10L_PATH.exists() else {}
 AXIS_PATH = BENCH / "results" / "consolidation" / "axis_scaling.json"
 AXIS = json.loads(AXIS_PATH.read_text()) if AXIS_PATH.exists() else {}
 DORY_PATH = BENCH / "results" / "consolidation" / "dory.json"
@@ -1043,6 +1045,41 @@ if L10M:
             "Leftover-miss local scaling exponent vs n",
             "n",
             "local p",
+            logx=True,
+            logy=False,
+        )
+
+if L10L:
+    rows.append("")
+    rows.append("## Post-freeze leftover H1 vs n (`eval_linked_n.py`, seed 23)")
+    rows.append(
+        f"{L10L.get('note', '')} Cells ≥10×: {L10L.get('n_ratio_ge10')}/{L10L.get('n')}."
+    )
+    rows.append("| family | n | PITH (s) | Ripser (s) | ratio | p_PITH | p_Ripser | pipeline |")
+    rows.append("| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |")
+    by_ratio = {}
+    for d in L10L.get("receipts") or []:
+        rows.append(
+            "| {fam} | {n} | {pw} | {rw} | {ratio} | {pp} | {pr} | {pipe} |".format(
+                fam=d.get("name"),
+                n=d.get("n"),
+                pw="" if d.get("pith_s") is None else f"{d['pith_s']:.3f}",
+                rw="" if d.get("ripser_s") is None else f"{d['ripser_s']:.3f}",
+                ratio="" if d.get("ratio") is None else f"{d['ratio']:.2f}×",
+                pp="" if d.get("p_pith") is None else f"{d['p_pith']:.2f}",
+                pr="" if d.get("p_ripser") is None else f"{d['p_ripser']:.2f}",
+                pipe=d.get("pipeline"),
+            )
+        )
+        if d.get("ratio") and d.get("n"):
+            by_ratio.setdefault(d.get("name"), []).append((d["n"], d["ratio"]))
+    if by_ratio:
+        svg_scatter(
+            FIG / "linked_ratio_n.svg",
+            [{"name": k, "xy": v} for k, v in by_ratio.items()],
+            "Post-freeze leftover H1: Ripser/PITH ratio vs n (1 thread)",
+            "n",
+            "wall-clock ratio",
             logx=True,
             logy=False,
         )

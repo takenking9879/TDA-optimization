@@ -399,6 +399,7 @@ python3 benchmarks/eval_leftover_ratio_n.py
 python3 benchmarks/eval_leftover_heldout.py
 python3 benchmarks/eval_leftover_miss_n.py
 python3 benchmarks/eval_postfreeze.py
+python3 benchmarks/eval_linked_n.py
 python3 benchmarks/run_axis_scaling.py
 # optional oracle: pip install pydory  (not vendored; needs Python.h)
 python3 benchmarks/reverify_dory.py
