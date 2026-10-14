@@ -117,7 +117,8 @@ All of the following, together:
 1. One exact-VR path, shape-agnostic, 0 unmatched vs Ripser.
 2. \(\ge 10\times\) \(H_1\) wall-clock **or** algebraic work vs 1-thread
    Ripser on leftover families **and** on held-out families frozen
-   after the dispatcher.
+   after the dispatcher. Live: frozen pack **3/6**, held-out leftover
+   **4/7** (`leftover_heldout.json`).
 3. A complexity justification that is not “circle collapse”.
 4. Reproduced on this hardware with `--threads 1`.
 

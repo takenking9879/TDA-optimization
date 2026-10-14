@@ -615,6 +615,23 @@ Agreement 20/20. Measured kind is the largest of metric/collapse/reduce (n≥400
 | sphere | 3000 | 0.212 | 2.115 | 9.98× | 2.09 | 2.46 |
 | sphere | 4000 | 0.381 | 4.334 | 11.38× | 2.04 | 2.49 |
 
+## Held-out leftover H1 (`eval_leftover_heldout.py`, seed 19)
+Seed 19. Families outside leftover_10x.json. collapse_wall = residual_frac≤τ=0.04 and collapse pipeline. n_ratio_ge10 counts leftover walls only. τ frozen. Leftover ≥10×: 4/7. Collapse cells: 5.
+| family | n | PITH (s) | Ripser (s) | ratio | resid | collapse | pipeline |
+| --- | ---: | ---: | ---: | ---: | ---: | --- | --- |
+| nested_loops | 1000 | 0.036 | 0.492 | 13.78× | 0.090 | False | pith:auto-redzed |
+| nested_loops | 2000 | 0.236 | 4.622 | 19.62× | 0.095 | False | pith:auto-redzed-spatial |
+| loops_with_bridges | 1000 | 0.046 | 0.780 | 16.98× | 0.029 | True | pith:auto-collapse |
+| loops_with_bridges | 2000 | 0.218 | 1.526 | 6.98× | 0.027 | True | pith:auto-collapse |
+| many_loops | 1000 | 0.009 | 0.050 | 5.82× | 0.103 | False | pith:auto-redzed-cc |
+| many_loops | 2000 | 0.027 | 0.303 | 11.29× | 0.102 | False | pith:auto-redzed-cc |
+| disconnected_circles | 1000 | 0.037 | 0.604 | 16.28× | 0.035 | True | pith:auto-collapse |
+| disconnected_circles | 2000 | 0.183 | 5.352 | 29.30× | 0.035 | True | pith:auto-collapse |
+| nonuniform_circle | 1000 | 0.062 | 0.577 | 9.36× | 0.030 | True | pith:auto-collapse |
+| anisotropic_blob | 2000 | 0.087 | 0.476 | 5.47× | 0.062 | False | pith:auto-redzed-spatial |
+| grid_holes | 1600 | 0.014 | 0.044 | 3.22× | 0.345 | False | pith:auto-redzed-spatial |
+| multi_scale_loops | 1000 | 0.026 | 0.433 | 16.39× | 0.063 | False | pith:auto-redzed-cc |
+
 ## Axis scaling (T / noise / density / dimension)
 Budget 8 s. PITH `--threads 1`. Ripser 1 thread. Hardware 4 CPUs. Empirical.
 | axis | family | n | x | method | wall (s) | cpu (s) | threads | |E| | reduce (ms) | ok |

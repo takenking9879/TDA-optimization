@@ -9,9 +9,9 @@ Do not paste long reasoning here.
 
 - **Question:** Does leftover ≥10× hold on families outside leftover_10x.json?
 - **Work:** `eval_leftover_heldout.py` seed 19, 12 cells. Collapse walls (resid≤τ and collapse pipeline) counted separately. No leftover-skip edits. τ frozen.
-- **Result:** pending live sweep.
-- **Decision:** Measure. Goal not complete.
-- **Class:** experiment
+- **Result:** leftover walls **4/7 ≥10×** (nested_loops 13.8/19.6×, many_loops n=2000 11.3×, multi_scale 16.4×). Misses: many_loops n=1000 5.8× (Ripser 50 ms), anisotropic 5.5×, grid_holes 3.2× (resid 0.35). Collapse cells 5/12 (16–29× on disconnected circles). Frozen pack stays 3/6. Not a general leftover 10×. τ frozen.
+- **Decision:** Keep the receipt. No leftover-skip hunting. Goal not complete.
+- **Class:** verified (live)
 
 ## 2026-10-14 — Leftover 10× vs n (no new pairing)
 

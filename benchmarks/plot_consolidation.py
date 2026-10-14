@@ -29,6 +29,8 @@ L10_PATH = BENCH / "results" / "consolidation" / "leftover_10x.json"
 L10 = json.loads(L10_PATH.read_text()) if L10_PATH.exists() else {}
 L10N_PATH = BENCH / "results" / "consolidation" / "leftover_ratio_n.json"
 L10N = json.loads(L10N_PATH.read_text()) if L10N_PATH.exists() else {}
+L10H_PATH = BENCH / "results" / "consolidation" / "leftover_heldout.json"
+L10H = json.loads(L10H_PATH.read_text()) if L10H_PATH.exists() else {}
 AXIS_PATH = BENCH / "results" / "consolidation" / "axis_scaling.json"
 AXIS = json.loads(AXIS_PATH.read_text()) if AXIS_PATH.exists() else {}
 DORY_PATH = BENCH / "results" / "consolidation" / "dory.json"
@@ -960,6 +962,29 @@ if L10N:
             "wall-clock ratio",
             logx=True,
             logy=False,
+        )
+
+if L10H:
+    rows.append("")
+    rows.append("## Held-out leftover H1 (`eval_leftover_heldout.py`, seed 19)")
+    rows.append(
+        f"{L10H.get('note', '')} Leftover ≥10×: {L10H.get('n_ratio_ge10')}/{L10H.get('n_leftover')}. "
+        f"Collapse cells: {L10H.get('n_collapse')}."
+    )
+    rows.append("| family | n | PITH (s) | Ripser (s) | ratio | resid | collapse | pipeline |")
+    rows.append("| --- | ---: | ---: | ---: | ---: | ---: | --- | --- |")
+    for d in L10H.get("receipts") or []:
+        rows.append(
+            "| {fam} | {n} | {pw} | {rw} | {ratio} | {res} | {cw} | {pipe} |".format(
+                fam=d.get("name"),
+                n=d.get("n"),
+                pw="" if d.get("pith_s") is None else f"{d['pith_s']:.3f}",
+                rw="" if d.get("ripser_s") is None else f"{d['ripser_s']:.3f}",
+                ratio="" if d.get("ratio") is None else f"{d['ratio']:.2f}×",
+                res="" if d.get("residual_frac") is None else f"{d['residual_frac']:.3f}",
+                cw=d.get("collapse_wall"),
+                pipe=d.get("pipeline"),
+            )
         )
 
 if AXIS:

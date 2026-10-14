@@ -149,7 +149,10 @@ On the circle the wall is **collapse** (46 ms of 68 ms), not pairing
 (1 ms). On figure-8 \(n=2000\) the wall is **reduce** (95 ms of 147 ms).
 Live leftover-family 1-thread ratios vs Ripser: figure-8 **17.0×**, torus
 **12.6×**, blobs **12.9×**, sphere H1 **8.5×**, uniform2 n=5000 **8.1×**
-(3/6 ≥10× at those sizes — not a general 10×). Along n
+(3/6 ≥10× at those sizes — not a general 10×). Held-out leftover
+families (`leftover_heldout.json`, seed 19): **4/7 ≥10×** after
+dropping collapse walls; misses include anisotropic 5.5× and
+grid_holes 3.2×. Along n
 (`leftover_ratio_n.json`): sphere H1 crosses 10× near \(n=4000\)
 (**11.4×**); uniform2 is still **9.1×** at \(n=7000\); figure8
 plateaus ~16× once both engines explode.
