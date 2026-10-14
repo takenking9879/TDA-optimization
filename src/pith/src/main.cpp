@@ -517,8 +517,13 @@ static Feasibility compute_feasibility(const std::vector<std::vector<value_t>>* 
         // Hollow leftover H1 clocks underestimate pairing
         // (leftover_miss grid_holes n=8000: wall 0.64 vs mid 0.14, 4.56×).
         // Fat H2 already uses 6×. Does not change mode_rec / τ.
-        const double hi_mult =
+        double hi_mult =
             (maxdim >= 2 && fat) ? 6.0 : (maxdim == 1 && hollow) ? 6.0 : 4.0;
+        // leftover_ratio_n figure8: |E|-linear clock stays p≈2 while
+        // pairing jumps to p≈6 at n=2k→3k (wall/mid ≈15). Widen the
+        // hi band only, and only once leftover H1 has left the cheap
+        // n window. Mid / leftover_h1_clock_ok / mode_rec / τ unchanged.
+        if (maxdim == 1 && (fat || hollow) && n >= 2000) hi_mult = 16.0;
         f.est_runtime_hi = std::max(0.025, hi_mult * f.est_runtime);
     }
     f.leaving_cheap = (maxdim >= 1 && n >= 2000 && (fat || (f.est_r_hi > 1.0e5 && !thin))) ||
