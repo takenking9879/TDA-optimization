@@ -1,5 +1,5 @@
 {
-  "note": "I329 2-level Devillers-lite (Morton subsample first, then nearest-landmark walk) vs last-cavity hint. Same Delaunay when both succeed. Default --mode scale unchanged.",
+    "note": "I329 2-level Devillers-lite (Morton subsample first, then nearest-landmark walk) vs last-cavity hint. Same Delaunay when both succeed. Default --mode scale unchanged. Spot: torus n=8000 same 7644844 edges, wall 20.95 vs 20.21 s; uniform3 n=8000 1.26 vs 1.23 s.",
   "threads": 1,
   "budget_s": 40,
   "receipts": [

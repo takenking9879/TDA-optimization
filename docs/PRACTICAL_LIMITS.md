@@ -12,6 +12,8 @@ This is the single “how far can each method go” table. Receipts:
 `linked_ratio_n.json`, `postfreeze.json`, `postband.json`, `knn_mark.json`,
 `delaunay_skip.json`, `delaunay_only.json`, `seed_incident.json`,
 `homcloud.json`, `dyadic_net.json`, `delaunay_jump.json`, `delaunay_hier.json`.
+I330: unused in-tree pairing closed (vendor AE already wrapped; no new
+2026 batch exact-VR paper besides RedZeD). No new receipt.
 
 ## Exact VR (barcode must match Ripser)
 

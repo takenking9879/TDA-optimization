@@ -5,6 +5,14 @@ Do not paste long reasoning here.
 
 ---
 
+## 2026-10-14 — I330 unused pairing class (literature + vendor)
+
+- **Question:** Is there an unused in-tree or 2026 CPU exact-VR pairing class besides RedZeD AE / Ripser implicit, or a vendor path we wrap as output only?
+- **Work:** Sixth literature pass the same day. Inspect vendor `run_active_enumeration` / `simplex_pairs` vs our `ae_prepare` + `ae_seeded` / `active_enum_lazy`. No new pairing code. τ frozen. Default engines unchanged.
+- **Result:** RedZeD (arXiv:2606.06310) is still the only published batch exact-VR pairing alternative. Vendor AE is already the leftover engine. `simplex_pairs` is barcode output, not a pairing class. Annotation (2013) and Chen–Kerber clearing already sit in `--engine implicit`. arXiv:2602.03163 is persistent *relative* homology (U-match), not leftover VR. SiRUP / incremental-ph (2023) update a reduced matrix after insert/remove — not a batch leftover 10×. No unused in-tree pairing.
+- **Decision:** Close unused pairing oracles honestly. Do not invent annotation/homology-clearing on leftover cells without new theory (I242 owned AE already lost the clock). Remaining walls: new pairing theory, full Devillers stack, or a thin net / subquadratic exact FPS. Goal not complete.
+- **Class:** verified (literature + vendor inspect)
+
 ## 2026-10-14 — I329 2-level 3D Delaunay hierarchy
 
 - **Question:** Does a Devillers-lite 2-level (every 16th Morton point inserted first, later points walk from the nearest landmark tet) beat Morton + last-cavity hint?

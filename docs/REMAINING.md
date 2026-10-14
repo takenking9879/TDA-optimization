@@ -50,6 +50,7 @@ These were tried, logged, and must not be reopened as micro-opts.
 | 3D Lawson bookkeeping (I307–I312) | Exhausted | Cheap locate/insphere skips done. Scale construction wall remains walk+insphere. |
 | 3D nearest-vertex jump locate (I328) | Exact, no wall cut | `--delaunay-jump`. Same |E| / ess H2. sphere n=80000 1.099 vs 1.075 s (`delaunay_jump.json`). Morton + last-cavity hint already nearby. |
 | 2-level 3D Delaunay hierarchy (I329) | Exact, sphere-only construction win | `--delaunay-hier`. Same |E|. Sphere n=80000 1.009 vs 1.095 s; torus/uniform3 n=8000 do not win wall (`delaunay_hier.json`). |
+| Unused in-tree / vendor pairing (I330) | Closed | Vendor `run_active_enumeration` is already `ae_prepare`+`ae_seeded`. `simplex_pairs` is output. Sixth literature pass: no unused batch exact-VR pairing after RedZeD. Annotation/clearing already in implicit. SiRUP / incremental-ph is barcode *update*, not leftover 10×. |
 
 Named leftover follow-ups after I202 are **spent**. That includes
 `ae_seeded`, leftover_coface **inner-loop** constants, **sparse
@@ -61,7 +62,7 @@ fat flag.
 
 ## What literature still offers
 
-Search on 2026-10-14 (fifth pass the same day):
+Search on 2026-10-14 (sixth pass the same day):
 
 - **RedZeD** (Kapulkin–Kershaw, arXiv:2606.06310) is the current
   published exact-VR alternative to Ripser. We already wrap vendor
@@ -126,9 +127,18 @@ Search on 2026-10-14 (fifth pass the same day):
 - **arXiv:2608.04262** (Ebel–Kapulkin–Kershaw, August 2026): discrete
   homology of graphs via the same RedZeD framework. Not exact VR
   leftover pairing.
+- **arXiv:2602.03163** (persistent relative homology, U-match): a
+  different module, not leftover VR pairing.
+- **SiRUP / incremental-ph** (Giunti–Lazovskis 2023; incremental R=DV
+  updates): insert/remove after a reduced matrix exists. The published
+  win is vs recomputing a barcode after a small edit, not vs Ripser on
+  a full leftover \(G_T\). Not a leftover 10× class. Not vendored.
+- Vendor RedZeD `run_active_enumeration` is already our leftover
+  engine (`ae_prepare` / `ae_seeded`). `simplex_pairs` is barcode
+  output. I330: no unused in-tree pairing.
 - No 2026 paper we found claims a better **worst-case** pairing class
   than Ripser/RedZeD on a connected dense flag. `redzed-tda` on PyPI
-  is the same RedZeD we already wrap. Fifth literature pass 2026-10-14.
+  is the same RedZeD we already wrap. Sixth literature pass 2026-10-14.
 
 ## Remaining walls (not “try one more skip”)
 
@@ -173,12 +183,14 @@ All of the following, together:
    general exact-\(H_1\) 10×.
 
 (1)–(4) hold for the leftover / collapse / RedZeD / giotto / Dory /
-Oineus / Dionysus / HomCloud-PHAT oracles timed on this box. This is
-**not** a completion certificate: a genuinely new pairing idea would
-reopen the exact path. Dory and HomCloud-default track Ripser; Oineus,
-Dionysus, and HomCloud-PHAT are slower than Ripser at 1 thread. None
-of them is a 10× engine. Unused CPU pairing oracles on this box are
-closed (HomCloud = Ripser/PHAT; ripser++ needs GPU).
+Oineus / Dionysus / HomCloud-PHAT oracles timed on this box, and for
+the I330 vendor/literature pairing audit (no unused in-tree class).
+This is **not** a completion certificate: a genuinely new pairing idea
+would reopen the exact path. Dory and HomCloud-default track Ripser;
+Oineus, Dionysus, and HomCloud-PHAT are slower than Ripser at 1
+thread. None of them is a 10× engine. Unused CPU pairing oracles on
+this box are closed (HomCloud = Ripser/PHAT; vendor AE already
+wrapped; ripser++ needs GPU; SiRUP is incremental update).
 
 ## What a user should do instead of waiting for a general 10×
 

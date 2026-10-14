@@ -1,10 +1,10 @@
 # Complexity notes for PITH
 
-Updated 2026-10-14 after iterations I001–I329 plus consolidation measurements.
+Updated 2026-10-14 after iterations I001–I330 plus consolidation measurements.
 This is a **complexity ledger**,
 not a theorem paper and not a selected-algorithm rewrite. It restates what the
 literature already proves, what follows from those statements by a short
-derivation, and what the I204 / I218 / I227–I329 receipts only measure.
+derivation, and what the I204 / I218 / I227–I330 receipts only measure.
 
 **Honest contribution.** PITH does **not** introduce a new worst-case Big-O for
 exact Vietoris–Rips (VR) \(H_1\) on a connected threshold graph \(G_T\). The
@@ -1052,7 +1052,7 @@ worst-case Big-O theorem versus Ripser on connected \(G_T\).
 | Seidel (Delaunay size) | 3D \(\Theta(n^2)\) worst case; \(\Theta(n^{\lceil d/2\rceil})\) |
 | Kruskal 1956; Tarjan union-find | \(H_0\) |
 
-Project ledgers: `docs/SELECTED.md` (living algorithm, through I329),
+Project ledgers: `docs/SELECTED.md` (living algorithm, through I330),
 `docs/PAPERS.md`, `docs/ALGORITHM_COMPARISON.md`, `docs/COMPLEXES.md`,
 `docs/EDGE_COLLAPSE_SPEC.md`, `src/pith/include/pith/redzed_bridge.hpp`,
 `RESEARCH_LOG.md` I228, I235, I263, I271, I275, I276, I282, I300–I306,
