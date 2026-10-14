@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-14 — I304 hash leftover G_r on mid-deg thicken
+
+- **Question:** Does `unordered_set` leftover \(G_r\) (instead of sorted insert) cut fat 2D thicken H1 on the band \(16n < |E|\) and mean deg < words, without regressing I302 3D?
+- **Hypothesis:** I303’s tax was \(\Theta(|E|\deg)\) `lower_bound` insert. Hash insert is amortized \(O(1)\); leftover_coface iterates the smaller neighbor set. I302 sorted adj stays on \(|E|\le 16n\). Dense \(G_T\) keeps rbits.
+- **Work:** `g_hadj` / `advance_hadj` / `leftover_coface_*_hadj`. Wave 164 vs I302. Hard: figure8 n=24000.
+- **Result:** **Reject.** Identity held. Clock lost badly: figure8 n=16000 **1.55 vs I302 0.63 s** (reduce 1121 vs 201 ms). n=24000 **2.36 s**. sphere n=50000 **0.68 s** (hash off, I302 path). Hash-set overhead on deg~122 leftover_coface is far worse than rbit word-AND.
+- **Decision:** **Reject and revert** hash leftover. Fat thicken stays on rbits. Do not retry leftover adj/hash on \(|E|>16n\). I302 \(|E|\le 16n\) sorted adj stays selected.
+- **Class:** experiment (reject; exact, slower; reverted)
+
 ## 2026-10-14 — I303 leftover-adj mean-deg gate (fat thicken)
 
 - **Question:** Does raising leftover-adj from \(|E|\le 16n\) to mean deg < rbit-AND width (words) cut fat 2D thicken H1 (figure8 n=16k–24k) without regressing I302’s 3D Delaunay path?

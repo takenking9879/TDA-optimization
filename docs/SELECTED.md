@@ -729,8 +729,10 @@ Rips is exact and too slow.
    **0.68 vs 0.84 s / 252k / ess2=1**. leftover_coface \(O(\deg)\)
    vs \(O(n/64)\). Fat 2D thicken (\(|E|>16n\)) still uses rbits.
    **I303 mean-deg leftover-adj gate reject/revert:** figure8 n=16000
-   **0.85 vs 0.63 s** (sorted insert \(\Theta(|E|\deg)\)). Do not
-   raise leftover-adj onto fat thicken with sorted lists.
+   **0.85 vs 0.63 s** (sorted insert \(\Theta(|E|\deg)\)). **I304
+   hash leftover reject/revert:** figure8 n=16000 **1.55 vs 0.63 s**
+   (reduce 1121 vs 201 ms). Do not retry leftover adj/hash on
+   \(|E|>16n\). Fat thicken stays on rbits.
    ae_seeded visits remain the exact-H1 wall.
 6. Owned AE leftover-star walk is still Θ(|leftover|·deg★) — rbit cut
    has_leftover_coface, not seeded probes (circle still 875k). I288
