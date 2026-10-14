@@ -349,6 +349,116 @@ if pts:
 out.append("</svg>")
 (FIG / "dispatcher.svg").write_text("\n".join(out))
 
+# Mode-dispatcher map from held-out receipts (exact / scale / sparse / refuse).
+mode_pts = []
+for d in (NCC.get("receipts") or []):
+    mode_pts.append(
+        {
+            "src": "ncc",
+            "name": d.get("name"),
+            "n": d.get("n"),
+            "n_cc": d.get("n_cc_max") or d.get("n"),
+            "mode": d.get("mode_recommended"),
+            "exact_s": d.get("exact_s"),
+            "miss": bool(d.get("timeout_miss") or d.get("scale_miss")),
+        }
+    )
+for d in (ADV.get("receipts") or []):
+    mode_pts.append(
+        {
+            "src": "adv",
+            "name": d.get("name"),
+            "n": d.get("n"),
+            "n_cc": d.get("n_cc_max") or d.get("n"),
+            "mode": d.get("mode_recommended"),
+            "exact_s": d.get("exact_s"),
+            "miss": bool(d.get("timeout_miss") or d.get("scale_miss")),
+        }
+    )
+for d in (MAUTO.get("receipts") or []):
+    mode_pts.append(
+        {
+            "src": "mode_auto",
+            "name": d.get("name"),
+            "n": d.get("n"),
+            "n_cc": d.get("n"),
+            "mode": "refuse" if d.get("expect") == "refuse" else d.get("selected"),
+            "exact_s": None,
+            "miss": not d.get("agree"),
+        }
+    )
+for d in (HIGHD.get("receipts") or []):
+    est = d.get("estimate") or {}
+    mode_pts.append(
+        {
+            "src": "highd",
+            "name": d.get("name"),
+            "n": d.get("n"),
+            "n_cc": d.get("n"),
+            "mode": est.get("mode_recommended"),
+            "exact_s": (d.get("exact") or {}).get("wall_s"),
+            "miss": bool(d.get("wrong")),
+        }
+    )
+w, h = 720, 440
+pad_l, pad_r, pad_t, pad_b = 64, 140, 36, 48
+out = [
+    f"<svg xmlns='http://www.w3.org/2000/svg' width='{w}' height='{h}' font-family='sans-serif'>",
+    f"<rect width='{w}' height='{h}' fill='white'/>",
+    "<text x='360' y='22' text-anchor='middle' font-size='14'>Mode dispatcher (held-out): n_cc vs exact wall</text>",
+    "<text x='360' y='428' text-anchor='middle' font-size='11'>largest T-component n_cc (n when n_cc missing)</text>",
+    "<text x='16' y='220' text-anchor='middle' font-size='11' transform='rotate(-90 16 220)'>exact wall seconds (12 s if timeout)</text>",
+]
+plot = []
+for p in mode_pts:
+    x = p.get("n_cc")
+    if not x:
+        continue
+    yv = p.get("exact_s")
+    if yv is None:
+        yv = 12.0 if (p.get("mode") in ("scale", "sparse", "refuse") or p.get("miss")) else None
+    if yv is None:
+        continue
+    plot.append((float(x), float(yv), p))
+if plot:
+    xs = [math.log10(p[0]) for p in plot]
+    ys = [math.log10(max(p[1], 1e-3)) for p in plot]
+    xmin, xmax = min(xs), max(xs)
+    ymin, ymax = min(ys), max(ys)
+    if xmax <= xmin:
+        xmax = xmin + 1
+    if ymax <= ymin:
+        ymax = ymin + 1
+
+    def X(v):
+        return pad_l + (v - xmin) / (xmax - xmin) * (w - pad_l - pad_r)
+
+    def Y(v):
+        return pad_t + (1 - (v - ymin) / (ymax - ymin)) * (h - pad_t - pad_b)
+
+    cols = {
+        "exact": "#1f77b4",
+        "scale": "#2ca02c",
+        "sparse": "#ff7f0e",
+        "refuse": "#9467bd",
+    }
+    for x, yv, p in plot:
+        col = "#d62728" if p.get("miss") else cols.get(p.get("mode"), "#333")
+        px, py = X(math.log10(x)), Y(math.log10(max(yv, 1e-3)))
+        if p.get("miss"):
+            out.append(
+                f"<text x='{px:.1f}' y='{py:.1f}' text-anchor='middle' font-size='14' fill='{col}'>×</text>"
+            )
+        else:
+            out.append(f"<circle cx='{px:.1f}' cy='{py:.1f}' r='5' fill='{col}'/>")
+    out.append("<text x='590' y='50' font-size='11' fill='#1f77b4'>exact</text>")
+    out.append("<text x='590' y='66' font-size='11' fill='#2ca02c'>scale</text>")
+    out.append("<text x='590' y='82' font-size='11' fill='#ff7f0e'>sparse</text>")
+    out.append("<text x='590' y='98' font-size='11' fill='#9467bd'>refuse</text>")
+    out.append("<text x='590' y='114' font-size='11' fill='#d62728'>× miss</text>")
+out.append("</svg>")
+(FIG / "dispatcher_modes.svg").write_text("\n".join(out))
+
 # tables
 rows = []
 rows.append("# Consolidation tables (this hardware: 4 CPU, 16 GB)")
@@ -1380,6 +1490,26 @@ if ADV:
                 um=d.get("exact_vs_ripser_unmatched"),
                 eh="" if ex_ess is None else ex_ess,
                 sh="" if sc_ess is None else sc_ess,
+            )
+        )
+    rows.append("")
+    rows.append("### Held-out estimate mid vs exact wall (no retune)")
+    rows.append("| family | n | rec | est exact (s) | wall (s) | wall/mid |")
+    rows.append("| --- | ---: | --- | ---: | ---: | ---: |")
+    for d in list(ADV.get("receipts") or []) + list(NCC.get("receipts") or []):
+        mid = d.get("est_exact_runtime_s")
+        wall = d.get("exact_s")
+        ratio = None
+        if mid and wall:
+            ratio = wall / mid
+        rows.append(
+            "| {fam} | {n} | {rec} | {mid} | {wall} | {ratio} |".format(
+                fam=d.get("name"),
+                n=d.get("n"),
+                rec=d.get("mode_recommended"),
+                mid="" if mid is None else f"{mid:.3f}",
+                wall="" if wall is None else f"{wall:.3f}",
+                ratio="" if ratio is None else f"{ratio:.2f}",
             )
         )
 

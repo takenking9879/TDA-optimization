@@ -848,7 +848,11 @@ edge-frac \(<0.25\) → RedZeD; `maxdim=0` → Kruskal / Delaunay.
   tax; RedZeD-cc is **0.033 s vs Ripser 0.14 s**, \(n=1000\) **1.07 vs
   7.25 s**, \(n=2000\) 13.6 s (Ripser 15 s timeout). `--estimate` uses
   \(n_{cc}\) and marks Euclidean fat H2 impractical at \(n_{cc}\ge 800\)
-  **[empirical, fat_h2.json]**. Local time exponents: scale
+  or a dense flag (`edge_frac≥0.5` and \(n_{cc}\ge 600\))
+  **[empirical, fat_h2.json, ncc_auto.json]**. Forced implicit on mixed
+  \(n=300\) is now **53 ms** (`+implicit_coh-redzed-h2`, unmatched 0).
+  Held-out mode stress: `ncc_auto` **0/11**, `adversarial` seed 17
+  **0/11** timeout misses / **0/8** exact mismatches. Local time exponents: scale
   \(p\approx 1.0\)–\(1.3\); exact leftover \(H_1\) \(p\approx 2.8\) on
   figure8 2k→4k (polynomial explosion, not a claimed exponential);
   mixed exact H2 \(p_n\approx 2.8\)–\(3.7\).

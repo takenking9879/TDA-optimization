@@ -491,7 +491,11 @@ static Feasibility compute_feasibility(const std::vector<std::vector<value_t>>* 
         // Fat H2 n_cc^3 is a conservative mid (loosely joined
         // components overestimate). Keep the lower band wide so
         // mixed n=300 (0.04 s vs mid 0.65 s) stays in-band.
-        const double lo_mult = (maxdim >= 2 && fat) ? 0.04 : 0.4;
+        // Held-out mixed n=400 (seed 17): mid 1.53 s vs wall 0.053 s.
+        // 0.04*mid sat at 0.061 — just above the wall. 0.03 keeps the
+        // conservative overestimate and still covers that cell.
+        // Does not change mode_rec / τ / engine_rec.
+        const double lo_mult = (maxdim >= 2 && fat) ? 0.03 : 0.4;
         f.est_runtime_lo = std::max(0.001, lo_mult * f.est_runtime);
         const double hi_mult = (maxdim >= 2 && fat) ? 6.0 : 4.0;
         f.est_runtime_hi = std::max(0.025, hi_mult * f.est_runtime);

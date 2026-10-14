@@ -1018,3 +1018,29 @@ timeout_miss 0/11, scale_miss 0/11, exact vs Ripser mismatches 0/8. Held-out see
 | torus | 400 | exact | 0.009 | 0.013 | 0 | 1 | 1 |
 | mixed_1d2d3d | 400 | exact | 0.053 | 0.006 | 0 | 1 | 1 |
 | l1_circle | 300 | exact | 0.013 |  | None | 1 |  |
+
+### Held-out estimate mid vs exact wall (no retune)
+| family | n | rec | est exact (s) | wall (s) | wall/mid |
+| --- | ---: | --- | ---: | ---: | ---: |
+| many_loops | 400 | exact | 0.006 | 0.004 | 0.68 |
+| loops_with_bridges | 400 | exact | 0.011 | 0.009 | 0.76 |
+| anisotropic_blob | 400 | exact | 0.008 | 0.007 | 0.93 |
+| clustered | 600 | exact | 0.007 | 0.004 | 0.59 |
+| heavy_noise_circle | 400 | exact | 0.011 | 0.015 | 1.31 |
+| near_degenerate | 500 | exact | 0.006 | 0.004 | 0.66 |
+| multi_scale_loops_smallT | 400 | exact | 0.007 | 0.006 | 0.89 |
+| multi_scale_loops_largeT | 400 | exact | 0.008 | 0.007 | 0.89 |
+| torus | 400 | exact | 0.007 | 0.009 | 1.27 |
+| mixed_1d2d3d | 400 | exact | 1.528 | 0.053 | 0.03 |
+| l1_circle | 300 | exact | 0.009 | 0.013 | 1.50 |
+| two_spheres_apart | 400 | exact | 0.007 | 0.050 | 7.24 |
+| two_spheres_apart | 1200 | exact | 0.023 | 4.672 | 205.33 |
+| outliers_sphere | 400 | exact | 0.011 | 0.015 | 1.34 |
+| outliers_sphere | 900 | exact | 0.037 | 0.064 | 1.72 |
+| multi_cavities | 400 | exact | 0.197 | 0.022 | 0.11 |
+| multi_cavities | 900 | exact | 2.165 | 0.270 | 0.12 |
+| cage_and_ball | 400 | exact | 0.645 | 0.114 | 0.18 |
+| cage_and_ball | 1600 | scale | 40.965 |  |  |
+| uniform3 | 400 | exact | 0.011 | 0.027 | 2.39 |
+| sphere_complete | 400 | exact | 5.125 | 2.039 | 0.40 |
+| sphere_complete | 700 | scale | 27.445 |  |  |

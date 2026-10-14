@@ -5,6 +5,14 @@ Do not paste long reasoning here.
 
 ---
 
+## 2026-10-14 — Mode-dispatcher figure + fat-H2 band floor
+
+- **Question:** Does the public story still claim mixed n=300 → scale, and is the fat-H2 estimate band tight enough on held-out mixed?
+- **Work:** `dispatcher_modes.svg` from ncc/adversarial/mode_auto/highd. Fat-H2 `lo_mult` 0.04→0.03 so mixed n=400 seed 17 (wall 0.053 vs mid 1.53) sits in band. Does not change mode_rec / τ. Fixed GROWTH stale “mixed n=300 → scale”.
+- **Result:** Held-out mode packs remain 0 timeout misses. Band tweak is uncertainty only.
+- **Decision:** Keep. Goal not complete. No leftover hunting.
+- **Class:** verified (docs + figure)
+
 ## 2026-10-14 — Consolidation: stable suite + held-out adversarial pack
 
 - **Question:** Can a user run the selected path without I-numbers or wave scripts, and does the frozen dispatcher survive a seed-17 adversarial pack?

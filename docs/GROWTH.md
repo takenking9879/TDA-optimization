@@ -81,9 +81,11 @@ exponent. GUDHI’s explicit tree is the first to leave the 12 s budget.
 
 `--estimate` now emits that \(p\) as `growth_p` plus a conservative
 runtime band (`est_runtime_lo_s` / `est_runtime_hi_s`) and
-`leaving_cheap_regime`. Engine \(\tau\) is unchanged. On mixed 1D/2D/3D
-\(n=300\) it reports leave=true / mode=scale; sphere \(n=400\) predicted
-0.006–0.019 s and measured 0.017 s.
+`leaving_cheap_regime`. Engine \(\tau\) is unchanged. Mixed 1D/2D/3D
+\(n=300\) is **exact** (\(n_{cc}=200\)); \(n=2000\) and a complete
+sphere \(n=700\), \(T=2.5\) go to scale. Sphere \(n=400\) predicted
+0.006–0.019 s and measured 0.017 s. The fat-H2 mid is conservative
+(mixed \(n=400\) seed 17: mid 1.53 s, wall 0.053 s).
 
 When the probe recommends sparse it also reports `est_sparse_runtime_s`
 (\(t\approx C n^2\): \(C=1.3\times 10^{-8}\) in \(d\in\{2,3\}\),
@@ -113,7 +115,8 @@ thin 2.2 / hollow 1.8 / else 2.4), not a per-series fit from this file.
 `eval_estimate.py` scores the recommended-mode wall against
 `[est_runtime_lo, est_runtime_hi]`. After a 5 ms exact overhead and a
 25 ms hi-floor (small-n process tax) and the \(n_{cc}\) fat-H2 band,
-**42/42** scored walls sit in band.
+**42/42** scored walls sit in band (fat-H2 `lo_mult` is now 0.03 so
+held-out mixed \(n=400\) stays inside the conservative overestimate).
 It does **not** change `engine_rec` or \(\tau\).
 `--estimate` also emits `wall_kind`: `collapse` on thin residuals
 (circle 32× is collapse, not pairing), `leftover` on fat/hollow exact

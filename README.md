@@ -295,7 +295,9 @@ clearly cheaper (live auto 0.74 s vs the old sparse 18 s). \(\tau\) stays
 frozen. Fat \(H_2\) `uniform10` \(n=250\) still refuses (exit 3).
 `--mode auto` held-out eval is **11/11** after that change.
 
-![Dispatcher regime](benchmarks/results/consolidation/figures/dispatcher.svg)
+![Dispatcher regime (engine)](benchmarks/results/consolidation/figures/dispatcher.svg)
+
+![Mode dispatcher on held-out packs](benchmarks/results/consolidation/figures/dispatcher_modes.svg)
 
 Claim-to-receipt map: [`benchmarks/results/consolidation/topology_claims.json`](benchmarks/results/consolidation/topology_claims.json)
 (`nested_loops` sparse \(W_1(H_1)=1.05\), 52 unmatched, ess \(H_1=1\)).
