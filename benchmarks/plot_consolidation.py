@@ -31,6 +31,8 @@ L10N_PATH = BENCH / "results" / "consolidation" / "leftover_ratio_n.json"
 L10N = json.loads(L10N_PATH.read_text()) if L10N_PATH.exists() else {}
 L10H_PATH = BENCH / "results" / "consolidation" / "leftover_heldout.json"
 L10H = json.loads(L10H_PATH.read_text()) if L10H_PATH.exists() else {}
+L10M_PATH = BENCH / "results" / "consolidation" / "leftover_miss_n.json"
+L10M = json.loads(L10M_PATH.read_text()) if L10M_PATH.exists() else {}
 AXIS_PATH = BENCH / "results" / "consolidation" / "axis_scaling.json"
 AXIS = json.loads(AXIS_PATH.read_text()) if AXIS_PATH.exists() else {}
 DORY_PATH = BENCH / "results" / "consolidation" / "dory.json"
@@ -985,6 +987,56 @@ if L10H:
                 cw=d.get("collapse_wall"),
                 pipe=d.get("pipeline"),
             )
+        )
+
+if L10M:
+    rows.append("")
+    rows.append("## Leftover-miss H1 vs n (`eval_leftover_miss_n.py`, seed 19)")
+    rows.append(
+        f"{L10M.get('note', '')} Cells ≥10×: {L10M.get('n_ratio_ge10')}/{L10M.get('n')}."
+    )
+    rows.append("| family | n | PITH (s) | Ripser (s) | ratio | p_PITH | p_Ripser | pipeline |")
+    rows.append("| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |")
+    by_ratio = {}
+    by_p = {}
+    for d in L10M.get("receipts") or []:
+        rows.append(
+            "| {fam} | {n} | {pw} | {rw} | {ratio} | {pp} | {pr} | {pipe} |".format(
+                fam=d.get("name"),
+                n=d.get("n"),
+                pw="" if d.get("pith_s") is None else f"{d['pith_s']:.3f}",
+                rw="" if d.get("ripser_s") is None else f"{d['ripser_s']:.3f}",
+                ratio="" if d.get("ratio") is None else f"{d['ratio']:.2f}×",
+                pp="" if d.get("p_pith") is None else f"{d['p_pith']:.2f}",
+                pr="" if d.get("p_ripser") is None else f"{d['p_ripser']:.2f}",
+                pipe=d.get("pipeline"),
+            )
+        )
+        if d.get("ratio") and d.get("n"):
+            by_ratio.setdefault(d.get("name"), []).append((d["n"], d["ratio"]))
+        if d.get("p_pith") and d.get("n"):
+            by_p.setdefault(f"{d.get('name')} PITH", []).append((d["n"], d["p_pith"]))
+        if d.get("p_ripser") and d.get("n"):
+            by_p.setdefault(f"{d.get('name')} Ripser", []).append((d["n"], d["p_ripser"]))
+    if by_ratio:
+        svg_scatter(
+            FIG / "leftover_miss_n.svg",
+            [{"name": k, "xy": v} for k, v in by_ratio.items()],
+            "Leftover-miss H1: Ripser/PITH ratio vs n (1 thread)",
+            "n",
+            "wall-clock ratio",
+            logx=True,
+            logy=False,
+        )
+    if by_p:
+        svg_scatter(
+            FIG / "leftover_miss_exponents.svg",
+            [{"name": k, "xy": v} for k, v in by_p.items()],
+            "Leftover-miss local scaling exponent vs n",
+            "n",
+            "local p",
+            logx=True,
+            logy=False,
         )
 
 if AXIS:

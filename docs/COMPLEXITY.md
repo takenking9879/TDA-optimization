@@ -833,7 +833,9 @@ edge-frac \(<0.25\) → RedZeD; `maxdim=0` → Kruskal / Delaunay.
   **[empirical]**: torus \(n=2000\) H1 **12.6×**; figure8 \(n=2000\)
   **17.0×**; blobs \(n=4000\) H1 **12.9×**; uniform2 \(n=5000\)
   **8.1×**; sphere \(n=2000\) H1 **8.5×**; **3/6 leftover families
-  ≥10×**. Circle \(n=1000\) **31×** is collapse, not leftover.
+  ≥10×** at frozen sizes; held-out leftover **4/7**; leftover-miss
+  n-series **0/7** (anisotropic recedes 8.8→6.6×). Circle \(n=1000\)
+  **31×** is collapse, not leftover.
   I-wave mixed figure8 \(n=4000\) **27× / 1.07 s**; sphere \(n=400\)
   H2 **58×**; sphere \(n=800\) H2 **527× / 56 ms** (Ripser tet tax);
   sparse \(n=20000\) **5.6×** **[empirical]** (SELECTED; I281).
@@ -867,7 +869,7 @@ edge-frac \(<0.25\) → RedZeD; `maxdim=0` → Kruskal / Delaunay.
 | Ripser implicit coh. | Yes | VR \(k\)-skeleton + cubic residual reduce; implicit \(\neq\) smaller rank | Sparse \(G_T\): probes \(O(\Delta)\); coh+clearing skips births | Time \(n^{2.1}\)–\(n^{3.3}\) on I204 |
 | Collapse (B–P) | Yes | \(O(\lvert E\rvert\Delta^3)\) back; \(\lvert R\rvert\le\lvert E\rvert\) | Geometric cone-like links: \(\lvert R\rvert\ll\lvert E\rvert\) | \(\lvert R\rvert\sim n^{0.9}\)–\(n^{1.2}\) except torus \(\Theta(n^2)\) |
 | Collapse+implicit | Yes | **Same as Ripser if \(\lvert R\rvert\sim\lvert E\rvert\)** | Thin \(\lvert R\rvert\): wall is the \(\Theta(\lvert E\rvert)\) walk | Circle 28–140×; torus collapse loses |
-| RedZeD AE | Yes | Same pairing class; AE skips many \((k+1)\)-births, not worst-case \(o(\cdot)\) | Active-set / leftover output-sensitive; split on disconnected \(G_T\) | Torus **12.6×** live; leftover 3/6 ≥10×; time \(n^{2.0}\)–\(n^{2.4}\); connected 10× is not general |
+| RedZeD AE | Yes | Same pairing class; AE skips many \((k+1)\)-births, not worst-case \(o(\cdot)\) | Active-set / leftover output-sensitive; split on disconnected \(G_T\) | Torus **12.6×** live; leftover 3/6 ≥10×; held-out 4/7; miss n-series 0/7; time \(n^{2.0}\)–\(n^{2.4}\); connected 10× is not general |
 | Kruskal \(H_0\) | Yes (\(H_0\)) | \(O(\lvert E\rvert\log\lvert E\rvert)\) after listing | Spatial listing \(O(\lvert E\rvert)\) | \(\sim 1.9\times\) vs Ripser \(H_0\) if \(G_T\) is listed |
 | 2D/3D Del \(H_0\) | Yes (\(H_0\), Euclidean) | 2D size \(\Theta(n)\), construct \(O(n\log n)\) (classical Del); 3D size \(O(n^2)\) worst | Expected \(O(n\log n)\) walk under standard RIC hypotheses | Blobs 25k **515×**; sphere 30k **288×** |
 | Delaunay-flag | **No** | Flag of Del: 2D \(\lvert E\rvert=\Theta(n)\); persist as §3/§6 on that graph | Typical \(\bar d=O(1)\Rightarrow\lvert K_k\rvert=O(n)\) | Ess kept; finite unmatched 3–209; 3D 80k **1.09 s** |

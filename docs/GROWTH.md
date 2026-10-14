@@ -63,6 +63,17 @@ Leftover H1 **ratio vs n** (`leftover_ratio_n.json`, 1 thread):
 | uniform2 | 2000→3500→5000→7000 | 7.0→8.3→8.5→9.1× | \(p\approx 1.9\)–\(2.2\) / \(2.2\)–\(2.3\) (ratio crawls; still <10×) |
 | sphere H1 | 1000→2000→3000→4000 | 5.8→8.6→9.98→11.4× | \(p\approx 1.6\)–\(2.1\) / \(2.1\)–\(2.5\) (crosses 10× near \(n=4000\)) |
 
+Leftover-miss families scaled in n (`leftover_miss_n.json`, seed 19, 1 thread):
+
+| series | n | ratio | local \(p\) PITH / Ripser |
+| --- | ---: | ---: | --- |
+| anisotropic_blob | 2000→4000→6000→8000 | 5.3→6.0→8.8→6.6× | \(p=2.14/2.32\), then \(1.21/2.15\) (`redzed-cc`), then **3.49/2.48** (`redzed-spatial`; ratio recedes) |
+| grid_holes | 1600→4000→8000 | 3.0→5.0→6.1× | \(p=2.03/2.59\) then \(2.76/3.05\) (climbs; both leaving cheap) |
+
+**0/7 ≥10×.** Growing n does not turn these misses into a leftover 10×. Anisotropic peaks then recedes when the representation flips. Grid-holes stays a mid-single-digit factor while both engines enter \(p\approx 3\). Ripser hits the 12 s budget on anisotropic \(n=8000\) (12.1 s); PITH is still 1.83 s.
+
+`--mode auto` on these cells: exact through \(n=6000\); at \(n=8000\) it prefers scale (anisotropic because conservative `|E|>8e6` even though `est_exact≈1.07` s vs wall 1.83 s; grid_holes because `fat && n>6000` even though `est_exact≈0.14` s vs wall 0.64 s). Those are **scale-when-exact-is-still-cheap** misses, not leftover-skip work.
+
 This is **not** a general leftover 10×. It is an n-dependent constant factor in the RedZeD class.
 
 The feasibility probe uses these regimes: fat `maxdim≥2` with

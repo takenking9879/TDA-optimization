@@ -100,6 +100,20 @@ def collect_measured() -> list[dict]:
                         "source": "limits",
                     }
                 )
+    miss = _load("leftover_miss_n.json")
+    for r in miss.get("receipts") or []:
+        if r.get("pith_ok") and r.get("pith_s"):
+            rows.append(
+                {
+                    "name": r.get("name"),
+                    "n": r.get("n"),
+                    "T": r.get("T"),
+                    "maxdim": 1,
+                    "mode": "exact",
+                    "wall_s": r["pith_s"],
+                    "source": "leftover_miss_n",
+                }
+            )
     fat = _load("fat_h2.json")
     for r in fat.get("series") or []:
         runs = r.get("runs") or {}

@@ -5,13 +5,13 @@ Do not paste long reasoning here.
 
 ---
 
-## 2026-10-14 — Leftover-miss n-series (pending live sweep)
+## 2026-10-14 — Leftover-miss n-series (0/7 ≥10×)
 
 - **Question:** Do the leftover misses where Ripser is not already cheap (anisotropic_blob 5.5× at n=2000 / 0.48 s; grid_holes 3.2× at n=1600 / 44 ms) reach 10× as n grows?
-- **Work:** `eval_leftover_miss_n.py` seed 19, τ frozen. anisotropic T=2.5 n=2000–8000; grid_holes T=0.12 n=1600/4000/8000. No leftover-skip edits. Literature still only RedZeD as published exact-VR pairing alternative (arXiv:2606.06310 / redzed-tda).
-- **Result:** pending live sweep (script committed first).
-- **Decision:** Measurement toward leftover 10× generality, not a pairing-algorithm claim. Goal not complete.
-- **Class:** experiment (pending)
+- **Work:** `eval_leftover_miss_n.py` seed 19, τ frozen. anisotropic T=2.5 n=2000–8000; grid_holes T=0.12 n=1600/4000/8000. 1 thread. No leftover-skip edits. Literature still only RedZeD as published exact-VR pairing alternative (arXiv:2606.06310 / redzed-tda).
+- **Result:** **0/7 ≥10×**. anisotropic 5.3→6.0→8.8→6.6× (peaks at n=6000 on `redzed-cc`, then recedes when n=8000 returns to `redzed-spatial` and PITH \(p=3.49\) vs Ripser \(p=2.48\); Ripser 12.1 s at n=8000). grid_holes 3.0→5.0→6.1× (both \(p\approx 2.8/3.0\) at 4k→8k; Ripser 3.90 s at n=8000). Resid stays leftover (0.06 / 0.36). Not a pairing-algorithm claim.
+- **Decision:** Keep the receipt. Do not hunt leftover skips. Leftover 10× is not general: frozen 3/6, held-out 4/7, miss n-series 0/7. Dispatcher follow-up (not τ): `--mode auto` prefers scale at anisotropic n=8000 (`|E|>8e6`, exact still 1.83 s, est_exact 1.07 s) and grid_holes n=8000 (`fat && n>6000`, exact 0.64 s). Goal not complete.
+- **Class:** verified (live)
 
 ## 2026-10-14 — Held-out leftover H1 ratio (seed 19)
 

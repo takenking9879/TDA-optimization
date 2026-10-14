@@ -632,6 +632,18 @@ Seed 19. Families outside leftover_10x.json. collapse_wall = residual_frac≤τ=
 | grid_holes | 1600 | 0.014 | 0.044 | 3.22× | 0.345 | False | pith:auto-redzed-spatial |
 | multi_scale_loops | 1000 | 0.026 | 0.433 | 16.39× | 0.063 | False | pith:auto-redzed-cc |
 
+## Leftover-miss H1 vs n (`eval_leftover_miss_n.py`, seed 19)
+Seed 19. Leftover misses from leftover_heldout.json, scaled in n. τ frozen. Not a pairing-algorithm claim. Cells ≥10×: 0/7.
+| family | n | PITH (s) | Ripser (s) | ratio | p_PITH | p_Ripser | pipeline |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| anisotropic_blob | 2000 | 0.093 | 0.495 | 5.32× |  |  | pith:auto-redzed-spatial |
+| anisotropic_blob | 4000 | 0.411 | 2.474 | 6.03× | 2.14 | 2.32 | pith:auto-redzed-spatial |
+| anisotropic_blob | 6000 | 0.670 | 5.909 | 8.82× | 1.21 | 2.15 | pith:auto-redzed-cc |
+| anisotropic_blob | 8000 | 1.831 | 12.077 | 6.60× | 3.49 | 2.48 | pith:auto-redzed-spatial |
+| grid_holes | 1600 | 0.015 | 0.044 | 2.98× |  |  | pith:auto-redzed-spatial |
+| grid_holes | 4000 | 0.094 | 0.471 | 4.99× | 2.03 | 2.59 | pith:auto-redzed-spatial |
+| grid_holes | 8000 | 0.640 | 3.896 | 6.08× | 2.76 | 3.05 | pith:auto-redzed-spatial |
+
 ## Axis scaling (T / noise / density / dimension)
 Budget 8 s. PITH `--threads 1`. Ripser 1 thread. Hardware 4 CPUs. Empirical.
 | axis | family | n | x | method | wall (s) | cpu (s) | threads | |E| | reduce (ms) | ok |

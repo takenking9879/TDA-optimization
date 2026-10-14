@@ -152,7 +152,10 @@ Live leftover-family 1-thread ratios vs Ripser: figure-8 **17.0×**, torus
 (3/6 ≥10× at those sizes — not a general 10×). Held-out leftover
 families (`leftover_heldout.json`, seed 19): **4/7 ≥10×** after
 dropping collapse walls; misses include anisotropic 5.5× and
-grid_holes 3.2×. Along n
+grid_holes 3.2×. Growing those misses (`leftover_miss_n.json`)
+does **not** produce a 10×: anisotropic 5.3→8.8→6.6× (recedes
+when the representation flips; Ripser 12.1 s at \(n=8000\)),
+grid_holes 3.0→6.1×, **0/7 ≥10×**. Along n
 (`leftover_ratio_n.json`): sphere H1 crosses 10× near \(n=4000\)
 (**11.4×**); uniform2 is still **9.1×** at \(n=7000\); figure8
 plateaus ~16× once both engines explode.
@@ -190,6 +193,10 @@ sphere \(n=800\) PITH **0.058 s**, giotto timeout; nested loops \(n=2000\)
 PITH **0.30 s** vs giotto **7.23 s** (24×).
 
 ![Leftover H1 ratio vs n](benchmarks/results/consolidation/figures/leftover_ratio_n.svg)
+
+![Leftover-miss H1 ratio vs n](benchmarks/results/consolidation/figures/leftover_miss_n.svg)
+
+![Leftover-miss local scaling exponent vs n](benchmarks/results/consolidation/figures/leftover_miss_exponents.svg)
 
 ![Exact VR vs Ripser / giotto-ph / GUDHI](benchmarks/results/consolidation/figures/runtime_baselines.svg)
 

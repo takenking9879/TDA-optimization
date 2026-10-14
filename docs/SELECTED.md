@@ -19,7 +19,9 @@ Held-out mode stress: `ncc_auto.json` **0/11**, `adversarial.json` seed 17
 Leftover 10× is n-dependent (`leftover_ratio_n.json`): sphere H1
 **11.4×** at \(n=4000\); uniform2 **9.1×** at \(n=7000\). Frozen pack
 stays **3/6**. Held-out leftover (`leftover_heldout.json`, seed 19):
-**4/7 ≥10×** after dropping collapse walls. Not a new pairing algorithm.
+**4/7 ≥10×** after dropping collapse walls. Leftover-miss n-series
+(`leftover_miss_n.json`): anisotropic 5.3→8.8→6.6× and grid_holes
+3.0→6.1×, **0/7 ≥10×**. Not a new pairing algorithm.
 Equal-hardware: PITH `--threads 1` still beats Ripser, giotto-ph 0.2.4
 (`n_threads=1` and `4`), and GUDHI 3.13 Rips on the measured suite.
 `--estimate` reports empirical `growth_p` and a runtime band; τ is frozen.
@@ -625,7 +627,9 @@ Blobs H0 **1.8×** / H1 **24×**. Topology loss: **0**.
 n=2000 **17.0×**; torus n=2000 **12.6×**; blobs n=4000 **12.9×**;
 uniform2 n=5000 **8.1×** (historical 11.2× does not hold); sphere
 n=2000 H1 **8.5×** (historical 10.1× does not hold). **3/6 leftover
-families ≥10×** — not a general exact-H1 10×. Circle **31×** is
+families ≥10×** — not a general exact-H1 10×. Held-out leftover
+**4/7**; leftover-miss n-series **0/7** (anisotropic recedes after
+8.8×). Circle **31×** is
 collapse, not leftover pairing. Mixed figure8 n=4000 **27× / 1.07 s**
 and sphere H2 **58×** at n=400 remain I-wave collapse / H2 receipts.
 Sparse connected n=20000 **5.6×**. I242/I243 owned AE is exact; rbit

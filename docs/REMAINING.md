@@ -118,7 +118,8 @@ All of the following, together:
 2. \(\ge 10\times\) \(H_1\) wall-clock **or** algebraic work vs 1-thread
    Ripser on leftover families **and** on held-out families frozen
    after the dispatcher. Live: frozen pack **3/6**, held-out leftover
-   **4/7** (`leftover_heldout.json`).
+   **4/7** (`leftover_heldout.json`), leftover-miss n-series **0/7**
+   (`leftover_miss_n.json`; anisotropic recedes after 8.8×).
 3. A complexity justification that is not “circle collapse”.
 4. Reproduced on this hardware with `--threads 1`.
 
