@@ -47,7 +47,7 @@ static void usage() {
         << "  --gic-k K           kNN degree for --gic-n (default 16)\n"
         << "  --reduced-vr        H07 reduced VR 2-complex (exact PH1 claimed; I224)\n"
         << "  --delaunay-vr       flag of Euclidean Delaunay 1-skeleton (I276; not exact VR)\n"
-        << "  --delaunay-alpha A  I277–I286 H1 thicken: A or 'auto'. maxdim≥2 splits H2 onto α=1\n"
+        << "  --delaunay-alpha A  I277–I297 H1 thicken: A or 'auto'. maxdim≥2 splits H2 onto α=1\n"
         << "  --delaunay-adapt    I280: R_v = A·max(r_v, max_nbr r) instead of A·r_v\n"
         << "  --delaunay-floor F  I280: also thicken to F·median(r) (default 0)\n"
         << "  --sparse-only       write residual edges and exit\n"
@@ -393,6 +393,7 @@ int main(int argc, char** argv) {
         Graph g;
         Graph g_h2;
         bool delaunay_split = false;
+        bool used_redzed_thicken = false;
         std::vector<std::vector<value_t>> dist;
         std::vector<std::vector<value_t>> pts;
         bool have_pts = false;
@@ -609,8 +610,15 @@ int main(int argc, char** argv) {
             r = persist_triangles(g, rtris, maxdim, threshold, ratio);
         } else if (delaunay_split) {
             // I286: H0/H1 from the thickened 1-skeleton; H2 from the α=1
-            // Delaunay flag. MST ⊆ Delaunay ⊆ thicken ⇒ H0 unchanged.
-            Result r1 = persist_implicit_coh(g, std::min(maxdim, 1), threshold, ratio);
+            // Delaunay flag. I297: fat thicken H1 via RedZeD (AE), not
+            // implicit V-adds (I296: those are unique apparent-facet walks).
+            Result r1;
+            if (delaunay_thicken_should_collapse(g.n, static_cast<std::int64_t>(g.edges.size()))) {
+                r1 = persist_redzed_from_edges(g.n, g.edges, std::min(maxdim, 1), threshold);
+                used_redzed_thicken = true;
+            } else {
+                r1 = persist_implicit_coh(g, std::min(maxdim, 1), threshold, ratio);
+            }
             Result r2 = persist_implicit_coh(g_h2, maxdim, threshold, ratio);
             r.pairs.reserve(r1.pairs.size() + r2.pairs.size());
             for (const auto& p : r1.pairs)
@@ -625,6 +633,10 @@ int main(int argc, char** argv) {
             r.counters.n_cofacet_probes += r2.counters.n_cofacet_probes;
             r.counters.reduce_ms += r2.counters.reduce_ms;
             r.counters.n_vertices = g.n;
+        } else if (delaunay_vr && maxdim <= 1 &&
+                   delaunay_thicken_should_collapse(g.n, static_cast<std::int64_t>(g.edges.size()))) {
+            r = persist_redzed_from_edges(g.n, g.edges, maxdim, threshold);
+            used_redzed_thicken = true;
         } else {
             r = use_implicit ? persist_implicit_coh(g, maxdim, threshold, ratio)
                              : persist_sparse(g, maxdim, threshold, ratio);
@@ -700,6 +712,7 @@ int main(int argc, char** argv) {
                                                           std::to_string(collapse_iters) +
                                                           (use_implicit ? "+implicit_coh"
                                                                         : "+homology")));
+            if (used_redzed_thicken) r.counters.pipeline += "-redzed";
         }
         std::sort(r.pairs.begin(), r.pairs.end(), [](const PersistencePair& a, const PersistencePair& b) {
             if (a.dim != b.dim) return a.dim < b.dim;

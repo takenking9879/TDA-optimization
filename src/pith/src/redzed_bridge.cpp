@@ -2268,4 +2268,47 @@ Result persist_redzed_from_points(const std::vector<std::vector<value_t>>& pts, 
     return r;
 }
 
+Result persist_redzed_from_edges(int n, const std::vector<Edge>& edges, int maxdim,
+                                 value_t threshold) {
+    Result r;
+    if (n <= 0 || maxdim < 0) {
+        r.counters.n_vertices = n;
+        return r;
+    }
+    std::vector<SpatEdge> SE;
+    SE.reserve(edges.size());
+    for (const Edge& e : edges) {
+        if (e.t > threshold) continue;
+        SE.push_back({e.t, e.u, e.v});
+    }
+    if (maxdim < 1) {
+        r = kruskal_h0(n, std::move(SE));
+        r.counters.pipeline = "pith:redzed-edges-h0";
+        return r;
+    }
+    SparseDist csr;
+    spat_to_hash(SE, n, csr);
+    DistanceMatrix D;
+    D.n = n;
+    EdgeList pre;
+    BinomialTable bt(n, maxdim + 2);
+    edgelist_from_spat(SE, threshold, bt, pre);
+    struct SparseGuard {
+        explicit SparseGuard(const SparseDist* p) { g_sparse = p; }
+        ~SparseGuard() { g_sparse = nullptr; }
+    };
+    const SparseGuard guard(&csr);
+    const auto t0 = std::chrono::steady_clock::now();
+    auto bars = redzed_vr(D, maxdim, threshold, &pre);
+    append_bars(r, bars, maxdim);
+    const auto t1 = std::chrono::steady_clock::now();
+    r.counters.n_vertices = n;
+    r.counters.n_edges_in = static_cast<std::int64_t>(SE.size());
+    r.counters.n_collapse_trims = 1;
+    r.counters.n_distances = static_cast<std::int64_t>(SE.size());
+    r.counters.reduce_ms = std::chrono::duration<double, std::milli>(t1 - t0).count();
+    r.counters.pipeline = "pith:redzed-edges";
+    return r;
+}
+
 }  // namespace pith

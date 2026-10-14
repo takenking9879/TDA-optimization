@@ -54,4 +54,9 @@ inline bool delaunay_thicken_should_collapse(int n, std::int64_t n_edges) {
     return n_edges >= 8 * static_cast<std::int64_t>(std::max(n, 1));
 }
 
+// I297: RedZeD on an explicit 1-skeleton (SparseDist + prebuilt EdgeList).
+// Used for fat Delaunay thicken so H1 is AE, not implicit V-adds.
+Result persist_redzed_from_edges(int n, const std::vector<Edge>& edges, int maxdim,
+                                 value_t threshold);
+
 }  // namespace pith

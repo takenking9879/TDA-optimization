@@ -993,6 +993,48 @@ int main() {
                   << " residual=" << h.edges.size() << "\n";
     }
 
+    // I297: RedZeD on the fat thicken 1-skeleton is the same flag PH as
+    // implicit (ess H1=1). Gate |E|≥8n matches the CLI dispatch.
+    {
+        const int n = 256;
+        const value_t T = 1.4f;
+        std::vector<std::vector<value_t>> pts(static_cast<size_t>(n), std::vector<value_t>(2));
+        for (int i = 0; i < n; ++i) {
+            const float a = 6.2831853f * static_cast<float>(i) / static_cast<float>(n);
+            pts[static_cast<size_t>(i)][0] = std::cos(a);
+            pts[static_cast<size_t>(i)][1] = std::sin(a);
+        }
+        std::vector<Edge> de;
+        if (!delaunay_vr_skeleton(pts, T, delaunay_auto_alpha(n), de)) {
+            std::cerr << "I297 circle thicken failed\n";
+            return 1;
+        }
+        if (!delaunay_thicken_should_collapse(n, static_cast<std::int64_t>(de.size()))) {
+            std::cerr << "I297 expected fat thicken |E|=" << de.size() << " n=" << n << "\n";
+            return 1;
+        }
+        Result rz = persist_redzed_from_edges(n, de, 1, T);
+        Result ri = persist_implicit_coh(graph_from_edge_list(n, de, T), 1, T, 1);
+        int essz = 0, essi = 0, finz = 0, fini = 0;
+        for (const auto& p : rz.pairs) {
+            if (p.dim != 1) continue;
+            if (!std::isfinite(p.death)) ++essz;
+            else if (p.death - p.birth > 1e-5f) ++finz;
+        }
+        for (const auto& p : ri.pairs) {
+            if (p.dim != 1) continue;
+            if (!std::isfinite(p.death)) ++essi;
+            else if (p.death - p.birth > 1e-5f) ++fini;
+        }
+        if (essz != 1 || essi != 1 || finz != fini) {
+            std::cerr << "I297 circle redzed-edges ess/fin=" << essz << "/" << finz
+                      << " implicit=" << essi << "/" << fini << " |E|=" << de.size() << "\n";
+            return 1;
+        }
+        std::cout << "ok I297 redzed-from-edges circle ess H1 |E|=" << de.size()
+                  << " fin1=" << finz << "\n";
+    }
+
     // I239: two octahedra far apart — H0=2 and H2=2 (wedge of voids).
     {
         const value_t T = 1.5f;
