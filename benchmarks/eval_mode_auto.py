@@ -12,6 +12,7 @@ BENCH = Path(__file__).resolve().parent
 sys.path.insert(0, str(BENCH))
 from generate_datasets import (  # noqa: E402
     circle_noisy,
+    figure8,
     mixed_1d2d3d,
     many_loops,
     nested_loops,
@@ -21,7 +22,6 @@ from generate_datasets import (  # noqa: E402
     write_csv,
 )
 from run_suite import PITH  # noqa: E402
-from run_wave85 import figure8  # noqa: E402
 import numpy as np
 
 OUT = BENCH / "results" / "consolidation"

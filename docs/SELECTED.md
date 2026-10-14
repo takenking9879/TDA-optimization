@@ -2,8 +2,9 @@
 
 Updated 2026-10-14 after iterations I001–I312 plus consolidation (phase 3)
 and the fused Euclidean sparse constructor.
-**Stable CLI:** `--mode exact|scale|sparse`, `--engine auto|redzed|implicit`,
-`--estimate`, `--threads N`, `--mode auto`. Auto-dispatch probes at \(n\ge 64\).
+**Stable CLI:** `--mode exact|scale|sparse|auto`, `--engine auto|redzed|implicit`,
+`--estimate`, `--threads N`. Public runners import `generate_datasets` /
+`ph_metrics`, not `run_wave*.py` (`benchmarks/README.md`). Auto-dispatch probes at \(n\ge 64\).
 `--estimate` marks Euclidean fat `maxdim≥2` impractical when the largest
 T-component has \(n_{cc}\ge 800\), or a near-complete flag
 (`edge_frac≥0.5` and \(n_{cc}\ge 600\)). Not at every \(n\ge 200\).

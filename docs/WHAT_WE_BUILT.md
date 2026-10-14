@@ -118,6 +118,10 @@ picking the cheaper exact engine and a sparse metric, and we **did**
 extend low-dimensional Euclidean analysis to tens of thousands of
 points by switching complex (and saying so).
 
+The public interface is `--mode exact|scale|sparse|auto`, `--engine
+auto|redzed|implicit`, `--estimate`, and `--threads`. Iteration numbers
+and `run_wave*.py` are the research ledger (`benchmarks/README.md`).
+
 Spent leftover / pairing micro-opts and the remaining walls are listed
 in [`REMAINING.md`](REMAINING.md). A general exact-\(H_1\) 10× is **not**
 claimed.

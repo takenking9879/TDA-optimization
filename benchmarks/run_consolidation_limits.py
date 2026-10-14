@@ -29,6 +29,7 @@ from generate_datasets import (  # noqa: E402
     blobs,
     circle_noisy,
     clustered,
+    figure8,
     heavy_noise_circle,
     loops_with_bridges,
     many_loops,
@@ -44,6 +45,7 @@ from generate_datasets import (  # noqa: E402
     write_csv,
     write_lower_distance,
 )
+from ph_metrics import bottleneck_h1, ess  # noqa: E402
 from run_consolidation import (  # noqa: E402
     HAVE_GIOTTO,
     HAVE_GUDHI,
@@ -57,8 +59,6 @@ from run_consolidation import (  # noqa: E402
     strip_pairs,
 )
 from run_suite import PITH, RIPSER, compare, parse_pith_text, run_cmd  # noqa: E402
-from run_wave85 import bottleneck_h1, figure8  # noqa: E402
-from run_wave95 import ess  # noqa: E402
 
 CLOUDS = BENCH / "datasets" / "generated"
 BUDGET_S = 12

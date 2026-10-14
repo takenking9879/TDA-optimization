@@ -12,15 +12,12 @@ sys.path.insert(0, str(BENCH))
 from generate_datasets import GENERATORS, write_csv  # noqa: E402
 from run_consolidation import run_estimate  # noqa: E402
 from run_suite import PITH  # noqa: E402
-from run_wave85 import figure8  # noqa: E402
 import numpy as np
 
 OUT = BENCH / "results" / "consolidation"
 CLOUDS = BENCH / "datasets" / "generated"
 
 GENS = dict(GENERATORS)
-GENS["figure8"] = figure8
-
 
 def _load(name: str) -> dict:
     path = OUT / name

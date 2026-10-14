@@ -5,6 +5,14 @@ Do not paste long reasoning here.
 
 ---
 
+## 2026-10-14 — Consolidation: stable suite + held-out adversarial pack
+
+- **Question:** Can a user run the selected path without I-numbers or wave scripts, and does the frozen dispatcher survive a seed-17 adversarial pack?
+- **Work:** `figure8` + `ph_metrics` are public helpers. Consolidation runners no longer import `run_wave*.py`. `benchmarks/README.md` + `run_stable.py` isolate the research ledger. `eval_adversarial.py` (seed 17) covers loops, bridges, anisotropy, clusters, noise, degeneracy, multi-scale T, mixed 1D/2D/3D, and L1.
+- **Result:** pending live `eval_adversarial.py` + `run_stable.py` (cheap tests). τ / n_cc / dense-flag frozen. Goal not complete.
+- **Decision:** Keep isolating the public interface. No leftover micro-opt hunting.
+- **Class:** experiment
+
 ## 2026-10-14 — Held-out n_cc cutoff + dense-flag clause
 
 - **Question:** Does n_cc≥800 overfit mixed (seed 0)? Any 2026 exact-VR pairing engine we have not wrapped?

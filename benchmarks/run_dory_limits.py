@@ -18,9 +18,8 @@ import numpy as np
 BENCH = Path(__file__).resolve().parent
 sys.path.insert(0, str(BENCH))
 
-from generate_datasets import circle_noisy, sphere, write_csv  # noqa: E402
+from generate_datasets import circle_noisy, figure8, sphere, write_csv  # noqa: E402
 from reverify_dory import IMPORT_ERR, pydory, run_dory, run_pith, run_ripser  # noqa: E402
-from run_wave85 import figure8  # noqa: E402
 
 OUT = BENCH / "results" / "consolidation"
 CLOUDS = BENCH / "datasets" / "generated"

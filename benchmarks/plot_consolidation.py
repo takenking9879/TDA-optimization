@@ -45,6 +45,10 @@ HIGHD_PATH = BENCH / "results" / "consolidation" / "highd_auto.json"
 HIGHD = json.loads(HIGHD_PATH.read_text()) if HIGHD_PATH.exists() else {}
 FATH2_PATH = BENCH / "results" / "consolidation" / "fat_h2.json"
 FATH2 = json.loads(FATH2_PATH.read_text()) if FATH2_PATH.exists() else {}
+NCC_PATH = BENCH / "results" / "consolidation" / "ncc_auto.json"
+NCC = json.loads(NCC_PATH.read_text()) if NCC_PATH.exists() else {}
+ADV_PATH = BENCH / "results" / "consolidation" / "adversarial.json"
+ADV = json.loads(ADV_PATH.read_text()) if ADV_PATH.exists() else {}
 FIG = BENCH / "results" / "consolidation" / "figures"
 FIG.mkdir(parents=True, exist_ok=True)
 
@@ -1324,6 +1328,59 @@ if FATH2:
             "Mixed 1D/2D/3D maxdim=2: exact RedZeD-cc vs Ripser vs scale",
             "n",
             "wall seconds (1 thread)",
+        )
+
+if NCC:
+    rows.append("")
+    rows.append("## Held-out Euclidean fat H2 (`eval_ncc_auto.py`, seed 11)")
+    rows.append(
+        f"timeout_miss {NCC.get('n_timeout_miss')}/{NCC.get('n')}, "
+        f"scale_miss {NCC.get('n_scale_miss')}/{NCC.get('n')}. "
+        f"{NCC.get('note', '')}"
+    )
+    rows.append("| family | n | n_cc | rec | exact (s) | scale (s) | timeout_miss | scale_miss |")
+    rows.append("| --- | ---: | ---: | --- | ---: | ---: | --- | --- |")
+    for d in NCC.get("receipts") or []:
+        rows.append(
+            "| {fam} | {n} | {cc} | {rec} | {ex} | {sc} | {tm} | {sm} |".format(
+                fam=d.get("name"),
+                n=d.get("n"),
+                cc=d.get("n_cc_max"),
+                rec=d.get("mode_recommended"),
+                ex="" if d.get("exact_s") is None else f"{d.get('exact_s'):.3f}",
+                sc="" if d.get("scale_s") is None else f"{d.get('scale_s'):.3f}",
+                tm=d.get("timeout_miss"),
+                sm=d.get("scale_miss"),
+            )
+        )
+
+if ADV:
+    rows.append("")
+    rows.append("## Held-out adversarial pack (`eval_adversarial.py`, seed 17)")
+    rows.append(
+        f"timeout_miss {ADV.get('n_timeout_miss')}/{ADV.get('n')}, "
+        f"scale_miss {ADV.get('n_scale_miss')}/{ADV.get('n')}, "
+        f"exact vs Ripser mismatches {ADV.get('n_exact_mismatch')}/{ADV.get('n_exact_checked')}. "
+        f"{ADV.get('note', '')}"
+    )
+    rows.append(
+        "| family | n | rec | exact (s) | scale (s) | unmatched | ess exact H1 | ess scale H1 |"
+    )
+    rows.append("| --- | ---: | --- | ---: | ---: | ---: | ---: | ---: |")
+    for d in ADV.get("receipts") or []:
+        ex_ess = (d.get("exact_ess") or {}).get("H1")
+        sc_ess = (d.get("scale_ess") or {}).get("H1")
+        rows.append(
+            "| {fam} | {n} | {rec} | {ex} | {sc} | {um} | {eh} | {sh} |".format(
+                fam=d.get("name"),
+                n=d.get("n"),
+                rec=d.get("mode_recommended"),
+                ex="" if d.get("exact_s") is None else f"{d.get('exact_s'):.3f}",
+                sc="" if d.get("scale_s") is None else f"{d.get('scale_s'):.3f}",
+                um=d.get("exact_vs_ripser_unmatched"),
+                eh="" if ex_ess is None else ex_ess,
+                sh="" if sc_ess is None else sc_ess,
+            )
         )
 
 (BENCH / "results" / "consolidation" / "TABLES.md").write_text("\n".join(rows) + "\n")

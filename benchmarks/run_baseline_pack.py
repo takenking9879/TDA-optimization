@@ -22,6 +22,7 @@ sys.path.insert(0, str(BENCH))
 from generate_datasets import (  # noqa: E402
     circle_noisy,
     disconnected_circles,
+    figure8,
     grid_holes,
     many_loops,
     mixed_1d2d3d,
@@ -34,6 +35,7 @@ from generate_datasets import (  # noqa: E402
     uniform,
     write_csv,
 )
+from ph_metrics import ess  # noqa: E402
 from run_consolidation import (  # noqa: E402
     GIOTTO_VER,
     GUDHI_VER,
@@ -50,8 +52,6 @@ from run_consolidation import (  # noqa: E402
 )
 from run_consolidation_limits import cloud, run_pith, topology_metrics  # noqa: E402
 from run_suite import compare  # noqa: E402
-from run_wave85 import figure8  # noqa: E402
-from run_wave95 import ess  # noqa: E402
 
 BUDGET_S = 12
 NPROC = os.cpu_count() or 4

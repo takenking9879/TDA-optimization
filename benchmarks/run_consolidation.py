@@ -29,6 +29,7 @@ from generate_datasets import (  # noqa: E402
     blobs,
     circle_noisy,
     clustered,
+    figure8,
     heavy_noise_circle,
     many_loops,
     nested_loops,
@@ -37,9 +38,8 @@ from generate_datasets import (  # noqa: E402
     uniform,
     write_csv,
 )
+from ph_metrics import ess  # noqa: E402
 from run_suite import PITH, RIPSER, compare, parse_pith_text, run_cmd  # noqa: E402
-from run_wave85 import figure8  # noqa: E402
-from run_wave95 import ess  # noqa: E402
 
 OUT = BENCH / "results" / "consolidation"
 CLOUDS = BENCH / "datasets" / "generated"

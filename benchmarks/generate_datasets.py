@@ -115,6 +115,14 @@ def many_loops(n: int, rng: np.random.Generator) -> np.ndarray:
     return np.vstack(parts)
 
 
+def figure8(n: int, rng: np.random.Generator) -> np.ndarray:
+    """Two unit circles meeting at a point. Public generator (not a wave helper)."""
+    n0, n1 = _split_n(n, 2)
+    a = _noisy_circle(n0, rng, (0.0, 0.0), radius=1.0, sigma=0.04)
+    b = _noisy_circle(n1, rng, (2.0, 0.0), radius=1.0, sigma=0.04)
+    return np.vstack([a, b])
+
+
 def nested_loops(n: int, rng: np.random.Generator) -> np.ndarray:
     n0, n1 = _split_n(n, 2)
     inner = _noisy_circle(n0, rng, (0.0, 0.0), radius=1.0, sigma=0.04)
@@ -251,6 +259,7 @@ def two_spheres_apart(n: int, rng: np.random.Generator) -> np.ndarray:
 
 GENERATORS = {
     "circle_noisy": circle_noisy,
+    "figure8": figure8,
     "sphere": sphere,
     "torus": torus,
     "blobs": blobs,

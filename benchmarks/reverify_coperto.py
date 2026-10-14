@@ -21,7 +21,8 @@ import numpy as np
 BENCH = Path(__file__).resolve().parent
 sys.path.insert(0, str(BENCH))
 
-from generate_datasets import (  # noqa: E402
+from generate_datasets import (
+    figure8,  # noqa: E402
     blobs,
     circle_noisy,
     nested_loops,
@@ -30,10 +31,9 @@ from generate_datasets import (  # noqa: E402
     uniform,
     write_csv,
 )
+from ph_metrics import ess  # noqa: E402
 from run_consolidation_limits import topology_metrics  # noqa: E402
 from run_suite import PITH, RIPSER, parse_pith_text, parse_ripser, run_cmd  # noqa: E402
-from run_wave85 import figure8  # noqa: E402
-from run_wave95 import ess  # noqa: E402
 
 OUT = BENCH / "results" / "consolidation"
 CLOUDS = BENCH / "datasets" / "generated"

@@ -15,10 +15,9 @@ import numpy as np
 
 BENCH = Path(__file__).resolve().parent
 sys.path.insert(0, str(BENCH))
-from generate_datasets import circle_noisy, nested_loops, sphere, write_csv  # noqa: E402
+from generate_datasets import circle_noisy, figure8, nested_loops, sphere, write_csv  # noqa: E402
+from ph_metrics import ess  # noqa: E402
 from run_consolidation import run_gudhi_alpha, run_pith, run_ripser  # noqa: E402
-from run_wave85 import figure8  # noqa: E402
-from run_wave95 import ess  # noqa: E402
 
 FIG = BENCH / "results" / "consolidation" / "figures"
 OUT = BENCH / "results" / "consolidation"

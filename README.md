@@ -238,7 +238,7 @@ figure-8, five on `many_loops`, one void on a sphere, three voids on
 | figure8, circle, nested, many_loops | match | 0 | \(\sim 10^{-6}\) | \(\sim 10^{-6}\) | 2D loops ≈ VR |
 | sphere | match | 52 | 0.024 | 0.21 | ess \(H_2=1\) kept |
 | multi_cavities | match | 52 | 0.041 | — | ess \(H_2=3\) kept |
-| mixed 1D/2D/3D | exact timed out | 35 | 0.030 | — | `--mode auto` → scale |
+| mixed 1D/2D/3D | match (n=300 exact 33 ms) | 35 | 0.030 | — | exact-auto is RedZeD-cc; scale still cheaper |
 | disconnected circles (held-out) | match | 0 | \(\sim 10^{-6}\) | \(\sim 10^{-6}\) | ess \(H_0=2,H_1=2\) |
 | grid holes (post-freeze) | match | 0 | \(\sim 10^{-6}\) | \(\sim 10^{-6}\) | ess \(H_1=2\) |
 | two spheres apart (post-freeze) | match | 45 | 0.028 | 0.21 | ess \(H_2=2\); \(W_1(H_2)=0.026\) |
@@ -351,7 +351,7 @@ Full numbers: [`benchmarks/results/consolidation/TABLES.md`](benchmarks/results/
 | `docs/SELECTED.md` | Living selected path (research) |
 | `RESEARCH_LOG.md` | Iteration ledger |
 | `third_party/ripser` | Unmodified Ripser `01add51` |
-| `benchmarks/` | Generators, consolidation runners, receipts |
+| `benchmarks/` | Stable suite (`benchmarks/README.md`); `run_wave*.py` is the research ledger |
 
 ## Reproduce
 
@@ -382,6 +382,8 @@ python3 benchmarks/reverify_fat_h2.py
 python3 benchmarks/run_uniform10.py
 python3 benchmarks/eval_highd_auto.py
 python3 benchmarks/eval_ncc_auto.py
+python3 benchmarks/eval_adversarial.py
+python3 benchmarks/run_stable.py
 python3 benchmarks/collect_topology_claims.py
 python3 benchmarks/run_baseline_pack.py
 python3 benchmarks/run_sparse_limits.py

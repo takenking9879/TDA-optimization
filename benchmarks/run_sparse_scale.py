@@ -18,14 +18,14 @@ sys.path.insert(0, str(BENCH))
 from generate_datasets import (  # noqa: E402
     circle_noisy,
     disconnected_circles,
+    figure8,
     nested_loops,
     uniform4,
     write_csv,
 )
+from ph_metrics import ess  # noqa: E402
 from run_consolidation import local_exp, run_estimate  # noqa: E402
 from run_consolidation_limits import cloud, run_pith  # noqa: E402
-from run_wave85 import figure8  # noqa: E402
-from run_wave95 import ess  # noqa: E402
 
 OUT = BENCH / "results" / "consolidation"
 BUDGET_S = 12

@@ -21,7 +21,8 @@ import numpy as np
 BENCH = Path(__file__).resolve().parent
 sys.path.insert(0, str(BENCH))
 
-from generate_datasets import circle_noisy, uniform, write_csv  # noqa: E402
+from generate_datasets import circle_noisy, figure8, uniform, write_csv  # noqa: E402
+from ph_metrics import ess  # noqa: E402
 from run_consolidation import (  # noqa: E402
     HAVE_GIOTTO,
     HAVE_GUDHI,
@@ -35,8 +36,6 @@ from run_consolidation import (  # noqa: E402
     run_ripser,
 )
 from run_suite import PITH, parse_pith_text, run_cmd  # noqa: E402
-from run_wave85 import figure8  # noqa: E402
-from run_wave95 import ess  # noqa: E402
 
 CLOUDS = BENCH / "datasets" / "generated"
 NPROC = os.cpu_count() or 4

@@ -11,9 +11,11 @@ pairing. Worst-case \(H_1\) on a connected dense \(G_T\) is still the
 Ripser / RedZeD pairing class.
 
 **Consolidation result we do have:** a portfolio + dispatcher + sparse
-representations + optional Euclidean scale path. See
-[`WHAT_WE_BUILT.md`](WHAT_WE_BUILT.md) and
-[`PRACTICAL_LIMITS.md`](PRACTICAL_LIMITS.md).
+representations + optional Euclidean scale path. The public interface
+does not mention I-numbers. See
+[`WHAT_WE_BUILT.md`](WHAT_WE_BUILT.md),
+[`PRACTICAL_LIMITS.md`](PRACTICAL_LIMITS.md), and
+[`../benchmarks/README.md`](../benchmarks/README.md).
 
 Do **not** treat a leftover skip as a new algorithm. \(\tau\) is frozen.
 Do **not** mark the research goal complete on the strength of this file.
