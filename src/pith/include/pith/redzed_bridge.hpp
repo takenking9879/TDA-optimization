@@ -65,4 +65,10 @@ inline bool delaunay_thicken_should_collapse(int n, std::int64_t n_edges) {
 Result persist_redzed_from_edges(int n, const std::vector<Edge>& edges, int maxdim,
                                  value_t threshold);
 
+// Cheap T-ball Union-Find on Euclidean d∈{2,3}. Used by --estimate so
+// fat-H2 cost is modeled on the largest component, not n. False when
+// the metric is not a 2D/3D point cloud or T is not finite and positive.
+bool probe_spatial_cc(const std::vector<std::vector<value_t>>& pts, value_t T,
+                      int* n_components, int* n_max_component);
+
 }  // namespace pith

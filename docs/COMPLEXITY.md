@@ -844,10 +844,14 @@ edge-frac \(<0.25\) → RedZeD; `maxdim=0` → Kruskal / Delaunay.
   circle \(n=1000\) **31×** (0.070 vs 2.21 s); sphere \(n=400\) H2 **60×**.
   Hardware threads do not move those ratios. Ripser timed out on circle
   \(n=2000\), figure8 \(n=4000\), sphere \(H_2\) \(n=800\). Mixed 1D/2D/3D
-  \(n=300\) `maxdim=2` fat residual: exact **timeout**; `--estimate` now
-  treats fat `maxdim≥2` as exact-infeasible. Local time exponents: scale
+  \(n=300\) `maxdim=2`: the stale exact timeout was forced implicit tet
+  tax; RedZeD-cc is **0.033 s vs Ripser 0.14 s**, \(n=1000\) **1.07 vs
+  7.25 s**, \(n=2000\) 13.6 s (Ripser 15 s timeout). `--estimate` uses
+  \(n_{cc}\) and marks Euclidean fat H2 impractical at \(n_{cc}\ge 800\)
+  **[empirical, fat_h2.json]**. Local time exponents: scale
   \(p\approx 1.0\)–\(1.3\); exact leftover \(H_1\) \(p\approx 2.8\) on
-  figure8 2k→4k (polynomial explosion, not a claimed exponential).
+  figure8 2k→4k (polynomial explosion, not a claimed exponential);
+  mixed exact H2 \(p_n\approx 2.8\)–\(3.7\).
   1-thread engine oracle **7/8**; `heavy_noise_circle` waste 2.1×.
 
 ---

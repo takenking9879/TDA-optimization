@@ -6,13 +6,14 @@
 This is the single “how far can each method go” table. Receipts:
 `leftover_10x.json`, `baselines.json`, `limits.json`, `sparse_scale.json`,
 `axis_scaling.json`, `headline_reverify.json`, `dory.json`,
-`dory_limits.json`, `oineus.json`, `dionysus.json`, `coperto.json`, `uniform10.json`.
+`dory_limits.json`, `oineus.json`, `dionysus.json`, `coperto.json`, `uniform10.json`,
+`fat_h2.json`.
 
 ## Exact VR (barcode must match Ripser)
 
 | Method | Typical last-OK on this box | First clear failure | Threads | Notes |
 | --- | --- | --- | ---: | --- |
-| PITH `--mode exact --engine auto` | circle \(H_1\) \(n=4000\) 0.43 s; figure-8 \(n=4000\) 1.03 s; sphere \(H_2\) \(n=800\) 0.057 s; leftover figure-8 \(n=2000\) 0.15 s | mixed 1D/2D/3D \(n=300\) `maxdim=2` timeout (fat \(H_2\)); connected leftover leaves cheap regime near a few thousand points (\(p_n\approx 2.8\)) | 1 | Portfolio. Circle 31× is **collapse**. Leftover 3/6 families ≥10×. |
+| PITH `--mode exact --engine auto` | circle \(H_1\) \(n=4000\) 0.43 s; figure-8 \(n=4000\) 1.03 s; sphere \(H_2\) \(n=800\) 0.057 s; leftover figure-8 \(n=2000\) 0.15 s; mixed 1D/2D/3D \(H_2\) \(n=1000\) 1.07 s | mixed \(H_2\) \(n=2000\) 13.6 s (leaves a 12 s budget; Ripser already timed out); connected leftover leaves cheap regime near a few thousand points (\(p_n\approx 2.8\)); forced `--engine implicit` H2 times out at mixed \(n=300\) | 1 | Portfolio. Circle 31× is **collapse**. Leftover 3/6 families ≥10×. Mixed H2 hang was implicit tet tax, not RedZeD-cc (`fat_h2.json`). |
 | PITH `--engine redzed` | same leftover families; torus \(n=2000\) 0.21 s | same fat-\(H_2\) / leftover visit wall | 1 | Forced AE. Same pairing class as Ripser. |
 | Ripser | circle \(n=1000\) 2.2 s / \(n=1500\) 8.45 s; figure-8 \(n=2000\) 2.5 s / \(n=3000\) 5.42 s; sphere \(H_2\) \(n=400\) 1.0 s / \(n=600\) 5.30 s | circle \(n=2000\); figure-8 \(n=4000\); sphere \(H_2\) \(n=800\) | 1 | Reference exact VR. \(n=1500/3000/600\) from paired `dory_limits.json`. |
 | giotto-ph 0.2.4 | tracks Ripser on this suite | same n as Ripser on \(H_1\); 4 threads help sphere \(H_2\) only (1.12→0.62 s) | 1 or 4 | AGPL oracle. |

@@ -60,8 +60,13 @@ exact vs sparse clock models and **stays on exact** when scale is
 unavailable and sparse is not clearly cheaper (live auto 0.74 s)
 **[empirical, uniform10.json]**. A later held-out sweep
 (`highd_auto.json`) is **0/8** wrong on uniform5/6/7/8 and L1 \(d=4\).
-\(\tau\) / engine_rec were **not** retuned. Fat \(H_2\) refuse is
-unchanged.
+\(\tau\) / engine_rec were **not** retuned. Fat \(H_2\) refuse on
+\(d\notin\{2,3\}\) is unchanged. Euclidean fat \(H_2\) no longer uses
+the blunt \(n\ge 200\) cutoff: `--estimate` measures the largest
+T-component \(n_{cc}\) and marks exact impractical at \(n_{cc}\ge 800\)
+(mixed \(n=300\) is now exact RedZeD-cc at 33 ms; mixed \(n=2000\)
+goes to scale). The old mixed \(n=300\) “exact timeout” was forced
+`--engine implicit` tet enumeration **[empirical, fat_h2.json]**.
 
 `--estimate` exposes that probe as a feasibility guess with a
 **conservative |E| band** (probe fraction ×1.25), a residual-size band,

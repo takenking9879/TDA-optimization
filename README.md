@@ -113,7 +113,8 @@ flags kept for old scripts.
 | Euclidean \(d\in\{2,3\}\), \(n\) in the tens of thousands, essential loops/voids | `--mode scale` |
 | You only need \(H_0\) in 2D/3D | `--mode exact --maxdim 0` (Delaunay Kruskal) |
 | Abstract / non-Euclidean distances | `--distances FILE --mode exact` |
-| Fat residual and `maxdim≥2` (mixed 3D structure) | `--mode scale` if \(d\in\{2,3\}\); else lower \(T\) or `--maxdim 1` |
+| Fat residual and `maxdim≥2` on a **large** connected component (\(n_{cc}\gtrsim 800\)) | `--mode scale` if \(d\in\{2,3\}\); else lower \(T\) or `--maxdim 1` |
+| Mixed 1D/2D/3D, a few hundred points, `maxdim=2` | `--mode exact` (RedZeD-cc); scale if you only need essential bars |
 | Exact VR looks infeasible and \(d\ge 4\), \(H_1\) only | `--mode sparse` or a smaller \(T\); do not use scale |
 | Fat \(H_2\) and \(d\ge 4\) | `--mode auto` refuses (exit 3). Use `--maxdim 1` or explicit `--mode sparse` |
 | High-d \(H_1\) (\(d\ge 4\)) | `--mode exact` or `--mode auto` (auto stays exact unless sparse is clearly cheaper) |
@@ -135,7 +136,9 @@ On **this** hardware (4 CPUs, 16 GB, no GPU), under a **12 s** wall budget.
 | Sphere, \(n=80000\) | impractical | — | — | — | — | impractical as dense VR | **1.08 s**, ess \(H_2=1\) |
 | Nested loops \(H_1\), \(n=2000\) | 6.44 s | — | — | — | — | **0.29 s** | 0.036 s |
 | Blobs \(H_0\), \(n=25000\) | tens of seconds | — | — | — | — | **0.053 s** (Delaunay) | n/a |
-| Mixed 1D/2D/3D, \(n=300\), `maxdim=2` | 0.13 s | — | — | — | — | **timeout** (fat H2) | **5 ms** |
+| Mixed 1D/2D/3D, \(n=300\), `maxdim=2` | 0.14 s | — | — | — | — | **0.033 s (4×)** | **5 ms** |
+| Mixed 1D/2D/3D, \(n=1000\), `maxdim=2` | 7.25 s | — | — | — | — | **1.07 s (6.8×)** | **19 ms** |
+| Mixed 1D/2D/3D, \(n=2000\), `maxdim=2` | timeout (15 s) | — | — | — | — | 13.6 s (leaves a 12 s budget) | **51 ms** |
 | Uniform \(d=10\) \(H_1\), \(n=1600\) | 2.37 s | — | — | — | — | **0.13 s** | n/a (no scale) |
 | Uniform \(d=10\) \(H_1\), \(n=4000\) | timeout | — | — | — | — | **0.65 s** (auto now exact, 0.74 s) | n/a |
 
@@ -189,6 +192,8 @@ PITH **0.30 s** vs giotto **7.23 s** (24×).
 ![Dionysus vs PITH vs Ripser, 1 thread](benchmarks/results/consolidation/figures/runtime_dionysus.svg)
 
 ![Coperto vs PITH exact, 1 thread](benchmarks/results/consolidation/figures/runtime_coperto.svg)
+
+![Mixed 1D/2D/3D H2: exact RedZeD-cc vs Ripser vs scale](benchmarks/results/consolidation/figures/runtime_fat_h2.svg)
 
 ![Exact VR runtime](benchmarks/results/consolidation/figures/runtime_exact.svg)
 
@@ -268,9 +273,12 @@ probe. A **1-thread oracle** (run both exact engines):
 `uniform4` \(n=250\), `maxdim=2`, probe names sparse, auto exits 3).
 \(\tau\) was **not** retuned after the post-freeze misses — they cost
 tens of milliseconds, not a change of regime. Mixed 1D/2D/3D at
-`maxdim=2` is a **fat H2** residual: exact timed out at \(n=300\);
-`--estimate` marks exact infeasible and recommends `--mode scale`.
-Auto-dispatch probes from \(n\ge 64\).
+`maxdim=2` is a **fat H2** residual, but the hang was forced
+`--engine implicit` (tet enumeration). Default exact-auto is RedZeD-cc
+and finishes at \(n=300\) in 33 ms (Ripser 0.14 s). `--estimate` now
+models cost on the largest T-component \(n_{cc}\) and recommends scale
+only when \(n_{cc}\ge 800\) (mixed \(n=2000\)). Auto-dispatch probes
+from \(n\ge 64\).
 
 A later high-d control (`uniform10`, \(d=10\), \(T=1.8\)) is outside the
 frozen engine pack. Exact RedZeD stays cheap through \(n=8000\) (2.79 s).
@@ -367,6 +375,7 @@ python3 benchmarks/reverify_oineus.py
 python3 benchmarks/reverify_dionysus.py
 # optional oracle: pip install coperto  (not vendored; not exact VR)
 python3 benchmarks/reverify_coperto.py
+python3 benchmarks/reverify_fat_h2.py
 python3 benchmarks/run_uniform10.py
 python3 benchmarks/eval_highd_auto.py
 python3 benchmarks/collect_topology_claims.py

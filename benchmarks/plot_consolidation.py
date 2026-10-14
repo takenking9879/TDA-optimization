@@ -43,6 +43,8 @@ U10_PATH = BENCH / "results" / "consolidation" / "uniform10.json"
 U10 = json.loads(U10_PATH.read_text()) if U10_PATH.exists() else {}
 HIGHD_PATH = BENCH / "results" / "consolidation" / "highd_auto.json"
 HIGHD = json.loads(HIGHD_PATH.read_text()) if HIGHD_PATH.exists() else {}
+FATH2_PATH = BENCH / "results" / "consolidation" / "fat_h2.json"
+FATH2 = json.loads(FATH2_PATH.read_text()) if FATH2_PATH.exists() else {}
 FIG = BENCH / "results" / "consolidation" / "figures"
 FIG.mkdir(parents=True, exist_ok=True)
 
@@ -1268,6 +1270,60 @@ if HIGHD:
     for d in refuse:
         rows.append(
             f"Fat H2 {d.get('name')} n={d.get('n')}: refuse_ok={d.get('refuse_ok')}."
+        )
+
+if FATH2:
+    rows.append("")
+    rows.append("## Fat exact H2 (live `fat_h2.json`)")
+    rows.append(FATH2.get("note", ""))
+    rows.append("| family | n | exact-auto (s) | Ripser (s) | scale (s) | implicit | rec | n_cc |")
+    rows.append("| --- | ---: | ---: | ---: | ---: | --- | --- | ---: |")
+    mixed_xy = {"exact": [], "ripser": [], "scale": []}
+    for d in FATH2.get("series") or []:
+        runs = d.get("runs") or {}
+        ex = (runs.get("exact_auto") or {}).get("wall_s")
+        rp = (runs.get("ripser") or {}).get("wall_s")
+        sc = (runs.get("scale") or {}).get("wall_s")
+        imp = runs.get("implicit") or {}
+        imp_s = "timeout" if imp.get("timed_out") else (
+            "" if imp.get("wall_s") is None else f"{imp.get('wall_s'):.3f}"
+        )
+        est = d.get("estimate") or {}
+        rows.append(
+            "| {fam} | {n} | {ex} | {rp} | {sc} | {imp} | {rec} | {cc} |".format(
+                fam=d.get("name"),
+                n=d.get("n"),
+                ex="" if ex is None else f"{ex:.3f}",
+                rp="timeout" if (runs.get("ripser") or {}).get("timed_out") else (
+                    "" if rp is None else f"{rp:.3f}"
+                ),
+                sc="" if sc is None else f"{sc:.3f}",
+                imp=imp_s,
+                rec=est.get("mode_recommended"),
+                cc=est.get("n_cc_max"),
+            )
+        )
+        if d.get("name") == "mixed_1d2d3d":
+            if ex:
+                mixed_xy["exact"].append((d["n"], ex))
+            if rp:
+                mixed_xy["ripser"].append((d["n"], rp))
+            if sc:
+                mixed_xy["scale"].append((d["n"], sc))
+    series = []
+    if mixed_xy["exact"]:
+        series.append({"name": "PITH exact-auto", "xy": mixed_xy["exact"]})
+    if mixed_xy["ripser"]:
+        series.append({"name": "Ripser", "xy": mixed_xy["ripser"]})
+    if mixed_xy["scale"]:
+        series.append({"name": "PITH scale", "xy": mixed_xy["scale"]})
+    if series:
+        svg_scatter(
+            FIG / "runtime_fat_h2.svg",
+            series,
+            "Mixed 1D/2D/3D maxdim=2: exact RedZeD-cc vs Ripser vs scale",
+            "n",
+            "wall seconds (1 thread)",
         )
 
 (BENCH / "results" / "consolidation" / "TABLES.md").write_text("\n".join(rows) + "\n")

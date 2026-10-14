@@ -58,6 +58,8 @@ def main():
         "leaving_cheap_regime",
         "est_sparse_runtime_s",
         "est_exact_runtime_s",
+        "n_components",
+        "n_cc_max",
         "skips_dense_matrix",
         "auto_will_run",
         "wall_kind",

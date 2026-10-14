@@ -4,10 +4,11 @@ Updated 2026-10-14 after iterations I001–I312 plus consolidation (phase 3)
 and the fused Euclidean sparse constructor.
 **Stable CLI:** `--mode exact|scale|sparse`, `--engine auto|redzed|implicit`,
 `--estimate`, `--threads N`, `--mode auto`. Auto-dispatch probes at \(n\ge 64\).
-`--estimate` marks fat `maxdim≥2` residuals as exact-infeasible.
+`--estimate` marks Euclidean fat `maxdim≥2` impractical when the largest
+T-component has \(n_{cc}\ge 800\) (not at every \(n\ge 200\)).
 `--mode auto` follows that recommendation (phase-2 8/8; current eval **11/11**,
-including held-out 4D `uniform4` n=5000 maxdim=1 → sparse and fat 4D H2
-`n=250` refuse). Fat `maxdim≥2` sparse on \(d\notin\{2,3\}\) is **refused**
+including mixed \(n=300\) → exact and held-out 4D `uniform4` n=5000 maxdim=1
+→ exact plus fat 4D H2 `n=250` refuse). Fat `maxdim≥2` sparse on \(d\notin\{2,3\}\) is **refused**
 (exit 3, `auto_will_run=false`) instead of hanging; explicit `--mode sparse`
 still runs.
 Engine oracle on new held-out families is **5/9** (do not retune \(\tau\)).
@@ -662,9 +663,12 @@ empty-seed skips, leftover XOR/noop, G_t apparent, add-R, D(e) memo,
 collapse-on-thicken at n≥4000, RCM/Morton on thicken, leftover
 adj/hash on |E|>16n. Sparse FPS squared-distance **and** 2D/3D AABB
 skips are spent (exact λ, no clock cut). Remaining walls: leftover
-`ae_seeded` on a connected fat \(G_T\); fat exact H2 timeout; 3D
-Lawson+insphere; sparse FPS \(\Theta(n^2)\) (approximate net with a
-stated interleaving, or a different subquadratic structure). τ is frozen.
+`ae_seeded` on a connected fat \(G_T\); fat implicit H2 tet tax
+(default exact-auto is RedZeD-cc; mixed \(n=1000\) 1.07 s, \(n=2000\)
+leaves 12 s); 3D Lawson+insphere; sparse FPS \(\Theta(n^2)\)
+(approximate net with a stated interleaving, or a different
+subquadratic structure). τ is frozen. Euclidean fat-H2 dispatch
+uses \(n_{cc}\ge 800\), not \(n\ge 200\).
 
 1. **CLI default:** `--engine auto` (I235+I236+I239+I240+I241+I263+I271+I275). H1 τ=0.04; H2 τ=0.15; hollow edge-frac <0.25 → redzed.
 2. **Forced engines:** `--engine implicit` = I193+I197+I202+I203 only;

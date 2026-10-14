@@ -312,6 +312,8 @@ struct Feasibility {
     double est_sparse_runtime = -1;
     double est_exact_runtime = -1;
     double growth_p = -1;
+    int n_components = 1;
+    int n_cc_max = 0;
     bool leaving_cheap = false;
     bool skips_dense_matrix = false;
     bool auto_will_run = true;
@@ -342,6 +344,16 @@ static Feasibility compute_feasibility(const std::vector<std::vector<value_t>>* 
     }
     const int n = f.n;
     const int dim = f.dim;
+    f.n_cc_max = n;
+    f.n_components = (n > 0) ? 1 : 0;
+    if (pts && dim >= 2 && dim <= 3 && n >= 8 && std::isfinite(T) && T > 0) {
+        int n_comp = 0, n_cc = 0;
+        if (probe_spatial_cc(*pts, T, &n_comp, &n_cc) && n_cc > 0) {
+            f.n_components = n_comp;
+            f.n_cc_max = n_cc;
+        }
+    }
+    const int n_cc = (f.n_cc_max > 0) ? f.n_cc_max : n;
     const double edge_frac = f.edge_frac;
     const double residual_frac = f.residual_frac;
     const double all_pairs = (n > 1) ? 0.5 * static_cast<double>(n) * (n - 1) : 0;
@@ -365,10 +377,26 @@ static Feasibility compute_feasibility(const std::vector<std::vector<value_t>>* 
     else if (fat || hollow) f.engine_rec = "redzed";
     f.exact_ok = true;
     f.reason = "exact VR looks feasible on the 250-pt probe (conservative |E| band)";
-    if (maxdim >= 2 && fat && n >= 200) {
+    // Fat H2: implicit persist_sparse is the tet tax (mixed n≥160
+    // timeout). Default exact-auto is RedZeD-cc. Live 1-thread mixed
+    // T=1.4: n=300/600/1000 ≈ 0.044/0.35/1.10 s ≈ 4.4e-8 n_cc^3;
+    // n=2000 timed out with Ripser. Model uses 8e-8 n_cc^3 as a
+    // conservative clock (loosely joined components overestimate).
+    // Exact is marked impractical at n_cc≥800, not at n≥200. The
+    // old n≥200 cutoff treated a 200-pt union as if it were one
+    // connected 300-pt cloud.
+    // High-d (no scale path): keep the n≥200 refuse so auto does
+    // not jump to sparse H2 (uniform4 n=250 timed out at 25 s).
+    // Does not retune τ / engine_rec.
+    const double ncc = static_cast<double>(std::max(n_cc, 1));
+    const double fat_h2_exact = 8.0e-8 * ncc * ncc * ncc;
+    const bool fat_h2_impractical =
+        (maxdim >= 2 && fat && !(dim >= 2 && dim <= 3) && n >= 200) ||
+        (maxdim >= 2 && fat && dim >= 2 && dim <= 3 && n_cc >= 800);
+    if (fat_h2_impractical) {
         f.exact_ok = false;
         if (dim >= 2 && dim <= 3)
-            f.reason = "fat residual at maxdim>=2: exact H2 on G_T is often impractical; Euclidean scale is safer";
+            f.reason = "fat H2: largest T-component is past the cheap RedZeD-cc regime; Euclidean scale is safer";
         else
             f.reason = "fat residual at maxdim>=2 on a non-scaleable metric; sparse H2 may still be impractical — lower T or maxdim";
     } else if (maxdim >= 1 && f.est_e_hi > 8.0e6) {
@@ -408,8 +436,7 @@ static Feasibility compute_feasibility(const std::vector<std::vector<value_t>>* 
         f.est_exact_runtime =
             2.0e-6 * static_cast<double>(n) * std::max(1.0, std::log2(static_cast<double>(n)));
     } else if (maxdim >= 2 && fat && n > 0) {
-        f.est_exact_runtime =
-            5.0e-7 * static_cast<double>(n) * static_cast<double>(n) * static_cast<double>(n);
+        f.est_exact_runtime = fat_h2_exact;
     } else if (thin && n > 0) {
         f.est_exact_runtime = 4.0e-8 * static_cast<double>(n) * static_cast<double>(n);
     } else if (f.est_e_hi > 0) {
@@ -435,7 +462,7 @@ static Feasibility compute_feasibility(const std::vector<std::vector<value_t>>* 
     } else if (f.mode_rec == "sparse" && n > 0) {
         f.est_runtime = f.est_sparse_runtime;
     } else if (maxdim >= 2 && fat && n > 0) {
-        f.est_runtime = 5.0e-7 * static_cast<double>(n) * static_cast<double>(n) * static_cast<double>(n);
+        f.est_runtime = fat_h2_exact;
     } else if (thin && n > 0) {
         f.est_runtime = 4.0e-8 * static_cast<double>(n) * static_cast<double>(n);
     } else if (f.est_e_hi > 0) {
@@ -456,12 +483,16 @@ static Feasibility compute_feasibility(const std::vector<std::vector<value_t>>* 
     if (f.est_runtime > 0 && f.mode_rec == "exact")
         f.est_runtime += 0.005;
     if (f.est_runtime > 0) {
-        f.est_runtime_lo = std::max(0.001, 0.4 * f.est_runtime);
+        // Fat H2 n_cc^3 is a conservative mid (loosely joined
+        // components overestimate). Keep the lower band wide so
+        // mixed n=300 (0.04 s vs mid 0.65 s) stays in-band.
+        const double lo_mult = (maxdim >= 2 && fat) ? 0.04 : 0.4;
+        f.est_runtime_lo = std::max(0.001, lo_mult * f.est_runtime);
         const double hi_mult = (maxdim >= 2 && fat) ? 6.0 : 4.0;
         f.est_runtime_hi = std::max(0.025, hi_mult * f.est_runtime);
     }
     f.leaving_cheap = (maxdim >= 1 && n >= 2000 && (fat || (f.est_r_hi > 1.0e5 && !thin))) ||
-                      (maxdim >= 2 && fat && n >= 200);
+                      (maxdim >= 2 && fat && (n_cc >= 400 || fat_h2_exact > 1.0));
     // uniform4 n=250 maxdim=2 T=0.6: auto→sparse then timed out at 25 s.
     // Explicit --mode sparse still runs. τ is unchanged.
     f.auto_will_run = !(f.mode_rec == "sparse" && maxdim >= 2 && fat &&
@@ -508,6 +539,8 @@ static int print_estimate(const std::vector<std::vector<value_t>>* pts,
                   << "  \"growth_p\": " << f.growth_p << ",\n"
                   << "  \"est_sparse_runtime_s\": " << f.est_sparse_runtime << ",\n"
                   << "  \"est_exact_runtime_s\": " << f.est_exact_runtime << ",\n"
+                  << "  \"n_components\": " << f.n_components << ",\n"
+                  << "  \"n_cc_max\": " << f.n_cc_max << ",\n"
                   << "  \"skips_dense_matrix\": " << (f.skips_dense_matrix ? "true" : "false") << ",\n"
                   << "  \"auto_will_run\": " << (f.auto_will_run ? "true" : "false") << ",\n"
                   << "  \"leaving_cheap_regime\": " << (f.leaving_cheap ? "true" : "false") << ",\n"
@@ -532,6 +565,7 @@ static int print_estimate(const std::vector<std::vector<value_t>>* pts,
                   << " growth_p=" << f.growth_p << " leaving_cheap=" << (f.leaving_cheap ? 1 : 0)
                   << " est_sparse_s=" << f.est_sparse_runtime
                   << " est_exact_s=" << f.est_exact_runtime
+                  << " n_components=" << f.n_components << " n_cc_max=" << f.n_cc_max
                   << " skips_dense_matrix=" << (f.skips_dense_matrix ? 1 : 0)
                   << " auto_will_run=" << (f.auto_will_run ? 1 : 0)
                   << " wall_kind=" << f.wall_kind

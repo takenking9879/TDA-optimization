@@ -76,7 +76,7 @@ def main():
         ("many_loops", many_loops, 400, 1.2, 1, "exact"),
         ("nested_loops", nested_loops, 400, 1.6, 1, "exact"),
         ("sphere", sphere, 400, 1.4, 2, "exact"),
-        ("mixed_1d2d3d", mixed_1d2d3d, 300, 1.4, 2, "scale"),
+        ("mixed_1d2d3d", mixed_1d2d3d, 300, 1.4, 2, "exact"),
         ("figure8", figure8, 16000, 1.1, 1, "scale"),
         ("sphere", sphere, 16000, 1.4, 2, "scale"),
         # High-d H1: conservative exact_ok=false, but exact is cheaper

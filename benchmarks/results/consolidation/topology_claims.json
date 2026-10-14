@@ -178,7 +178,7 @@
       "methods": []
     },
     {
-      "readme_row": "exact timeout; scale unmatched 35",
+      "readme_row": "exact RedZeD-cc 33 ms vs Ripser 0.14 s; scale unmatched 35",
       "name": "mixed_1d2d3d",
       "n": 300,
       "source": [

@@ -5,6 +5,14 @@ Do not paste long reasoning here.
 
 ---
 
+## 2026-10-14 — Fat H2 is implicit tet tax; dispatcher uses n_cc
+
+- **Question:** Is mixed 1D/2D/3D \(n=300\) `maxdim=2` still an exact timeout vs Ripser (~0.13 s), and is that dispatch or the H2 engine?
+- **Work:** Forced `--mode exact --engine auto|redzed|implicit` vs Ripser / scale, `--threads 1`, `--no-enclosing`. `--estimate` n_cc via spatial T-ball UF. `reverify_fat_h2.py`. Did not retune τ.
+- **Result:** The stale n=300 timeout is **forced implicit** `persist_sparse` tet enumeration (8–15 s). Default exact-auto is RedZeD-cc and **matches Ripser** (ess 2/1/0): n=300 **0.033 vs 0.139 s**; n=600 **0.24 vs 1.17 s**; n=1000 **1.07 vs 7.25 s**; n=2000 **13.6 s** while Ripser hits 15 s. Scale stays 5–51 ms; finite bars differ. Connected filled-ball / uniform3 stay on collapse and finish in tens of ms. The old n≥200 exact_ok=false treated a 200-pt circle+disk union as one 300-pt cloud. New rule: Euclidean fat H2 impractical at **n_cc≥800** (mixed n=2000 n_cc=1334 → scale). High-d fat H2 refuse unchanged. `eval_mode_auto` **11/11** with mixed n=300 now exact.
+- **Decision:** Keep n_cc probe + n_cc≥800 cutoff. Not a new pairing algorithm. Implicit H2 on a fat flag remains the tet tax — do not force `--engine implicit` for H2. Goal not complete.
+- **Class:** verified (live)
+
 ## 2026-10-14 — FPS AABB skip try (revert)
 
 - **Question:** Can a conservative 2D/3D axis bound skip Gonzalez updates (`|Δaxis|≥mind[j]`) without changing λ and cut the sparse FPS wall?

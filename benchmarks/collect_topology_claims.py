@@ -87,7 +87,7 @@ def main() -> int:
     lim = _load("limits.json")
     for name, n, note in (
         ("multi_cavities", 300, "ess H2=3, unmatched 52, bn H1 0.041"),
-        ("mixed_1d2d3d", 300, "exact timeout; scale unmatched 35"),
+        ("mixed_1d2d3d", 300, "exact RedZeD-cc 33 ms vs Ripser 0.14 s; scale unmatched 35"),
         ("disconnected_circles", 400, "held-out ess H0=2 H1=2"),
         ("grid_holes", 400, "post-freeze ess H1=2"),
         ("two_spheres_apart", 400, "post-freeze ess H2=2 unmatched 45"),

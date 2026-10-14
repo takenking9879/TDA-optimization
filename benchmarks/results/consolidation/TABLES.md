@@ -485,7 +485,7 @@ Agreement 11/11. `refuse` means the probe named sparse but auto exits 3 instead 
 | many_loops | 400 | 1 | exact | exact | False | True |
 | nested_loops | 400 | 1 | exact | exact | False | True |
 | sphere | 400 | 2 | exact | exact | False | True |
-| mixed_1d2d3d | 300 | 2 | scale | scale | False | True |
+| mixed_1d2d3d | 300 | 2 | exact | exact | False | True |
 | figure8 | 16000 | 1 | scale | scale | False | True |
 | sphere | 16000 | 2 | scale | scale | False | True |
 | uniform4 | 5000 | 1 | exact | exact | False | True |
@@ -960,3 +960,19 @@ Held-out high-d / L1 clock-compare. τ frozen. wrong=recommended mode was the sl
 | uniform7 | 2500 | 7 | exact | 0.246 | 2.859 | exact | False |
 | uniform4_l1 | 2000 | 4 | exact | 0.326 | 0.675 | exact | False |
 Fat H2 uniform6_h2_refuse n=200: refuse_ok=True.
+
+## Fat exact H2 (live `fat_h2.json`)
+mixed n=300 exact-auto is RedZeD-cc and finishes; forced implicit persist_sparse is the tet tax. Both exact and Ripser leave a 15 s budget near n=2000. Dispatcher uses n_cc_max^3, not n≥200. τ unchanged.
+| family | n | exact-auto (s) | Ripser (s) | scale (s) | implicit | rec | n_cc |
+| --- | ---: | ---: | ---: | ---: | --- | --- | ---: |
+| mixed_1d2d3d | 300 | 0.033 | 0.139 | 0.006 | timeout | exact | 200 |
+| mixed_1d2d3d | 600 | 0.237 | 1.165 | 0.011 |  | exact | 400 |
+| mixed_1d2d3d | 1000 | 1.074 | 7.247 | 0.019 |  | exact | 667 |
+| mixed_1d2d3d | 2000 | 13.617 |  | 0.051 |  | scale | 1334 |
+| multi_cavities | 300 | 0.010 | 0.041 | 0.005 |  | exact | 100 |
+| multi_cavities | 600 | 0.066 | 0.370 | 0.009 |  | exact | 200 |
+| sphere_complete | 80 | 0.013 | 0.029 | 0.002 |  | exact | 80 |
+| sphere_complete | 150 | 0.085 | 0.211 | 0.003 |  | exact | 150 |
+| sphere_complete | 250 | 0.468 | 1.899 | 0.004 |  | exact | 250 |
+| uniform3 | 200 | 0.010 | 0.205 | 0.004 |  | exact | 200 |
+| uniform3 | 300 | 0.019 | 0.686 | 0.006 |  | exact | 300 |

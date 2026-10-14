@@ -26,8 +26,9 @@ Hardware: 4 CPU / 16 GB. Phase-2 exact times are 1-thread unless noted.
 | many_loops pith_exact | 400–2000 | 2.08e-06 | 1.23 | 0.95 | 400→1000:0.89, 1000→2000:1.72 | near-linear / low-polynomial |
 | many_loops pith_scale | 400–2000 | 1.03e-05 | 1.03 | 0.98 | 400→1000:0.85, 1000→2000:1.30 | near-linear / low-polynomial |
 | many_loops ripser | 400–2000 | 7.9e-10 | 2.60 | 1.00 | 400→1000:2.46, 1000→2000:2.80 | high polynomial (combinatorial leftover / tet tax) |
-| mixed_1d2d3d pith_scale | 300–600 | 1.27e-05 | 1.06 | 1.00 | 300→600:1.06 | near-linear / low-polynomial |
-| mixed_1d2d3d ripser | 300–600 | 2.46e-09 | 3.12 | 1.00 | 300→600:3.12 | high polynomial (combinatorial leftover / tet tax) |
+| mixed_1d2d3d pith_exact | 300–2000 | — | — | — | 300→600:2.84, 600→1000:2.95, 1000→2000:3.67 | cubic RedZeD-cc on the largest T-component; leaves 12 s near \(n=2000\) (`fat_h2.json`) |
+| mixed_1d2d3d pith_scale | 300–2000 | — | — | — | 300→600:1.02, 600→1000:1.02, 1000→2000:1.44 | near-linear / low-polynomial |
+| mixed_1d2d3d ripser | 300–1000 | — | — | — | 300→600:3.07, 600→1000:3.57 | high polynomial (combinatorial leftover / tet tax); 15 s timeout at \(n=2000\) |
 | multi_cavities pith_exact | 300–600 | 4.98e-12 | 3.65 | 1.00 | 300→600:3.65 | faster than n^3.5 on this window (do not call exponential without more decades) |
 | multi_cavities pith_scale | 300–600 | 1.13e-05 | 1.06 | 1.00 | 300→600:1.06 | near-linear / low-polynomial |
 | multi_cavities ripser | 300–600 | 6.21e-10 | 3.16 | 1.00 | 300→600:3.16 | high polynomial (combinatorial leftover / tet tax) |
@@ -54,8 +55,9 @@ Hardware: 4 CPU / 16 GB. Phase-2 exact times are 1-thread unless noted.
 - \(p \approx 2.8\)–\(3.5\): leftover visits or Ripser tet tax. Exact VR is leaving the cheap regime.
 - Do **not** call a 2-point slope “exponential.”
 
-The feasibility probe uses these regimes: fat `maxdim≥2` or conservative `|E|>8e6`
-means exact VR is marked impractical.
+The feasibility probe uses these regimes: fat `maxdim≥2` with
+\(n_{cc}\ge 800\) (Euclidean) or \(n\ge 200\) (no scale path), or
+conservative `|E|>8e6`, means exact VR is marked impractical.
 
 ## Phase-3 baselines (giotto-ph / GUDHI, local \(p\) only)
 

@@ -2584,4 +2584,15 @@ Result persist_redzed_from_edges(int n, const std::vector<Edge>& edges, int maxd
     return r;
 }
 
+bool probe_spatial_cc(const std::vector<std::vector<value_t>>& pts, value_t T,
+                      int* n_components, int* n_max_component) {
+    std::vector<std::vector<int>> comps;
+    if (!spatial_components(pts, T, comps) || comps.empty()) return false;
+    int mx = 0;
+    for (const auto& c : comps) mx = std::max(mx, static_cast<int>(c.size()));
+    if (n_components) *n_components = static_cast<int>(comps.size());
+    if (n_max_component) *n_max_component = mx;
+    return mx > 0;
+}
+
 }  // namespace pith

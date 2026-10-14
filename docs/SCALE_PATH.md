@@ -43,7 +43,7 @@ Phase-2 measurements (GUDHI bottleneck + Hera Wasserstein \(W_1\)):
 | figure8, circle, nested, many_loops, bridges, multi_scale (\(n=400\)) | 0 | \(\sim 10^{-6}\) (W1 \(\sim 10^{-6}\)) | matches VR |
 | sphere \(n=400\) | 52 | 0.024 (W1 \(H_1=0.21\), \(H_2=0.039\)) | \(H_2=1\) kept |
 | multi_cavities \(n=300\) | 52 | 0.041 | \(H_2=3\) kept |
-| mixed 1D/2D/3D \(n=300\) | 35 | 0.030 | \(H_1=1\) kept; exact VR timed out |
+| mixed 1D/2D/3D \(n=300\) | 35 | 0.030 | \(H_1=1\) kept; exact VR now 33 ms (RedZeD-cc; the old timeout was forced implicit) |
 
 GUDHI Alpha on the same clouds dropped essential \(H_1/H_2\) to 0.
 Phase-3 post-freeze: `grid_holes` scale unmatched 0 / ess \(H_1=2\);
