@@ -530,12 +530,25 @@ static void active_enum_lazy(State& st, rank_t xrank, comb_t xidx, const int32_t
 // common-neighbor triangles as vendor generate_stream (d=2, need=1),
 // but adj-list intersection instead of an n×n bit graph. Exact flag PH.
 // Used when |E|≤16n (Delaunay flag). Do not use on dense G_T.
+// I306: when leftover already owns g_adj, stream into it and keep
+// rptr in sync so AE leftover_coface does not rebuild G_r. Emit after
+// the diam group is added so leftover sees G_≤r (same as advance_adj).
 template <class F>
-static void generate_stream_h2_adj(const EdgeList& edges, int nv, const BinomialTable& bt, F&& emit) {
+static void generate_stream_h2_adj(const EdgeList& edges, int nv, const BinomialTable& bt, F&& emit,
+                                   size_t* rptr_sync) {
     if (edges.count == 0 || nv <= 0) return;
-    std::vector<std::vector<int>> adj(static_cast<size_t>(nv));
-    for (auto& a : adj) a.reserve(16);
+    const bool share = g_use_adj && g_adj.size() == static_cast<size_t>(nv);
+    std::vector<std::vector<int>> local;
+    if (!share) {
+        local.assign(static_cast<size_t>(nv), {});
+        for (auto& a : local) a.reserve(16);
+    }
+    auto& adj = share ? g_adj : local;
     auto add_undirected = [&](int u, int v) {
+        if (share) {
+            adj_add_undirected(u, v);
+            return;
+        }
         auto ins = [](std::vector<int>& a, int x) {
             auto it = std::lower_bound(a.begin(), a.end(), x);
             if (it == a.end() || *it != x) a.insert(it, x);
@@ -576,22 +589,24 @@ static void generate_stream_h2_adj(const EdgeList& edges, int nv, const Binomial
                     tri[1] = v;
                     tri[2] = x;
                     std::sort(tri, tri + 3);
-                    if (acc) {
-                        akey.push_back(comb_index(tri, 3, bt));
-                        avert.insert(avert.end(), tri, tri + 3);
-                    } else {
-                        emit(r, tri);
-                    }
+                    akey.push_back(comb_index(tri, 3, bt));
+                    avert.insert(avert.end(), tri, tri + 3);
                 }
             }
             add_undirected(u, v);
         }
-        if (acc && !akey.empty()) {
+        if (rptr_sync) *rptr_sync = jend + 1;
+        if (!akey.empty()) {
             const size_t c = akey.size();
-            ord.resize(c);
-            for (size_t t = 0; t < c; ++t) ord[t] = static_cast<uint32_t>(t);
-            std::sort(ord.begin(), ord.end(), [&](uint32_t a, uint32_t b) { return akey[a] < akey[b]; });
-            for (size_t t = 0; t < c; ++t) emit(r, &avert[static_cast<size_t>(ord[t]) * 3]);
+            if (acc) {
+                ord.resize(c);
+                for (size_t t = 0; t < c; ++t) ord[t] = static_cast<uint32_t>(t);
+                std::sort(ord.begin(), ord.end(),
+                          [&](uint32_t a, uint32_t b) { return akey[a] < akey[b]; });
+                for (size_t t = 0; t < c; ++t) emit(r, &avert[static_cast<size_t>(ord[t]) * 3]);
+            } else {
+                for (size_t t = 0; t < c; ++t) emit(r, &avert[t * 3]);
+            }
         }
         i = jend;
     }
@@ -761,7 +776,8 @@ redzed_vr(DistanceMatrix& distIn, int n, value_t threshold, EdgeList* prebuilt) 
             };
             // I301: sparse H2 uses adj intersection; dense / H≥3 keep vendor.
             if (d == 2 && st.edges.count <= static_cast<size_t>(nv) * 16) {
-                generate_stream_h2_adj(st.edges, nv, st.binom, emit_simp);
+                generate_stream_h2_adj(st.edges, nv, st.binom, emit_simp,
+                                      g_use_adj ? &st.rptr : nullptr);
             } else {
                 // Vendor EdStream stores F*; a named lambda is an lvalue
                 // and F becomes a reference (I267). Pass a temporary.
@@ -2379,7 +2395,7 @@ Result persist_redzed_from_points(const std::vector<std::vector<value_t>>& pts, 
                 for (const SpatEdge& e : del)
                     if (e.t <= threshold) E.push_back(e);
                 delaunay = true;
-            } else if (d0 == 3 && n <= 50000 && delaunay_edges_3d(pts, del)) {
+            } else if (d0 == 3 && n <= 100000 && delaunay_edges_3d(pts, del)) {
                 E.reserve(del.size());
                 for (const SpatEdge& e : del)
                     if (e.t <= threshold) E.push_back(e);
