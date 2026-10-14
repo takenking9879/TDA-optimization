@@ -2472,6 +2472,7 @@ Result persist_redzed_from_points(const std::vector<std::vector<value_t>>& pts, 
     // uniform2 n=5000 probe≈0.26–0.29 and sphere ≈0.49 stay all-pairs.
     std::vector<SpatEdge> SE;
     bool spatial = false;
+    double probe_ef = -1;
     if (std::isfinite(threshold) && threshold > 0 && d >= 2 && d <= 3 && n >= 256) {
         const double L = bbox_max_extent(pts);
         if (L > 0) {
@@ -2480,8 +2481,8 @@ Result persist_redzed_from_points(const std::vector<std::vector<value_t>>& pts, 
             // Spatial only when the 250-pt edge-frac probe is < 0.25
             // (figure8 / grid_holes). --dense-metric forces all-pairs.
             // τ / residual_frac unchanged.
-            const bool probe_sparse = probe_edge_frac_points(pts, threshold) < 0.25;
-            if (!dense_metric && probe_sparse) spatial = spatial_edges(pts, threshold, SE);
+            probe_ef = probe_edge_frac_points(pts, threshold);
+            if (!dense_metric && probe_ef < 0.25) spatial = spatial_edges(pts, threshold, SE);
         }
     }
     DistanceMatrix D;
@@ -2513,6 +2514,33 @@ Result persist_redzed_from_points(const std::vector<std::vector<value_t>>& pts, 
                 pool.emplace_back(fill_range, j0, j1);
             }
             for (auto& th : pool) th.join();
+        }
+        // I320: finite-T G_T that is not almost complete. Same VR≤T as
+        // build_edges on D (only d≤T edges). I319 SparseDist reduce was
+        // ~2.4× vs dense leftover_coface; Graph+collapse hid the wall.
+        // --dense-metric keeps the lower-tri + build_edges path.
+        const bool sparse_gt = !dense_metric && std::isfinite(threshold) && threshold > 0 &&
+                               (probe_ef < 0.0 || probe_ef < 0.60);
+        if (sparse_gt) {
+            SE.reserve(static_cast<size_t>(n) * 8);
+            for (int j = 1; j < n; ++j) {
+                for (int i = 0; i < j; ++i) {
+                    const value_t dist = D.mat[DistanceMatrix::offset(i, j)];
+                    if (dist <= threshold) SE.push_back({dist, i, j});
+                }
+            }
+            D.mat.clear();
+            D.mat.shrink_to_fit();
+            D.n = 0;
+            std::vector<Edge> edges;
+            edges.reserve(SE.size());
+            for (const SpatEdge& e : SE) edges.push_back({e.u, e.v, e.t});
+            const auto tfill1 = std::chrono::steady_clock::now();
+            Result r = persist_redzed_from_edges(n, edges, dim, threshold);
+            r.counters.n_distances = static_cast<std::int64_t>(n) * (n - 1) / 2;
+            r.counters.metric_ms = std::chrono::duration<double, std::milli>(tfill1 - tfill0).count();
+            r.counters.pipeline = "pith:redzed-sparsegt";
+            return r;
         }
     }
     const auto tfill1 = std::chrono::steady_clock::now();
