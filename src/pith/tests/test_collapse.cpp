@@ -383,7 +383,21 @@ int main() {
                     return 1;
                 }
             }
-            std::cout << "ok FPS λ points==matrix n=" << lam_m.size() << "\n";
+            std::int64_t n_dist = 0;
+            const auto lam_p2 = greedy_insertion_radii_points(cloud, &n_dist);
+            const std::int64_t all_pairs =
+                static_cast<std::int64_t>(cloud.size()) * static_cast<std::int64_t>(cloud.size() - 1) / 2;
+            if (n_dist <= 0 || n_dist >= all_pairs) {
+                std::cerr << "FPS AABB skip did not reduce evals n_dist=" << n_dist
+                          << " all_pairs=" << all_pairs << "\n";
+                return 1;
+            }
+            if (lam_p2 != lam_p) {
+                std::cerr << "FPS AABB λ changed when counting distances\n";
+                return 1;
+            }
+            std::cout << "ok FPS λ points==matrix n=" << lam_m.size() << " n_dist=" << n_dist
+                      << "/" << all_pairs << "\n";
         }
         for (SparseCap cap : {SparseCap::Max, SparseCap::Min}) {
             Graph mm = sparse_rips_graph(dc, 1.5f, 0.6f, cap);
