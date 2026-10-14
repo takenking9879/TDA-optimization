@@ -646,14 +646,20 @@ redzed_vr(DistanceMatrix& distIn, int n, value_t threshold, EdgeList* prebuilt) 
     st.seenbits.assign(st.words, 0);
     st.seedlists.assign(nv, {});
     // I302: sparse flags skip the n×n rbit matrix. G_r is the growing adj.
-    const bool use_adj = (st.edges.count <= static_cast<size_t>(nv) * 16 && nv >= 1);
+    // I303: leftover-adj when mean deg < rbit-AND width (words), not only
+    // |E|≤16n. Fat 2D thicken (deg~100, words~n/64) pays; dense G_T
+    // (deg ≫ words) keeps rbits. H2 stream stays on the 16n gate.
+    const size_t mean_deg =
+        (nv >= 1) ? (2 * st.edges.count) / static_cast<size_t>(nv) : 0;
+    const bool use_adj = (nv >= 1 && mean_deg < static_cast<size_t>(st.words));
     struct AdjGuard {
         bool on;
-        explicit AdjGuard(int nverts, bool use) : on(use) {
+        explicit AdjGuard(int nverts, bool use, size_t deg) : on(use) {
             g_use_adj = use;
             if (use) {
                 g_adj.assign(static_cast<size_t>(nverts), {});
-                for (auto& a : g_adj) a.reserve(16);
+                const size_t res = std::min<size_t>(64, std::max<size_t>(16, deg + 2));
+                for (auto& a : g_adj) a.reserve(res);
             }
         }
         ~AdjGuard() {
@@ -661,7 +667,7 @@ redzed_vr(DistanceMatrix& distIn, int n, value_t threshold, EdgeList* prebuilt) 
             g_adj.clear();
         }
     };
-    const AdjGuard adj_guard(nv, use_adj);
+    const AdjGuard adj_guard(nv, use_adj, mean_deg);
     if (!use_adj) {
         st.rbits.assign((size_t)st.words * nv, 0);
         st.rlo.assign(nv, st.words);
