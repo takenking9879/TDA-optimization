@@ -627,8 +627,11 @@ Axis scaling (`axis_scaling.json`, 1 thread, 8 s): raising \(T\)
 explodes GUDHI / Ripser while exact auto stays tens of milliseconds
 on n=400–800; GUDHI is the first timeout (uniform2 n=800 \(T=0.55\)).
 Higher ambient dim at fixed \(T\) is sparser, not harder.
-Single table: [`PRACTICAL_LIMITS.md`](PRACTICAL_LIMITS.md). Sparse FPS
-squared-distance try: same complex, no clock cut, reverted.
+Single table: [`PRACTICAL_LIMITS.md`](PRACTICAL_LIMITS.md). Direction
+audit: [`REMAINING.md`](REMAINING.md). Sparse FPS squared-distance try:
+same complex, no clock cut, reverted. A 2026 literature check still
+names RedZeD as the published exact-VR alternative; we already wrap it.
+No new leftover skip.
 
 Named leftover follow-ups after I202 are **spent**. Do not reopen
 empty-seed skips, leftover XOR/noop, G_t apparent, add-R, D(e) memo,

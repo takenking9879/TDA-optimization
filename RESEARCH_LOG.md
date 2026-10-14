@@ -5,6 +5,14 @@ Do not paste long reasoning here.
 
 ---
 
+## 2026-10-14 — remaining-directions audit
+
+- **Question:** After leftover pairing and FPS sqrt are closed, is there a published exact-VR pairing algorithm we have not wrapped, or an untried leftover skip?
+- **Work:** Ledger audit (I202–I312 + consolidation rejects). Web search 2026-10-14: RedZeD arXiv:2606.06310, giotto-ph, Dory.
+- **Result:** RedZeD is the 2026 exact-VR alternative and is already in the portfolio. giotto-ph already compared (tracks Ripser on \(H_1\)). Dory not vendored; literature \(\sim 2\times\) on sparse complexes with threads — not a 1-thread 10× class. Leftover `ae_seeded` remains a pairing wall, not a skip. Wrote `docs/REMAINING.md`.
+- **Decision:** Do not reopen leftover micro-opts. Do not vendor Dory in this pass. Goal not complete (general 10× unverified; Dory untimed).
+- **Class:** verified (literature + ledger)
+
 ## 2026-10-14 — sparse FPS squared-distance try (revert)
 
 - **Question:** Does skipping \(n^2\) sqrts in Euclidean FPS cut the sparse construction wall?

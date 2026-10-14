@@ -100,3 +100,7 @@ graph. We **did** make exact PH practical on more everyday clouds by
 picking the cheaper exact engine and a sparse metric, and we **did**
 extend low-dimensional Euclidean analysis to tens of thousands of
 points by switching complex (and saying so).
+
+Spent leftover / pairing micro-opts and the remaining walls are listed
+in [`REMAINING.md`](REMAINING.md). A general exact-\(H_1\) 10× is **not**
+claimed.
