@@ -308,8 +308,10 @@ struct Feasibility {
     double est_runtime = -1;
     double est_runtime_lo = -1;
     double est_runtime_hi = -1;
+    double est_sparse_runtime = -1;
     double growth_p = -1;
     bool leaving_cheap = false;
+    bool skips_dense_matrix = false;
     std::string regime = "unknown";
     std::string engine_rec = "implicit";
     std::string mode_rec = "exact";
@@ -364,7 +366,7 @@ static Feasibility compute_feasibility(const std::vector<std::vector<value_t>>* 
         if (dim >= 2 && dim <= 3)
             f.reason = "fat residual at maxdim>=2: exact H2 on G_T is often impractical; Euclidean scale is safer";
         else
-            f.reason = "fat residual at maxdim>=2 on a non-scaleable metric; lower T or use sparse";
+            f.reason = "fat residual at maxdim>=2 on a non-scaleable metric; sparse H2 may still be impractical — lower T or maxdim";
     } else if (maxdim >= 1 && f.est_e_hi > 8.0e6) {
         f.exact_ok = false;
         f.reason = "conservative |E| band exceeds 8e6; exact H1 on G_T is likely impractical";
@@ -386,10 +388,21 @@ static Feasibility compute_feasibility(const std::vector<std::vector<value_t>>* 
     const bool near_tau =
         residual_frac >= 0 && std::fabs(residual_frac - tau) < 0.02;
     f.confidence = (n <= 400 && !near_tau) ? "medium" : "low";
+    // Fused sparse: FPS is still Θ(n²). d∈{2,3} uses a T-ball emit
+    // (figure-8 n=2k–8k: wall/n² ≈ 1.3e-8). Higher-d / abstract metrics
+    // walk all pairs (uniform4 n=5000: wall/n² ≈ 8e-8). Informational —
+    // does not change mode_rec or τ.
+    if (n > 0) {
+        const double c_sparse = (dim >= 2 && dim <= 3) ? 1.3e-8 : 8.0e-8;
+        f.est_sparse_runtime = c_sparse * static_cast<double>(n) * static_cast<double>(n);
+    }
+    f.skips_dense_matrix = (pts != nullptr);
     if (maxdim < 1 && n > 0) {
         f.est_runtime = 2.0e-6 * static_cast<double>(n) * std::max(1.0, std::log2(static_cast<double>(n)));
     } else if (f.mode_rec == "scale" && n > 0) {
         f.est_runtime = (dim == 3 ? 2.0e-5 : 3.5e-5) * static_cast<double>(n);
+    } else if (f.mode_rec == "sparse" && n > 0) {
+        f.est_runtime = f.est_sparse_runtime;
     } else if (maxdim >= 2 && fat && n > 0) {
         f.est_runtime = 5.0e-7 * static_cast<double>(n) * static_cast<double>(n) * static_cast<double>(n);
     } else if (thin && n > 0) {
@@ -401,6 +414,7 @@ static Feasibility compute_feasibility(const std::vector<std::vector<value_t>>* 
     // (docs/GROWTH.md). Informational — does not retune τ or engine_rec.
     if (maxdim < 1) f.growth_p = 1.0;
     else if (f.mode_rec == "scale") f.growth_p = 1.2;
+    else if (f.mode_rec == "sparse") f.growth_p = 2.0;
     else if (maxdim >= 2 && fat) f.growth_p = 3.2;
     else if (thin) f.growth_p = 2.2;
     else if (hollow) f.growth_p = 1.8;
@@ -444,6 +458,8 @@ static int print_estimate(const std::vector<std::vector<value_t>>* pts,
                   << "  \"est_runtime_lo_s\": " << f.est_runtime_lo << ",\n"
                   << "  \"est_runtime_hi_s\": " << f.est_runtime_hi << ",\n"
                   << "  \"growth_p\": " << f.growth_p << ",\n"
+                  << "  \"est_sparse_runtime_s\": " << f.est_sparse_runtime << ",\n"
+                  << "  \"skips_dense_matrix\": " << (f.skips_dense_matrix ? "true" : "false") << ",\n"
                   << "  \"leaving_cheap_regime\": " << (f.leaving_cheap ? "true" : "false") << ",\n"
                   << "  \"engine_recommended\": \"" << f.engine_rec << "\",\n"
                   << "  \"mode_recommended\": \"" << f.mode_rec << "\",\n"
@@ -463,6 +479,8 @@ static int print_estimate(const std::vector<std::vector<value_t>>* pts,
                   << " exact_feasible=" << (f.exact_ok ? 1 : 0) << " runtime=" << f.runtime_class
                   << " est_runtime_s=" << f.est_runtime << " est_runtime_hi_s=" << f.est_runtime_hi
                   << " growth_p=" << f.growth_p << " leaving_cheap=" << (f.leaving_cheap ? 1 : 0)
+                  << " est_sparse_s=" << f.est_sparse_runtime
+                  << " skips_dense_matrix=" << (f.skips_dense_matrix ? 1 : 0)
                   << " confidence=" << f.confidence
                   << " threads=" << nthreads() << "\n# " << f.reason << "\n";
     }

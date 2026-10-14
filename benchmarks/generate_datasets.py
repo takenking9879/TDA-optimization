@@ -238,6 +238,11 @@ def grid_holes(n: int, rng: np.random.Generator) -> np.ndarray:
     return pts + rng.normal(0.0, 0.004, size=pts.shape)
 
 
+def uniform4(n: int, rng: np.random.Generator) -> np.ndarray:
+    """Held-out 4D cloud: no Delaunay scale path; `--mode auto` may pick sparse."""
+    return uniform(n, 4, rng)
+
+
 def two_spheres_apart(n: int, rng: np.random.Generator) -> np.ndarray:
     """Post-freeze: two unit spheres whose convex hulls do not meet at T=1.4."""
     n0, n1 = _split_n(n, 2)
@@ -265,6 +270,7 @@ GENERATORS = {
     "random_geometric": random_geometric,
     "grid_holes": grid_holes,
     "two_spheres_apart": two_spheres_apart,
+    "uniform4": uniform4,
 }
 
 

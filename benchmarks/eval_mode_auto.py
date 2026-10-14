@@ -16,6 +16,7 @@ from generate_datasets import (  # noqa: E402
     many_loops,
     nested_loops,
     sphere,
+    uniform4,
     write_csv,
 )
 from run_suite import PITH  # noqa: E402
@@ -74,6 +75,7 @@ def main():
         ("mixed_1d2d3d", mixed_1d2d3d, 300, 1.4, 2, "scale"),
         ("figure8", figure8, 16000, 1.1, 1, "scale"),
         ("sphere", sphere, 16000, 1.4, 2, "scale"),
+        ("uniform4", uniform4, 5000, 1.0, 1, "sparse"),
     ]
     recs = []
     for name, fn, n, T, dim, expect in cases:

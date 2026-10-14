@@ -56,6 +56,8 @@ def main():
         "est_runtime_hi_s",
         "growth_p",
         "leaving_cheap_regime",
+        "est_sparse_runtime_s",
+        "skips_dense_matrix",
     ):
         if key not in js:
             print("estimate JSON missing", key, js, file=sys.stderr)
