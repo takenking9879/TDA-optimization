@@ -251,6 +251,31 @@ def uniform4(n: int, rng: np.random.Generator) -> np.ndarray:
     return uniform(n, 4, rng)
 
 
+def swiss_roll(n: int, rng: np.random.Generator) -> np.ndarray:
+    """Post-clock-gate family: 2D swiss roll in R^3."""
+    t = rng.uniform(1.5 * math.pi, 4.5 * math.pi, size=n)
+    h = rng.uniform(-1.0, 1.0, size=n)
+    pts = np.stack([t * np.cos(t), h, t * np.sin(t)], axis=1)
+    return pts + rng.normal(0.0, 0.05, size=pts.shape)
+
+
+def linked_circles(n: int, rng: np.random.Generator) -> np.ndarray:
+    """Post-clock-gate family: two interlocking noisy rings in R^3."""
+    n0, n1 = _split_n(n, 2)
+    t0 = rng.uniform(0.0, 2.0 * math.pi, size=n0)
+    a = np.stack([np.cos(t0), np.sin(t0), np.zeros(n0)], axis=1)
+    t1 = rng.uniform(0.0, 2.0 * math.pi, size=n1)
+    b = np.stack([1.0 + np.cos(t1), np.zeros(n1), np.sin(t1)], axis=1)
+    return np.vstack([a, b]) + rng.normal(0.0, 0.04, size=(n, 3))
+
+
+def sheared_loops(n: int, rng: np.random.Generator) -> np.ndarray:
+    """Post-clock-gate family: sheared figure-8 (anisotropic leftover H1)."""
+    pts = figure8(n, rng)
+    shear = np.array([[2.2, 0.7], [0.0, 0.45]])
+    return pts @ shear.T + rng.normal(0.0, 0.02, size=pts.shape)
+
+
 def two_spheres_apart(n: int, rng: np.random.Generator) -> np.ndarray:
     """Post-freeze: two unit spheres whose convex hulls do not meet at T=1.4."""
     n0, n1 = _split_n(n, 2)
@@ -280,6 +305,9 @@ GENERATORS = {
     "grid_holes": grid_holes,
     "two_spheres_apart": two_spheres_apart,
     "uniform4": uniform4,
+    "swiss_roll": swiss_roll,
+    "linked_circles": linked_circles,
+    "sheared_loops": sheared_loops,
 }
 
 

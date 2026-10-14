@@ -5,6 +5,14 @@ Do not paste long reasoning here.
 
 ---
 
+## 2026-10-14 — Post-freeze dispatcher pack (pending live)
+
+- **Question:** Does the leftover-H1 clock gate overfit anisotropic / grid_holes / figure8?
+- **Work:** `eval_postfreeze.py` seed 23. New families swiss_roll / linked_circles / sheared_loops plus unused sizes. τ / 4 s clock / hollow |E| / fat-H2 frozen.
+- **Result:** pending live sweep (script committed first).
+- **Decision:** Measurement, not leftover-skip hunting. Goal not complete.
+- **Class:** experiment (pending)
+
 ## 2026-10-14 — Estimate bands include leftover-miss (48/48)
 
 - **Question:** Do `--estimate` bands still cover recommended-mode walls after leftover-miss n-series and the fat leftover-H1 clock gate?
