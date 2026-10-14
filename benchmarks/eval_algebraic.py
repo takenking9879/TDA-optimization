@@ -25,9 +25,8 @@ from generate_datasets import (  # noqa: E402
     torus,
     uniform,
 )
-from run_consolidation import run_ripser, strip_pairs  # noqa: E402
 from run_consolidation_limits import cloud, run_pith  # noqa: E402
-from run_suite import compare, parse_pith_text, run_cmd  # noqa: E402
+from run_suite import run_cmd  # noqa: E402
 
 OUT = BENCH / "results" / "consolidation"
 RIPSER_COUNT = Path("/tmp/ripser_count")
