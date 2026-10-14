@@ -1,0 +1,28 @@
+{
+  "id": "lazy_witness",
+  "lever": "witness",
+  "class": "structural",
+  "fidelity": "empirical",
+  "status": "hold",
+  "summary": "maxmin lazy witness 1-skeleton is tiny; different estimator",
+  "receipts": [
+    {
+      "name": "circle_noisy_n200.csv",
+      "landmarks": 20,
+      "witness_edges": 20,
+      "build_s": 0.0009943489999386657
+    },
+    {
+      "name": "circle_noisy_n500.csv",
+      "landmarks": 40,
+      "witness_edges": 54,
+      "build_s": 0.0023359140000138723
+    },
+    {
+      "name": "sphere_n200.csv",
+      "landmarks": 30,
+      "witness_edges": 64,
+      "build_s": 0.0009336060002169688
+    }
+  ]
+}

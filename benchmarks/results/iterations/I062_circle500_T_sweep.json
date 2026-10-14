@@ -1,0 +1,60 @@
+{
+  "id": "circle500_T_sweep",
+  "lever": "H03",
+  "class": "structural",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "circle500 threshold sweep after sticky",
+  "receipts": [
+    {
+      "T": 0.6,
+      "match": true,
+      "ripser_s": 0.022180610999384953,
+      "pith_s": 0.01468219899925316,
+      "time_ratio": 1.510714505402986,
+      "edges_in": 23962,
+      "edges_out": 959,
+      "collapse_ms": 10.11534
+    },
+    {
+      "T": 0.8,
+      "match": true,
+      "ripser_s": 0.038528137999492174,
+      "pith_s": 0.020597891999386775,
+      "time_ratio": 1.870489368554763,
+      "edges_in": 32226,
+      "edges_out": 959,
+      "collapse_ms": 16.417613
+    },
+    {
+      "T": 1.0,
+      "match": true,
+      "ripser_s": 0.06865337300041574,
+      "pith_s": 0.029316199999811943,
+      "time_ratio": 2.3418237357111815,
+      "edges_in": 41132,
+      "edges_out": 959,
+      "collapse_ms": 25.062486
+    },
+    {
+      "T": 1.2,
+      "match": true,
+      "ripser_s": 0.12718163000045024,
+      "pith_s": 0.04116227499980596,
+      "time_ratio": 3.0897619240202294,
+      "edges_in": 50705,
+      "edges_out": 959,
+      "collapse_ms": 36.262206
+    },
+    {
+      "T": 1.5,
+      "match": true,
+      "ripser_s": 0.3074096329992244,
+      "pith_s": 0.0664739539997754,
+      "time_ratio": 4.624512527120969,
+      "edges_in": 67370,
+      "edges_out": 959,
+      "collapse_ms": 60.77888
+    }
+  ]
+}

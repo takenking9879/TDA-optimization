@@ -1,0 +1,240 @@
+{
+  "note": "pydory 1.1.137 oracle, 1 thread, not vendored. Same pairing class as VR.",
+  "pydory_version": "1.1.137",
+  "threads": 1,
+  "budget_s": 20,
+  "receipts": [
+    {
+      "name": "circle_noisy",
+      "n": 400,
+      "T": 1.5,
+      "maxdim": 1,
+      "dory": {
+        "ok": true,
+        "error": null,
+        "timed_out": false,
+        "wall_s": 0.21288984599232208,
+        "threads_used": 1,
+        "ess1": 1,
+        "method": "dory:pydory"
+      },
+      "pith": {
+        "ok": true,
+        "wall_s": 0.012322444003075361,
+        "pipeline": "pith:auto-collapse",
+        "threads_used": 1
+      },
+      "ripser": {
+        "ok": true,
+        "wall_s": 0.1329776720085647,
+        "threads_used": 1
+      },
+      "ripser_over_dory": 0.6246313504936284,
+      "dory_over_pith": 17.276592690475226,
+      "threads": 1
+    },
+    {
+      "name": "circle_noisy",
+      "n": 1000,
+      "T": 1.5,
+      "maxdim": 1,
+      "dory": {
+        "ok": true,
+        "error": null,
+        "timed_out": false,
+        "wall_s": 2.792601498993463,
+        "threads_used": 1,
+        "ess1": 1,
+        "method": "dory:pydory"
+      },
+      "pith": {
+        "ok": true,
+        "wall_s": 0.07088396500330418,
+        "pipeline": "pith:auto-collapse",
+        "threads_used": 1
+      },
+      "ripser": {
+        "ok": true,
+        "wall_s": 2.7271261099958792,
+        "threads_used": 1
+      },
+      "ripser_over_dory": 0.9765539805728877,
+      "dory_over_pith": 39.39680150317901,
+      "threads": 1
+    },
+    {
+      "name": "figure8",
+      "n": 1000,
+      "T": 1.1,
+      "maxdim": 1,
+      "dory": {
+        "ok": true,
+        "error": null,
+        "timed_out": false,
+        "wall_s": 0.6554880990006495,
+        "threads_used": 1,
+        "ess1": 2,
+        "method": "dory:pydory"
+      },
+      "pith": {
+        "ok": true,
+        "wall_s": 0.05201025799033232,
+        "pipeline": "pith:auto-redzed-spatial",
+        "threads_used": 1
+      },
+      "ripser": {
+        "ok": true,
+        "wall_s": 0.6063950969983125,
+        "threads_used": 1
+      },
+      "ripser_over_dory": 0.9251046631095459,
+      "dory_over_pith": 12.603054172938188,
+      "threads": 1
+    },
+    {
+      "name": "figure8",
+      "n": 2000,
+      "T": 1.1,
+      "maxdim": 1,
+      "dory": {
+        "ok": true,
+        "error": null,
+        "timed_out": false,
+        "wall_s": 2.841197364992695,
+        "threads_used": 1,
+        "ess1": 2,
+        "method": "dory:pydory"
+      },
+      "pith": {
+        "ok": true,
+        "wall_s": 0.1738104870019015,
+        "pipeline": "pith:auto-collapse",
+        "threads_used": 1
+      },
+      "ripser": {
+        "ok": true,
+        "wall_s": 2.7202895950031234,
+        "threads_used": 1
+      },
+      "ripser_over_dory": 0.9574447831469524,
+      "dory_over_pith": 16.34652438987535,
+      "threads": 1
+    },
+    {
+      "name": "torus",
+      "n": 1000,
+      "T": 1.6,
+      "maxdim": 1,
+      "dory": {
+        "ok": true,
+        "error": null,
+        "timed_out": false,
+        "wall_s": 0.4265102700010175,
+        "threads_used": 1,
+        "ess1": 1,
+        "method": "dory:pydory"
+      },
+      "pith": {
+        "ok": true,
+        "wall_s": 0.04217313199478667,
+        "pipeline": "pith:auto-redzed-spatial",
+        "threads_used": 1
+      },
+      "ripser": {
+        "ok": true,
+        "wall_s": 0.40529239700117614,
+        "threads_used": 1
+      },
+      "ripser_over_dory": 0.9502523749315797,
+      "dory_over_pith": 10.113317409144322,
+      "threads": 1
+    },
+    {
+      "name": "uniform2",
+      "n": 2000,
+      "T": 0.35,
+      "maxdim": 1,
+      "dory": {
+        "ok": true,
+        "error": null,
+        "timed_out": false,
+        "wall_s": 0.44980116799706593,
+        "threads_used": 1,
+        "ess1": 0,
+        "method": "dory:pydory"
+      },
+      "pith": {
+        "ok": true,
+        "wall_s": 0.06109371699858457,
+        "pipeline": "pith:auto-redzed",
+        "threads_used": 1
+      },
+      "ripser": {
+        "ok": true,
+        "wall_s": 0.4505350230028853,
+        "threads_used": 1
+      },
+      "ripser_over_dory": 1.001631509782616,
+      "dory_over_pith": 7.362478338115964,
+      "threads": 1
+    },
+    {
+      "name": "sphere",
+      "n": 400,
+      "T": 1.4,
+      "maxdim": 2,
+      "dory": {
+        "ok": true,
+        "error": null,
+        "timed_out": false,
+        "wall_s": 4.129611110998667,
+        "threads_used": 1,
+        "ess1": 0,
+        "method": "dory:pydory"
+      },
+      "pith": {
+        "ok": true,
+        "wall_s": 0.016777045995695516,
+        "pipeline": "pith:auto-collapse",
+        "threads_used": 1
+      },
+      "ripser": {
+        "ok": true,
+        "wall_s": 1.4866532390005887,
+        "threads_used": 1
+      },
+      "ripser_over_dory": 0.35999836280977804,
+      "dory_over_pith": 246.1464975454082,
+      "threads": 1
+    },
+    {
+      "name": "blobs",
+      "n": 2000,
+      "T": 1.0,
+      "maxdim": 1,
+      "dory": {
+        "ok": true,
+        "error": null,
+        "timed_out": false,
+        "wall_s": 0.47061684299842454,
+        "threads_used": 1,
+        "ess1": 0,
+        "method": "dory:pydory"
+      },
+      "pith": {
+        "ok": true,
+        "wall_s": 0.04383614500693511,
+        "pipeline": "pith:auto-redzed-cc",
+        "threads_used": 1
+      },
+      "ripser": {
+        "ok": true,
+        "wall_s": 0.425182692008093,
+        "threads_used": 1
+      },
+      "ripser_over_dory": 0.9034582980480288,
+      "dory_over_pith": 10.735817278731295,
+      "threads": 1
+    }
+  ]
+}

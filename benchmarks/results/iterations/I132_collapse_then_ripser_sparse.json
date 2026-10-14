@@ -1,0 +1,54 @@
+{
+  "id": "collapse_then_ripser_sparse",
+  "lever": "H02-E3",
+  "class": "experiment",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "collapse + Ripser-sparse vs Ripser point-cloud",
+  "receipts": [
+    {
+      "dataset": "circle_noisy",
+      "n": 80,
+      "match": true,
+      "unmatched": 0,
+      "collapse_s": 0.0016659630000503967,
+      "ripser_residual_s": 0.0011545779998414218,
+      "total_s": 0.0028205409998918185,
+      "ripser_orig_s": 0.0021291239991114708,
+      "time_ratio": 0.7548636943030196
+    },
+    {
+      "dataset": "circle_noisy",
+      "n": 200,
+      "match": true,
+      "unmatched": 0,
+      "collapse_s": 0.0046781500004726695,
+      "ripser_residual_s": 0.0013981609990878496,
+      "total_s": 0.006076310999560519,
+      "ripser_orig_s": 0.008328851999976905,
+      "time_ratio": 1.3707086422303443
+    },
+    {
+      "dataset": "torus",
+      "n": 200,
+      "match": true,
+      "unmatched": 0,
+      "collapse_s": 0.0034613030002219602,
+      "ripser_residual_s": 0.002601636999315815,
+      "total_s": 0.006062939999537775,
+      "ripser_orig_s": 0.004579249998641899,
+      "time_ratio": 0.7552853894300472
+    },
+    {
+      "dataset": "torus",
+      "n": 500,
+      "match": true,
+      "unmatched": 0,
+      "collapse_s": 0.02858778399968287,
+      "ripser_residual_s": 0.012276743998882012,
+      "total_s": 0.04086452799856488,
+      "ripser_orig_s": 0.04669750299945008,
+      "time_ratio": 1.1427393215233037
+    }
+  ]
+}

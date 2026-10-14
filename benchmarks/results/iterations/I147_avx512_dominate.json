@@ -1,0 +1,43 @@
+{
+  "id": "avx512_dominate",
+  "lever": "H01-avx",
+  "class": "implementation",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "AVX-512 dominate circle2000 6.50\u00d7 / 4221.6869 ms; circle3000 8.34\u00d7 / 14083.802 ms (I140 6.30\u00d7/4212; I144 8.11\u00d7/13885)",
+  "receipts": [
+    {
+      "n": 200,
+      "T": 1.2,
+      "match": true,
+      "unmatched": 0,
+      "ripser_s": 0.009312808000686346,
+      "pith_s": 0.004950673999701394,
+      "time_ratio": 1.8811192175546319,
+      "collapse_ms": 2.820605,
+      "edges_out": 283
+    },
+    {
+      "n": 2000,
+      "T": 1.5,
+      "match": true,
+      "unmatched": 0,
+      "ripser_s": 27.907180361000428,
+      "pith_s": 4.294980499000303,
+      "time_ratio": 6.497626791901869,
+      "collapse_ms": 4221.6869,
+      "edges_out": 5169
+    },
+    {
+      "n": 3000,
+      "T": 1.5,
+      "match": true,
+      "unmatched": 0,
+      "ripser_s": 118.82449117000033,
+      "pith_s": 14.241701822998948,
+      "time_ratio": 8.343419392344703,
+      "collapse_ms": 14083.802,
+      "edges_out": 9190
+    }
+  ]
+}

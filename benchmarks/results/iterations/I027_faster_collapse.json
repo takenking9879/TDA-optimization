@@ -1,0 +1,82 @@
+{
+  "id": "faster_collapse",
+  "lever": "H01-impl",
+  "class": "implementation",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "degree-first collapse + buffer reuse vs Ripser",
+  "receipts": [
+    {
+      "name": "circle_noisy_n200.csv",
+      "dim": 1,
+      "match": true,
+      "ripser_s": 0.01065924799968343,
+      "pith_s": 0.007757471000331861,
+      "speedup": 1.374062242608117,
+      "collapse_ms": 4.625374,
+      "reduce_ms": 0.057385,
+      "edges_out": 283,
+      "ratio": 28.964664310954063
+    },
+    {
+      "name": "circle_noisy_n500.csv",
+      "dim": 1,
+      "match": true,
+      "ripser_s": 0.1286665500001618,
+      "pith_s": 0.0636753450003198,
+      "speedup": 2.02066514126489,
+      "collapse_ms": 58.681373,
+      "reduce_ms": 0.2478,
+      "edges_out": 959,
+      "ratio": 52.87278415015641
+    },
+    {
+      "name": "circle_noisy_n1000.csv",
+      "dim": 1,
+      "match": true,
+      "ripser_s": 0.8878233370000999,
+      "pith_s": 0.4701460730002509,
+      "speedup": 1.8883989210724006,
+      "collapse_ms": 453.51875,
+      "reduce_ms": 0.66407,
+      "edges_out": 2265,
+      "ratio": 90.47019867549669
+    },
+    {
+      "name": "circle_noisy_n1500.csv",
+      "dim": 1,
+      "match": true,
+      "ripser_s": 3.9687053490001745,
+      "pith_s": 1.4910466769997583,
+      "speedup": 2.6616908848124665,
+      "collapse_ms": 1454.0601,
+      "reduce_ms": 1.150258,
+      "edges_out": 3710,
+      "ratio": 123.89811320754717
+    },
+    {
+      "name": "sphere_n500.csv",
+      "dim": 2,
+      "match": true,
+      "ripser_s": 3.7736055999998825,
+      "pith_s": 0.09927720599989698,
+      "speedup": 38.01079575107904,
+      "collapse_ms": 91.959235,
+      "reduce_ms": 1.5099,
+      "edges_out": 1805,
+      "ratio": 33.9196675900277
+    },
+    {
+      "name": "blobs_n500.csv",
+      "dim": 1,
+      "match": true,
+      "ripser_s": 0.018847846999960893,
+      "pith_s": 0.0519885990001967,
+      "speedup": 0.3625380826263386,
+      "collapse_ms": 46.158844,
+      "reduce_ms": 0.416777,
+      "edges_out": 1321,
+      "ratio": 31.058289174867525
+    }
+  ]
+}

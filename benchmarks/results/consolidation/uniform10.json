@@ -1,0 +1,323 @@
+{
+  "note": "High-d Euclidean control, d=10. No --mode scale. 12 s, 1 thread. T=1.8 H1 and fat-H2 refuse. Conservative exact_ok can still be false; --mode auto now stays exact unless sparse is clearly cheaper. Live auto n=4000: 0.74 s exact (was 18.3 s sparse). \u03c4 not retuned.",
+  "threads": 1,
+  "budget_s": 12,
+  "first_fail": {
+    "sparse": {
+      "n": 4000,
+      "timed_out": true
+    },
+    "ripser": {
+      "n": 4000,
+      "timed_out": true
+    }
+  },
+  "receipts": [
+    {
+      "name": "uniform10",
+      "n": 80,
+      "T": 1.8,
+      "maxdim": 1,
+      "d": 10,
+      "estimate": {
+        "mode_recommended": "exact",
+        "engine_recommended": "redzed",
+        "auto_will_run": true,
+        "regime": null,
+        "edge_frac": null,
+        "residual_frac": null,
+        "n_edges_lo": null,
+        "n_edges_hi": null
+      },
+      "exact": {
+        "ok": true,
+        "wall_s": 0.0029268039943417534,
+        "pipeline": "pith:auto-redzed",
+        "n_edges": null,
+        "threads_used": 1
+      },
+      "sparse": {
+        "ok": true,
+        "wall_s": 0.002906264999182895,
+        "pipeline": "pith:sparse",
+        "n_edges": null,
+        "threads_used": 1
+      },
+      "ripser": {
+        "ok": true,
+        "wall_s": 0.002868374009267427,
+        "threads_used": 1
+      },
+      "threads": 1,
+      "budget_s": 12
+    },
+    {
+      "name": "uniform10",
+      "n": 200,
+      "T": 1.8,
+      "maxdim": 1,
+      "d": 10,
+      "estimate": {
+        "mode_recommended": "exact",
+        "engine_recommended": "redzed",
+        "auto_will_run": true,
+        "regime": null,
+        "edge_frac": null,
+        "residual_frac": null,
+        "n_edges_lo": null,
+        "n_edges_hi": null
+      },
+      "exact": {
+        "ok": true,
+        "wall_s": 0.03163815799052827,
+        "pipeline": "pith:auto-redzed",
+        "n_edges": null,
+        "threads_used": 1
+      },
+      "sparse": {
+        "ok": true,
+        "wall_s": 0.014367368989042006,
+        "pipeline": "pith:sparse",
+        "n_edges": null,
+        "threads_used": 1
+      },
+      "ripser": {
+        "ok": true,
+        "wall_s": 0.014972714998293668,
+        "threads_used": 1
+      },
+      "threads": 1,
+      "budget_s": 12
+    },
+    {
+      "name": "uniform10",
+      "n": 400,
+      "T": 1.8,
+      "maxdim": 1,
+      "d": 10,
+      "estimate": {
+        "mode_recommended": "exact",
+        "engine_recommended": "redzed",
+        "auto_will_run": true,
+        "regime": null,
+        "edge_frac": null,
+        "residual_frac": null,
+        "n_edges_lo": null,
+        "n_edges_hi": null
+      },
+      "exact": {
+        "ok": true,
+        "wall_s": 0.07045809700503014,
+        "pipeline": "pith:auto-redzed",
+        "n_edges": null,
+        "threads_used": 1
+      },
+      "sparse": {
+        "ok": true,
+        "wall_s": 0.08321229000284802,
+        "pipeline": "pith:sparse",
+        "n_edges": null,
+        "threads_used": 1
+      },
+      "ripser": {
+        "ok": true,
+        "wall_s": 0.08626430400181562,
+        "threads_used": 1
+      },
+      "threads": 1,
+      "budget_s": 12
+    },
+    {
+      "name": "uniform10",
+      "n": 800,
+      "T": 1.8,
+      "maxdim": 1,
+      "d": 10,
+      "estimate": {
+        "mode_recommended": "exact",
+        "engine_recommended": "redzed",
+        "auto_will_run": true,
+        "regime": null,
+        "edge_frac": null,
+        "residual_frac": null,
+        "n_edges_lo": null,
+        "n_edges_hi": null
+      },
+      "exact": {
+        "ok": true,
+        "wall_s": 0.0551945990009699,
+        "pipeline": "pith:auto-redzed",
+        "n_edges": null,
+        "threads_used": 1
+      },
+      "sparse": {
+        "ok": true,
+        "wall_s": 0.44205827500263695,
+        "pipeline": "pith:sparse",
+        "n_edges": null,
+        "threads_used": 1
+      },
+      "ripser": {
+        "ok": true,
+        "wall_s": 0.4608512970007723,
+        "threads_used": 1
+      },
+      "threads": 1,
+      "budget_s": 12
+    },
+    {
+      "name": "uniform10",
+      "n": 1600,
+      "T": 1.8,
+      "maxdim": 1,
+      "d": 10,
+      "estimate": {
+        "mode_recommended": "exact",
+        "engine_recommended": "redzed",
+        "auto_will_run": true,
+        "regime": null,
+        "edge_frac": null,
+        "residual_frac": null,
+        "n_edges_lo": null,
+        "n_edges_hi": null
+      },
+      "exact": {
+        "ok": true,
+        "wall_s": 0.12770277699746657,
+        "pipeline": "pith:auto-redzed",
+        "n_edges": null,
+        "threads_used": 1
+      },
+      "sparse": {
+        "ok": true,
+        "wall_s": 2.1577110439975513,
+        "pipeline": "pith:sparse",
+        "n_edges": null,
+        "threads_used": 1
+      },
+      "ripser": {
+        "ok": true,
+        "wall_s": 2.366466887993738,
+        "threads_used": 1
+      },
+      "threads": 1,
+      "budget_s": 12
+    },
+    {
+      "name": "uniform10",
+      "n": 4000,
+      "T": 1.8,
+      "maxdim": 1,
+      "d": 10,
+      "estimate": {
+        "mode_recommended": "sparse",
+        "engine_recommended": "redzed",
+        "auto_will_run": true,
+        "regime": null,
+        "edge_frac": null,
+        "residual_frac": null,
+        "n_edges_lo": null,
+        "n_edges_hi": null
+      },
+      "exact": {
+        "ok": true,
+        "wall_s": 0.6511335779941874,
+        "pipeline": "pith:auto-redzed",
+        "n_edges": null,
+        "threads_used": 1
+      },
+      "sparse": {
+        "ok": false,
+        "error": "Command '['/workspace/src/pith/build/pith', '--points', '/workspace/benchmarks/datasets/generated/uniform10_n4000.csv', '--maxdim', '1', '--threshold', '1.8', '--mode', 'sparse', '--engine', 'auto', '--threads', '1', '--no-enclosing']' timed out after 12 seconds",
+        "wall_s": null,
+        "timed_out": true,
+        "returncode": null
+      },
+      "ripser": {
+        "ok": false,
+        "error": "Command '['/workspace/third_party/ripser/ripser', '--format', 'point-cloud', '--dim', '1', '--threshold', '1.8', '/workspace/benchmarks/datasets/generated/uniform10_n4000.csv']' timed out after 12 seconds",
+        "wall_s": null,
+        "timed_out": true
+      },
+      "threads": 1,
+      "budget_s": 12
+    },
+    {
+      "name": "uniform10",
+      "n": 8000,
+      "T": 1.8,
+      "maxdim": 1,
+      "d": 10,
+      "estimate": {
+        "mode_recommended": "sparse",
+        "engine_recommended": "redzed",
+        "auto_will_run": true,
+        "regime": null,
+        "edge_frac": null,
+        "residual_frac": null,
+        "n_edges_lo": null,
+        "n_edges_hi": null
+      },
+      "exact": {
+        "ok": true,
+        "wall_s": 2.786773327010451,
+        "pipeline": "pith:auto-redzed",
+        "n_edges": null,
+        "threads_used": 1
+      },
+      "sparse": {
+        "ok": false,
+        "skipped_after_fail": true
+      },
+      "ripser": {
+        "ok": false,
+        "skipped_after_fail": true
+      },
+      "threads": 1,
+      "budget_s": 12
+    }
+  ],
+  "fat_h2": {
+    "name": "uniform10",
+    "n": 250,
+    "T": 1.8,
+    "maxdim": 2,
+    "d": 10,
+    "estimate": {
+      "mode_recommended": "sparse",
+      "engine_recommended": "redzed",
+      "auto_will_run": false,
+      "regime": null
+    },
+    "auto": {
+      "ok": false,
+      "error": "cmd failed ['/workspace/src/pith/build/pith', '--points', '/workspace/benchmarks/datasets/generated/uniform10_n250.csv', '--maxdim', '2', '--threshold', '1.8', '--mode', 'auto', '--threads', '1', '--no-enclosing']\n# MODE auto selected sparse engine=redzed exact_feasible=0 regime=fat confidence=medium\n# fat residual at maxdim>=2 on a non-scaleable metric; sparse H2 may still be impractical \u2014 lower T or maxdim\n# MODE auto refusing to run: fat H2 sparse on d\u2209{2,3} timed out in the held-out 4D suite. Rerun with --maxdim 1 --mode sparse, or pass --mode sparse explicitly if you want H2 anyway.\n",
+      "wall_s": null,
+      "timed_out": true,
+      "refused": true
+    },
+    "expect_refuse": true
+  },
+  "auto_miss": {
+    "n": 4000,
+    "T": 1.8,
+    "maxdim": 1,
+    "estimate_mode": "sparse",
+    "exact_feasible": false,
+    "reason": "fat residual band exceeds 1.5e6 leftover edges; exact leftover visits explode",
+    "exact_wall_s": 0.651,
+    "auto_selected": "sparse",
+    "auto_wall_s": 18.3,
+    "auto_edges_in": 6500278,
+    "auto_reduce_ms": 17700.7,
+    "waste": 28.110599078341014,
+    "tau_retuned": false,
+    "fixed": true,
+    "auto_after_fix": {
+      "selected": "exact",
+      "wall_s": 0.743,
+      "pipeline": "pith:auto-redzed",
+      "waste_vs_exact": 1.141321044546851
+    }
+  }
+}

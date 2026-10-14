@@ -1,0 +1,18 @@
+{
+  "id": "alpha_sphere200",
+  "lever": "H16",
+  "class": "empirical",
+  "fidelity": "other-complex",
+  "status": "hold",
+  "summary": "Alpha \u2260 VR; Alpha time vs PITH VR / Ripser VR",
+  "receipts": [
+    {
+      "match_alpha_vs_ripser": false,
+      "unmatched": 659,
+      "alpha_s": 0.0036617699997805175,
+      "ripser_s": 0.10239093099971797,
+      "pith_s": 0.006872093999845674,
+      "pith_vs_ripser": 14.899524221004159
+    }
+  ]
+}

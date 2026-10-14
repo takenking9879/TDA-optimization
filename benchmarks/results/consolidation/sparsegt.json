@@ -1,0 +1,511 @@
+{
+  "note": "I320 sparse G_T RedZeD (no collapse). Exact VR\u2264T. \u03c4 frozen.",
+  "unmatched_vs_ripser": 0,
+  "auto_ge10": "3/9",
+  "series": [
+    {
+      "name": "figure8",
+      "n": 2000,
+      "T": 1.1,
+      "auto": {
+        "method": "pith:exact:auto:t1",
+        "ok": true,
+        "error": null,
+        "timed_out": false,
+        "oom": false,
+        "wall_s": 0.1491932490025647,
+        "cpu_s": 0.14896600000000002,
+        "threads_claimed": 1,
+        "threads_pith": 1,
+        "rss_delta": 132288512,
+        "rss_pith": 42704896,
+        "n_dist": 481757,
+        "n_edges_in": 0,
+        "n_edges_out": 0,
+        "metric_ms": 9.436457,
+        "collapse_ms": 0,
+        "reduce_ms": 97.798079,
+        "pipeline": "pith:auto-redzed-spatial",
+        "residual_frac": 0.037981408,
+        "n_pairs": 2348,
+        "ess0": 1,
+        "ess1": 2,
+        "ess2": 0
+      },
+      "ripser": {
+        "method": "ripser",
+        "ok": true,
+        "error": null,
+        "wall_s": 2.527110413997434,
+        "threads_claimed": 1,
+        "rss_delta": 1069056,
+        "n_pairs": 2348,
+        "ess0": 1,
+        "ess1": 2,
+        "ess2": 0
+      },
+      "vs_ripser": {
+        "auto": {
+          "exact_match_tol": true,
+          "unmatched": 0,
+          "n_finite_a": 2345,
+          "n_finite_b": 2345,
+          "n_essential_a": 3,
+          "n_essential_b": 3,
+          "class": "exact"
+        }
+      },
+      "ratio": {
+        "auto": 16.938503792178906
+      }
+    },
+    {
+      "name": "torus",
+      "n": 2000,
+      "T": 1.6,
+      "auto": {
+        "method": "pith:exact:auto:t1",
+        "ok": true,
+        "error": null,
+        "timed_out": false,
+        "oom": false,
+        "wall_s": 0.2018749409908196,
+        "cpu_s": 2.877043,
+        "threads_claimed": 1,
+        "threads_pith": 1,
+        "rss_delta": 786432,
+        "rss_pith": 40677376,
+        "n_dist": 478860,
+        "n_edges_in": 0,
+        "n_edges_out": 0,
+        "metric_ms": 8.071232,
+        "collapse_ms": 0,
+        "reduce_ms": 148.31173,
+        "pipeline": "pith:auto-redzed-spatial",
+        "residual_frac": 0.27993506,
+        "n_pairs": 2525,
+        "ess0": 1,
+        "ess1": 1,
+        "ess2": 0
+      },
+      "ripser": {
+        "method": "ripser",
+        "ok": true,
+        "error": null,
+        "wall_s": 2.510435422009323,
+        "threads_claimed": 1,
+        "rss_delta": 64827392,
+        "n_pairs": 2525,
+        "ess0": 1,
+        "ess1": 1,
+        "ess2": 0
+      },
+      "vs_ripser": {
+        "auto": {
+          "exact_match_tol": true,
+          "unmatched": 0,
+          "n_finite_a": 2523,
+          "n_finite_b": 2523,
+          "n_essential_a": 2,
+          "n_essential_b": 2,
+          "class": "exact"
+        }
+      },
+      "ratio": {
+        "auto": 12.435597056711892
+      }
+    },
+    {
+      "name": "uniform2",
+      "n": 2000,
+      "T": 0.35,
+      "auto": {
+        "method": "pith:exact:auto:t1",
+        "ok": true,
+        "error": null,
+        "timed_out": false,
+        "oom": false,
+        "wall_s": 0.09087174999876879,
+        "cpu_s": 5.477593,
+        "threads_claimed": 1,
+        "threads_pith": 1,
+        "rss_delta": 0,
+        "rss_pith": 67338240,
+        "n_dist": 1999000,
+        "n_edges_in": 571692,
+        "n_edges_out": 0,
+        "metric_ms": 21.742673,
+        "collapse_ms": 0,
+        "reduce_ms": 15.167437,
+        "pipeline": "pith:auto-redzed-sparsegt",
+        "residual_frac": 0.072345651,
+        "n_pairs": 2505,
+        "ess0": 1,
+        "ess1": 0,
+        "ess2": 0
+      },
+      "ripser": {
+        "method": "ripser",
+        "ok": true,
+        "error": null,
+        "wall_s": 0.4322034539945889,
+        "threads_claimed": 1,
+        "rss_delta": 0,
+        "n_pairs": 2505,
+        "ess0": 1,
+        "ess1": 0,
+        "ess2": 0
+      },
+      "vs_ripser": {
+        "auto": {
+          "exact_match_tol": true,
+          "unmatched": 0,
+          "n_finite_a": 2504,
+          "n_finite_b": 2504,
+          "n_essential_a": 1,
+          "n_essential_b": 1,
+          "class": "exact"
+        }
+      },
+      "ratio": {
+        "auto": 4.756191599704471
+      }
+    },
+    {
+      "name": "uniform2",
+      "n": 5000,
+      "T": 0.35,
+      "auto": {
+        "method": "pith:exact:auto:t1",
+        "ok": true,
+        "error": null,
+        "timed_out": false,
+        "oom": false,
+        "wall_s": 0.5896405459934613,
+        "cpu_s": 6.498740000000001,
+        "threads_claimed": 1,
+        "threads_pith": 1,
+        "rss_delta": 112709632,
+        "rss_pith": 311681024,
+        "n_dist": 12497500,
+        "n_edges_in": 3466504,
+        "n_edges_out": 0,
+        "metric_ms": 129.7921,
+        "collapse_ms": 0,
+        "reduce_ms": 124.24353,
+        "pipeline": "pith:auto-redzed-sparsegt",
+        "residual_frac": 0.075171587,
+        "n_pairs": 6309,
+        "ess0": 1,
+        "ess1": 0,
+        "ess2": 0
+      },
+      "ripser": {
+        "method": "ripser",
+        "ok": true,
+        "error": null,
+        "wall_s": 3.2292904349887976,
+        "threads_claimed": 1,
+        "rss_delta": 0,
+        "n_pairs": 6309,
+        "ess0": 1,
+        "ess1": 0,
+        "ess2": 0
+      },
+      "vs_ripser": {
+        "auto": {
+          "exact_match_tol": true,
+          "unmatched": 0,
+          "n_finite_a": 6308,
+          "n_finite_b": 6308,
+          "n_essential_a": 1,
+          "n_essential_b": 1,
+          "class": "exact"
+        }
+      },
+      "ratio": {
+        "auto": 5.476710271929991
+      }
+    },
+    {
+      "name": "sphere",
+      "n": 2000,
+      "T": 1.4,
+      "auto": {
+        "method": "pith:exact:auto:t1",
+        "ok": true,
+        "error": null,
+        "timed_out": false,
+        "oom": false,
+        "wall_s": 0.1420613649970619,
+        "cpu_s": 9.868953,
+        "threads_claimed": 1,
+        "threads_pith": 1,
+        "rss_delta": 0,
+        "rss_pith": 86900736,
+        "n_dist": 1999000,
+        "n_edges_in": 979816,
+        "n_edges_out": 0,
+        "metric_ms": 29.716649,
+        "collapse_ms": 0,
+        "reduce_ms": 23.378193,
+        "pipeline": "pith:auto-redzed-sparsegt",
+        "residual_frac": 0.057086485,
+        "n_pairs": 2569,
+        "ess0": 1,
+        "ess1": 0,
+        "ess2": 0
+      },
+      "ripser": {
+        "method": "ripser",
+        "ok": true,
+        "error": null,
+        "wall_s": 0.7707801849901443,
+        "threads_claimed": 1,
+        "rss_delta": 0,
+        "n_pairs": 2569,
+        "ess0": 1,
+        "ess1": 0,
+        "ess2": 0
+      },
+      "vs_ripser": {
+        "auto": {
+          "exact_match_tol": true,
+          "unmatched": 0,
+          "n_finite_a": 2568,
+          "n_finite_b": 2568,
+          "n_essential_a": 1,
+          "n_essential_b": 1,
+          "class": "exact"
+        }
+      },
+      "ratio": {
+        "auto": 5.425684773661618
+      }
+    },
+    {
+      "name": "blobs",
+      "n": 4000,
+      "T": 1.0,
+      "auto": {
+        "method": "pith:exact:auto:t1",
+        "ok": true,
+        "error": null,
+        "timed_out": false,
+        "oom": false,
+        "wall_s": 0.16066820301057305,
+        "cpu_s": 10.799725,
+        "threads_claimed": 1,
+        "threads_pith": 1,
+        "rss_delta": 0,
+        "rss_pith": 21245952,
+        "n_dist": 2667593,
+        "n_edges_in": 0,
+        "n_edges_out": 0,
+        "metric_ms": 11.548414,
+        "collapse_ms": 0,
+        "reduce_ms": 141.91101,
+        "pipeline": "pith:auto-redzed-cc",
+        "residual_frac": 0.055819008,
+        "n_pairs": 5053,
+        "ess0": 3,
+        "ess1": 0,
+        "ess2": 0
+      },
+      "ripser": {
+        "method": "ripser",
+        "ok": true,
+        "error": null,
+        "wall_s": 2.0231618090037955,
+        "threads_claimed": 1,
+        "rss_delta": 0,
+        "n_pairs": 5053,
+        "ess0": 3,
+        "ess1": 0,
+        "ess2": 0
+      },
+      "vs_ripser": {
+        "auto": {
+          "exact_match_tol": true,
+          "unmatched": 0,
+          "n_finite_a": 5050,
+          "n_finite_b": 5050,
+          "n_essential_a": 3,
+          "n_essential_b": 3,
+          "class": "exact"
+        }
+      },
+      "ratio": {
+        "auto": 12.59217300681864
+      }
+    },
+    {
+      "name": "anisotropic_blob",
+      "n": 4000,
+      "T": 2.5,
+      "auto": {
+        "method": "pith:exact:auto:t1",
+        "ok": true,
+        "error": null,
+        "timed_out": false,
+        "oom": false,
+        "wall_s": 0.434045475005405,
+        "cpu_s": 13.256098,
+        "threads_claimed": 1,
+        "threads_pith": 1,
+        "rss_delta": 0,
+        "rss_pith": 274083840,
+        "n_dist": 7998000,
+        "n_edges_in": 2719935,
+        "n_edges_out": 0,
+        "metric_ms": 92.308135,
+        "collapse_ms": 0,
+        "reduce_ms": 80.648327,
+        "pipeline": "pith:auto-redzed-sparsegt",
+        "residual_frac": 0.061408504,
+        "n_pairs": 5071,
+        "ess0": 1,
+        "ess1": 0,
+        "ess2": 0
+      },
+      "ripser": {
+        "method": "ripser",
+        "ok": true,
+        "error": null,
+        "wall_s": 2.2841108099964913,
+        "threads_claimed": 1,
+        "rss_delta": 0,
+        "n_pairs": 5071,
+        "ess0": 1,
+        "ess1": 0,
+        "ess2": 0
+      },
+      "vs_ripser": {
+        "auto": {
+          "exact_match_tol": true,
+          "unmatched": 0,
+          "n_finite_a": 5070,
+          "n_finite_b": 5070,
+          "n_essential_a": 1,
+          "n_essential_b": 1,
+          "class": "exact"
+        }
+      },
+      "ratio": {
+        "auto": 5.262376735912402
+      }
+    },
+    {
+      "name": "anisotropic_blob",
+      "n": 8000,
+      "T": 2.5,
+      "auto": {
+        "method": "pith:exact:auto:t1",
+        "ok": true,
+        "error": null,
+        "timed_out": false,
+        "oom": false,
+        "wall_s": 2.0504300629982026,
+        "cpu_s": 17.589281999999997,
+        "threads_claimed": 1,
+        "threads_pith": 1,
+        "rss_delta": 769589248,
+        "rss_pith": 1081270272,
+        "n_dist": 31996000,
+        "n_edges_in": 10931123,
+        "n_edges_out": 0,
+        "metric_ms": 403.20332,
+        "collapse_ms": 0,
+        "reduce_ms": 441.96562,
+        "pipeline": "pith:auto-redzed-sparsegt",
+        "residual_frac": 0.063952293,
+        "n_pairs": 10192,
+        "ess0": 1,
+        "ess1": 0,
+        "ess2": 0
+      },
+      "ripser": {
+        "method": "ripser",
+        "ok": true,
+        "error": null,
+        "wall_s": 11.315529665997019,
+        "threads_claimed": 1,
+        "rss_delta": 0,
+        "n_pairs": 10192,
+        "ess0": 1,
+        "ess1": 0,
+        "ess2": 0
+      },
+      "vs_ripser": {
+        "auto": {
+          "exact_match_tol": true,
+          "unmatched": 0,
+          "n_finite_a": 10191,
+          "n_finite_b": 10191,
+          "n_essential_a": 1,
+          "n_essential_b": 1,
+          "class": "exact"
+        }
+      },
+      "ratio": {
+        "auto": 5.5186128364949445
+      }
+    },
+    {
+      "name": "grid_holes",
+      "n": 4000,
+      "T": 0.12,
+      "auto": {
+        "method": "pith:exact:auto:t1",
+        "ok": true,
+        "error": null,
+        "timed_out": false,
+        "oom": false,
+        "wall_s": 0.11309789099323098,
+        "cpu_s": 29.016282,
+        "threads_claimed": 1,
+        "threads_pith": 1,
+        "rss_delta": 0,
+        "rss_pith": 36696064,
+        "n_dist": 320307,
+        "n_edges_in": 0,
+        "n_edges_out": 0,
+        "metric_ms": 7.513976,
+        "collapse_ms": 0,
+        "reduce_ms": 68.750359,
+        "pipeline": "pith:auto-redzed-spatial",
+        "residual_frac": 0.35231023,
+        "n_pairs": 5399,
+        "ess0": 1,
+        "ess1": 2,
+        "ess2": 0
+      },
+      "ripser": {
+        "method": "ripser",
+        "ok": true,
+        "error": null,
+        "wall_s": 0.5836091099918121,
+        "threads_claimed": 1,
+        "rss_delta": 0,
+        "n_pairs": 5399,
+        "ess0": 1,
+        "ess1": 2,
+        "ess2": 0
+      },
+      "vs_ripser": {
+        "auto": {
+          "exact_match_tol": true,
+          "unmatched": 0,
+          "n_finite_a": 5396,
+          "n_finite_b": 5396,
+          "n_essential_a": 3,
+          "n_essential_b": 3,
+          "class": "exact"
+        }
+      },
+      "ratio": {
+        "auto": 5.160212138940254
+      }
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "id": "torus200_adaptive_reverted",
+  "lever": "H01-iter",
+  "class": "reproduced",
+  "fidelity": "exact",
+  "status": "experiment",
+  "summary": "torus200 adaptive after revert",
+  "receipts": [
+    {
+      "tag": "one",
+      "match": true,
+      "time_ratio": 0.8890192866286445,
+      "edges_out": 1260
+    },
+    {
+      "tag": "adaptive",
+      "match": true,
+      "time_ratio": 0.9560588076004702,
+      "edges_out": 977
+    }
+  ]
+}

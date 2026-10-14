@@ -1,0 +1,103 @@
+{
+  "id": "skip_sparse",
+  "lever": "H01-guard",
+  "class": "implementation",
+  "fidelity": "exact",
+  "status": "hold",
+  "summary": "collapse vs none on small n; e/n still large so skip never fires",
+  "receipts": [
+    {
+      "always": {
+        "name": "circle_noisy_n80.csv",
+        "dim": 1,
+        "collapse": 1,
+        "match": true,
+        "ripser_s": 0.001957594000032259,
+        "pith_s": 0.001749560999996902,
+        "speedup": 1.1189058283967952,
+        "ratio": 13.559139784946236,
+        "edges_in": 1261,
+        "edges_out": 93,
+        "collapse_ms": 0.289779,
+        "reduce_ms": 0.017272
+      },
+      "no_collapse": {
+        "name": "circle_noisy_n80.csv_noc",
+        "dim": 1,
+        "collapse": 0,
+        "match": true,
+        "ripser_s": 0.0018418760000713519,
+        "pith_s": 0.005770345999735582,
+        "speedup": 0.3191968038235061,
+        "ratio": 1.0,
+        "edges_in": 1261,
+        "edges_out": 1261,
+        "collapse_ms": 0,
+        "reduce_ms": 4.224405
+      },
+      "e_over_n": 15.7625
+    },
+    {
+      "always": {
+        "name": "torus_n80.csv",
+        "dim": 1,
+        "collapse": 1,
+        "match": true,
+        "ripser_s": 0.0018792280002344341,
+        "pith_s": 0.0017911210002239386,
+        "speedup": 1.0491909815135212,
+        "ratio": 3.88265306122449,
+        "edges_in": 761,
+        "edges_out": 196,
+        "collapse_ms": 0.184813,
+        "reduce_ms": 0.08977
+      },
+      "no_collapse": {
+        "name": "torus_n80.csv_noc",
+        "dim": 1,
+        "collapse": 0,
+        "match": true,
+        "ripser_s": 0.0016590539999015164,
+        "pith_s": 0.0030526020000252174,
+        "speedup": 0.5434884730756945,
+        "ratio": 1.0,
+        "edges_in": 761,
+        "edges_out": 761,
+        "collapse_ms": 0,
+        "reduce_ms": 1.633181
+      },
+      "e_over_n": 9.5125
+    },
+    {
+      "always": {
+        "name": "uniform2_n80.csv",
+        "dim": 1,
+        "collapse": 1,
+        "match": true,
+        "ripser_s": 0.0016364709999834304,
+        "pith_s": 0.001757510000061302,
+        "speedup": 0.9311304060439771,
+        "ratio": 4.513812154696133,
+        "edges_in": 817,
+        "edges_out": 181,
+        "collapse_ms": 0.206899,
+        "reduce_ms": 0.065129
+      },
+      "no_collapse": {
+        "name": "uniform2_n80.csv_noc",
+        "dim": 1,
+        "collapse": 0,
+        "match": true,
+        "ripser_s": 0.001869446999990032,
+        "pith_s": 0.0034913580002466915,
+        "speedup": 0.5354498163344867,
+        "ratio": 1.0,
+        "edges_in": 817,
+        "edges_out": 817,
+        "collapse_ms": 0,
+        "reduce_ms": 1.751806
+      },
+      "e_over_n": 10.2125
+    }
+  ]
+}

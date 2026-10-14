@@ -1,0 +1,76 @@
+<svg xmlns='http://www.w3.org/2000/svg' width='720' height='420' font-family='sans-serif'>
+<rect width='720' height='420' fill='white'/>
+<text x='360.0' y='22' text-anchor='middle' font-size='14'>1-thread exact VR: PITH vs Ripser vs giotto-ph vs GUDHI</text>
+<text x='360.0' y='410' text-anchor='middle' font-size='11'>n</text>
+<text x='14' y='210.0' text-anchor='middle' font-size='11' transform='rotate(-90 14 210.0)'>wall seconds</text>
+<path d='M 64.0 353.5 L 315.5 295.6 L 505.7 229.9' fill='none' stroke='#1f77b4' stroke-width='1.6'/>
+<circle cx='64.0' cy='353.5' r='3.2' fill='#1f77b4'/>
+<circle cx='315.5' cy='295.6' r='3.2' fill='#1f77b4'/>
+<circle cx='505.7' cy='229.9' r='3.2' fill='#1f77b4'/>
+<text x='688' y='40' text-anchor='end' font-size='11' fill='#1f77b4'>circle PITH</text>
+<path d='M 64.0 301.0 L 315.5 159.0 L 505.7 64.4' fill='none' stroke='#d62728' stroke-width='1.6'/>
+<circle cx='64.0' cy='301.0' r='3.2' fill='#d62728'/>
+<circle cx='315.5' cy='159.0' r='3.2' fill='#d62728'/>
+<circle cx='505.7' cy='64.4' r='3.2' fill='#d62728'/>
+<text x='688' y='56' text-anchor='end' font-size='11' fill='#d62728'>circle Ripser</text>
+<path d='M 64.0 284.3 L 315.5 151.7 L 505.7 57.9' fill='none' stroke='#2ca02c' stroke-width='1.6'/>
+<circle cx='64.0' cy='284.3' r='3.2' fill='#2ca02c'/>
+<circle cx='315.5' cy='151.7' r='3.2' fill='#2ca02c'/>
+<circle cx='505.7' cy='57.9' r='3.2' fill='#2ca02c'/>
+<text x='688' y='72' text-anchor='end' font-size='11' fill='#2ca02c'>circle giotto t1</text>
+<path d='M 64.0 220.9 L 315.5 77.0' fill='none' stroke='#9467bd' stroke-width='1.6'/>
+<circle cx='64.0' cy='220.9' r='3.2' fill='#9467bd'/>
+<circle cx='315.5' cy='77.0' r='3.2' fill='#9467bd'/>
+<text x='688' y='88' text-anchor='end' font-size='11' fill='#9467bd'>circle GUDHI</text>
+<path d='M 315.5 321.9 L 505.7 282.3 L 696.0 191.4' fill='none' stroke='#ff7f0e' stroke-width='1.6'/>
+<circle cx='315.5' cy='321.9' r='3.2' fill='#ff7f0e'/>
+<circle cx='505.7' cy='282.3' r='3.2' fill='#ff7f0e'/>
+<circle cx='696.0' cy='191.4' r='3.2' fill='#ff7f0e'/>
+<text x='688' y='104' text-anchor='end' font-size='11' fill='#ff7f0e'>figure8 PITH</text>
+<path d='M 315.5 267.6 L 505.7 189.8 L 696.0 57.1' fill='none' stroke='#8c564b' stroke-width='1.6'/>
+<circle cx='315.5' cy='267.6' r='3.2' fill='#8c564b'/>
+<circle cx='505.7' cy='189.8' r='3.2' fill='#8c564b'/>
+<circle cx='696.0' cy='57.1' r='3.2' fill='#8c564b'/>
+<text x='688' y='120' text-anchor='end' font-size='11' fill='#8c564b'>figure8 Ripser</text>
+<path d='M 315.5 254.7 L 505.7 180.4 L 696.0 51.7' fill='none' stroke='#1f77b4' stroke-width='1.6'/>
+<circle cx='315.5' cy='254.7' r='3.2' fill='#1f77b4'/>
+<circle cx='505.7' cy='180.4' r='3.2' fill='#1f77b4'/>
+<circle cx='696.0' cy='51.7' r='3.2' fill='#1f77b4'/>
+<text x='688' y='136' text-anchor='end' font-size='11' fill='#1f77b4'>figure8 giotto t1</text>
+<path d='M 315.5 153.6 L 505.7 46.2' fill='none' stroke='#d62728' stroke-width='1.6'/>
+<circle cx='315.5' cy='153.6' r='3.2' fill='#d62728'/>
+<circle cx='505.7' cy='46.2' r='3.2' fill='#d62728'/>
+<text x='688' y='152' text-anchor='end' font-size='11' fill='#d62728'>figure8 GUDHI</text>
+<path d='M 254.3 334.3 L 505.7 259.5' fill='none' stroke='#2ca02c' stroke-width='1.6'/>
+<circle cx='254.3' cy='334.3' r='3.2' fill='#2ca02c'/>
+<circle cx='505.7' cy='259.5' r='3.2' fill='#2ca02c'/>
+<text x='688' y='168' text-anchor='end' font-size='11' fill='#2ca02c'>disc. circles PITH</text>
+<path d='M 254.3 271.9 L 505.7 141.8' fill='none' stroke='#9467bd' stroke-width='1.6'/>
+<circle cx='254.3' cy='271.9' r='3.2' fill='#9467bd'/>
+<circle cx='505.7' cy='141.8' r='3.2' fill='#9467bd'/>
+<text x='688' y='184' text-anchor='end' font-size='11' fill='#9467bd'>disc. circles Ripser</text>
+<path d='M 254.3 260.5 L 505.7 134.6' fill='none' stroke='#ff7f0e' stroke-width='1.6'/>
+<circle cx='254.3' cy='260.5' r='3.2' fill='#ff7f0e'/>
+<circle cx='505.7' cy='134.6' r='3.2' fill='#ff7f0e'/>
+<text x='688' y='200' text-anchor='end' font-size='11' fill='#ff7f0e'>disc. circles giotto t1</text>
+<path d='M 254.3 185.2 L 505.7 36.0' fill='none' stroke='#8c564b' stroke-width='1.6'/>
+<circle cx='254.3' cy='185.2' r='3.2' fill='#8c564b'/>
+<circle cx='505.7' cy='36.0' r='3.2' fill='#8c564b'/>
+<text x='688' y='216' text-anchor='end' font-size='11' fill='#8c564b'>disc. circles GUDHI</text>
+<path d='M 254.3 367.8 L 444.5 339.0' fill='none' stroke='#1f77b4' stroke-width='1.6'/>
+<circle cx='254.3' cy='367.8' r='3.2' fill='#1f77b4'/>
+<circle cx='444.5' cy='339.0' r='3.2' fill='#1f77b4'/>
+<text x='688' y='232' text-anchor='end' font-size='11' fill='#1f77b4'>grid holes PITH</text>
+<path d='M 254.3 367.3 L 444.5 313.5' fill='none' stroke='#d62728' stroke-width='1.6'/>
+<circle cx='254.3' cy='367.3' r='3.2' fill='#d62728'/>
+<circle cx='444.5' cy='313.5' r='3.2' fill='#d62728'/>
+<text x='688' y='248' text-anchor='end' font-size='11' fill='#d62728'>grid holes Ripser</text>
+<path d='M 254.3 335.1 L 444.5 297.8' fill='none' stroke='#2ca02c' stroke-width='1.6'/>
+<circle cx='254.3' cy='335.1' r='3.2' fill='#2ca02c'/>
+<circle cx='444.5' cy='297.8' r='3.2' fill='#2ca02c'/>
+<text x='688' y='264' text-anchor='end' font-size='11' fill='#2ca02c'>grid holes giotto t1</text>
+<path d='M 254.3 372.0 L 444.5 277.8' fill='none' stroke='#9467bd' stroke-width='1.6'/>
+<circle cx='254.3' cy='372.0' r='3.2' fill='#9467bd'/>
+<circle cx='444.5' cy='277.8' r='3.2' fill='#9467bd'/>
+<text x='688' y='280' text-anchor='end' font-size='11' fill='#9467bd'>grid holes GUDHI</text>
+</svg>

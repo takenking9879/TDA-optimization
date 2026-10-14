@@ -1,0 +1,22 @@
+{
+  "id": "torus200_after_reserve",
+  "lever": "H01",
+  "class": "reproduced",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "torus200 hold-out after reserve collapse",
+  "receipts": [
+    {
+      "collapse": 1,
+      "match": true,
+      "time_ratio": 0.7137688628436654,
+      "edges_out": 1304
+    },
+    {
+      "collapse": -1,
+      "match": true,
+      "time_ratio": 1.1199763757925145,
+      "edges_out": 1069
+    }
+  ]
+}

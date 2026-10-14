@@ -1,0 +1,40 @@
+{
+  "id": "integer_grades",
+  "lever": "H01-grades",
+  "class": "experiment",
+  "fidelity": "exact",
+  "status": "reject",
+  "summary": "integer grades under-collapse (thicker residual); PH still matches because residual is still exact VR",
+  "baseline": {
+    "I156_circle2000_out": 5169,
+    "I156_circle2000_collapse_ms": 3746.3351
+  },
+  "receipts": [
+    {
+      "n": 80,
+      "T": 1.2,
+      "match": true,
+      "collapse_ms": 0.357905,
+      "edges_out": 161,
+      "note": "I156 residual 93"
+    },
+    {
+      "n": 200,
+      "T": 1.5,
+      "match": true,
+      "time_ratio": 0.8103471991204796,
+      "collapse_ms": 10.40715,
+      "edges_out": 6426,
+      "note": "I156 residual 283"
+    },
+    {
+      "n": 2000,
+      "T": 1.5,
+      "match": true,
+      "time_ratio": 0.20466934049314225,
+      "collapse_ms": 100161.5,
+      "edges_out": 1074714,
+      "note": "I156 residual 5169; almost no trims"
+    }
+  ]
+}

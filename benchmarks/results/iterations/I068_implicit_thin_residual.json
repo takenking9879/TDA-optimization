@@ -1,0 +1,16 @@
+{
+  "id": "implicit_thin_residual",
+  "lever": "H02",
+  "class": "experiment",
+  "fidelity": "exact-claimed",
+  "status": "support",
+  "summary": "implicit coh on thin circle80 residual (near-cycle)",
+  "receipts": [
+    {
+      "match": true,
+      "pith_s": 0.0018936180003947811,
+      "ripser_s": 0.00231570300002204,
+      "edges_out": 93
+    }
+  ]
+}

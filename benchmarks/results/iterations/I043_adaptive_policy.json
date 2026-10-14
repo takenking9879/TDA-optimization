@@ -1,0 +1,106 @@
+{
+  "id": "adaptive_policy",
+  "lever": "H01-policy",
+  "class": "structural",
+  "fidelity": "exact",
+  "status": "hold",
+  "summary": "collapse=-1 extra passes if residual mean degree > 6",
+  "receipts": [
+    {
+      "fixed1": {
+        "coll": 1,
+        "match": true,
+        "edges_out": 283,
+        "ratio": 28.964664310954063,
+        "pith_s": 0.005217571000230237,
+        "ripser_s": 0.008830394000142405,
+        "speedup": 1.6924338930419434,
+        "collapse_ms": 3.070557,
+        "name": "circle_noisy_n200.csv"
+      },
+      "adaptive": {
+        "coll": -1,
+        "match": true,
+        "edges_out": 283,
+        "ratio": 28.964664310954063,
+        "pith_s": 0.005186582000078488,
+        "ripser_s": 0.008572057000037603,
+        "speedup": 1.6527371976202985,
+        "collapse_ms": 2.948106,
+        "name": "circle_noisy_n200.csv"
+      }
+    },
+    {
+      "fixed1": {
+        "coll": 1,
+        "match": true,
+        "edges_out": 1260,
+        "ratio": 3.8007936507936506,
+        "pith_s": 0.005517820000022766,
+        "ripser_s": 0.004799128999820823,
+        "speedup": 0.8697509160866107,
+        "collapse_ms": 1.846944,
+        "name": "torus_n200.csv"
+      },
+      "adaptive": {
+        "coll": -1,
+        "match": true,
+        "edges_out": 977,
+        "ratio": 4.901740020470829,
+        "pith_s": 0.0050300380003136524,
+        "ripser_s": 0.005279453000184731,
+        "speedup": 1.0495851124495532,
+        "collapse_ms": 2.346546,
+        "name": "torus_n200.csv"
+      }
+    },
+    {
+      "fixed1": {
+        "coll": 1,
+        "match": true,
+        "edges_out": 8825,
+        "ratio": 3.326798866855524,
+        "pith_s": 0.1146883770002205,
+        "ripser_s": 0.049137248000079126,
+        "speedup": 0.42844139297554673,
+        "collapse_ms": 28.713329,
+        "name": "torus_n500.csv"
+      },
+      "adaptive": {
+        "coll": -1,
+        "match": true,
+        "edges_out": 5735,
+        "ratio": 5.119267654751526,
+        "pith_s": 0.08578027400017163,
+        "ripser_s": 0.049191677999715466,
+        "speedup": 0.5734614230728272,
+        "collapse_ms": 42.717323,
+        "name": "torus_n500.csv"
+      }
+    },
+    {
+      "fixed1": {
+        "coll": 1,
+        "match": true,
+        "edges_out": 819,
+        "ratio": 11.813186813186814,
+        "pith_s": 0.007938683000247693,
+        "ripser_s": 0.008010728000044764,
+        "speedup": 1.009075182847687,
+        "collapse_ms": 4.763755,
+        "name": "sphere_n200.csv"
+      },
+      "adaptive": {
+        "coll": -1,
+        "match": true,
+        "edges_out": 624,
+        "ratio": 15.504807692307692,
+        "pith_s": 0.0071818749997873965,
+        "ripser_s": 0.00718615999994654,
+        "speedup": 1.000596640871537,
+        "collapse_ms": 4.929952,
+        "name": "sphere_n200.csv"
+      }
+    }
+  ]
+}

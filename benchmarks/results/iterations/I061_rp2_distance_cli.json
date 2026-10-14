@@ -1,0 +1,15 @@
+{
+  "id": "rp2_distance_cli",
+  "lever": "I041-hold",
+  "class": "implementation",
+  "fidelity": "unverified",
+  "status": "hold",
+  "summary": "RP2 n=600: --distances CLI parses lower-distance; collapse timed out at 180s (dense metric hold-out). Square CSV identity already shown in I051.",
+  "receipts": [
+    {
+      "n": 600,
+      "error": "TimeoutExpired 180s",
+      "note": "Ripser lower-distance finishes quickly; PITH collapse on the dense RP2 metric does not"
+    }
+  ]
+}

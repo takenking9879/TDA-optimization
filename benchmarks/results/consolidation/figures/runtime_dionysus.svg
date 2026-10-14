@@ -1,0 +1,12 @@
+<svg xmlns='http://www.w3.org/2000/svg' width='720' height='420' font-family='sans-serif'>
+<rect width='720' height='420' fill='white'/>
+<text x='360.0' y='22' text-anchor='middle' font-size='14'>1-thread leftover cells: Dionysus vs PITH vs Ripser</text>
+<text x='360.0' y='410' text-anchor='middle' font-size='11'>cell index (see TABLES.md Dionysus section)</text>
+<text x='14' y='210.0' text-anchor='middle' font-size='11' transform='rotate(-90 14 210.0)'>wall seconds</text>
+<circle cx='64.0' cy='36.0' r='3.2' fill='#1f77b4'/>
+<text x='688' y='40' text-anchor='end' font-size='11' fill='#1f77b4'>Dionysus</text>
+<circle cx='64.0' cy='372.0' r='3.2' fill='#d62728'/>
+<text x='688' y='56' text-anchor='end' font-size='11' fill='#d62728'>PITH exact</text>
+<circle cx='64.0' cy='242.3' r='3.2' fill='#2ca02c'/>
+<text x='688' y='72' text-anchor='end' font-size='11' fill='#2ca02c'>Ripser</text>
+</svg>

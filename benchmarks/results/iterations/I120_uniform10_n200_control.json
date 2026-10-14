@@ -1,0 +1,22 @@
+{
+  "id": "uniform10_n200_control",
+  "lever": "H01",
+  "class": "reproduced",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "high-d control after reserve collapse",
+  "receipts": [
+    {
+      "collapse": 1,
+      "match": true,
+      "time_ratio": 0.05012253428182971,
+      "edges_out": 8237
+    },
+    {
+      "collapse": -1,
+      "match": true,
+      "time_ratio": 0.12136788536044467,
+      "edges_out": 5358
+    }
+  ]
+}

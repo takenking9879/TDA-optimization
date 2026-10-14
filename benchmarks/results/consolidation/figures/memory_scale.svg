@@ -1,0 +1,39 @@
+<svg xmlns='http://www.w3.org/2000/svg' width='720' height='420' font-family='sans-serif'>
+<rect width='720' height='420' fill='white'/>
+<text x='360.0' y='22' text-anchor='middle' font-size='14'>Peak RSS vs n (scale path vs exact / sparse)</text>
+<text x='360.0' y='410' text-anchor='middle' font-size='11'>n</text>
+<text x='14' y='210.0' text-anchor='middle' font-size='11' transform='rotate(-90 14 210.0)'>bytes</text>
+<path d='M 64.0 368.2 L 160.7 347.8 L 233.8 313.8 L 306.9 273.6 L 380.0 218.8 L 453.1 150.2 L 526.2 82.6 L 569.0 36.0' fill='none' stroke='#1f77b4' stroke-width='1.6'/>
+<circle cx='64.0' cy='368.2' r='3.2' fill='#1f77b4'/>
+<circle cx='160.7' cy='347.8' r='3.2' fill='#1f77b4'/>
+<circle cx='233.8' cy='313.8' r='3.2' fill='#1f77b4'/>
+<circle cx='306.9' cy='273.6' r='3.2' fill='#1f77b4'/>
+<circle cx='380.0' cy='218.8' r='3.2' fill='#1f77b4'/>
+<circle cx='453.1' cy='150.2' r='3.2' fill='#1f77b4'/>
+<circle cx='526.2' cy='82.6' r='3.2' fill='#1f77b4'/>
+<circle cx='569.0' cy='36.0' r='3.2' fill='#1f77b4'/>
+<text x='688' y='40' text-anchor='end' font-size='11' fill='#1f77b4'>figure8 scale</text>
+<path d='M 64.0 364.9 L 137.1 347.3 L 380.0 79.1 L 526.2 195.8 L 646.4 115.7 L 696.0 67.5' fill='none' stroke='#d62728' stroke-width='1.6'/>
+<circle cx='64.0' cy='364.9' r='3.2' fill='#d62728'/>
+<circle cx='137.1' cy='347.3' r='3.2' fill='#d62728'/>
+<circle cx='380.0' cy='79.1' r='3.2' fill='#d62728'/>
+<circle cx='526.2' cy='195.8' r='3.2' fill='#d62728'/>
+<circle cx='646.4' cy='115.7' r='3.2' fill='#d62728'/>
+<circle cx='696.0' cy='67.5' r='3.2' fill='#d62728'/>
+<text x='688' y='56' text-anchor='end' font-size='11' fill='#d62728'>sphere scale</text>
+<path d='M 64.0 372.0 L 160.7 324.2 L 233.8 275.9 L 306.9 182.4 L 380.0 68.8' fill='none' stroke='#2ca02c' stroke-width='1.6'/>
+<circle cx='64.0' cy='372.0' r='3.2' fill='#2ca02c'/>
+<circle cx='160.7' cy='324.2' r='3.2' fill='#2ca02c'/>
+<circle cx='233.8' cy='275.9' r='3.2' fill='#2ca02c'/>
+<circle cx='306.9' cy='182.4' r='3.2' fill='#2ca02c'/>
+<circle cx='380.0' cy='68.8' r='3.2' fill='#2ca02c'/>
+<text x='688' y='72' text-anchor='end' font-size='11' fill='#2ca02c'>figure8 exact</text>
+<path d='M 306.9 326.7 L 380.0 278.1 L 453.1 213.7 L 495.9 174.7 L 526.2 144.2 L 569.0 103.5' fill='none' stroke='#9467bd' stroke-width='1.6'/>
+<circle cx='306.9' cy='326.7' r='3.2' fill='#9467bd'/>
+<circle cx='380.0' cy='278.1' r='3.2' fill='#9467bd'/>
+<circle cx='453.1' cy='213.7' r='3.2' fill='#9467bd'/>
+<circle cx='495.9' cy='174.7' r='3.2' fill='#9467bd'/>
+<circle cx='526.2' cy='144.2' r='3.2' fill='#9467bd'/>
+<circle cx='569.0' cy='103.5' r='3.2' fill='#9467bd'/>
+<text x='688' y='88' text-anchor='end' font-size='11' fill='#9467bd'>figure8 sparse</text>
+</svg>

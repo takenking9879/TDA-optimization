@@ -1,0 +1,30 @@
+{
+  "id": "march_native_collapse",
+  "lever": "H01-native",
+  "class": "implementation",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "-march=native -flto vs I121",
+  "receipts": [
+    {
+      "n": 2000,
+      "T": 1.5,
+      "match": true,
+      "collapse_ms": 4474.9544,
+      "ripser_s": 28.37847891199999,
+      "pith_s": 4.551037518000157,
+      "time_ratio": 6.235606452321717,
+      "edges_out": 5169
+    },
+    {
+      "n": 3000,
+      "T": 1.5,
+      "match": true,
+      "collapse_ms": 14545.293,
+      "ripser_s": 113.16918979699949,
+      "pith_s": 14.743907507001495,
+      "time_ratio": 7.675657877211886,
+      "edges_out": 9190
+    }
+  ]
+}

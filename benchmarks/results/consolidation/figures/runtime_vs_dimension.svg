@@ -1,0 +1,31 @@
+<svg xmlns='http://www.w3.org/2000/svg' width='720' height='420' font-family='sans-serif'>
+<rect width='720' height='420' fill='white'/>
+<text x='360.0' y='22' text-anchor='middle' font-size='14'>Runtime vs ambient dimension (uniform n=400, 1 thread)</text>
+<text x='360.0' y='410' text-anchor='middle' font-size='11'>dimension</text>
+<text x='14' y='210.0' text-anchor='middle' font-size='11' transform='rotate(-90 14 210.0)'>wall seconds</text>
+<path d='M 64.0 222.2 L 380.0 231.1 L 696.0 332.9' fill='none' stroke='#1f77b4' stroke-width='1.6'/>
+<circle cx='64.0' cy='222.2' r='3.2' fill='#1f77b4'/>
+<circle cx='380.0' cy='231.1' r='3.2' fill='#1f77b4'/>
+<circle cx='696.0' cy='332.9' r='3.2' fill='#1f77b4'/>
+<text x='688' y='40' text-anchor='end' font-size='11' fill='#1f77b4'>PITH exact auto</text>
+<path d='M 64.0 245.3 L 380.0 246.0 L 696.0 372.0' fill='none' stroke='#d62728' stroke-width='1.6'/>
+<circle cx='64.0' cy='245.3' r='3.2' fill='#d62728'/>
+<circle cx='380.0' cy='246.0' r='3.2' fill='#d62728'/>
+<circle cx='696.0' cy='372.0' r='3.2' fill='#d62728'/>
+<text x='688' y='56' text-anchor='end' font-size='11' fill='#d62728'>PITH forced RedZeD</text>
+<path d='M 64.0 64.6 L 380.0 113.1 L 696.0 284.4' fill='none' stroke='#2ca02c' stroke-width='1.6'/>
+<circle cx='64.0' cy='64.6' r='3.2' fill='#2ca02c'/>
+<circle cx='380.0' cy='113.1' r='3.2' fill='#2ca02c'/>
+<circle cx='696.0' cy='284.4' r='3.2' fill='#2ca02c'/>
+<text x='688' y='72' text-anchor='end' font-size='11' fill='#2ca02c'>Ripser</text>
+<path d='M 64.0 213.2 L 380.0 171.1 L 696.0 304.1' fill='none' stroke='#9467bd' stroke-width='1.6'/>
+<circle cx='64.0' cy='213.2' r='3.2' fill='#9467bd'/>
+<circle cx='380.0' cy='171.1' r='3.2' fill='#9467bd'/>
+<circle cx='696.0' cy='304.1' r='3.2' fill='#9467bd'/>
+<text x='688' y='88' text-anchor='end' font-size='11' fill='#9467bd'>PITH sparse</text>
+<path d='M 64.0 36.0 L 380.0 81.3 L 696.0 229.6' fill='none' stroke='#ff7f0e' stroke-width='1.6'/>
+<circle cx='64.0' cy='36.0' r='3.2' fill='#ff7f0e'/>
+<circle cx='380.0' cy='81.3' r='3.2' fill='#ff7f0e'/>
+<circle cx='696.0' cy='229.6' r='3.2' fill='#ff7f0e'/>
+<text x='688' y='104' text-anchor='end' font-size='11' fill='#ff7f0e'>giotto-ph 1t</text>
+</svg>

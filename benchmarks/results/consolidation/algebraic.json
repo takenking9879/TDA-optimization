@@ -1,0 +1,200 @@
+{
+  "note": "I321 algebraic leftover vs Ripser. Counts only. \u03c4 frozen.",
+  "n_cells": 7,
+  "n_alg_ge10": 2,
+  "series": [
+    {
+      "name": "figure8",
+      "n": 2000,
+      "T": 1.1,
+      "pith_wall": 0.14749418399878778,
+      "pith_reduce_ms": 96.105514,
+      "pith_pipeline": "pith:auto-redzed-spatial",
+      "pith_alg": {
+        "leftover": 479758,
+        "empty_skip": 433469,
+        "ae_or_keep": 46289,
+        "coface": 479758
+      },
+      "ripser_wall": 2.6686414670111844,
+      "ripser_alg": {
+        "leftover": 479758,
+        "apparent": 479410,
+        "cols_reduced": 348,
+        "cofacet_probes": 12652103
+      },
+      "ratio_wall": 18.093197946253376,
+      "ratio_leftover": 1.0,
+      "ratio_cols": 0.007517984834409903,
+      "ratio_coface": 26.371843721209444
+    },
+    {
+      "name": "torus",
+      "n": 2000,
+      "T": 1.6,
+      "pith_wall": 0.20740279600431677,
+      "pith_reduce_ms": 153.04304,
+      "pith_pipeline": "pith:auto-redzed-spatial",
+      "pith_alg": {
+        "leftover": 476861,
+        "empty_skip": 388146,
+        "ae_or_keep": 88715,
+        "coface": 476861
+      },
+      "ripser_wall": 2.6463753880088916,
+      "ripser_alg": {
+        "leftover": 476861,
+        "apparent": 476336,
+        "cols_reduced": 525,
+        "cofacet_probes": 19169332
+      },
+      "ratio_wall": 12.759593597541526,
+      "ratio_leftover": 1.0,
+      "ratio_cols": 0.005917826748576904,
+      "ratio_coface": 40.19899299795957
+    },
+    {
+      "name": "uniform2",
+      "n": 2000,
+      "T": 0.35,
+      "pith_wall": 0.0597013450023951,
+      "pith_reduce_ms": 38.370923,
+      "pith_pipeline": "pith:auto-redzed",
+      "pith_alg": {
+        "leftover": 569693,
+        "empty_skip": 565775,
+        "ae_or_keep": 3918,
+        "coface": 569693
+      },
+      "ripser_wall": 0.4929186630033655,
+      "ripser_alg": {
+        "leftover": 569693,
+        "apparent": 569188,
+        "cols_reduced": 505,
+        "cofacet_probes": 2514860
+      },
+      "ratio_wall": 8.256408008623433,
+      "ratio_leftover": 1.0,
+      "ratio_cols": 0.12889229198570698,
+      "ratio_coface": 4.41441267489683
+    },
+    {
+      "name": "uniform2",
+      "n": 5000,
+      "T": 0.35,
+      "pith_wall": 0.3986573540023528,
+      "pith_reduce_ms": 290.48922,
+      "pith_pipeline": "pith:auto-redzed",
+      "pith_alg": {
+        "leftover": 3461505,
+        "empty_skip": 3449278,
+        "ae_or_keep": 12227,
+        "coface": 3461505
+      },
+      "ripser_wall": 3.7977055039955303,
+      "ripser_alg": {
+        "leftover": 3461505,
+        "apparent": 3460196,
+        "cols_reduced": 1309,
+        "cofacet_probes": 21538796
+      },
+      "ratio_wall": 9.526239678932694,
+      "ratio_leftover": 1.0,
+      "ratio_cols": 0.10705814999591069,
+      "ratio_coface": 6.2223789941080545
+    },
+    {
+      "name": "sphere",
+      "n": 2000,
+      "T": 1.4,
+      "pith_wall": 0.09247381999739446,
+      "pith_reduce_ms": 61.684813,
+      "pith_pipeline": "pith:auto-redzed",
+      "pith_alg": {
+        "leftover": 977817,
+        "empty_skip": 972957,
+        "ae_or_keep": 4860,
+        "coface": 977817
+      },
+      "ripser_wall": 0.9034520660061389,
+      "ripser_alg": {
+        "leftover": 977817,
+        "apparent": 977248,
+        "cols_reduced": 569,
+        "cofacet_probes": 5581032
+      },
+      "ratio_wall": 9.769814484051752,
+      "ratio_leftover": 1.0,
+      "ratio_cols": 0.11707818930041153,
+      "ratio_coface": 5.707644681980371
+    },
+    {
+      "name": "anisotropic_blob",
+      "n": 4000,
+      "T": 2.5,
+      "pith_wall": 0.26741386999492534,
+      "pith_reduce_ms": 199.62987,
+      "pith_pipeline": "pith:auto-redzed",
+      "pith_alg": {
+        "leftover": 2715936,
+        "empty_skip": 2708946,
+        "ae_or_keep": 6990,
+        "coface": 2715936
+      },
+      "ripser_wall": 2.69798290199833,
+      "ripser_alg": {
+        "leftover": 2715936,
+        "apparent": 2714865,
+        "cols_reduced": 1071,
+        "cofacet_probes": 11316610
+      },
+      "ratio_wall": 10.089165913681025,
+      "ratio_leftover": 1.0,
+      "ratio_cols": 0.15321888412017168,
+      "ratio_coface": 4.166743988076302
+    },
+    {
+      "name": "anisotropic_blob",
+      "n": 8000,
+      "T": 2.5,
+      "pith_wall": 1.2398757109913277,
+      "pith_reduce_ms": 974.56928,
+      "pith_pipeline": "pith:auto-redzed",
+      "pith_alg": {
+        "leftover": 10923124,
+        "empty_skip": 10906862,
+        "ae_or_keep": 16262,
+        "coface": 10923124
+      },
+      "ripser_wall": 12.514069581986405,
+      "ripser_alg": {
+        "leftover": 10923125,
+        "apparent": 10920933,
+        "cols_reduced": 2192,
+        "cofacet_probes": 57233304
+      },
+      "ratio_wall": 10.09300325109275,
+      "ratio_leftover": 1.0000000915489011,
+      "ratio_cols": 0.13479276841716886,
+      "ratio_coface": 5.239646093919651
+    }
+  ],
+  "gudhi_cohom": [
+    {
+      "name": "uniform2",
+      "n": 2000,
+      "ok": false,
+      "error": "Command '['/usr/bin/python3', '-c', \"import time,sys,numpy as np,gudhi;pts=np.loadtxt('/workspace/benchmarks/datasets/generated/uniform2_n2000.csv',delimiter=',');t0=time.perf_counter();st=gudhi.RipsComplex(points=pts,max_edge_length=0.35).create_simplex_tree(max_dimension=2);st.compute_persistence();print('ok',time.perf_counter()-t0,st.num_simplices())\"]' timed out after 15 seconds",
+      "wall_s": null,
+      "n_simplices": null
+    },
+    {
+      "name": "sphere",
+      "n": 2000,
+      "ok": false,
+      "error": "Command '['/usr/bin/python3', '-c', \"import time,sys,numpy as np,gudhi;pts=np.loadtxt('/workspace/benchmarks/datasets/generated/sphere_n2000.csv',delimiter=',');t0=time.perf_counter();st=gudhi.RipsComplex(points=pts,max_edge_length=1.4).create_simplex_tree(max_dimension=2);st.compute_persistence();print('ok',time.perf_counter()-t0,st.num_simplices())\"]' timed out after 15 seconds",
+      "wall_s": null,
+      "n_simplices": null
+    }
+  ]
+}

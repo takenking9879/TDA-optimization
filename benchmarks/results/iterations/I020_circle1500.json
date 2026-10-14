@@ -1,0 +1,20 @@
+{
+  "id": "circle1500",
+  "lever": "H01+H02",
+  "class": "structural",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "owned pipeline at n=1500 H1",
+  "receipts": [
+    {
+      "n": 1500,
+      "match": true,
+      "ripser_s": 3.532159680999939,
+      "pith_s": 1.1296381540000766,
+      "speedup": 3.1268062861478914,
+      "ratio": 126.68503720033067,
+      "collapse_ms": 1092.4617,
+      "reduce_ms": 1.040521
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "id": "thick_remainder_clock",
+  "lever": "H02",
+  "class": "experiment",
+  "fidelity": "exact",
+  "status": "reject",
+  "summary": "implicit still wrong on thick residuals; collapse=0 uniform10 implicit killed after 65s",
+  "receipts": [
+    {
+      "note": "I111: only circle80 collapse=1 matched Ripser (1/7). circle200 collapse=1 had 2 unmatched. Dense leftover-as-cohomology still ~1 bar per leftover.",
+      "killed": "uniform10 n=200 collapse=0 implicit after 65s"
+    }
+  ]
+}

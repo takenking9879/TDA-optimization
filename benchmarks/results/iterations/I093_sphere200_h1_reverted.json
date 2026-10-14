@@ -1,0 +1,14 @@
+{
+  "id": "sphere200_h1_reverted",
+  "lever": "H01",
+  "class": "reproduced",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "sphere200 H1 after revert",
+  "receipts": [
+    {
+      "match": true,
+      "time_ratio": 0.9931804729984274
+    }
+  ]
+}

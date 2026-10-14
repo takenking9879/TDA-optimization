@@ -1,0 +1,28 @@
+{
+  "id": "h0_skip_collapse",
+  "lever": "H05",
+  "class": "implementation",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "adaptive policy skips collapse on H0-only",
+  "receipts": [
+    {
+      "dataset": "circle_noisy",
+      "n": 500,
+      "match": true,
+      "ripser_s": 0.010608722000142734,
+      "pith_s": 0.008910900999580917,
+      "time_ratio": 1.1905330337124906,
+      "collapse_ms": 0
+    },
+    {
+      "dataset": "uniform10",
+      "n": 200,
+      "match": true,
+      "ripser_s": 0.004165334999925108,
+      "pith_s": 0.004052258000228903,
+      "time_ratio": 1.0279046891115564,
+      "collapse_ms": 0
+    }
+  ]
+}

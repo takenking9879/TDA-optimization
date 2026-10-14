@@ -1,0 +1,20 @@
+{
+  "id": "gabriel_leftover_h1",
+  "lever": "H16-gabriel-leftover",
+  "class": "algorithm",
+  "fidelity": "exact-claimed",
+  "status": "reject",
+  "summary": "I272 Gabriel leftover invented H1 (n=256 ess 31 vs 0, finite 37 vs 68); reverted",
+  "all_match": false,
+  "ess_ok": false,
+  "unit_test": {
+    "n": 256,
+    "T": 0.35,
+    "maxdim": 1,
+    "gabriel_ess1": 31,
+    "full_ess1": 0,
+    "gabriel_finite_h1": 37,
+    "full_finite_h1": 68
+  },
+  "note": "Non-Gabriel leftovers still reduce in RedZeD AE. leftover_coface is not the diametral-disk test. Engine restored to I271."
+}

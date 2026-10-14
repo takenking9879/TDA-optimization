@@ -1,0 +1,38 @@
+{
+  "id": "prefetch_c_walk",
+  "lever": "H01-prefetch",
+  "class": "experiment",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "prefetch +8 C-walk vs I156",
+  "baseline": {
+    "I156_circle2000_collapse_ms": 3746.3351,
+    "I156_circle2000_ratio": 7.204315563457339,
+    "I156_circle3000_collapse_ms": 12605.784,
+    "I156_circle3000_ratio": 8.887997792569863
+  },
+  "receipts": [
+    {
+      "n": 2000,
+      "T": 1.5,
+      "match": true,
+      "ripser_s": 27.19468695500109,
+      "pith_s": 3.987913385999491,
+      "time_ratio": 6.819277231665673,
+      "collapse_ms": 3911.8823,
+      "edges_out": 5169,
+      "fast_trims": 1040560
+    },
+    {
+      "n": 3000,
+      "T": 1.5,
+      "match": true,
+      "ripser_s": 112.27249617999951,
+      "pith_s": 13.193300979000924,
+      "time_ratio": 8.509810877406471,
+      "collapse_ms": 13027.386,
+      "edges_out": 9190,
+      "fast_trims": 2321396
+    }
+  ]
+}

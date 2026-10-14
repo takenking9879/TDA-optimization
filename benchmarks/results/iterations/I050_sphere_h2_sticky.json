@@ -1,0 +1,30 @@
+{
+  "id": "sphere_h2_sticky",
+  "lever": "H01-sticky",
+  "class": "implementation",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "sphere H2 after sticky collapse",
+  "receipts": [
+    {
+      "n": 200,
+      "match": true,
+      "ripser_s": 0.11325997800031473,
+      "pith_s": 0.008163323000189848,
+      "time_ratio": 13.874249248459327,
+      "collapse_ms": 4.806112,
+      "reduce_ms": 0.793287,
+      "edges_out": 819
+    },
+    {
+      "n": 500,
+      "match": true,
+      "ripser_s": 3.9254274010008885,
+      "pith_s": 0.06894086399915977,
+      "time_ratio": 56.93905143180002,
+      "collapse_ms": 61.887761,
+      "reduce_ms": 1.391167,
+      "edges_out": 1805
+    }
+  ]
+}

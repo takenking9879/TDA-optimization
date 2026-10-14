@@ -1,0 +1,46 @@
+{
+  "id": "sticky_circle_scale",
+  "lever": "H01-sticky",
+  "class": "implementation",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "circle H1 wall-clock after sticky collapse",
+  "receipts": [
+    {
+      "n": 500,
+      "match": true,
+      "edges_in": 50705,
+      "edges_out": 959,
+      "ratio": 52.87278415015641,
+      "collapse_ms": 36.449863,
+      "reduce_ms": 0.25214,
+      "ripser_s": 0.13050895100013804,
+      "pith_s": 0.04163697500007402,
+      "time_ratio": 3.1344484319503527
+    },
+    {
+      "n": 1000,
+      "match": true,
+      "edges_in": 204915,
+      "edges_out": 2265,
+      "ratio": 90.47019867549669,
+      "collapse_ms": 324.38202,
+      "reduce_ms": 0.648053,
+      "ripser_s": 0.9083643560002201,
+      "pith_s": 0.3468039819999831,
+      "time_ratio": 2.619244308447025
+    },
+    {
+      "n": 1500,
+      "match": true,
+      "edges_in": 459662,
+      "edges_out": 3710,
+      "ratio": 123.89811320754717,
+      "collapse_ms": 1114.5574,
+      "reduce_ms": 1.126118,
+      "ripser_s": 3.9527499069999976,
+      "pith_s": 1.148459866000394,
+      "time_ratio": 3.4417832298883675
+    }
+  ]
+}

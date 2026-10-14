@@ -1,0 +1,14 @@
+{
+  "id": "gudhi_collapse_api",
+  "lever": "H01-oracle",
+  "class": "experiment",
+  "fidelity": "n/a",
+  "status": "hold",
+  "summary": "gudhi 3.13.0 has no flag_filtration; collapse oracle unavailable in this wheel",
+  "receipts": [
+    {
+      "version": "3.13.0",
+      "has_flag_filtration": false
+    }
+  ]
+}

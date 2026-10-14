@@ -1,0 +1,9 @@
+{
+  "id": "hold_i122_i125",
+  "lever": "H01",
+  "class": "hold",
+  "fidelity": "exact",
+  "status": "hold",
+  "summary": "I122–I125 unused: incremental-S not implemented (needs full dominator set = rejected progressive); fake RedZeD heap still enumerates all leftover triangles",
+  "receipts": []
+}

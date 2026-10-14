@@ -1,0 +1,40 @@
+{
+  "id": "highd_skip_homology",
+  "lever": "H01-policy",
+  "class": "experiment",
+  "fidelity": "exact",
+  "status": "reject",
+  "summary": "high-d skip+homology 0.005\u00d7 vs Ripser; do not skip",
+  "receipts": [
+    {
+      "tag": "skip",
+      "match": true,
+      "ripser_s": 0.018447418000505422,
+      "pith_s": 3.4709245699996245,
+      "time_ratio": 0.005314842667556851,
+      "collapse_ms": 0,
+      "reduce_ms": 3465.6612,
+      "edges_out": 19622
+    },
+    {
+      "tag": "adaptive",
+      "match": true,
+      "ripser_s": 0.018447418000505422,
+      "pith_s": 0.22805524300019897,
+      "time_ratio": 0.08089012889078515,
+      "collapse_ms": 35.725413,
+      "reduce_ms": 188.7595,
+      "edges_out": 5970
+    },
+    {
+      "tag": "one_pass",
+      "match": true,
+      "ripser_s": 0.018447418000505422,
+      "pith_s": 0.5421108609998555,
+      "time_ratio": 0.03402886628480653,
+      "collapse_ms": 22.792491,
+      "reduce_ms": 515.56265,
+      "edges_out": 9543
+    }
+  ]
+}

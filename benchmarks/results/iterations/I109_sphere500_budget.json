@@ -1,0 +1,9 @@
+{
+  "id": "sphere500_budget",
+  "lever": "H01-budget",
+  "class": "experiment",
+  "fidelity": "exact",
+  "status": "hold",
+  "summary": "skipped after I107 reject",
+  "receipts": []
+}

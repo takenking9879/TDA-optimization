@@ -1,0 +1,19 @@
+<svg xmlns='http://www.w3.org/2000/svg' width='520' height='520' font-family='sans-serif'>
+<rect width='520' height='520' fill='white'/>
+<text x='260.0' y='20' text-anchor='middle' font-size='13'>sphere n=400 H2  (filled = essential)</text>
+<line x1='48.0' y1='472.0' x2='472.0' y2='48.0' stroke='#bbb'/>
+<line x1='48.0' y1='472.0' x2='472.0' y2='472.0' stroke='#444'/>
+<line x1='48.0' y1='472.0' x2='48.0' y2='48.0' stroke='#444'/>
+<text x='260.0' y='508' text-anchor='middle' font-size='11'>birth</text>
+<text x='14' y='260.0' text-anchor='middle' font-size='11' transform='rotate(-90 14 260.0)'>death</text>
+<circle cx='238.7' cy='48.0' r='4.5' fill='#1f77b4'/>
+<text x='510' y='36' text-anchor='end' font-size='11' fill='#1f77b4'>Ripser VR</text>
+<circle cx='238.7' cy='48.0' r='4.5' fill='#d62728'/>
+<text x='510' y='52' text-anchor='end' font-size='11' fill='#d62728'>PITH exact</text>
+<circle cx='229.8' cy='285.9' r='3' fill='none' stroke='#2ca02c' stroke-width='1.3'/>
+<circle cx='252.0' cy='48.0' r='4.5' fill='#2ca02c'/>
+<text x='510' y='68' text-anchor='end' font-size='11' fill='#2ca02c'>PITH scale</text>
+<text x='510' y='84' text-anchor='end' font-size='11' fill='#ff7f0e'>PITH sparse</text>
+<circle cx='75.4' cy='79.4' r='3' fill='none' stroke='#7f7f7f' stroke-width='1.3'/>
+<text x='510' y='100' text-anchor='end' font-size='11' fill='#7f7f7f'>GUDHI Alpha</text>
+</svg>

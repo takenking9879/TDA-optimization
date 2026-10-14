@@ -1,0 +1,46 @@
+{
+  "id": "alpha_vs_vr",
+  "lever": "H16-alpha",
+  "class": "structural",
+  "fidelity": "empirical-other-complex",
+  "status": "support-as-other-complex",
+  "summary": "GUDHI Alpha wall-clock vs VR Ripser",
+  "receipts": [
+    {
+      "name": "circle_noisy_n200.csv",
+      "dim": 1,
+      "alpha_s": 0.0011077509998358437,
+      "ripser_vr_s": 0.008774167999945348,
+      "speedup_vs_ripser": 7.92070420270041,
+      "alpha_simplices": 1153,
+      "note": "different complex; not exact-VR"
+    },
+    {
+      "name": "circle_noisy_n500.csv",
+      "dim": 1,
+      "alpha_s": 0.0025440299996262183,
+      "ripser_vr_s": 0.1282356249998884,
+      "speedup_vs_ripser": 50.40649088993817,
+      "alpha_simplices": 2947,
+      "note": "different complex; not exact-VR"
+    },
+    {
+      "name": "sphere_n200.csv",
+      "dim": 2,
+      "alpha_s": 0.003446868000082759,
+      "ripser_vr_s": 0.10205358700022771,
+      "speedup_vs_ripser": 29.607628431891623,
+      "alpha_simplices": 3039,
+      "note": "different complex; not exact-VR"
+    },
+    {
+      "name": "sphere_n500.csv",
+      "dim": 2,
+      "alpha_s": 0.00904192799998782,
+      "ripser_vr_s": 3.5833417969997754,
+      "speedup_vs_ripser": 396.3028456989043,
+      "alpha_simplices": 8015,
+      "note": "different complex; not exact-VR"
+    }
+  ]
+}

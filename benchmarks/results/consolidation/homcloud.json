@@ -1,0 +1,256 @@
+{
+  "note": "homcloud 5.4.0 oracle, 1 thread, GPL, not vendored. Default from_rips_filtration is Python ripser. simplicial=True algorithm=phat-twist is PHAT on an explicit complex.",
+  "homcloud_version": "5.4.0",
+  "threads": 1,
+  "budget_s": 20,
+  "receipts": [
+    {
+      "name": "figure8",
+      "n": 200,
+      "T": 1.1,
+      "maxdim": 1,
+      "kind": "ripser",
+      "homcloud": {
+        "ok": true,
+        "error": null,
+        "timed_out": false,
+        "wall_s": 1.125834719001432,
+        "threads_used": 1,
+        "ess1": 2,
+        "n_h1": 4,
+        "method": "homcloud:ripser"
+      },
+      "pith": {
+        "ok": true,
+        "wall_s": 0.0035406989918556064,
+        "pipeline": "pith:auto-redzed",
+        "threads_used": 1
+      },
+      "ripser": {
+        "ok": true,
+        "wall_s": 0.0038832660065963864,
+        "threads_used": 1
+      },
+      "ripser_over_homcloud": 0.003449232770189109,
+      "homcloud_over_pith": 317.96962170212765,
+      "threads": 1
+    },
+    {
+      "name": "figure8",
+      "n": 2000,
+      "T": 1.1,
+      "maxdim": 1,
+      "kind": "ripser",
+      "homcloud": {
+        "ok": true,
+        "error": null,
+        "timed_out": false,
+        "wall_s": 5.8424702389893355,
+        "threads_used": 1,
+        "ess1": 2,
+        "n_h1": 346,
+        "method": "homcloud:ripser"
+      },
+      "pith": {
+        "ok": true,
+        "wall_s": 0.12907503900351003,
+        "pipeline": "pith:auto-redzed-spatial",
+        "threads_used": 1
+      },
+      "ripser": {
+        "ok": true,
+        "wall_s": 2.038975292991381,
+        "threads_used": 1
+      },
+      "ripser_over_homcloud": 0.34899198619522537,
+      "homcloud_over_pith": 45.264136924494416,
+      "threads": 1
+    },
+    {
+      "name": "circle_noisy",
+      "n": 400,
+      "T": 1.5,
+      "maxdim": 1,
+      "kind": "ripser",
+      "homcloud": {
+        "ok": true,
+        "error": null,
+        "timed_out": false,
+        "wall_s": 1.442868551996071,
+        "threads_used": 1,
+        "ess1": 1,
+        "n_h1": 52,
+        "method": "homcloud:ripser"
+      },
+      "pith": {
+        "ok": true,
+        "wall_s": 0.01272624199918937,
+        "pipeline": "pith:auto-collapse",
+        "threads_used": 1
+      },
+      "ripser": {
+        "ok": true,
+        "wall_s": 0.1350961330026621,
+        "threads_used": 1
+      },
+      "ripser_over_homcloud": 0.09363024290450402,
+      "homcloud_over_pith": 113.37742533011537,
+      "threads": 1
+    },
+    {
+      "name": "uniform2",
+      "n": 2000,
+      "T": 0.35,
+      "maxdim": 1,
+      "kind": "ripser",
+      "homcloud": {
+        "ok": true,
+        "error": null,
+        "timed_out": false,
+        "wall_s": 2.0563695050077513,
+        "threads_used": 1,
+        "ess1": 0,
+        "n_h1": 516,
+        "method": "homcloud:ripser"
+      },
+      "pith": {
+        "ok": true,
+        "wall_s": 0.060630096995737404,
+        "pipeline": "pith:auto-redzed",
+        "threads_used": 1
+      },
+      "ripser": {
+        "ok": true,
+        "wall_s": 0.4456824440130731,
+        "threads_used": 1
+      },
+      "ripser_over_homcloud": 0.21673266547073852,
+      "homcloud_over_pith": 33.91664547645907,
+      "threads": 1
+    },
+    {
+      "name": "torus",
+      "n": 1000,
+      "T": 1.6,
+      "maxdim": 1,
+      "kind": "ripser",
+      "homcloud": {
+        "ok": true,
+        "error": null,
+        "timed_out": false,
+        "wall_s": 1.7361839180084644,
+        "threads_used": 1,
+        "ess1": 1,
+        "n_h1": 288,
+        "method": "homcloud:ripser"
+      },
+      "pith": {
+        "ok": true,
+        "wall_s": 0.0371074239956215,
+        "pipeline": "pith:auto-redzed-spatial",
+        "threads_used": 1
+      },
+      "ripser": {
+        "ok": true,
+        "wall_s": 0.28575377599918284,
+        "threads_used": 1
+      },
+      "ripser_over_homcloud": 0.1645872727164552,
+      "homcloud_over_pith": 46.78804754038776,
+      "threads": 1
+    },
+    {
+      "name": "figure8",
+      "n": 80,
+      "T": 1.1,
+      "maxdim": 1,
+      "kind": "phat-twist",
+      "homcloud": {
+        "ok": true,
+        "error": null,
+        "timed_out": false,
+        "wall_s": 1.235470241997973,
+        "threads_used": 1,
+        "ess1": 2,
+        "n_h1": 2,
+        "method": "homcloud:phat-twist"
+      },
+      "pith": {
+        "ok": true,
+        "wall_s": 0.0019205050048185512,
+        "pipeline": "pith:auto-redzed",
+        "threads_used": 1
+      },
+      "ripser": {
+        "ok": true,
+        "wall_s": 0.0013283750013215467,
+        "threads_used": 1
+      },
+      "ripser_over_homcloud": 0.0010751978932113575,
+      "homcloud_over_pith": 643.3048801737957,
+      "threads": 1
+    },
+    {
+      "name": "figure8",
+      "n": 200,
+      "T": 1.1,
+      "maxdim": 1,
+      "kind": "phat-twist",
+      "homcloud": {
+        "ok": true,
+        "error": null,
+        "timed_out": false,
+        "wall_s": 2.365039226002409,
+        "threads_used": 1,
+        "ess1": 2,
+        "n_h1": 11,
+        "method": "homcloud:phat-twist"
+      },
+      "pith": {
+        "ok": true,
+        "wall_s": 0.0036325129913166165,
+        "pipeline": "pith:auto-redzed",
+        "threads_used": 1
+      },
+      "ripser": {
+        "ok": true,
+        "wall_s": 0.003917907990398817,
+        "threads_used": 1
+      },
+      "ripser_over_homcloud": 0.0016565932384221798,
+      "homcloud_over_pith": 651.0752285417684,
+      "threads": 1
+    },
+    {
+      "name": "circle_noisy",
+      "n": 400,
+      "T": 1.5,
+      "maxdim": 1,
+      "kind": "phat-twist",
+      "homcloud": {
+        "ok": false,
+        "error": "Command '['/usr/bin/python3', '/workspace/benchmarks/eval_homcloud.py', '--worker', '/workspace/benchmarks/datasets/generated/homcloud_phat_circle_noisy_n400.csv', '1.5', '1', 'phat']' timed out after 20 seconds",
+        "timed_out": true,
+        "wall_s": null,
+        "threads_used": 1,
+        "ess1": null,
+        "n_h1": null,
+        "method": "homcloud:phat"
+      },
+      "pith": {
+        "ok": true,
+        "wall_s": 0.016049395009758882,
+        "pipeline": "pith:auto-collapse",
+        "threads_used": 1
+      },
+      "ripser": {
+        "ok": true,
+        "wall_s": 0.13711890800914261,
+        "threads_used": 1
+      },
+      "ripser_over_homcloud": null,
+      "homcloud_over_pith": null,
+      "threads": 1
+    }
+  ]
+}

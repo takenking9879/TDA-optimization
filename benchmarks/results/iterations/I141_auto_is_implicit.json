@@ -1,0 +1,37 @@
+{
+  "id": "auto_is_implicit",
+  "lever": "H02-heap",
+  "class": "implementation",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "auto=implicit identity 3/3",
+  "receipts": [
+    {
+      "dataset": "circle_noisy",
+      "n": 80,
+      "collapse": 0,
+      "match": true,
+      "unmatched": 0,
+      "pipeline": "pith:threshold+collapse0+implicit_coh",
+      "pith_s": 0.0020413559996086406
+    },
+    {
+      "dataset": "circle_noisy",
+      "n": 200,
+      "collapse": 1,
+      "match": true,
+      "unmatched": 0,
+      "pipeline": "pith:threshold+collapse1+implicit_coh",
+      "pith_s": 0.004678167999372818
+    },
+    {
+      "dataset": "torus",
+      "n": 200,
+      "collapse": 1,
+      "match": true,
+      "unmatched": 0,
+      "pipeline": "pith:threshold+collapse1+implicit_coh",
+      "pith_s": 0.00418450199867948
+    }
+  ]
+}

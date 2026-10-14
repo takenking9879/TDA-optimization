@@ -1,0 +1,17 @@
+{
+  "id": "prog_circle_scale",
+  "lever": "H01-prog",
+  "class": "implementation",
+  "fidelity": "exact",
+  "status": "reject",
+  "summary": "progressive intersection exact (I101 5/5) but much slower: circle2000 T=1.5 pith still running at 136s vs I096 4.5s; killed. Same trap as bitset: full ∧_w walk loses to first-candidate return.",
+  "receipts": [
+    {
+      "n": 2000,
+      "T": 1.5,
+      "killed_after_s": 136,
+      "baseline_pith_s": 4.5,
+      "note": "pith 99.9% CPU in collapse; I101 identity already passed"
+    }
+  ]
+}

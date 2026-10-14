@@ -1,0 +1,60 @@
+{
+  "id": "maxdeg_first_circle",
+  "lever": "H01-maxdeg",
+  "class": "implementation",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "max-degree-first dominator vs I082/I096",
+  "receipts": [
+    {
+      "n": 80,
+      "T": 1.2,
+      "match": true,
+      "collapse_ms": 0.279142,
+      "ripser_s": 0.0019816800004264223,
+      "pith_s": 0.0014751420003449311,
+      "time_ratio": 1.3433825353512054,
+      "edges_out": 93
+    },
+    {
+      "n": 200,
+      "T": 1.2,
+      "match": true,
+      "collapse_ms": 3.160275,
+      "ripser_s": 0.008549184000003152,
+      "pith_s": 0.0050029519998133765,
+      "time_ratio": 1.7088279080674889,
+      "edges_out": 283
+    },
+    {
+      "n": 1000,
+      "T": 1.2,
+      "match": true,
+      "collapse_ms": 333.93514,
+      "ripser_s": 0.91255842999999,
+      "pith_s": 0.3500724259993149,
+      "time_ratio": 2.606770377286945,
+      "edges_out": 2226
+    },
+    {
+      "n": 2000,
+      "T": 1.2,
+      "match": true,
+      "collapse_ms": 2673.1352,
+      "ripser_s": 10.506883177000418,
+      "pith_s": 2.7491718279998167,
+      "time_ratio": 3.821835750675792,
+      "edges_out": 5169
+    },
+    {
+      "n": 2000,
+      "T": 1.5,
+      "match": true,
+      "collapse_ms": 4495.3329,
+      "ripser_s": 28.31839708300049,
+      "pith_s": 4.568602752999141,
+      "time_ratio": 6.198480939147177,
+      "edges_out": 5169
+    }
+  ]
+}

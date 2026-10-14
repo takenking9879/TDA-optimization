@@ -1,0 +1,31 @@
+{
+  "id": "bitset_circle500_T",
+  "lever": "H03",
+  "class": "reproduced",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "circle500 T-sweep after bitset",
+  "receipts": [
+    {
+      "T": 0.8,
+      "match": true,
+      "time_ratio": 1.3520241258262358,
+      "collapse_ms": 22.61665,
+      "edges_out": 959
+    },
+    {
+      "T": 1.2,
+      "match": true,
+      "time_ratio": 2.355280994482891,
+      "collapse_ms": 51.607396,
+      "edges_out": 959
+    },
+    {
+      "T": 1.5,
+      "match": true,
+      "time_ratio": 3.241841029014522,
+      "collapse_ms": 89.559885,
+      "edges_out": 959
+    }
+  ]
+}

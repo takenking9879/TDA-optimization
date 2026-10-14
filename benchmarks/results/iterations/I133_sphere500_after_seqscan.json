@@ -1,0 +1,15 @@
+{
+  "id": "sphere500_after_seqscan",
+  "lever": "H01-seqscan",
+  "class": "reproduced",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "sphere500 H2 after sequential C-scan",
+  "receipts": [
+    {
+      "match": true,
+      "time_ratio": 46.46771705134527,
+      "collapse_ms": 53.284769
+    }
+  ]
+}

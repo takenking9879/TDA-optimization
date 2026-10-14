@@ -1,0 +1,26 @@
+{
+  "id": "bitset_sphere_h2",
+  "lever": "H01-bitset",
+  "class": "implementation",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "sphere H2 after bitset collapse",
+  "receipts": [
+    {
+      "n": 200,
+      "match": true,
+      "ripser_s": 0.10320250899985695,
+      "pith_s": 0.008168446999661683,
+      "time_ratio": 12.634287644166797,
+      "collapse_ms": 5.1428
+    },
+    {
+      "n": 500,
+      "match": true,
+      "ripser_s": 3.7670627259994944,
+      "pith_s": 0.08783981699980359,
+      "time_ratio": 42.88559396711764,
+      "collapse_ms": 80.362384
+    }
+  ]
+}

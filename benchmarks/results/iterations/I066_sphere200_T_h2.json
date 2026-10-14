@@ -1,0 +1,42 @@
+{
+  "id": "sphere200_T_h2",
+  "lever": "H03",
+  "class": "reproduced",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "sphere200 H2 T-sweep after sticky",
+  "receipts": [
+    {
+      "T": 0.8,
+      "match": true,
+      "ripser_s": 0.014192325999829336,
+      "pith_s": 0.0032504389992027427,
+      "time_ratio": 4.366279755845405,
+      "edges_out": 643
+    },
+    {
+      "T": 1.0,
+      "match": true,
+      "ripser_s": 0.026744304000203556,
+      "pith_s": 0.0040106789992933045,
+      "time_ratio": 6.6682733783770765,
+      "edges_out": 669
+    },
+    {
+      "T": 1.2,
+      "match": true,
+      "ripser_s": 0.05246173799969256,
+      "pith_s": 0.004853718000049412,
+      "time_ratio": 10.808567370242459,
+      "edges_out": 709
+    },
+    {
+      "T": 1.4,
+      "match": true,
+      "ripser_s": 0.10265277799953765,
+      "pith_s": 0.007085682000251836,
+      "time_ratio": 14.487353228085766,
+      "edges_out": 819
+    }
+  ]
+}

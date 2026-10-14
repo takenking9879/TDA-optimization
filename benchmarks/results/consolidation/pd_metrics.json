@@ -1,0 +1,191 @@
+[
+  {
+    "name": "figure8",
+    "n": 400,
+    "T": 1.1,
+    "plot_dim": 1,
+    "Ripser VR": {
+      "ok": true,
+      "ess": {
+        "0": 1,
+        "1": 2
+      },
+      "n_finite": 21
+    },
+    "PITH exact": {
+      "ok": true,
+      "ess": {
+        "0": 1,
+        "1": 2
+      },
+      "n_finite": 21
+    },
+    "PITH scale": {
+      "ok": true,
+      "ess": {
+        "0": 1,
+        "1": 2
+      },
+      "n_finite": 21
+    },
+    "PITH sparse": {
+      "ok": true,
+      "ess": {
+        "0": 1,
+        "1": 2
+      },
+      "n_finite": 27
+    },
+    "GUDHI Alpha": {
+      "ok": true,
+      "ess": {
+        "0": 1,
+        "1": 0
+      },
+      "n_finite": 184
+    }
+  },
+  {
+    "name": "circle_noisy",
+    "n": 400,
+    "T": 1.5,
+    "plot_dim": 1,
+    "Ripser VR": {
+      "ok": true,
+      "ess": {
+        "0": 1,
+        "1": 1
+      },
+      "n_finite": 55
+    },
+    "PITH exact": {
+      "ok": true,
+      "ess": {
+        "0": 1,
+        "1": 1
+      },
+      "n_finite": 55
+    },
+    "PITH scale": {
+      "ok": true,
+      "ess": {
+        "0": 1,
+        "1": 1
+      },
+      "n_finite": 55
+    },
+    "PITH sparse": {
+      "ok": true,
+      "ess": {
+        "0": 1,
+        "1": 1
+      },
+      "n_finite": 59
+    },
+    "GUDHI Alpha": {
+      "ok": true,
+      "ess": {
+        "0": 1,
+        "1": 0
+      },
+      "n_finite": 239
+    }
+  },
+  {
+    "name": "nested_loops",
+    "n": 400,
+    "T": 1.6,
+    "plot_dim": 1,
+    "Ripser VR": {
+      "ok": true,
+      "ess": {
+        "0": 1,
+        "1": 1
+      },
+      "n_finite": 32
+    },
+    "PITH exact": {
+      "ok": true,
+      "ess": {
+        "0": 1,
+        "1": 1
+      },
+      "n_finite": 32
+    },
+    "PITH scale": {
+      "ok": true,
+      "ess": {
+        "0": 1,
+        "1": 1
+      },
+      "n_finite": 32
+    },
+    "PITH sparse": {
+      "ok": true,
+      "ess": {
+        "0": 1,
+        "1": 1
+      },
+      "n_finite": 44
+    },
+    "GUDHI Alpha": {
+      "ok": true,
+      "ess": {
+        "0": 1,
+        "1": 0
+      },
+      "n_finite": 184
+    }
+  },
+  {
+    "name": "sphere",
+    "n": 400,
+    "T": 1.4,
+    "plot_dim": 2,
+    "Ripser VR": {
+      "ok": true,
+      "ess": {
+        "0": 1,
+        "1": 0,
+        "2": 1
+      },
+      "n_finite": 0
+    },
+    "PITH exact": {
+      "ok": true,
+      "ess": {
+        "0": 1,
+        "1": 0,
+        "2": 1
+      },
+      "n_finite": 0
+    },
+    "PITH scale": {
+      "ok": true,
+      "ess": {
+        "0": 1,
+        "1": 0,
+        "2": 1
+      },
+      "n_finite": 1
+    },
+    "PITH sparse": {
+      "ok": false,
+      "ess": {
+        "0": 0,
+        "1": 0,
+        "2": 0
+      },
+      "n_finite": 0
+    },
+    "GUDHI Alpha": {
+      "ok": true,
+      "ess": {
+        "0": 1,
+        "1": 0,
+        "2": 0
+      },
+      "n_finite": 1
+    }
+  }
+]

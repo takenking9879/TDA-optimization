@@ -1,0 +1,26 @@
+{
+  "id": "alpha_cells",
+  "lever": "alpha",
+  "class": "structural",
+  "fidelity": "other-complex",
+  "status": "hold",
+  "summary": "Alpha cell count vs PITH residual edges",
+  "receipts": [
+    {
+      "name": "circle_noisy_n200.csv",
+      "alpha_s": 0.008150100708007812,
+      "alpha_simplices": 1153,
+      "pith_s": 0.005671952999819041,
+      "pith_edges_out": 283,
+      "note": "different complexes"
+    },
+    {
+      "name": "sphere_n200.csv",
+      "alpha_s": 0.008821725845336914,
+      "alpha_simplices": 3039,
+      "pith_s": 0.00802436099957049,
+      "pith_edges_out": 819,
+      "note": "different complexes"
+    }
+  ]
+}

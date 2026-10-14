@@ -1,0 +1,15 @@
+{
+  "id": "bitset_annulus",
+  "lever": "H01-bitset",
+  "class": "reproduced",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "annulus n=300 after bitset",
+  "receipts": [
+    {
+      "match": true,
+      "time_ratio": 2.351286030331064,
+      "collapse_ms": 16.649413
+    }
+  ]
+}

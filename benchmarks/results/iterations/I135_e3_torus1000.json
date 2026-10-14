@@ -1,0 +1,28 @@
+{
+  "id": "e3_torus1000",
+  "lever": "H02-E3",
+  "class": "experiment",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "torus1000 collapse+Ripser-sparse vs Ripser",
+  "receipts": [
+    {
+      "collapse": 1,
+      "match": true,
+      "collapse_s": 0.2542201979995298,
+      "ripser_residual_s": 0.055947367000044324,
+      "total_s": 0.3101675649995741,
+      "ripser_orig_s": 0.4054166339992662,
+      "time_ratio": 1.307089069741457
+    },
+    {
+      "collapse": -1,
+      "match": true,
+      "collapse_s": 0.3766727809997974,
+      "ripser_residual_s": 0.041460354999799165,
+      "total_s": 0.41813313599959656,
+      "ripser_orig_s": 0.4054166339992662,
+      "time_ratio": 0.9695874330315151
+    }
+  ]
+}

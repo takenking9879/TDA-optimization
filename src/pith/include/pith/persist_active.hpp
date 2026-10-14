@@ -1,0 +1,529 @@
+#pragma once
+
+#include "persist.hpp"
+
+namespace pith {
+
+// Owned active PH (RedZeD idea, not the vendor copy). Shape-agnostic.
+// H0: Kruskal. H1: I242 vendor-faithful AE + I243 incremental rbit
+// neighborhoods. I233/I236/I237 leftover-coface pairing invented finite
+// H1. H2: I234 tet reduce on empty face-XOR triangles (I232 walk, rbit
+// AND).
+inline Result persist_active_h1(const Graph& g, int maxdim, value_t threshold,
+                                value_t ratio) {
+    Result r;
+    Counters& c = r.counters;
+    c.n_vertices = g.n;
+    c.n_edges_out = static_cast<std::int64_t>(g.edges.size());
+    c.pipeline = (maxdim >= 2) ? "pith:active-h012" : "pith:active-h1";
+    const auto t0 = std::chrono::steady_clock::now();
+
+    std::vector<Edge> edges = g.edges;
+    std::sort(edges.begin(), edges.end(), [](const Edge& a, const Edge& b) {
+        if (a.t != b.t) return a.t < b.t;
+        if (a.u != b.u) return a.u < b.u;
+        return a.v < b.v;
+    });
+
+    UnionFind uf(g.n);
+    struct BirthEdge {
+        index_t u, v;
+        value_t t;
+        int id;
+    };
+    std::vector<BirthEdge> leftover;
+    leftover.reserve(edges.size());
+    int components = g.n;
+    for (const Edge& e : edges) {
+        if (e.t > threshold) continue;
+        if (uf.unite(e.u, e.v)) {
+            --components;
+            r.pairs.push_back({0, 0, e.t});
+            ++c.n_columns_cleared;
+        } else {
+            leftover.push_back({e.u, e.v, e.t, static_cast<int>(leftover.size())});
+        }
+    }
+    for (int i = 0; i < components; ++i) r.pairs.push_back({0, 0, kInf});
+
+    if (maxdim < 1) {
+        const auto t1 = std::chrono::steady_clock::now();
+        c.reduce_ms = std::chrono::duration<double, std::milli>(t1 - t0).count();
+        c.rss_bytes_peak = peak_rss_bytes();
+        return r;
+    }
+
+    std::unordered_map<std::uint64_t, int> edge_id;
+    edge_id.reserve(leftover.size() * 2);
+    for (const auto& e : leftover) edge_id[pack2(e.u, e.v)] = e.id;
+
+    const int m = static_cast<int>(leftover.size());
+    std::vector<std::vector<int>> R(static_cast<size_t>(m)), Ri(static_cast<size_t>(m));
+    // I236: active = nonempty R (RedZeD key of R), not Ri. Carriers stay
+    // in the star after Ri[j] is cleared so process_leftover can still
+    // resolve_bar(R[e]) (unit-square death). I233 used Ri and skipped that.
+    std::vector<std::vector<int>> star(static_cast<size_t>(g.n));
+    std::vector<int> star_pos(static_cast<size_t>(m) * 2, -1);
+    auto star_add = [&](int id) {
+        const BirthEdge& e = leftover[static_cast<size_t>(id)];
+        star_pos[static_cast<size_t>(id) * 2] = static_cast<int>(star[static_cast<size_t>(e.u)].size());
+        star[static_cast<size_t>(e.u)].push_back(id);
+        star_pos[static_cast<size_t>(id) * 2 + 1] = static_cast<int>(star[static_cast<size_t>(e.v)].size());
+        star[static_cast<size_t>(e.v)].push_back(id);
+    };
+    auto star_del_at = [&](index_t v, int id, int which) {
+        const int p = star_pos[static_cast<size_t>(id) * 2 + static_cast<size_t>(which)];
+        if (p < 0) return;
+        auto& row = star[static_cast<size_t>(v)];
+        const int last = row.back();
+        row[static_cast<size_t>(p)] = last;
+        const BirthEdge& le = leftover[static_cast<size_t>(last)];
+        const int last_which = (le.u == v) ? 0 : 1;
+        star_pos[static_cast<size_t>(last) * 2 + static_cast<size_t>(last_which)] = p;
+        row.pop_back();
+        star_pos[static_cast<size_t>(id) * 2 + static_cast<size_t>(which)] = -1;
+    };
+    auto star_del = [&](int id) {
+        const BirthEdge& e = leftover[static_cast<size_t>(id)];
+        star_del_at(e.u, id, 0);
+        star_del_at(e.v, id, 1);
+    };
+    for (int i = 0; i < m; ++i) {
+        R[static_cast<size_t>(i)] = {i};
+        Ri[static_cast<size_t>(i)] = {i};
+        // I242: vendor register_active is *after* AE. Pre-inserting every
+        // leftover (I236) lets later births seed earlier triangles.
+    }
+
+    struct H2Tri {
+        index_t a, b, c;
+        value_t t;
+    };
+    std::vector<H2Tri> h2_births;
+    if (maxdim >= 2) h2_births.reserve(static_cast<size_t>(m));
+
+    auto xor_sorted = [](std::vector<int>& a, const std::vector<int>& b) {
+        std::vector<int> out;
+        out.reserve(a.size() + b.size());
+        size_t i = 0, j = 0;
+        while (i < a.size() && j < b.size()) {
+            if (a[i] == b[j]) {
+                ++i;
+                ++j;
+            } else if (a[i] < b[j]) {
+                out.push_back(a[i++]);
+            } else {
+                out.push_back(b[j++]);
+            }
+        }
+        while (i < a.size()) out.push_back(a[i++]);
+        while (j < b.size()) out.push_back(b[j++]);
+        a.swap(out);
+    };
+
+    auto remove_elem = [](std::vector<int>& a, int y) {
+        auto it = std::lower_bound(a.begin(), a.end(), y);
+        if (it != a.end() && *it == y) a.erase(it);
+    };
+
+    auto resolve_bar = [&](std::vector<std::vector<int>>& Rd, std::vector<std::vector<int>>& Rid,
+                           const std::vector<value_t>& birth_t, int dim, std::vector<int>& bar,
+                           value_t td) {
+        if (bar.empty()) return;
+        const int j = bar.back();
+        if (td > birth_t[static_cast<size_t>(j)] * ratio)
+            r.pairs.push_back({dim, birth_t[static_cast<size_t>(j)], td});
+        ++c.n_columns_reduced;
+        std::vector<int> touched = Rid[static_cast<size_t>(j)];
+        if (bar.size() == 1) {
+            Rid[static_cast<size_t>(j)].clear();
+            for (int z : touched) {
+                remove_elem(Rd[static_cast<size_t>(z)], j);
+                if (Rd[static_cast<size_t>(z)].empty()) {
+                    Rid[static_cast<size_t>(z)].clear();
+                    if (dim == 1) star_del(z);
+                }
+            }
+            return;
+        }
+        std::vector<int> others;
+        others.reserve(bar.size() - 1);
+        for (int y : bar)
+            if (y != j) others.push_back(y);
+        for (int z : touched) {
+            xor_sorted(Rd[static_cast<size_t>(z)], bar);
+            ++c.n_additions;
+            if (Rd[static_cast<size_t>(z)].empty()) {
+                Rid[static_cast<size_t>(z)].clear();
+                if (dim == 1) star_del(z);
+            }
+        }
+        for (int y : others) xor_sorted(Rid[static_cast<size_t>(y)], touched);
+        Rid[static_cast<size_t>(j)].clear();
+    };
+
+    std::vector<value_t> leftover_t(static_cast<size_t>(m));
+    for (int i = 0; i < m; ++i) leftover_t[static_cast<size_t>(i)] = leftover[static_cast<size_t>(i)].t;
+
+    auto leftover_of = [&](index_t a, index_t b) -> int {
+        auto it = edge_id.find(pack2(a, b));
+        return it == edge_id.end() ? -1 : it->second;
+    };
+    // Vendor process_seeded XORs x plus *registered* active faces, not
+    // later leftovers that already have a singleton R from Kruskal.
+    auto leftover_active = [&](index_t a, index_t b) -> int {
+        const int id = leftover_of(a, b);
+        if (id < 0) return -1;
+        if (star_pos[static_cast<size_t>(id) * 2] < 0 &&
+            star_pos[static_cast<size_t>(id) * 2 + 1] < 0)
+            return -1;
+        if (R[static_cast<size_t>(id)].empty()) return -1;
+        return id;
+    };
+
+    // I243: RedZeD-style rbit neighborhoods. Incremental by diameter so
+    // a test is d(a,b)≤current leftover time, not a neighbor-list walk.
+    const int nverts = g.n;
+    const int words = (nverts + 63) / 64;
+    std::vector<std::uint64_t> rbits(
+        static_cast<size_t>(nverts) * static_cast<size_t>(std::max(1, words)), 0);
+    std::vector<int> rlo(static_cast<size_t>(nverts), words),
+        rhi(static_cast<size_t>(nverts), -1);
+    auto rbit_add = [&](int i, int j) {
+        const int wj = j >> 6, wi = i >> 6;
+        rbits[static_cast<size_t>(i) * static_cast<size_t>(words) + static_cast<size_t>(wj)] |=
+            std::uint64_t{1} << (j & 63);
+        rbits[static_cast<size_t>(j) * static_cast<size_t>(words) + static_cast<size_t>(wi)] |=
+            std::uint64_t{1} << (i & 63);
+        if (rlo[static_cast<size_t>(i)] > wj) rlo[static_cast<size_t>(i)] = wj;
+        if (rhi[static_cast<size_t>(i)] < wj) rhi[static_cast<size_t>(i)] = wj;
+        if (rlo[static_cast<size_t>(j)] > wi) rlo[static_cast<size_t>(j)] = wi;
+        if (rhi[static_cast<size_t>(j)] < wi) rhi[static_cast<size_t>(j)] = wi;
+    };
+    auto rbit = [&](int a, int b) -> bool {
+        return (rbits[static_cast<size_t>(a) * static_cast<size_t>(words) +
+                      static_cast<size_t>(b >> 6)] >>
+                (b & 63)) &
+               1ull;
+    };
+    size_t rptr = 0;
+    auto advance_rbits = [&](value_t r) {
+        while (rptr < edges.size() && edges[rptr].t <= r) {
+            if (edges[rptr].t <= threshold) rbit_add(edges[rptr].u, edges[rptr].v);
+            ++rptr;
+        }
+    };
+
+    auto reduce_tri = [&](int e0, int e1, int e2, value_t td, index_t a, index_t b,
+                          index_t w) -> bool {
+        int ids[3];
+        int n_left = 0;
+        if (e0 >= 0) ids[n_left++] = e0;
+        if (e1 >= 0) ids[n_left++] = e1;
+        if (e2 >= 0) ids[n_left++] = e2;
+        if (!n_left) return false;
+        ++c.n_simplices_enumerated;
+        ++c.n_columns_assembled;
+        std::vector<int> bar;
+        for (int k = 0; k < n_left; ++k) {
+            const int f = ids[k];
+            if (f < 0 || R[static_cast<size_t>(f)].empty()) continue;
+            xor_sorted(bar, R[static_cast<size_t>(f)]);
+        }
+        if (bar.empty()) {
+            ++c.n_columns_apparent;
+            if (maxdim >= 2) h2_births.push_back({a, b, w, td});
+            return false;
+        }
+        resolve_bar(R, Ri, leftover_t, 1, bar, td);
+        return true;
+    };
+
+    auto e_youngest = [&](const BirthEdge& e, index_t w, value_t twu, value_t twv) {
+        if (twu > e.t || twv > e.t) return false;
+        if (twu == e.t) {
+            const int oid = leftover_of(e.u, w);
+            if (oid > e.id) return false;
+        }
+        if (twv == e.t) {
+            const int oid = leftover_of(e.v, w);
+            if (oid > e.id) return false;
+        }
+        return true;
+    };
+
+    // Vendor coface_ready: combinatorial index, not leftover id.
+    // comb({u<v}) = C(v,2)+u. A later-index face needs strictly smaller diam.
+    auto edge_comb = [](index_t a, index_t b) -> std::uint64_t {
+        if (a > b) std::swap(a, b);
+        return static_cast<std::uint64_t>(b) * static_cast<std::uint64_t>(b - 1) / 2 +
+               static_cast<std::uint64_t>(a);
+    };
+    auto coface_ready = [&](const BirthEdge& e, index_t w, value_t twu, value_t twv) {
+        if (twu > e.t || twv > e.t) return false;
+        const std::uint64_t xidx = edge_comb(e.u, e.v);
+        const std::uint64_t iuw = edge_comb(e.u, w);
+        const std::uint64_t ivw = edge_comb(e.v, w);
+        if (iuw > xidx && !(twu < e.t)) return false;
+        if (ivw > xidx && !(twv < e.t)) return false;
+        return true;
+    };
+
+    // I242: vendor-faithful H1 AE (RedZeD run_active_enumeration).
+    // Seeded cofaces = triangles that share another *registered* leftover.
+    // Leftover-coface with no seeded work erases without pairing
+    // (skip (n+1)-birth / zero bar). I236 paired on leftover-coface
+    // and invented finite H1. Do not first-hit; do not empty-R abort.
+    auto edge_t = [&](index_t a, index_t b) -> value_t {
+        const auto& nb = g.neighbors[static_cast<size_t>(a)];
+        const auto it = std::lower_bound(
+            nb.begin(), nb.end(), b,
+            [](const std::pair<index_t, value_t>& p, index_t x) { return p.first < x; });
+        if (it == nb.end() || it->first != b) return kInf;
+        return it->second;
+    };
+    auto has_leftover_coface = [&](const BirthEdge& e, const std::vector<std::uint64_t>& seenbits) {
+        int wlo = rlo[static_cast<size_t>(e.u)];
+        int whi = rhi[static_cast<size_t>(e.u)];
+        if (rlo[static_cast<size_t>(e.v)] > wlo) wlo = rlo[static_cast<size_t>(e.v)];
+        if (rhi[static_cast<size_t>(e.v)] < whi) whi = rhi[static_cast<size_t>(e.v)];
+        if (wlo > whi) return false;
+        const std::uint64_t* ru =
+            rbits.data() + static_cast<size_t>(e.u) * static_cast<size_t>(words);
+        const std::uint64_t* rv =
+            rbits.data() + static_cast<size_t>(e.v) * static_cast<size_t>(words);
+        for (int w = wlo; w <= whi; ++w) {
+            std::uint64_t acc = ru[w] & rv[w] & ~seenbits[static_cast<size_t>(w)];
+            while (acc) {
+                const int bp = __builtin_ctzll(acc);
+                acc &= acc - 1;
+                const int cand = w * 64 + bp;
+                if (cand >= nverts) break;
+                if (cand == e.u || cand == e.v) continue;
+                const value_t twu = edge_t(e.u, static_cast<index_t>(cand));
+                const value_t twv = edge_t(e.v, static_cast<index_t>(cand));
+                if (coface_ready(e, static_cast<index_t>(cand), twu, twv)) return true;
+            }
+        }
+        return false;
+    };
+
+    if (maxdim >= 2) {
+        // I234 H2 needs every empty-XOR triangle. Vendor also streams all
+        // 2-simplices when dim≥2 (AE is H1-only). I243: rbit AND, same
+        // youngest-face reduce as I232.
+        advance_rbits(threshold);
+        for (const BirthEdge& e : leftover) {
+            int wlo = rlo[static_cast<size_t>(e.u)];
+            int whi = rhi[static_cast<size_t>(e.u)];
+            if (rlo[static_cast<size_t>(e.v)] > wlo) wlo = rlo[static_cast<size_t>(e.v)];
+            if (rhi[static_cast<size_t>(e.v)] < whi) whi = rhi[static_cast<size_t>(e.v)];
+            if (wlo > whi) continue;
+            const std::uint64_t* ru =
+                rbits.data() + static_cast<size_t>(e.u) * static_cast<size_t>(words);
+            const std::uint64_t* rv =
+                rbits.data() + static_cast<size_t>(e.v) * static_cast<size_t>(words);
+            for (int w = wlo; w <= whi; ++w) {
+                std::uint64_t acc = ru[w] & rv[w];
+                while (acc) {
+                    const int bp = __builtin_ctzll(acc);
+                    acc &= acc - 1;
+                    const int cand = w * 64 + bp;
+                    if (cand >= nverts) break;
+                    ++c.n_cofacet_probes;
+                    if (cand == e.u || cand == e.v) continue;
+                    const value_t twu = edge_t(e.u, static_cast<index_t>(cand));
+                    const value_t twv = edge_t(e.v, static_cast<index_t>(cand));
+                    if (twu <= threshold && twv <= threshold &&
+                        e_youngest(e, static_cast<index_t>(cand), twu, twv))
+                        reduce_tri(e.id, leftover_of(e.u, cand), leftover_of(e.v, cand), e.t, e.u,
+                                   e.v, static_cast<index_t>(cand));
+                }
+            }
+        }
+    }
+
+    if (maxdim < 2) {
+        std::vector<std::uint64_t> seenbits(static_cast<size_t>(std::max(1, words)), 0);
+        std::vector<index_t> cands, seen_list;
+        cands.reserve(64);
+        seen_list.reserve(64);
+        for (const BirthEdge& e : leftover) {
+            if (R[static_cast<size_t>(e.id)].empty()) continue;
+            advance_rbits(e.t);
+            for (index_t w : seen_list)
+                seenbits[static_cast<size_t>(w) >> 6] = 0;
+            seen_list.clear();
+            cands.clear();
+            auto consider_star = [&](index_t v, index_t other) {
+                for (int fid : star[static_cast<size_t>(v)]) {
+                    if (fid == e.id) continue;
+                    const BirthEdge& f = leftover[static_cast<size_t>(fid)];
+                    const index_t w = (f.u == v) ? f.v : f.u;
+                    if (w == e.u || w == e.v) continue;
+                    if (!rbit(static_cast<int>(other), static_cast<int>(w))) continue;
+                    const int wb = static_cast<int>(w) >> 6;
+                    const std::uint64_t mask = std::uint64_t{1} << (static_cast<int>(w) & 63);
+                    if (!(seenbits[static_cast<size_t>(wb)] & mask)) {
+                        seenbits[static_cast<size_t>(wb)] |= mask;
+                        seen_list.push_back(w);
+                        cands.push_back(w);
+                    }
+                }
+            };
+            consider_star(e.u, e.v);
+            consider_star(e.v, e.u);
+
+            bool dirty = false;
+            for (index_t w : cands) {
+                ++c.n_cofacet_probes;
+                const value_t twu = edge_t(e.u, w);
+                const value_t twv = edge_t(e.v, w);
+                if (coface_ready(e, w, twu, twv))
+                    dirty |= reduce_tri(e.id, leftover_active(e.u, w), leftover_active(e.v, w), e.t,
+                                        e.u, e.v, w);
+                if (R[static_cast<size_t>(e.id)].empty()) break;
+            }
+
+            if (R[static_cast<size_t>(e.id)].empty()) continue;
+            const bool extra = has_leftover_coface(e, seenbits);
+            if (!dirty) {
+                if (extra) {
+                    // Vendor: leftover coface is an (n+1)-birth. Drop the
+                    // column without a finite bar (zero-persistence skip).
+                    R[static_cast<size_t>(e.id)].clear();
+                    Ri[static_cast<size_t>(e.id)].clear();
+                } else {
+                    star_add(e.id);
+                }
+                continue;
+            }
+            if (extra && !R[static_cast<size_t>(e.id)].empty()) {
+                std::vector<int> bar = R[static_cast<size_t>(e.id)];
+                resolve_bar(R, Ri, leftover_t, 1, bar, e.t);
+            }
+            if (!R[static_cast<size_t>(e.id)].empty()) star_add(e.id);
+        }
+    }
+
+    for (int i = 0; i < m; ++i) {
+        if (!Ri[static_cast<size_t>(i)].empty())
+            r.pairs.push_back({1, leftover[static_cast<size_t>(i)].t, kInf});
+    }
+
+    if (maxdim >= 2 && !h2_births.empty()) {
+        std::sort(h2_births.begin(), h2_births.end(), [](const H2Tri& a, const H2Tri& b) {
+            if (a.t != b.t) return a.t < b.t;
+            return pack3(a.a, a.b, a.c) < pack3(b.a, b.b, b.c);
+        });
+        const int nt = static_cast<int>(h2_births.size());
+        std::unordered_map<std::uint64_t, int> tri_id;
+        tri_id.reserve(static_cast<size_t>(nt) * 2);
+        std::vector<value_t> h2_t(static_cast<size_t>(nt));
+        for (int i = 0; i < nt; ++i) {
+            const H2Tri& tr = h2_births[static_cast<size_t>(i)];
+            tri_id[pack3(tr.a, tr.b, tr.c)] = i;
+            h2_t[static_cast<size_t>(i)] = tr.t;
+        }
+        std::vector<std::vector<int>> R2(static_cast<size_t>(nt)), Ri2(static_cast<size_t>(nt));
+        for (int i = 0; i < nt; ++i) {
+            R2[static_cast<size_t>(i)] = {i};
+            Ri2[static_cast<size_t>(i)] = {i};
+        }
+
+        auto reduce_tet = [&](int f0, int f1, int f2, int f3, value_t td) {
+            int ids[4];
+            int n_left = 0;
+            if (f0 >= 0) ids[n_left++] = f0;
+            if (f1 >= 0) ids[n_left++] = f1;
+            if (f2 >= 0) ids[n_left++] = f2;
+            if (f3 >= 0) ids[n_left++] = f3;
+            if (!n_left) return;
+            ++c.n_simplices_enumerated;
+            ++c.n_columns_assembled;
+            std::vector<int> bar;
+            for (int k = 0; k < n_left; ++k) {
+                const int f = ids[k];
+                if (R2[static_cast<size_t>(f)].empty()) continue;
+                xor_sorted(bar, R2[static_cast<size_t>(f)]);
+            }
+            if (bar.empty()) {
+                ++c.n_columns_apparent;
+                return;
+            }
+            resolve_bar(R2, Ri2, h2_t, 2, bar, td);
+        };
+
+        auto pack4 = [](index_t a, index_t b, index_t c, index_t d) {
+            index_t v[4] = {a, b, c, d};
+            std::sort(v, v + 4);
+            return (static_cast<std::uint64_t>(static_cast<std::uint16_t>(v[0]))) |
+                   (static_cast<std::uint64_t>(static_cast<std::uint16_t>(v[1])) << 16) |
+                   (static_cast<std::uint64_t>(static_cast<std::uint16_t>(v[2])) << 32) |
+                   (static_cast<std::uint64_t>(static_cast<std::uint16_t>(v[3])) << 48);
+        };
+        std::unordered_set<std::uint64_t> seen_tet;
+        seen_tet.reserve(static_cast<size_t>(nt));
+        struct TetCol {
+            value_t t;
+            int f[4];
+        };
+        std::vector<TetCol> tets;
+        tets.reserve(static_cast<size_t>(nt));
+        auto id_of = [&](index_t x, index_t y, index_t z) -> int {
+            auto it = tri_id.find(pack3(x, y, z));
+            return it == tri_id.end() ? -1 : it->second;
+        };
+
+        for (int ti = 0; ti < nt; ++ti) {
+            const H2Tri& tr = h2_births[static_cast<size_t>(ti)];
+            const auto& na = g.neighbors[static_cast<size_t>(tr.a)];
+            const auto& nb = g.neighbors[static_cast<size_t>(tr.b)];
+            const auto& nc = g.neighbors[static_cast<size_t>(tr.c)];
+            size_t i = 0, j = 0;
+            std::vector<index_t> cab;
+            while (i < na.size() && j < nb.size()) {
+                if (na[i].first < nb[j].first) ++i;
+                else if (nb[j].first < na[i].first) ++j;
+                else {
+                    cab.push_back(na[i].first);
+                    ++i;
+                    ++j;
+                }
+            }
+            size_t k = 0, p = 0;
+            while (k < cab.size() && p < nc.size()) {
+                if (cab[k] < nc[p].first) ++k;
+                else if (nc[p].first < cab[k]) ++p;
+                else {
+                    const index_t w = cab[k];
+                    ++c.n_cofacet_probes;
+                    if (w != tr.a && w != tr.b && w != tr.c) {
+                        const value_t tw = std::max({tr.t, edge_time(g, tr.a, w),
+                                                     edge_time(g, tr.b, w), edge_time(g, tr.c, w)});
+                        if (tw <= threshold && seen_tet.insert(pack4(tr.a, tr.b, tr.c, w)).second) {
+                            tets.push_back({tw,
+                                            {id_of(tr.a, tr.b, tr.c), id_of(tr.a, tr.b, w),
+                                             id_of(tr.a, tr.c, w), id_of(tr.b, tr.c, w)}});
+                        }
+                    }
+                    ++k;
+                    ++p;
+                }
+            }
+        }
+        std::sort(tets.begin(), tets.end(), [](const TetCol& a, const TetCol& b) { return a.t < b.t; });
+        for (const TetCol& tet : tets) reduce_tet(tet.f[0], tet.f[1], tet.f[2], tet.f[3], tet.t);
+        for (int i = 0; i < nt; ++i) {
+            if (!Ri2[static_cast<size_t>(i)].empty())
+                r.pairs.push_back({2, h2_t[static_cast<size_t>(i)], kInf});
+        }
+    }
+
+    const auto t1 = std::chrono::steady_clock::now();
+    c.reduce_ms = std::chrono::duration<double, std::milli>(t1 - t0).count();
+    c.rss_bytes_peak = peak_rss_bytes();
+    return r;
+}
+
+}  // namespace pith

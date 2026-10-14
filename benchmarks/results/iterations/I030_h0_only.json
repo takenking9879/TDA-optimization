@@ -1,0 +1,24 @@
+{
+  "id": "h0_only",
+  "lever": "H05",
+  "class": "implementation",
+  "fidelity": "exact",
+  "status": "hold",
+  "summary": "H0-only contract vs Ripser --dim 0",
+  "receipts": [
+    {
+      "name": "circle_noisy_n500.csv",
+      "match": true,
+      "ripser_s": 0.010537397999996756,
+      "pith_s": 0.041567954999663925,
+      "speedup": 0.2534981093027538
+    },
+    {
+      "name": "blobs_n500.csv",
+      "match": true,
+      "ripser_s": 0.008182095999927697,
+      "pith_s": 0.022561002999736957,
+      "speedup": 0.36266543646233695
+    }
+  ]
+}

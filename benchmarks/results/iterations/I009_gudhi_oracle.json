@@ -1,0 +1,74 @@
+{
+  "id": "gudhi_oracle",
+  "lever": "H01-oracle",
+  "class": "structural",
+  "fidelity": "exact-collapse / empirical-alpha",
+  "status": "hold",
+  "summary": "compare our collapse edge counts to GUDHI; Alpha is a different complex",
+  "receipts": [
+    {
+      "dataset": "circle_noisy_n80.csv",
+      "T": 1.2,
+      "n": 80,
+      "our_edges": 93,
+      "gudhi_edges": 93,
+      "gudhi_collapse_s": 0.0007639300001756055,
+      "edge_delta": 0
+    },
+    {
+      "dataset": "circle_noisy_n200.csv",
+      "T": 1.2,
+      "n": 200,
+      "our_edges": 283,
+      "gudhi_edges": 283,
+      "gudhi_collapse_s": 0.005403323000109594,
+      "edge_delta": 0
+    },
+    {
+      "dataset": "blobs_n80.csv",
+      "T": 1.0,
+      "n": 80,
+      "our_edges": 142,
+      "gudhi_edges": 142,
+      "gudhi_collapse_s": 0.0003877249998822663,
+      "edge_delta": 0
+    },
+    {
+      "dataset": "uniform2_n200.csv",
+      "T": 0.35,
+      "n": 200,
+      "our_edges": 528,
+      "gudhi_edges": 528,
+      "gudhi_collapse_s": 0.0034217539998735447,
+      "edge_delta": 0
+    },
+    {
+      "dataset": "sphere_n80.csv",
+      "T": 1.4,
+      "n": 80,
+      "our_edges": 286,
+      "gudhi_edges": 286,
+      "gudhi_collapse_s": 0.000984284000196567,
+      "edge_delta": 0
+    }
+  ],
+  "alpha_circle200": {
+    "alpha_s": 0.001855301999967196,
+    "gudhi_rips_s": 0.08068808799998806,
+    "alpha_long_H1": [
+      [
+        0.008946658031771196,
+        0.7956042779320593
+      ]
+    ],
+    "vr_long_H1": [
+      [
+        0.18917355028408378,
+        "inf"
+      ]
+    ],
+    "n_alpha_pairs": 296,
+    "n_vr_pairs": 220,
+    "note": "Alpha uses squared circumradius in GUDHI; do not require pair identity with VR"
+  }
+}

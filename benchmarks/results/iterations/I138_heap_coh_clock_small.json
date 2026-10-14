@@ -1,0 +1,88 @@
+{
+  "id": "heap_coh_clock_small",
+  "lever": "H02-heap",
+  "class": "experiment",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "heap coh vs homology vs Ripser on n=200",
+  "receipts": [
+    {
+      "dataset": "circle_noisy",
+      "n": 200,
+      "collapse": 1,
+      "engine": "homology",
+      "match": true,
+      "unmatched": 0,
+      "ripser_s": 0.008326565999595914,
+      "pith_s": 0.00458853099917178,
+      "time_ratio": 1.8146474331542797,
+      "reduce_ms": 0.050822,
+      "edges_out": 283
+    },
+    {
+      "dataset": "circle_noisy",
+      "n": 200,
+      "collapse": 1,
+      "engine": "implicit",
+      "match": true,
+      "unmatched": 0,
+      "ripser_s": 0.008326565999595914,
+      "pith_s": 0.00475836499936122,
+      "time_ratio": 1.7498796331751982,
+      "reduce_ms": 0.067422,
+      "edges_out": 283
+    },
+    {
+      "dataset": "torus",
+      "n": 200,
+      "collapse": 1,
+      "engine": "homology",
+      "match": true,
+      "unmatched": 0,
+      "ripser_s": 0.004389915000501787,
+      "pith_s": 0.005561102998399292,
+      "time_ratio": 0.7893964563802146,
+      "reduce_ms": 2.142831,
+      "edges_out": 1304
+    },
+    {
+      "dataset": "torus",
+      "n": 200,
+      "collapse": 1,
+      "engine": "implicit",
+      "match": true,
+      "unmatched": 0,
+      "ripser_s": 0.004389915000501787,
+      "pith_s": 0.0042600959986884845,
+      "time_ratio": 1.0304732573757185,
+      "reduce_ms": 0.957816,
+      "edges_out": 1304
+    },
+    {
+      "dataset": "torus",
+      "n": 200,
+      "collapse": 0,
+      "engine": "homology",
+      "match": true,
+      "unmatched": 0,
+      "ripser_s": 0.004558111999358516,
+      "pith_s": 0.046685776998856454,
+      "time_ratio": 0.09763384680242475,
+      "reduce_ms": 44.691459,
+      "edges_out": 4780
+    },
+    {
+      "dataset": "torus",
+      "n": 200,
+      "collapse": 0,
+      "engine": "implicit",
+      "match": true,
+      "unmatched": 0,
+      "ripser_s": 0.004558111999358516,
+      "pith_s": 0.006056346999685047,
+      "time_ratio": 0.7526173780325921,
+      "reduce_ms": 4.266209,
+      "edges_out": 4780
+    }
+  ]
+}

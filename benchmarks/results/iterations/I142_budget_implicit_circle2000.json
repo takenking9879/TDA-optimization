@@ -1,0 +1,75 @@
+{
+  "id": "budget_implicit_circle2000",
+  "lever": "H01-budget-implicit",
+  "class": "experiment",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "budget+implicit circle2000 best 5.94\u00d7 match=True",
+  "receipts": [
+    {
+      "budget": -1,
+      "collapse": 1,
+      "match": true,
+      "unmatched": 0,
+      "ripser_s": 25.507837577999453,
+      "pith_s": 4.294681766999929,
+      "time_ratio": 5.939401092299809,
+      "collapse_ms": 4217.1223,
+      "reduce_ms": 2.120216,
+      "edges_out": 5169,
+      "cols_apparent": 1980
+    },
+    {
+      "budget": 1,
+      "collapse": 1,
+      "match": true,
+      "unmatched": 0,
+      "ripser_s": 25.507837577999453,
+      "pith_s": 19.367055288999836,
+      "time_ratio": 1.317073617923086,
+      "collapse_ms": 10434.232,
+      "reduce_ms": 8856.2986,
+      "edges_out": 598424,
+      "cols_apparent": 593004
+    },
+    {
+      "budget": 2,
+      "collapse": 1,
+      "match": true,
+      "unmatched": 0,
+      "ripser_s": 25.507837577999453,
+      "pith_s": 9.991406121998807,
+      "time_ratio": 2.552977755737202,
+      "collapse_ms": 7070.8985,
+      "reduce_ms": 2844.3231,
+      "edges_out": 338078,
+      "cols_apparent": 331585
+    },
+    {
+      "budget": 4,
+      "collapse": 1,
+      "match": true,
+      "unmatched": 0,
+      "ripser_s": 25.507837577999453,
+      "pith_s": 5.916619753999839,
+      "time_ratio": 4.311217999222491,
+      "collapse_ms": 5135.7496,
+      "reduce_ms": 703.99225,
+      "edges_out": 145471,
+      "cols_apparent": 138199
+    },
+    {
+      "budget": 1,
+      "collapse": 0,
+      "match": true,
+      "unmatched": 0,
+      "ripser_s": 25.507837577999453,
+      "pith_s": 42.19712167999933,
+      "time_ratio": 0.6044923578304088,
+      "collapse_ms": 0,
+      "reduce_ms": 42116.57,
+      "edges_out": 1077130,
+      "cols_apparent": 1074670
+    }
+  ]
+}

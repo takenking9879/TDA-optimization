@@ -1,0 +1,240 @@
+{
+  "note": "oineus 0.9.39 oracle, 1 thread, not vendored. In-order VR generation + lock-free reduce.",
+  "oineus_version": "0.9.39",
+  "threads": 1,
+  "budget_s": 20,
+  "receipts": [
+    {
+      "name": "circle_noisy",
+      "n": 400,
+      "T": 1.5,
+      "maxdim": 1,
+      "oineus": {
+        "ok": true,
+        "error": null,
+        "timed_out": false,
+        "wall_s": 1.540597504004836,
+        "threads_used": 1,
+        "ess1": 1,
+        "method": "oineus:compute_diagrams_vr"
+      },
+      "pith": {
+        "ok": true,
+        "wall_s": 0.013805226000840776,
+        "pipeline": "pith:auto-collapse",
+        "threads_used": 1
+      },
+      "ripser": {
+        "ok": true,
+        "wall_s": 0.13180961200851016,
+        "threads_used": 1
+      },
+      "ripser_over_oineus": 0.08555746174186739,
+      "oineus_over_pith": 111.59523965134721,
+      "threads": 1
+    },
+    {
+      "name": "circle_noisy",
+      "n": 1000,
+      "T": 1.5,
+      "maxdim": 1,
+      "oineus": {
+        "ok": false,
+        "error": "Command '['/usr/bin/python3', '/workspace/benchmarks/reverify_oineus.py', '--worker', '/workspace/benchmarks/datasets/generated/oineus_circle_noisy_n1000.csv', '1.5', '1']' timed out after 20 seconds",
+        "timed_out": true,
+        "wall_s": null,
+        "threads_used": 1,
+        "ess1": null,
+        "method": "oineus:compute_diagrams_vr"
+      },
+      "pith": {
+        "ok": true,
+        "wall_s": 0.07161733700195327,
+        "pipeline": "pith:auto-collapse",
+        "threads_used": 1
+      },
+      "ripser": {
+        "ok": true,
+        "wall_s": 2.729719271999784,
+        "threads_used": 1
+      },
+      "ripser_over_oineus": null,
+      "oineus_over_pith": null,
+      "threads": 1
+    },
+    {
+      "name": "figure8",
+      "n": 1000,
+      "T": 1.1,
+      "maxdim": 1,
+      "oineus": {
+        "ok": true,
+        "error": null,
+        "timed_out": false,
+        "wall_s": 4.680271823992371,
+        "threads_used": 1,
+        "ess1": 2,
+        "method": "oineus:compute_diagrams_vr"
+      },
+      "pith": {
+        "ok": true,
+        "wall_s": 0.05262055200000759,
+        "pipeline": "pith:auto-redzed-spatial",
+        "threads_used": 1
+      },
+      "ripser": {
+        "ok": true,
+        "wall_s": 0.6068592880037613,
+        "threads_used": 1
+      },
+      "ripser_over_oineus": 0.12966325692726485,
+      "oineus_over_pith": 88.94379944915241,
+      "threads": 1
+    },
+    {
+      "name": "figure8",
+      "n": 2000,
+      "T": 1.1,
+      "maxdim": 1,
+      "oineus": {
+        "ok": false,
+        "error": "Command '['/usr/bin/python3', '/workspace/benchmarks/reverify_oineus.py', '--worker', '/workspace/benchmarks/datasets/generated/oineus_figure8_n2000.csv', '1.1', '1']' timed out after 20 seconds",
+        "timed_out": true,
+        "wall_s": null,
+        "threads_used": 1,
+        "ess1": null,
+        "method": "oineus:compute_diagrams_vr"
+      },
+      "pith": {
+        "ok": true,
+        "wall_s": 0.17738539600395598,
+        "pipeline": "pith:auto-collapse",
+        "threads_used": 1
+      },
+      "ripser": {
+        "ok": true,
+        "wall_s": 2.722903382004006,
+        "threads_used": 1
+      },
+      "ripser_over_oineus": null,
+      "oineus_over_pith": null,
+      "threads": 1
+    },
+    {
+      "name": "torus",
+      "n": 1000,
+      "T": 1.6,
+      "maxdim": 1,
+      "oineus": {
+        "ok": true,
+        "error": null,
+        "timed_out": false,
+        "wall_s": 4.2726706169924,
+        "threads_used": 1,
+        "ess1": 1,
+        "method": "oineus:compute_diagrams_vr"
+      },
+      "pith": {
+        "ok": true,
+        "wall_s": 0.04277256299974397,
+        "pipeline": "pith:auto-redzed-spatial",
+        "threads_used": 1
+      },
+      "ripser": {
+        "ok": true,
+        "wall_s": 0.3959033880091738,
+        "threads_used": 1
+      },
+      "ripser_over_oineus": 0.09265946839774333,
+      "oineus_over_pith": 99.8927891465839,
+      "threads": 1
+    },
+    {
+      "name": "uniform2",
+      "n": 2000,
+      "T": 0.35,
+      "maxdim": 1,
+      "oineus": {
+        "ok": false,
+        "error": "Command '['/usr/bin/python3', '/workspace/benchmarks/reverify_oineus.py', '--worker', '/workspace/benchmarks/datasets/generated/oineus_uniform2_n2000.csv', '0.35', '1']' timed out after 20 seconds",
+        "timed_out": true,
+        "wall_s": null,
+        "threads_used": 1,
+        "ess1": null,
+        "method": "oineus:compute_diagrams_vr"
+      },
+      "pith": {
+        "ok": true,
+        "wall_s": 0.06071465399872977,
+        "pipeline": "pith:auto-redzed",
+        "threads_used": 1
+      },
+      "ripser": {
+        "ok": true,
+        "wall_s": 0.4451866470044479,
+        "threads_used": 1
+      },
+      "ripser_over_oineus": null,
+      "oineus_over_pith": null,
+      "threads": 1
+    },
+    {
+      "name": "sphere",
+      "n": 400,
+      "T": 1.4,
+      "maxdim": 2,
+      "oineus": {
+        "ok": false,
+        "error": "Command '['/usr/bin/python3', '/workspace/benchmarks/reverify_oineus.py', '--worker', '/workspace/benchmarks/datasets/generated/oineus_sphere_n400.csv', '1.4', '2']' timed out after 20 seconds",
+        "timed_out": true,
+        "wall_s": null,
+        "threads_used": 1,
+        "ess1": null,
+        "method": "oineus:compute_diagrams_vr"
+      },
+      "pith": {
+        "ok": true,
+        "wall_s": 0.01752658499754034,
+        "pipeline": "pith:auto-collapse",
+        "threads_used": 1
+      },
+      "ripser": {
+        "ok": true,
+        "wall_s": 1.4978756030031946,
+        "threads_used": 1
+      },
+      "ripser_over_oineus": null,
+      "oineus_over_pith": null,
+      "threads": 1
+    },
+    {
+      "name": "blobs",
+      "n": 2000,
+      "T": 1.0,
+      "maxdim": 1,
+      "oineus": {
+        "ok": false,
+        "error": "Command '['/usr/bin/python3', '/workspace/benchmarks/reverify_oineus.py', '--worker', '/workspace/benchmarks/datasets/generated/oineus_blobs_n2000.csv', '1.0', '1']' timed out after 20 seconds",
+        "timed_out": true,
+        "wall_s": null,
+        "threads_used": 1,
+        "ess1": null,
+        "method": "oineus:compute_diagrams_vr"
+      },
+      "pith": {
+        "ok": true,
+        "wall_s": 0.04476608299592044,
+        "pipeline": "pith:auto-redzed-cc",
+        "threads_used": 1
+      },
+      "ripser": {
+        "ok": true,
+        "wall_s": 0.41721304100065026,
+        "threads_used": 1
+      },
+      "ripser_over_oineus": null,
+      "oineus_over_pith": null,
+      "threads": 1
+    }
+  ]
+}

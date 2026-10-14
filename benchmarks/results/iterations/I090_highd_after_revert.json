@@ -1,0 +1,15 @@
+{
+  "id": "highd_after_revert",
+  "lever": "H01",
+  "class": "reproduced",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "high-d still exact, still lose wall-clock",
+  "receipts": [
+    {
+      "match": true,
+      "time_ratio": 0.06859647480389172,
+      "collapse_ms": 36.589487
+    }
+  ]
+}

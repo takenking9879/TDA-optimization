@@ -1,0 +1,17 @@
+{
+  "id": "sphere500_h2_reverted",
+  "lever": "H01",
+  "class": "reproduced",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "sphere500 H2 after bitset revert",
+  "receipts": [
+    {
+      "match": true,
+      "ripser_s": 3.6673267139995005,
+      "pith_s": 0.06214623699997901,
+      "time_ratio": 59.011243335630105,
+      "collapse_ms": 54.897612
+    }
+  ]
+}

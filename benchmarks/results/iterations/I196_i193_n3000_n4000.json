@@ -1,0 +1,42 @@
+{
+  "id": "i193_n3000_n4000",
+  "lever": "H01-multi-apex-and-eq",
+  "class": "experiment",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "I196 I193-only remasure circle n=3000/4000 vs Ripser",
+  "receipts": [
+    {
+      "name": "circle_noisy",
+      "n": 3000,
+      "T": 1.5,
+      "match_ripser": true,
+      "unmatched_ripser": 0,
+      "bits_s": 0.9883993040020869,
+      "ripser_s": 117.80192601800081,
+      "vs_ripser": 119.18454974726701,
+      "out": 9190,
+      "bits_collapse_ms": 811.76267,
+      "fast_trims": 2397116,
+      "trims": 2416337,
+      "vertex_trims": 0
+    },
+    {
+      "name": "circle_noisy",
+      "n": 4000,
+      "T": 1.5,
+      "match_ripser": true,
+      "unmatched_ripser": 0,
+      "bits_s": 2.1450466499991308,
+      "ripser_s": 300.7909825480019,
+      "vs_ripser": 140.22584662581758,
+      "out": 12562,
+      "bits_collapse_ms": 1824.2085,
+      "fast_trims": 4281168,
+      "trims": 4307631,
+      "vertex_trims": 0
+    }
+  ],
+  "n3000_x": 119.18454974726701,
+  "n4000_x": 140.22584662581758
+}

@@ -1,0 +1,76 @@
+{
+  "id": "H02_triangle_boundary",
+  "lever": "H02",
+  "class": "structural",
+  "fidelity": "exact-claimed",
+  "status": "support",
+  "summary": "H1 via triangle boundaries vs Ripser",
+  "receipts": [
+    {
+      "name": "circle_noisy_n80.csv",
+      "collapse": 0,
+      "match": true,
+      "unmatched": 0,
+      "ripser_s": 0.002130185000169149,
+      "pith_s": 0.006257503999677283,
+      "cols": 9500,
+      "simplices": 9500,
+      "edges_out": 1261
+    },
+    {
+      "name": "circle_noisy_n80.csv",
+      "collapse": 1,
+      "match": true,
+      "unmatched": 0,
+      "ripser_s": 0.0016257769998446747,
+      "pith_s": 0.0014623659999415395,
+      "cols": 13,
+      "simplices": 13,
+      "edges_out": 93
+    },
+    {
+      "name": "blobs_n80.csv",
+      "collapse": 0,
+      "match": true,
+      "unmatched": 0,
+      "ripser_s": 0.001348541999959707,
+      "pith_s": 0.006421782999950665,
+      "cols": 8686,
+      "simplices": 8686,
+      "edges_out": 1036
+    },
+    {
+      "name": "blobs_n80.csv",
+      "collapse": 1,
+      "match": true,
+      "unmatched": 0,
+      "ripser_s": 0.0013691909998669871,
+      "pith_s": 0.0013399069998740742,
+      "cols": 66,
+      "simplices": 66,
+      "edges_out": 142
+    },
+    {
+      "name": "circle_noisy_n200.csv",
+      "collapse": 1,
+      "match": true,
+      "unmatched": 0,
+      "ripser_s": 0.010411246999865398,
+      "pith_s": 0.005822203000207082,
+      "cols": 85,
+      "simplices": 85,
+      "edges_out": 283
+    },
+    {
+      "name": "uniform2_n80.csv",
+      "collapse": 1,
+      "match": true,
+      "unmatched": 0,
+      "ripser_s": 0.0014598130001104437,
+      "pith_s": 0.001320340999882319,
+      "cols": 107,
+      "simplices": 107,
+      "edges_out": 181
+    }
+  ]
+}

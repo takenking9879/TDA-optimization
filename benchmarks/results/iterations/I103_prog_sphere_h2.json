@@ -1,0 +1,9 @@
+{
+  "id": "prog_sphere_h2",
+  "lever": "H01-prog",
+  "class": "implementation",
+  "fidelity": "exact",
+  "status": "hold",
+  "summary": "skipped: I102 progressive collapse rejected on H1 clock before H2 scale",
+  "receipts": []
+}

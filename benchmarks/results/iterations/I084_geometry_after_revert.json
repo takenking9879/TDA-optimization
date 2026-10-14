@@ -1,0 +1,34 @@
+{
+  "id": "geometry_after_revert",
+  "lever": "H01",
+  "class": "reproduced",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "geometry recheck after bitset revert + degree filter",
+  "receipts": [
+    {
+      "file": "figure8_n500.csv",
+      "match": true,
+      "time_ratio": 1.4937640038321631,
+      "collapse_ms": 12.471754
+    },
+    {
+      "file": "two_circles_n400.csv",
+      "match": true,
+      "time_ratio": 1.9209955331533521,
+      "collapse_ms": 6.458344
+    },
+    {
+      "file": "swiss_n400.csv",
+      "match": true,
+      "time_ratio": 1.1136968657457729,
+      "collapse_ms": 0.649036
+    },
+    {
+      "file": "annulus_n300.csv",
+      "match": true,
+      "time_ratio": 3.0917083371484235,
+      "collapse_ms": 11.889467
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "id": "bitset_h0_skip",
+  "lever": "H05",
+  "class": "reproduced",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "H0 skip still works after bitset change",
+  "receipts": [
+    {
+      "match": true,
+      "time_ratio": 1.174814647899478,
+      "collapse_ms": 0
+    }
+  ]
+}

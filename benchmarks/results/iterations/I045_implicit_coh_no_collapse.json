@@ -1,0 +1,40 @@
+{
+  "id": "implicit_coh_no_collapse",
+  "lever": "H02",
+  "class": "structural",
+  "fidelity": "exact-claimed",
+  "status": "reject",
+  "summary": "implicit cohomology vs Ripser, collapse=0 (I003 killer)",
+  "receipts": [
+    {
+      "dataset": "circle_noisy",
+      "n": 80,
+      "match": false,
+      "unmatched": 1147,
+      "ripser_s": 0.0022839469997961714,
+      "pith_s": 0.03512323299992204,
+      "cols": 1182,
+      "reduce_ms": 32.125429
+    },
+    {
+      "dataset": "blobs",
+      "n": 80,
+      "match": false,
+      "unmatched": 963,
+      "ripser_s": 0.0015520920001108607,
+      "pith_s": 0.013259521999771096,
+      "cols": 959,
+      "reduce_ms": 11.206104
+    },
+    {
+      "dataset": "uniform2",
+      "n": 80,
+      "match": false,
+      "unmatched": 712,
+      "ripser_s": 0.0015336080000452057,
+      "pith_s": 0.005877619999864692,
+      "cols": 738,
+      "reduce_ms": 4.015358
+    }
+  ]
+}

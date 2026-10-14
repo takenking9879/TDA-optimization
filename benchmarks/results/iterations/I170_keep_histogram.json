@@ -1,0 +1,58 @@
+{
+  "id": "keep_histogram",
+  "lever": "H01-keep-hist",
+  "class": "experiment",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "16-bin newest-first keep histogram + first 8 keep indices",
+  "receipts": [
+    {
+      "name": "circle_noisy",
+      "n": 2000,
+      "T": 1.5,
+      "pith_s": 3.9878340480026964,
+      "edges_in": 1077130,
+      "edges_out": 5169,
+      "first_keep": 1022569,
+      "keep_hist": "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5169",
+      "early_keeps": "1022569,1029057,1029999,1032005,1035515,1037335,1037400,1038659",
+      "collapse_ms": 3909.0007
+    },
+    {
+      "name": "circle_noisy",
+      "n": 3000,
+      "T": 1.5,
+      "pith_s": 13.214989724998304,
+      "edges_in": 2425527,
+      "edges_out": 9190,
+      "first_keep": 23559,
+      "keep_hist": "3,0,0,0,0,0,2,3,1,0,0,12,1,25,50,9093",
+      "early_keeps": "23559,76103,88049,1028307,1042958,1127347,1181722,1194749",
+      "collapse_ms": 13016.552
+    },
+    {
+      "name": "circle_noisy",
+      "n": 4000,
+      "T": 1.5,
+      "pith_s": 31.915770101000817,
+      "edges_in": 4320193,
+      "edges_out": 12562,
+      "first_keep": 84682,
+      "keep_hist": "2,1,0,0,0,0,0,6,1,0,0,11,1,29,43,12468",
+      "early_keeps": "84682,125032,382562,1997861,2011097,2032585,2034668,2069984",
+      "collapse_ms": 31591.055
+    },
+    {
+      "name": "blobs",
+      "n": 2000,
+      "T": 1.0,
+      "pith_s": 1.37386109399813,
+      "edges_in": 655179,
+      "edges_out": 6169,
+      "first_keep": 205407,
+      "keep_hist": "0,0,0,0,0,2,0,2,2,2,0,4,12,29,170,5946",
+      "early_keeps": "205407,232325,304558,315804,329268,364700,368889,376192",
+      "collapse_ms": 1321.6367
+    }
+  ]
+}

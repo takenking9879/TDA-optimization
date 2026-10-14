@@ -1,0 +1,416 @@
+{
+  "suite": "smoke",
+  "maxdim": 1,
+  "collapse": 1,
+  "parent_ripser": "01add51ff64aaf40889483260cc5c3b7d0f2a1e7",
+  "receipts": [
+    {
+      "dataset": "circle_noisy",
+      "n": 80,
+      "threshold": 1.2,
+      "maxdim": 1,
+      "path": "/workspace/benchmarks/datasets/generated/circle_noisy_n80.csv",
+      "ripser": {
+        "seconds": 0.0018289949998688826,
+        "n_pairs": 85
+      },
+      "pith": {
+        "seconds": 0.002301529000078517,
+        "n_pairs": 85,
+        "counters": {
+          "pipeline": "pith:threshold+collapse1+implicit_coh",
+          "n": 80,
+          "edges_in": 1261,
+          "edges_out": 93,
+          "distances": 3160,
+          "simplices": 22,
+          "cols_assembled": 14,
+          "cols_reduced": 14,
+          "cols_cleared": 79,
+          "additions": 7,
+          "cofacet_probes": 84,
+          "collapse_trims": 1168,
+          "collapse_shifts": 5,
+          "metric_ms": 0.018042,
+          "collapse_ms": 0.569459,
+          "reduce_ms": 0.031981,
+          "rss": 4153344
+        }
+      },
+      "fidelity_pith": {
+        "exact_match_tol": true,
+        "unmatched": 0,
+        "n_finite_a": 83,
+        "n_finite_b": 83,
+        "n_essential_a": 2,
+        "n_essential_b": 2,
+        "class": "exact"
+      },
+      "collapse_then_ripser": {
+        "seconds": 0.001385296000080416,
+        "n_pairs": 85
+      },
+      "fidelity_e3": {
+        "exact_match_tol": true,
+        "unmatched": 0,
+        "n_finite_a": 83,
+        "n_finite_b": 83,
+        "n_essential_a": 2,
+        "n_essential_b": 2,
+        "class": "exact"
+      },
+      "fidelity": {
+        "exact_match_tol": true,
+        "unmatched": 0,
+        "n_finite_a": 83,
+        "n_finite_b": 83,
+        "n_essential_a": 2,
+        "n_essential_b": 2,
+        "class": "exact"
+      },
+      "edge_ratio": 13.559139784946236,
+      "time_ratio_ripser_over_pith": 0.7946869232612259,
+      "status": "ok"
+    },
+    {
+      "dataset": "circle_noisy",
+      "n": 200,
+      "threshold": 1.2,
+      "maxdim": 1,
+      "path": "/workspace/benchmarks/datasets/generated/circle_noisy_n200.csv",
+      "ripser": {
+        "seconds": 0.008669108000049164,
+        "n_pairs": 220
+      },
+      "pith": {
+        "seconds": 0.0099940099999003,
+        "n_pairs": 222,
+        "counters": {
+          "pipeline": "pith:threshold+collapse1+implicit_coh",
+          "n": 200,
+          "edges_in": 8197,
+          "edges_out": 283,
+          "distances": 19900,
+          "simplices": 154,
+          "cols_assembled": 84,
+          "cols_reduced": 84,
+          "cols_cleared": 199,
+          "additions": 52,
+          "cofacet_probes": 556,
+          "collapse_trims": 7914,
+          "collapse_shifts": 43,
+          "metric_ms": 0.081151,
+          "collapse_ms": 7.87311,
+          "reduce_ms": 0.066877,
+          "rss": 5206016
+        }
+      },
+      "fidelity_pith": {
+        "exact_match_tol": false,
+        "unmatched": 8,
+        "n_finite_a": 218,
+        "n_finite_b": 220,
+        "n_essential_a": 2,
+        "n_essential_b": 2,
+        "class": "unverified"
+      },
+      "collapse_then_ripser": {
+        "seconds": 0.0015314229999603413,
+        "n_pairs": 220
+      },
+      "fidelity_e3": {
+        "exact_match_tol": true,
+        "unmatched": 0,
+        "n_finite_a": 218,
+        "n_finite_b": 218,
+        "n_essential_a": 2,
+        "n_essential_b": 2,
+        "class": "exact"
+      },
+      "fidelity": {
+        "exact_match_tol": true,
+        "unmatched": 0,
+        "n_finite_a": 218,
+        "n_finite_b": 218,
+        "n_essential_a": 2,
+        "n_essential_b": 2,
+        "class": "exact"
+      },
+      "edge_ratio": 28.964664310954063,
+      "time_ratio_ripser_over_pith": 0.8674303908176645,
+      "status": "ok"
+    },
+    {
+      "dataset": "blobs",
+      "n": 80,
+      "threshold": 1.0,
+      "maxdim": 1,
+      "path": "/workspace/benchmarks/datasets/generated/blobs_n80.csv",
+      "ripser": {
+        "seconds": 0.0016511479998371215,
+        "n_pairs": 92
+      },
+      "pith": {
+        "seconds": 0.0020688120000613708,
+        "n_pairs": 94,
+        "counters": {
+          "pipeline": "pith:threshold+collapse1+implicit_coh",
+          "n": 80,
+          "edges_in": 1036,
+          "edges_out": 142,
+          "distances": 3160,
+          "simplices": 124,
+          "cols_assembled": 65,
+          "cols_reduced": 65,
+          "cols_cleared": 77,
+          "additions": 39,
+          "cofacet_probes": 513,
+          "collapse_trims": 894,
+          "collapse_shifts": 40,
+          "metric_ms": 0.016523,
+          "collapse_ms": 0.424279,
+          "reduce_ms": 0.058557,
+          "rss": 4120576
+        }
+      },
+      "fidelity_pith": {
+        "exact_match_tol": false,
+        "unmatched": 10,
+        "n_finite_a": 89,
+        "n_finite_b": 91,
+        "n_essential_a": 3,
+        "n_essential_b": 3,
+        "class": "unverified"
+      },
+      "collapse_then_ripser": {
+        "seconds": 0.0014847439999812195,
+        "n_pairs": 92
+      },
+      "fidelity_e3": {
+        "exact_match_tol": true,
+        "unmatched": 0,
+        "n_finite_a": 89,
+        "n_finite_b": 89,
+        "n_essential_a": 3,
+        "n_essential_b": 3,
+        "class": "exact"
+      },
+      "fidelity": {
+        "exact_match_tol": true,
+        "unmatched": 0,
+        "n_finite_a": 89,
+        "n_finite_b": 89,
+        "n_essential_a": 3,
+        "n_essential_b": 3,
+        "class": "exact"
+      },
+      "edge_ratio": 7.295774647887324,
+      "time_ratio_ripser_over_pith": 0.7981140866294959,
+      "status": "ok"
+    },
+    {
+      "dataset": "blobs",
+      "n": 200,
+      "threshold": 1.0,
+      "maxdim": 1,
+      "path": "/workspace/benchmarks/datasets/generated/blobs_n200.csv",
+      "ripser": {
+        "seconds": 0.0035974100001112674,
+        "n_pairs": 237
+      },
+      "pith": {
+        "seconds": 0.007388456999933624,
+        "n_pairs": 269,
+        "counters": {
+          "pipeline": "pith:threshold+collapse1+implicit_coh",
+          "n": 200,
+          "edges_in": 6495,
+          "edges_out": 445,
+          "distances": 19900,
+          "simplices": 545,
+          "cols_assembled": 248,
+          "cols_reduced": 248,
+          "cols_cleared": 197,
+          "additions": 204,
+          "cofacet_probes": 2390,
+          "collapse_trims": 6050,
+          "collapse_shifts": 163,
+          "metric_ms": 0.193592,
+          "collapse_ms": 4.851248,
+          "reduce_ms": 0.133924,
+          "rss": 5042176
+        }
+      },
+      "fidelity_pith": {
+        "exact_match_tol": false,
+        "unmatched": 68,
+        "n_finite_a": 234,
+        "n_finite_b": 266,
+        "n_essential_a": 3,
+        "n_essential_b": 3,
+        "class": "unverified"
+      },
+      "collapse_then_ripser": {
+        "seconds": 0.0017326529998626938,
+        "n_pairs": 237
+      },
+      "fidelity_e3": {
+        "exact_match_tol": true,
+        "unmatched": 0,
+        "n_finite_a": 234,
+        "n_finite_b": 234,
+        "n_essential_a": 3,
+        "n_essential_b": 3,
+        "class": "exact"
+      },
+      "fidelity": {
+        "exact_match_tol": true,
+        "unmatched": 0,
+        "n_finite_a": 234,
+        "n_finite_b": 234,
+        "n_essential_a": 3,
+        "n_essential_b": 3,
+        "class": "exact"
+      },
+      "edge_ratio": 14.595505617977528,
+      "time_ratio_ripser_over_pith": 0.48689597843549554,
+      "status": "ok"
+    },
+    {
+      "dataset": "uniform2",
+      "n": 80,
+      "threshold": 0.35,
+      "maxdim": 1,
+      "path": "/workspace/benchmarks/datasets/generated/uniform2_n80.csv",
+      "ripser": {
+        "seconds": 0.0016401909999785858,
+        "n_pairs": 94
+      },
+      "pith": {
+        "seconds": 0.0016024369999740884,
+        "n_pairs": 104,
+        "counters": {
+          "pipeline": "pith:threshold+collapse1+implicit_coh",
+          "n": 80,
+          "edges_in": 817,
+          "edges_out": 181,
+          "distances": 3160,
+          "simplices": 208,
+          "cols_assembled": 102,
+          "cols_reduced": 102,
+          "cols_cleared": 79,
+          "additions": 74,
+          "cofacet_probes": 956,
+          "collapse_trims": 636,
+          "collapse_shifts": 70,
+          "metric_ms": 0.016203,
+          "collapse_ms": 0.407313,
+          "reduce_ms": 0.077331,
+          "rss": 4104192
+        }
+      },
+      "fidelity_pith": {
+        "exact_match_tol": false,
+        "unmatched": 20,
+        "n_finite_a": 93,
+        "n_finite_b": 103,
+        "n_essential_a": 1,
+        "n_essential_b": 1,
+        "class": "unverified"
+      },
+      "collapse_then_ripser": {
+        "seconds": 0.0013029920000917627,
+        "n_pairs": 94
+      },
+      "fidelity_e3": {
+        "exact_match_tol": true,
+        "unmatched": 0,
+        "n_finite_a": 93,
+        "n_finite_b": 93,
+        "n_essential_a": 1,
+        "n_essential_b": 1,
+        "class": "exact"
+      },
+      "fidelity": {
+        "exact_match_tol": true,
+        "unmatched": 0,
+        "n_finite_a": 93,
+        "n_finite_b": 93,
+        "n_essential_a": 1,
+        "n_essential_b": 1,
+        "class": "exact"
+      },
+      "edge_ratio": 4.513812154696133,
+      "time_ratio_ripser_over_pith": 1.0235603646228262,
+      "status": "ok"
+    },
+    {
+      "dataset": "uniform2",
+      "n": 200,
+      "threshold": 0.35,
+      "maxdim": 1,
+      "path": "/workspace/benchmarks/datasets/generated/uniform2_n200.csv",
+      "ripser": {
+        "seconds": 0.0045510300001296855,
+        "n_pairs": 247
+      },
+      "pith": {
+        "seconds": 0.006753476000085357,
+        "n_pairs": 309,
+        "counters": {
+          "pipeline": "pith:threshold+collapse1+implicit_coh",
+          "n": 200,
+          "edges_in": 5405,
+          "edges_out": 528,
+          "distances": 19900,
+          "simplices": 811,
+          "cols_assembled": 329,
+          "cols_reduced": 329,
+          "cols_cleared": 199,
+          "additions": 359,
+          "cofacet_probes": 3677,
+          "collapse_trims": 4877,
+          "collapse_shifts": 213,
+          "metric_ms": 0.087205,
+          "collapse_ms": 4.692545,
+          "reduce_ms": 0.209933,
+          "rss": 4898816
+        }
+      },
+      "fidelity_pith": {
+        "exact_match_tol": false,
+        "unmatched": 142,
+        "n_finite_a": 246,
+        "n_finite_b": 308,
+        "n_essential_a": 1,
+        "n_essential_b": 1,
+        "class": "unverified"
+      },
+      "collapse_then_ripser": {
+        "seconds": 0.001974485999880926,
+        "n_pairs": 247
+      },
+      "fidelity_e3": {
+        "exact_match_tol": true,
+        "unmatched": 0,
+        "n_finite_a": 246,
+        "n_finite_b": 246,
+        "n_essential_a": 1,
+        "n_essential_b": 1,
+        "class": "exact"
+      },
+      "fidelity": {
+        "exact_match_tol": true,
+        "unmatched": 0,
+        "n_finite_a": 246,
+        "n_finite_b": 246,
+        "n_essential_a": 1,
+        "n_essential_b": 1,
+        "class": "exact"
+      },
+      "edge_ratio": 10.236742424242424,
+      "time_ratio_ripser_over_pith": 0.6738796436193991,
+      "status": "ok"
+    }
+  ]
+}

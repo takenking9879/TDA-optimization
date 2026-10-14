@@ -1,0 +1,75 @@
+{
+  "id": "highd_skip_policy",
+  "lever": "H01-policy",
+  "class": "implementation",
+  "fidelity": "exact",
+  "status": "experiment",
+  "summary": "high-d: probe-skip vs force collapse vs implicit",
+  "receipts": [
+    {
+      "n": 80,
+      "tag": "policy",
+      "match": true,
+      "unmatched": 0,
+      "ripser_s": 0.0031854329999987385,
+      "pith_s": 0.0042620200001692865,
+      "time_ratio": 0.7473998244663831,
+      "collapse_ms": 1.572233,
+      "edges_out": 532,
+      "engine": "pith:threshold+collapse-1+homology"
+    },
+    {
+      "n": 80,
+      "tag": "force_collapse",
+      "match": true,
+      "unmatched": 0,
+      "ripser_s": 0.0031854329999987385,
+      "pith_s": 0.00622163299976819,
+      "time_ratio": 0.5119930732200733,
+      "collapse_ms": 1.227965,
+      "edges_out": 847,
+      "engine": "pith:threshold+collapse1+homology"
+    },
+    {
+      "n": 80,
+      "tag": "skip",
+      "match": false,
+      "unmatched": 3109,
+      "ripser_s": 0.0031854329999987385,
+      "pith_s": 0.5163202270000511,
+      "time_ratio": 0.00616949101240309,
+      "collapse_ms": 0,
+      "edges_out": 3132,
+      "engine": "pith:threshold+collapse0+implicit_coh"
+    },
+    {
+      "n": 200,
+      "tag": "policy",
+      "match": true,
+      "unmatched": 0,
+      "ripser_s": 0.018697161999625678,
+      "pith_s": 0.2794437289999223,
+      "time_ratio": 0.0669085045012081,
+      "collapse_ms": 50.647602,
+      "edges_out": 5970,
+      "engine": "pith:threshold+collapse-1+homology"
+    },
+    {
+      "n": 200,
+      "tag": "force_collapse",
+      "match": true,
+      "unmatched": 0,
+      "ripser_s": 0.018697161999625678,
+      "pith_s": 0.5699154100002488,
+      "time_ratio": 0.032806907255968944,
+      "collapse_ms": 23.657301,
+      "edges_out": 9543,
+      "engine": "pith:threshold+collapse1+homology"
+    },
+    {
+      "n": 200,
+      "tag": "skip",
+      "error": "Command '['/workspace/src/pith/build/pith', '--points', '/workspace/benchmarks/datasets/generated/uniform10_n200.csv', '--maxdim', '1', '--threshold', '1.8', '--collapse', '0', '--engine', 'implicit', '--no-enclosing']' timed out after 180 seconds"
+    }
+  ]
+}

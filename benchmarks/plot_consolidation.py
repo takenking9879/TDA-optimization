@@ -1,0 +1,1863 @@
+#!/usr/bin/env python3
+"""SVG figures + markdown tables from consolidation/report.json and limits.json."""
+
+from __future__ import annotations
+
+import json
+import math
+from pathlib import Path
+
+BENCH = Path(__file__).resolve().parent
+REP = json.loads((BENCH / "results" / "consolidation" / "report.json").read_text())
+LIM_PATH = BENCH / "results" / "consolidation" / "limits.json"
+LIM = json.loads(LIM_PATH.read_text()) if LIM_PATH.exists() else {}
+BASE_PATH = BENCH / "results" / "consolidation" / "baselines.json"
+BASE = json.loads(BASE_PATH.read_text()) if BASE_PATH.exists() else {}
+SPARSE_PATH = BENCH / "results" / "consolidation" / "sparse_limits.json"
+SPARSE = json.loads(SPARSE_PATH.read_text()) if SPARSE_PATH.exists() else {}
+SSCALE_PATH = BENCH / "results" / "consolidation" / "sparse_scale.json"
+SSCALE = json.loads(SSCALE_PATH.read_text()) if SSCALE_PATH.exists() else {}
+MAUTO_PATH = BENCH / "results" / "consolidation" / "mode_auto.json"
+MAUTO = json.loads(MAUTO_PATH.read_text()) if MAUTO_PATH.exists() else {}
+EST_PATH = BENCH / "results" / "consolidation" / "estimate_accuracy.json"
+EST = json.loads(EST_PATH.read_text()) if EST_PATH.exists() else {}
+ENG_PATH = BENCH / "results" / "consolidation" / "engine_auto.json"
+ENG = json.loads(ENG_PATH.read_text()) if ENG_PATH.exists() else {}
+WALL_PATH = BENCH / "results" / "consolidation" / "wall_kind.json"
+WALL = json.loads(WALL_PATH.read_text()) if WALL_PATH.exists() else {}
+L10_PATH = BENCH / "results" / "consolidation" / "leftover_10x.json"
+L10 = json.loads(L10_PATH.read_text()) if L10_PATH.exists() else {}
+L10N_PATH = BENCH / "results" / "consolidation" / "leftover_ratio_n.json"
+L10N = json.loads(L10N_PATH.read_text()) if L10N_PATH.exists() else {}
+L10H_PATH = BENCH / "results" / "consolidation" / "leftover_heldout.json"
+L10H = json.loads(L10H_PATH.read_text()) if L10H_PATH.exists() else {}
+L10M_PATH = BENCH / "results" / "consolidation" / "leftover_miss_n.json"
+L10M = json.loads(L10M_PATH.read_text()) if L10M_PATH.exists() else {}
+L10L_PATH = BENCH / "results" / "consolidation" / "linked_ratio_n.json"
+L10L = json.loads(L10L_PATH.read_text()) if L10L_PATH.exists() else {}
+AXIS_PATH = BENCH / "results" / "consolidation" / "axis_scaling.json"
+AXIS = json.loads(AXIS_PATH.read_text()) if AXIS_PATH.exists() else {}
+DORY_PATH = BENCH / "results" / "consolidation" / "dory.json"
+DORY = json.loads(DORY_PATH.read_text()) if DORY_PATH.exists() else {}
+DORY_LIM_PATH = BENCH / "results" / "consolidation" / "dory_limits.json"
+DORY_LIM = json.loads(DORY_LIM_PATH.read_text()) if DORY_LIM_PATH.exists() else {}
+OINEUS_PATH = BENCH / "results" / "consolidation" / "oineus.json"
+OINEUS = json.loads(OINEUS_PATH.read_text()) if OINEUS_PATH.exists() else {}
+DION_PATH = BENCH / "results" / "consolidation" / "dionysus.json"
+DION = json.loads(DION_PATH.read_text()) if DION_PATH.exists() else {}
+COP_PATH = BENCH / "results" / "consolidation" / "coperto.json"
+COP = json.loads(COP_PATH.read_text()) if COP_PATH.exists() else {}
+U10_PATH = BENCH / "results" / "consolidation" / "uniform10.json"
+U10 = json.loads(U10_PATH.read_text()) if U10_PATH.exists() else {}
+HIGHD_PATH = BENCH / "results" / "consolidation" / "highd_auto.json"
+HIGHD = json.loads(HIGHD_PATH.read_text()) if HIGHD_PATH.exists() else {}
+FATH2_PATH = BENCH / "results" / "consolidation" / "fat_h2.json"
+FATH2 = json.loads(FATH2_PATH.read_text()) if FATH2_PATH.exists() else {}
+NCC_PATH = BENCH / "results" / "consolidation" / "ncc_auto.json"
+NCC = json.loads(NCC_PATH.read_text()) if NCC_PATH.exists() else {}
+ADV_PATH = BENCH / "results" / "consolidation" / "adversarial.json"
+ADV = json.loads(ADV_PATH.read_text()) if ADV_PATH.exists() else {}
+PF_PATH = BENCH / "results" / "consolidation" / "postfreeze.json"
+PF = json.loads(PF_PATH.read_text()) if PF_PATH.exists() else {}
+L10MD_PATH = BENCH / "results" / "consolidation" / "leftover_miss_dispatch.json"
+L10MD = json.loads(L10MD_PATH.read_text()) if L10MD_PATH.exists() else {}
+PD_PATH = BENCH / "results" / "consolidation" / "pd_metrics.json"
+PD = json.loads(PD_PATH.read_text()) if PD_PATH.exists() else []
+PB_PATH = BENCH / "results" / "consolidation" / "postband.json"
+PB = json.loads(PB_PATH.read_text()) if PB_PATH.exists() else {}
+FIG = BENCH / "results" / "consolidation" / "figures"
+FIG.mkdir(parents=True, exist_ok=True)
+
+
+def svg_scatter(path, series, title, xlab, ylab, logx=True, logy=True, w=720, h=420):
+    pad_l, pad_r, pad_t, pad_b = 64, 24, 36, 48
+    pts = [(x, y) for s in series for x, y in s["xy"] if x and y and x > 0 and y > 0]
+    if not pts:
+        path.write_text("<svg xmlns='http://www.w3.org/2000/svg'/>")
+        return
+    xs = [p[0] for p in pts]
+    ys = [p[1] for p in pts]
+    if logx:
+        xs = [math.log10(x) for x in xs]
+    if logy:
+        ys = [math.log10(y) for y in ys]
+    xmin, xmax = min(xs), max(xs)
+    ymin, ymax = min(ys), max(ys)
+    if xmax <= xmin:
+        xmax = xmin + 1
+    if ymax <= ymin:
+        ymax = ymin + 1
+
+    def X(v):
+        return pad_l + (v - xmin) / (xmax - xmin) * (w - pad_l - pad_r)
+
+    def Y(v):
+        return pad_t + (1 - (v - ymin) / (ymax - ymin)) * (h - pad_t - pad_b)
+
+    colors = ["#1f77b4", "#d62728", "#2ca02c", "#9467bd", "#ff7f0e", "#8c564b"]
+    out = [
+        f"<svg xmlns='http://www.w3.org/2000/svg' width='{w}' height='{h}' font-family='sans-serif'>",
+        f"<rect width='{w}' height='{h}' fill='white'/>",
+        f"<text x='{w/2}' y='22' text-anchor='middle' font-size='14'>{title}</text>",
+        f"<text x='{w/2}' y='{h-10}' text-anchor='middle' font-size='11'>{xlab}</text>",
+        f"<text x='14' y='{h/2}' text-anchor='middle' font-size='11' transform='rotate(-90 14 {h/2})'>{ylab}</text>",
+    ]
+    for i, s in enumerate(series):
+        col = colors[i % len(colors)]
+        coords = []
+        for x, y in s["xy"]:
+            if not x or not y or x <= 0 or y <= 0:
+                continue
+            xx = math.log10(x) if logx else x
+            yy = math.log10(y) if logy else y
+            coords.append((X(xx), Y(yy)))
+        if len(coords) >= 2:
+            d = "M " + " L ".join(f"{a:.1f} {b:.1f}" for a, b in coords)
+            out.append(f"<path d='{d}' fill='none' stroke='{col}' stroke-width='1.6'/>")
+        for a, b in coords:
+            out.append(f"<circle cx='{a:.1f}' cy='{b:.1f}' r='3.2' fill='{col}'/>")
+        out.append(
+            f"<text x='{w-pad_r-8}' y='{40+16*i}' text-anchor='end' font-size='11' fill='{col}'>{s['name']}</text>"
+        )
+    out.append("</svg>")
+    path.write_text("\n".join(out))
+
+
+def collect(name, method_key, rss=False):
+    xy = []
+    for r in REP.get("receipts") or []:
+        if r["name"] != name:
+            continue
+        run = r["runs"].get(method_key)
+        if not (run and run.get("ok") and run.get("wall_s")):
+            continue
+        y = run.get("rss_pith") if rss else run.get("wall_s")
+        if y:
+            xy.append((r["n"], y))
+    alias = {
+        "pith_exact": "exact_auto",
+        "pith_scale": "scale",
+        "ripser": "ripser",
+        "pith_redzed": "exact_redzed",
+    }
+    lim_key = alias.get(method_key, method_key)
+    for r in LIM.get("limits") or []:
+        if r["name"] != name:
+            continue
+        run = r["runs"].get(lim_key) or r["runs"].get(method_key)
+        if not (run and run.get("ok") and run.get("wall_s")):
+            continue
+        y = run.get("rss_pith") if rss else run.get("wall_s")
+        if y:
+            xy.append((r["n"], y))
+    # unique by n, keep last
+    by = {}
+    for x, y in xy:
+        by[x] = y
+    return sorted(by.items())
+
+
+def collect_sscale(name, mode, rss=False):
+    by = {}
+    for r in SSCALE.get("series") or []:
+        if r.get("name") != name or r.get("mode") != mode:
+            continue
+        if not r.get("ok") or not r.get("wall_s"):
+            continue
+        y = r.get("rss") if rss else r.get("wall_s")
+        if y:
+            by[r["n"]] = y
+    return sorted(by.items())
+
+
+svg_scatter(
+    FIG / "runtime_exact.svg",
+    [
+        {"name": "circle PITH exact", "xy": collect("circle_noisy", "pith_exact")},
+        {"name": "circle Ripser", "xy": collect("circle_noisy", "ripser")},
+        {"name": "figure8 PITH exact", "xy": collect("figure8", "pith_exact")},
+        {"name": "figure8 Ripser", "xy": collect("figure8", "ripser")},
+        {"name": "uniform2 PITH exact", "xy": collect("uniform2", "pith_exact")},
+        {"name": "torus PITH exact", "xy": collect("torus", "pith_exact")},
+    ],
+    "Runtime vs n (exact VR, log-log)",
+    "n",
+    "wall seconds",
+)
+
+svg_scatter(
+    FIG / "runtime_scale.svg",
+    [
+        {"name": "figure8 scale", "xy": collect("figure8", "pith_scale")},
+        {"name": "sphere scale", "xy": collect("sphere", "pith_scale")},
+        {"name": "figure8 exact (small n)", "xy": collect("figure8", "pith_exact")},
+        {"name": "figure8 Ripser (small n)", "xy": collect("figure8", "ripser")},
+        {"name": "many_loops scale", "xy": collect("many_loops", "pith_scale")},
+        {"name": "figure8 sparse", "xy": collect_sscale("figure8", "sparse")},
+        {"name": "circle sparse", "xy": collect_sscale("circle_noisy", "sparse")},
+    ],
+    "Runtime vs n (scale path vs exact vs sparse, log-log)",
+    "n",
+    "wall seconds",
+)
+
+svg_scatter(
+    FIG / "runtime_sparse.svg",
+    [
+        {"name": "figure8 sparse", "xy": collect_sscale("figure8", "sparse")},
+        {"name": "figure8 scale", "xy": collect_sscale("figure8", "scale") or collect("figure8", "pith_scale")},
+        {"name": "circle sparse", "xy": collect_sscale("circle_noisy", "sparse")},
+        {"name": "circle scale", "xy": collect_sscale("circle_noisy", "scale")},
+        {"name": "nested sparse", "xy": collect_sscale("nested_loops", "sparse")},
+        {"name": "uniform4 sparse", "xy": collect_sscale("uniform4", "sparse")},
+    ],
+    "Runtime vs n (fused sparse vs scale, 1 thread, log-log)",
+    "n",
+    "wall seconds",
+)
+
+svg_scatter(
+    FIG / "memory_exact.svg",
+    [
+        {"name": "circle PITH", "xy": collect("circle_noisy", "pith_exact", rss=True)},
+        {"name": "figure8 PITH", "xy": collect("figure8", "pith_exact", rss=True)},
+        {"name": "figure8 scale", "xy": collect("figure8", "pith_scale", rss=True)},
+        {"name": "sphere scale", "xy": collect("sphere", "pith_scale", rss=True)},
+        {"name": "blobs H0 PITH", "xy": collect("blobs", "pith_exact", rss=True)},
+        {"name": "figure8 sparse", "xy": collect_sscale("figure8", "sparse", rss=True)},
+    ],
+    "Peak RSS vs n (PITH VmHWM, log-log)",
+    "n",
+    "bytes",
+)
+
+svg_scatter(
+    FIG / "memory_scale.svg",
+    [
+        {"name": "figure8 scale", "xy": collect("figure8", "pith_scale", rss=True)},
+        {"name": "sphere scale", "xy": collect("sphere", "pith_scale", rss=True)},
+        {"name": "figure8 exact", "xy": collect("figure8", "pith_exact", rss=True)},
+        {"name": "figure8 sparse", "xy": collect_sscale("figure8", "sparse", rss=True)},
+    ],
+    "Peak RSS vs n (scale path vs exact / sparse)",
+    "n",
+    "bytes",
+)
+
+svg_scatter(
+    FIG / "memory_sparse.svg",
+    [
+        {"name": "figure8 sparse", "xy": collect_sscale("figure8", "sparse", rss=True)},
+        {"name": "circle sparse", "xy": collect_sscale("circle_noisy", "sparse", rss=True)},
+        {"name": "figure8 scale", "xy": collect_sscale("figure8", "scale", rss=True) or collect("figure8", "pith_scale", rss=True)},
+        {"name": "circle scale", "xy": collect_sscale("circle_noisy", "scale", rss=True)},
+    ],
+    "Peak RSS vs n (sparse Rips vs scale)",
+    "n",
+    "bytes",
+)
+
+
+def collect_axis(axis, family, method):
+    by = {}
+    for r in AXIS.get("receipts") or []:
+        if r.get("axis") != axis or r.get("family") != family:
+            continue
+        if r.get("method") != method:
+            continue
+        if not r.get("ok") or not r.get("wall_s") or r.get("x") is None:
+            continue
+        by[r["x"]] = r["wall_s"]
+    return sorted(by.items())
+
+
+svg_scatter(
+    FIG / "runtime_vs_dimension.svg",
+    [
+        {"name": "PITH exact auto", "xy": collect_axis("dimension", "uniform", "pith:exact:auto")},
+        {"name": "PITH forced RedZeD", "xy": collect_axis("dimension", "uniform", "pith:exact:redzed")},
+        {"name": "Ripser", "xy": collect_axis("dimension", "uniform", "ripser")},
+        {"name": "PITH sparse", "xy": collect_axis("dimension", "uniform", "pith:sparse:auto")},
+        {"name": "giotto-ph 1t", "xy": collect_axis("dimension", "uniform", "giotto-ph:t1")},
+    ],
+    "Runtime vs ambient dimension (uniform n=400, 1 thread)",
+    "dimension",
+    "wall seconds",
+    logx=False,
+    logy=True,
+)
+
+# Combined persistence-diagram comparison (essential + finite counts).
+if PD:
+    methods = ["Ripser VR", "PITH exact", "PITH scale", "PITH sparse", "GUDHI Alpha"]
+    families = [d.get("name") for d in PD]
+    col_w, row_h = 110, 28
+    w = 80 + col_w * (len(methods) + 1)
+    h = 48 + row_h * (len(PD) + 1)
+    out = [
+        f"<svg xmlns='http://www.w3.org/2000/svg' width='{w}' height='{h}' font-family='sans-serif'>",
+        f"<rect width='{w}' height='{h}' fill='white'/>",
+        "<text x='12' y='20' font-size='13'>Essential / finite bars (scale and sparse are not VR)</text>",
+    ]
+    for i, m in enumerate(["family"] + methods):
+        out.append(
+            f"<text x='{12 + i * col_w}' y='44' font-size='11' font-weight='bold'>{m}</text>"
+        )
+    for ri, d in enumerate(PD):
+        y = 68 + ri * row_h
+        dim = d.get("plot_dim", 1)
+        out.append(f"<text x='12' y='{y}' font-size='11'>{d.get('name')} n={d.get('n')}</text>")
+        ref = d.get("Ripser VR") or {}
+        for i, m in enumerate(methods):
+            cell = d.get(m) or {}
+            if not cell.get("ok"):
+                label, col = "fail", "#d62728"
+            else:
+                ess = (cell.get("ess") or {}).get(str(dim), "?")
+                fin = cell.get("n_finite")
+                label = f"ess{dim}={ess} fin={fin}"
+                same = (
+                    ess == (ref.get("ess") or {}).get(str(dim))
+                    and fin == ref.get("n_finite")
+                )
+                col = "#2ca02c" if same else "#ff7f0e"
+            out.append(
+                f"<text x='{12 + (i + 1) * col_w}' y='{y}' font-size='11' fill='{col}'>{label}</text>"
+            )
+    out.append("</svg>")
+    (FIG / "pd_comparison.svg").write_text("\n".join(out))
+
+exp = []
+for e in SSCALE.get("exponents") or []:
+    exp.append(
+        {
+            "name": e.get("name"),
+            "method": f"pith_{e.get('mode')}",
+            "n0": e.get("n0"),
+            "n1": e.get("n1"),
+            "p_time": e.get("p_wall"),
+            "p_edges": e.get("p_edges"),
+        }
+    )
+exp.extend(list(REP.get("exponents") or []) + list(LIM.get("exponents") or []))
+lines = [
+    "<svg xmlns='http://www.w3.org/2000/svg' width='760' height='520' font-family='sans-serif'>",
+    "<rect width='760' height='520' fill='white'/>",
+    "<text x='380' y='22' text-anchor='middle' font-size='14'>Local time exponent p = log(t1/t0)/log(n1/n0)</text>",
+]
+y = 48
+for e in exp:
+    if e.get("p_time") is None:
+        continue
+    p = e["p_time"]
+    bar = max(4, min(400, abs(p) * 80))
+    col = "#d62728" if p > 2.5 else ("#ff7f0e" if p > 1.8 else "#2ca02c")
+    label = f"{e['name']} {e['method']} {e['n0']}→{e['n1']}  p={p:.2f}"
+    lines.append(f"<text x='12' y='{y}' font-size='11'>{label}</text>")
+    lines.append(f"<rect x='360' y='{y-10}' width='{bar:.1f}' height='10' fill='{col}'/>")
+    y += 16
+    if y > 500:
+        break
+lines.append("</svg>")
+(FIG / "exponents.svg").write_text("\n".join(lines))
+
+# max practical N bars
+mp = LIM.get("max_practical") or []
+# collapse to method x family max
+want = ["pith_exact", "pith_redzed", "ripser", "pith_scale", "pith_sparse"]
+families = []
+for row in mp:
+    if row.get("method") in want and row.get("max_n_ok"):
+        families.append(row)
+# fused sparse: largest n that finished under the 12 s budget
+by_sparse = {}
+for r in SSCALE.get("series") or []:
+    if r.get("mode") != "sparse" or not r.get("ok") or not r.get("n"):
+        continue
+    key = (r["name"], r.get("maxdim", 1))
+    prev = by_sparse.get(key)
+    if prev is None or r["n"] > prev["max_n_ok"]:
+        by_sparse[key] = {
+            "name": r["name"],
+            "maxdim": r.get("maxdim", 1),
+            "method": "pith_sparse",
+            "max_n_ok": r["n"],
+            "wall_at_max": r.get("wall_s"),
+        }
+families.extend(by_sparse.values())
+h = max(220, 36 + 16 * min(len(families), 24))
+out = [
+    f"<svg xmlns='http://www.w3.org/2000/svg' width='760' height='{h}' font-family='sans-serif'>",
+    f"<rect width='760' height='{h}' fill='white'/>",
+    "<text x='380' y='22' text-anchor='middle' font-size='14'>Largest n finished under the 12s budget (this hardware)</text>",
+]
+ymax_n = max((r["max_n_ok"] for r in families), default=1)
+y = 44
+colors = {
+    "pith_exact": "#1f77b4",
+    "pith_redzed": "#9467bd",
+    "ripser": "#d62728",
+    "pith_scale": "#2ca02c",
+    "pith_sparse": "#ff7f0e",
+}
+for r in families[:24]:
+    n = r["max_n_ok"]
+    bar = 20 + 480 * (math.log10(n) / math.log10(max(ymax_n, 10)))
+    col = colors.get(r["method"], "#333")
+    label = f"{r['name']} {r['method']} dim{r.get('maxdim')}  n≤{n}"
+    out.append(f"<text x='12' y='{y}' font-size='11'>{label}</text>")
+    out.append(f"<rect x='360' y='{y-10}' width='{bar:.1f}' height='10' fill='{col}'/>")
+    y += 16
+out.append("</svg>")
+(FIG / "max_practical.svg").write_text("\n".join(out))
+
+# dispatcher regime map: residual_frac vs edge_frac
+disp = LIM.get("dispatcher_oracle") or REP.get("dispatcher") or []
+# pull probe coords from engines rows
+eng = { (r["name"], r["n"]): r for r in (LIM.get("engines") or []) }
+w, h = 640, 420
+pad_l, pad_r, pad_t, pad_b = 56, 20, 36, 48
+out = [
+    f"<svg xmlns='http://www.w3.org/2000/svg' width='{w}' height='{h}' font-family='sans-serif'>",
+    f"<rect width='{w}' height='{h}' fill='white'/>",
+    "<text x='320' y='22' text-anchor='middle' font-size='14'>Dispatcher regime (edge-frac vs residual-frac)</text>",
+    "<text x='320' y='408' text-anchor='middle' font-size='11'>edge_frac probe</text>",
+    "<text x='14' y='210' text-anchor='middle' font-size='11' transform='rotate(-90 14 210)'>residual_frac probe</text>",
+]
+pts = []
+for d in disp:
+    row = eng.get((d.get("name"), d.get("n")))
+    est = (row or {}).get("estimate") or {}
+    x, yv = est.get("edge_frac_probe"), est.get("residual_frac_probe")
+    if x is None or yv is None or x < 0 or yv < 0:
+        continue
+    pts.append((x, yv, d))
+if pts:
+    xs, ys = [p[0] for p in pts], [p[1] for p in pts]
+    xmin, xmax = min(0, min(xs)), max(1, max(xs))
+    ymin, ymax = min(0, min(ys)), max(0.2, max(ys))
+
+    def X(v):
+        return pad_l + (v - xmin) / (xmax - xmin) * (w - pad_l - pad_r)
+
+    def Y(v):
+        return pad_t + (1 - (v - ymin) / (ymax - ymin)) * (h - pad_t - pad_b)
+
+    for x, yv, d in pts:
+        col = "#d62728" if d.get("wrong") else ("#9467bd" if d.get("recommended") == "redzed" else "#1f77b4")
+        mark = "X" if d.get("wrong") else "o"
+        if mark == "X":
+            out.append(
+                f"<text x='{X(x):.1f}' y='{Y(yv):.1f}' text-anchor='middle' font-size='14' fill='{col}'>x</text>"
+            )
+        else:
+            out.append(f"<circle cx='{X(x):.1f}' cy='{Y(yv):.1f}' r='5' fill='{col}'/>")
+        out.append(
+            f"<text x='{X(x)+8:.1f}' y='{Y(yv)-8:.1f}' font-size='10' fill='#333'>{d.get('name')}</text>"
+        )
+    out.append("<text x='520' y='50' font-size='11' fill='#9467bd'>redzed (correct)</text>")
+    out.append("<text x='520' y='66' font-size='11' fill='#1f77b4'>implicit (correct)</text>")
+    out.append("<text x='520' y='82' font-size='11' fill='#d62728'>x = wrong vs 1-thread oracle</text>")
+out.append("</svg>")
+(FIG / "dispatcher.svg").write_text("\n".join(out))
+
+# Mode-dispatcher map from held-out receipts (exact / scale / sparse / refuse).
+mode_pts = []
+for d in (NCC.get("receipts") or []):
+    mode_pts.append(
+        {
+            "src": "ncc",
+            "name": d.get("name"),
+            "n": d.get("n"),
+            "n_cc": d.get("n_cc_max") or d.get("n"),
+            "mode": d.get("mode_recommended"),
+            "exact_s": d.get("exact_s"),
+            "miss": bool(d.get("timeout_miss") or d.get("scale_miss")),
+        }
+    )
+for d in (ADV.get("receipts") or []):
+    mode_pts.append(
+        {
+            "src": "adv",
+            "name": d.get("name"),
+            "n": d.get("n"),
+            "n_cc": d.get("n_cc_max") or d.get("n"),
+            "mode": d.get("mode_recommended"),
+            "exact_s": d.get("exact_s"),
+            "miss": bool(d.get("timeout_miss") or d.get("scale_miss")),
+        }
+    )
+for d in (MAUTO.get("receipts") or []):
+    mode_pts.append(
+        {
+            "src": "mode_auto",
+            "name": d.get("name"),
+            "n": d.get("n"),
+            "n_cc": d.get("n"),
+            "mode": "refuse" if d.get("expect") == "refuse" else d.get("selected"),
+            "exact_s": None,
+            "miss": not d.get("agree"),
+        }
+    )
+for d in (HIGHD.get("receipts") or []):
+    est = d.get("estimate") or {}
+    mode_pts.append(
+        {
+            "src": "highd",
+            "name": d.get("name"),
+            "n": d.get("n"),
+            "n_cc": d.get("n"),
+            "mode": est.get("mode_recommended"),
+            "exact_s": (d.get("exact") or {}).get("wall_s"),
+            "miss": bool(d.get("wrong")),
+        }
+    )
+w, h = 720, 440
+pad_l, pad_r, pad_t, pad_b = 64, 140, 36, 48
+out = [
+    f"<svg xmlns='http://www.w3.org/2000/svg' width='{w}' height='{h}' font-family='sans-serif'>",
+    f"<rect width='{w}' height='{h}' fill='white'/>",
+    "<text x='360' y='22' text-anchor='middle' font-size='14'>Mode dispatcher (held-out): n_cc vs exact wall</text>",
+    "<text x='360' y='428' text-anchor='middle' font-size='11'>largest T-component n_cc (n when n_cc missing)</text>",
+    "<text x='16' y='220' text-anchor='middle' font-size='11' transform='rotate(-90 16 220)'>exact wall seconds (12 s if timeout)</text>",
+]
+plot = []
+for p in mode_pts:
+    x = p.get("n_cc")
+    if not x:
+        continue
+    yv = p.get("exact_s")
+    if yv is None:
+        yv = 12.0 if (p.get("mode") in ("scale", "sparse", "refuse") or p.get("miss")) else None
+    if yv is None:
+        continue
+    plot.append((float(x), float(yv), p))
+if plot:
+    xs = [math.log10(p[0]) for p in plot]
+    ys = [math.log10(max(p[1], 1e-3)) for p in plot]
+    xmin, xmax = min(xs), max(xs)
+    ymin, ymax = min(ys), max(ys)
+    if xmax <= xmin:
+        xmax = xmin + 1
+    if ymax <= ymin:
+        ymax = ymin + 1
+
+    def X(v):
+        return pad_l + (v - xmin) / (xmax - xmin) * (w - pad_l - pad_r)
+
+    def Y(v):
+        return pad_t + (1 - (v - ymin) / (ymax - ymin)) * (h - pad_t - pad_b)
+
+    cols = {
+        "exact": "#1f77b4",
+        "scale": "#2ca02c",
+        "sparse": "#ff7f0e",
+        "refuse": "#9467bd",
+    }
+    for x, yv, p in plot:
+        col = "#d62728" if p.get("miss") else cols.get(p.get("mode"), "#333")
+        px, py = X(math.log10(x)), Y(math.log10(max(yv, 1e-3)))
+        if p.get("miss"):
+            out.append(
+                f"<text x='{px:.1f}' y='{py:.1f}' text-anchor='middle' font-size='14' fill='{col}'>×</text>"
+            )
+        else:
+            out.append(f"<circle cx='{px:.1f}' cy='{py:.1f}' r='5' fill='{col}'/>")
+    out.append("<text x='590' y='50' font-size='11' fill='#1f77b4'>exact</text>")
+    out.append("<text x='590' y='66' font-size='11' fill='#2ca02c'>scale</text>")
+    out.append("<text x='590' y='82' font-size='11' fill='#ff7f0e'>sparse</text>")
+    out.append("<text x='590' y='98' font-size='11' fill='#9467bd'>refuse</text>")
+    out.append("<text x='590' y='114' font-size='11' fill='#d62728'>× miss</text>")
+out.append("</svg>")
+(FIG / "dispatcher_modes.svg").write_text("\n".join(out))
+
+# tables
+rows = []
+rows.append("# Consolidation tables (this hardware: 4 CPU, 16 GB)")
+rows.append("")
+rows.append("Ripser is 1 thread. Phase-2 PITH times use `--threads 1` unless noted.")
+rows.append("")
+rows.append("## Dispatcher scorecard")
+rows.append(
+    "One place for mode / estimate / engine / wall-kind / held-out packs. "
+    "τ is frozen. `growth_p` is a regime bucket, not a fitted exponent."
+)
+score = [
+    (
+        "`eval_mode_auto`",
+        f"{MAUTO.get('n_agree', 0)}/{MAUTO.get('n', 0)}",
+        "recommended mode executed (incl. fat-H2 refuse)",
+    ),
+    (
+        "`eval_estimate`",
+        f"{EST.get('n_in_band', 0)}/{EST.get('n_scored', 0)}",
+        "recommended-mode wall inside lo/hi band",
+    ),
+    (
+        "`eval_engine_auto`",
+        f"{ENG.get('n_oracle_ok', 0)}/{ENG.get('n', 0)}",
+        "1-thread oracle; 4 known misses waived, τ frozen",
+    ),
+    (
+        "`eval_wall_kind`",
+        f"{sum(1 for r in (WALL.get('receipts') or []) if r.get('agree'))}/"
+        f"{len(WALL.get('receipts') or [])}",
+        "collapse vs leftover vs construction",
+    ),
+    (
+        "`eval_adversarial` seed 17",
+        f"{ADV.get('n_timeout_miss', '?')}/{ADV.get('n', '?')} timeout, "
+        f"{ADV.get('n_exact_mismatch', '?')}/{ADV.get('n_exact_checked', '?')} mismatch",
+        "held-out after dispatcher freeze",
+    ),
+    (
+        "`eval_ncc_auto` seed 11",
+        f"{NCC.get('n_timeout_miss', '?')}/{NCC.get('n', '?')} timeout",
+        "Euclidean fat H2 / n_cc cut",
+    ),
+    (
+        "`eval_highd_auto`",
+        f"{HIGHD.get('n_wrong', '?')}/{HIGHD.get('n_compared', '?')} wrong",
+        "high-d / L1 clock-compare (stay exact unless sparse clearly cheaper)",
+    ),
+    (
+        "`eval_postfreeze` seed 23",
+        f"{PF.get('n_timeout_miss', '?')}/{PF.get('n', '?')} timeout, "
+        f"{PF.get('n_exact_mismatch', '?')}/{PF.get('n_exact_checked', '?')} mismatch, "
+        f"{PF.get('n_in_band', '?')}/{PF.get('n_scored_band', '?')} in band",
+        "new families after leftover-H1 clock gate; first-pass scale_miss then thin override",
+    ),
+    (
+        "`leftover_miss_dispatch`",
+        L10MD.get("mode_auto", "—"),
+        L10MD.get("note", "fat leftover n=8000 stay exact; hollow figure8 n=16000 scale"),
+    ),
+    (
+        "`eval_postband` seed 29",
+        f"{PB.get('n_in_band', '?')}/{PB.get('n_scored_band', '?')} in band, "
+        f"{PB.get('n_ratio_ge10', '?')}/{PB.get('n', '?')} ≥10×",
+        "offset_rings after hi_mult=16 freeze; n=800 and n=4000 sit outside the |E| clock",
+    ),
+]
+rows.append("| pack | score | note |")
+rows.append("| --- | --- | --- |")
+for name, val, note in score:
+    rows.append(f"| {name} | {val} | {note} |")
+sc_h = 40 + 18 * len(score)
+sc_svg = [
+    f"<svg xmlns='http://www.w3.org/2000/svg' width='760' height='{sc_h}' font-family='sans-serif'>",
+    f"<rect width='760' height='{sc_h}' fill='white'/>",
+    "<text x='12' y='22' font-size='14'>Dispatcher scorecard (τ frozen)</text>",
+]
+for i, (name, val, _note) in enumerate(score):
+    y = 44 + 16 * i
+    sc_svg.append(f"<text x='12' y='{y}' font-size='11'>{name}</text>")
+    sc_svg.append(f"<text x='220' y='{y}' font-size='11' font-weight='bold'>{val}</text>")
+sc_svg.append("</svg>")
+(FIG / "dispatcher_scorecard.svg").write_text("\n".join(sc_svg))
+rows.append("")
+rows.append("![Dispatcher scorecard](figures/dispatcher_scorecard.svg)")
+rows.append("")
+if BASE.get("have_giotto"):
+    rows.append(
+        f"giotto-ph {BASE.get('giotto')} (AGPL oracle) and GUDHI {BASE.get('gudhi')} "
+        "are compared at equal hardware in the phase-3 tables below."
+    )
+else:
+    rows.append("giotto-ph was not installed. GUDHI Rips/Alpha used where n is small enough.")
+rows.append("")
+rows.append("## Exact VR wall time (phase 1, PITH may use 4 threads)")
+rows.append("| family | n | T | dim | PITH exact (s) | Ripser (s) | ratio | pipeline |")
+rows.append("| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |")
+for r in REP.get("receipts") or []:
+    a = r["runs"].get("pith_exact")
+    b = r["runs"].get("ripser")
+    if not (a and b and a.get("wall_s") and b.get("wall_s")):
+        continue
+    rows.append(
+        f"| {r['name']} | {r['n']} | {r['T']} | {r['maxdim']} | {a['wall_s']:.3f} | {b['wall_s']:.3f} | {b['wall_s']/a['wall_s']:.2f}× | {a.get('pipeline','')} |"
+    )
+
+rows.append("")
+rows.append("## Thread-fair exact VR (`--threads 1` vs hardware vs Ripser)")
+rows.append("| family | n | PITH 1-thr (s) | PITH hw-thr (s) | Ripser 1-thr (s) | 1-thr ratio | hw-thr ratio |")
+rows.append("| --- | ---: | ---: | ---: | ---: | ---: | ---: |")
+for r in LIM.get("threads") or []:
+    a = r["runs"].get("pith_t1") or {}
+    h = r["runs"].get("pith_thw") or {}
+    b = r["runs"].get("ripser") or {}
+    if not (a.get("wall_s") and b.get("wall_s")):
+        continue
+    hw = f"{h['wall_s']:.3f}" if h.get("wall_s") else ""
+    hw_r = f"{b['wall_s']/h['wall_s']:.2f}×" if h.get("wall_s") else ""
+    rows.append(
+        f"| {r['name']} | {r['n']} | {a['wall_s']:.3f} | {hw} | {b['wall_s']:.3f} | {b['wall_s']/a['wall_s']:.2f}× | {hw_r} |"
+    )
+
+rows.append("")
+rows.append("## Forced engines (1 thread)")
+rows.append("| family | n | auto (s) | redzed (s) | implicit (s) | estimate | oracle | waste |")
+rows.append("| --- | ---: | ---: | ---: | ---: | --- | --- | ---: |")
+oracle = { (d["name"], d["n"]): d for d in LIM.get("dispatcher_oracle") or [] }
+for r in LIM.get("engines") or []:
+    a, z, i = r["runs"].get("auto") or {}, r["runs"].get("redzed") or {}, r["runs"].get("implicit") or {}
+    d = oracle.get((r["name"], r["n"])) or {}
+    rows.append(
+        f"| {r['name']} | {r['n']} | {a.get('wall_s') or ''} | {z.get('wall_s') or ''} | {i.get('wall_s') or ''} | "
+        f"{(r.get('estimate') or {}).get('engine_recommended')} | {d.get('oracle_faster')} | {d.get('waste_if_follow_estimate') or ''} |"
+    )
+
+rows.append("")
+rows.append("## Scale path")
+rows.append("| family | n | PITH scale (s) | |E| | ess H1 | ess H2 | RSS |")
+rows.append("| --- | ---: | ---: | ---: | ---: | ---: | ---: |")
+seen = set()
+for src, key in ((REP.get("receipts") or [], "pith_scale"), (LIM.get("limits") or [], "scale")):
+    for r in src:
+        s = r["runs"].get(key)
+        if not (s and s.get("ok") and s.get("wall_s")):
+            continue
+        tok = (r["name"], r["n"], r.get("T"))
+        if tok in seen:
+            continue
+        seen.add(tok)
+        rows.append(
+            f"| {r['name']} | {r['n']} | {s['wall_s']:.3f} | {s.get('n_dist')} | {s.get('ess1')} | {s.get('ess2')} | {s.get('rss_pith')} |"
+        )
+
+rows.append("")
+rows.append("## Topology vs Ripser (phase 2, bottleneck/Wasserstein when GUDHI provides them)")
+rows.append("| family | n | exact match | scale unmatched | scale bn H1 | scale W1 H1 | ess scale | ess sparse |")
+rows.append("| --- | ---: | --- | ---: | ---: | ---: | --- | --- |")
+for t in LIM.get("topology") or REP.get("topology") or []:
+    ex = dict(t.get("exact_vs_ripser") or {})
+    # limits.json mixed n=300 exact timed out (pre RedZeD-cc). fat_h2.json
+    # re-measured exact-auto in 33 ms, ess 2/1/0, agree_mixed300_exact.
+    if (
+        t.get("name") == "mixed_1d2d3d"
+        and t.get("n") == 300
+        and FATH2.get("agree_mixed300_exact")
+    ):
+        ex["exact_match"] = True
+    sc = t.get("scale_vs_ripser") or {}
+    bn = sc.get("bottleneck_h1")
+    w1 = sc.get("wasserstein1_h1")
+    ess_s = t.get("ess_scale") or {}
+    ess_p = t.get("ess_sparse") or {}
+    rows.append(
+        f"| {t['name']} | {t.get('n')} | {ex.get('exact_match')} | {sc.get('unmatched')} | "
+        f"{'' if bn is None else (f'{bn:.4g}' if isinstance(bn, float) else bn)} | "
+        f"{'' if w1 is None else (f'{w1:.4g}' if isinstance(w1, float) else w1)} | "
+        f"H1={ess_s.get(1, ess_s.get('1'))} H2={ess_s.get(2, ess_s.get('2'))} | "
+        f"H1={ess_p.get(1, ess_p.get('1'))} H2={ess_p.get(2, ess_p.get('2'))} |"
+    )
+
+rows.append("")
+rows.append("## Dispatcher oracle (1-thread; wrong = estimate ≠ faster engine)")
+rows.append("| family | n | recommended | auto | oracle | wrong | waste | regime |")
+rows.append("| --- | ---: | --- | --- | --- | --- | ---: | --- |")
+for d in LIM.get("dispatcher_oracle") or []:
+    rows.append(
+        f"| {d['name']} | {d['n']} | {d.get('recommended')} | {d.get('auto_picked')} | {d.get('oracle_faster')} | "
+        f"{d.get('wrong')} | {d.get('waste_if_follow_estimate') or ''} | {d.get('regime')} |"
+    )
+
+rows.append("")
+rows.append("## Practical limits under a 12 s budget")
+rows.append("| family | dim | method | max n ok | wall (s) | first fail n |")
+rows.append("| --- | ---: | --- | ---: | ---: | ---: |")
+for r in LIM.get("max_practical") or []:
+    rows.append(
+        f"| {r['name']} | {r.get('maxdim')} | {r['method']} | {r.get('max_n_ok')} | "
+        f"{'' if r.get('wall_at_max') is None else f'{r['wall_at_max']:.3f}'} | {r.get('first_fail_n')} |"
+    )
+
+rows.append("")
+rows.append("## Non-Euclidean L1 (exact engine only)")
+rows.append("| n | PITH auto (s) | PITH redzed (s) | Ripser (s) | exact match |")
+rows.append("| ---: | ---: | ---: | ---: | --- |")
+for r in LIM.get("noneuclidean") or []:
+    a, z, b = r.get("pith_auto") or {}, r.get("pith_redzed") or {}, r.get("ripser") or {}
+    fid = r.get("exact_vs_ripser") or {}
+    rows.append(
+        f"| {r['n']} | {a.get('wall_s') or ''} | {z.get('wall_s') or ''} | {b.get('wall_s') or ''} | {fid.get('exact_match')} |"
+    )
+
+rows.append("")
+rows.append("## Local time exponents (empirical slopes, not theorems)")
+rows.append("| family | method | n0 | n1 | p_time | p_edges |")
+rows.append("| --- | --- | ---: | ---: | ---: | ---: |")
+for e in exp:
+    pt = f"{e['p_time']:.2f}" if e.get("p_time") is not None else ""
+    pe = f"{e['p_edges']:.2f}" if e.get("p_edges") is not None else ""
+    rows.append(f"| {e['name']} | {e['method']} | {e['n0']} | {e['n1']} | {pt} | {pe} |")
+
+if BASE:
+    rows.append("")
+    rows.append("## Phase-3 equal-hardware baselines (giotto-ph + GUDHI)")
+    rows.append(
+        "PITH `--threads 1`. Ripser 1 thread. giotto-ph `n_threads=1` and `n_threads=4` "
+        "(no edge collapse unless noted). GUDHI Rips is explicit (1 thread). "
+        f"giotto-ph {BASE.get('giotto')} is AGPLv3 — oracle only."
+    )
+    rows.append("| family | n | T | dim | PITH 1-thr | Ripser | giotto t1 | giotto t4 | GUDHI Rips |")
+    rows.append("| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |")
+    for r in BASE.get("comparisons") or []:
+        def w(key):
+            run = (r.get("runs") or {}).get(key) or {}
+            if run.get("wall_s"):
+                return f"{run['wall_s']:.3f}"
+            if run.get("timed_out") or (run.get("error") and "timed out" in str(run.get("error")).lower()):
+                return "timeout"
+            if run.get("skipped"):
+                return "skip"
+            if run.get("error"):
+                return "fail"
+            return ""
+
+        rows.append(
+            f"| {r['name']} | {r['n']} | {r['T']} | {r['maxdim']} | {w('pith_exact_t1')} | "
+            f"{w('ripser')} | {w('giotto_t1')} | {w('giotto_t4')} | {w('gudhi_rips')} |"
+        )
+
+    rows.append("")
+    rows.append("## Construct vs reduce (1-thread exact, from `baselines.json`)")
+    rows.append(
+        "`metric_ms` is G_T / Delaunay construction; `collapse_ms` is flag collapse; "
+        "`reduce_ms` is the pairing. Counters already stored; not a new bench."
+    )
+    rows.append("| family | n | wall (s) | construct (s) | collapse (s) | reduce (s) | |E| in | residual |")
+    rows.append("| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |")
+    for r in BASE.get("comparisons") or []:
+        run = (r.get("runs") or {}).get("pith_exact_t1") or {}
+        if not (run.get("ok") and run.get("wall_s")):
+            continue
+        met = run.get("metric_ms")
+        col = run.get("collapse_ms")
+        red = run.get("reduce_ms")
+        rows.append(
+            f"| {r['name']} | {r['n']} | {run['wall_s']:.3f} | "
+            f"{'' if met is None else f'{met/1000:.3f}'} | "
+            f"{'' if col is None else f'{col/1000:.3f}'} | "
+            f"{'' if red is None else f'{red/1000:.3f}'} | "
+            f"{run.get('n_edges_in') or ''} | {run.get('residual_frac') or ''} |"
+        )
+
+    picks = [
+        ("circle_noisy", 1000),
+        ("sphere", 400),
+        ("disconnected_circles", 1000),
+        ("figure8", 2000),
+        ("nested_loops", 1000),
+        ("torus", 1000),
+    ]
+    by_run = {(r["name"], r["n"]): (r.get("runs") or {}).get("pith_exact_t1") for r in BASE.get("comparisons") or []}
+    stack = []
+    for name, n in picks:
+        run = by_run.get((name, n)) or {}
+        if not run.get("ok"):
+            continue
+        met = (run.get("metric_ms") or 0) / 1000
+        col = (run.get("collapse_ms") or 0) / 1000
+        red = (run.get("reduce_ms") or 0) / 1000
+        tot = met + col + red
+        if tot <= 0:
+            continue
+        stack.append((f"{name} n={n}", met / tot, col / tot, red / tot, tot))
+    if stack:
+        sh, sw = 36 + 28 * len(stack), 720
+        svg = [
+            f"<svg xmlns='http://www.w3.org/2000/svg' width='{sw}' height='{sh}' font-family='sans-serif'>",
+            f"<rect width='{sw}' height='{sh}' fill='white'/>",
+            "<text x='360' y='18' text-anchor='middle' font-size='14'>Where exact VR time goes (share of construct+collapse+reduce)</text>",
+            "<rect x='430' y='6' width='10' height='10' fill='#7f7f7f'/>",
+            "<text x='444' y='15' font-size='11'>construct</text>",
+            "<rect x='520' y='6' width='10' height='10' fill='#1f77b4'/>",
+            "<text x='534' y='15' font-size='11'>collapse</text>",
+            "<rect x='600' y='6' width='10' height='10' fill='#d62728'/>",
+            "<text x='614' y='15' font-size='11'>leftover reduce</text>",
+        ]
+        y = 36
+        for lab, fm, fc, fr, tot in stack:
+            x0 = 200
+            wbar = 400
+            svg.append(f"<text x='12' y='{y+10}' font-size='11'>{lab}</text>")
+            svg.append(f"<rect x='{x0}' y='{y}' width='{wbar*fm:.1f}' height='14' fill='#7f7f7f'/>")
+            svg.append(f"<rect x='{x0+wbar*fm:.1f}' y='{y}' width='{wbar*fc:.1f}' height='14' fill='#1f77b4'/>")
+            svg.append(f"<rect x='{x0+wbar*(fm+fc):.1f}' y='{y}' width='{wbar*fr:.1f}' height='14' fill='#d62728'/>")
+            kind = "collapse" if fc >= fr else "leftover"
+            svg.append(f"<text x='610' y='{y+11}' font-size='11'>{kind} {tot:.3f}s</text>")
+            y += 26
+        svg.append("</svg>")
+        (FIG / "wall_share.svg").write_text("\n".join(svg))
+
+    rows.append("")
+    rows.append("## Phase-3 topology (exact engines vs Ripser; scale unmatched)")
+    rows.append("| family | n | PITH match | giotto match | GUDHI match | scale unmatched | scale bn H1 |")
+    rows.append("| --- | ---: | --- | --- | --- | ---: | ---: |")
+    for t in BASE.get("topology") or []:
+        pith = (t.get("pith_vs_ripser") or {}).get("exact_match")
+        gio = (t.get("giotto_vs_ripser") or {}).get("exact_match")
+        gud = (t.get("gudhi_vs_ripser") or {}).get("exact_match")
+        sc = t.get("scale_vs_ripser") or {}
+        bn = sc.get("bottleneck_h1")
+        rows.append(
+            f"| {t['name']} | {t.get('n')} | {pith} | {gio} | {gud} | {sc.get('unmatched')} | "
+            f"{'' if bn is None else (f'{bn:.4g}' if isinstance(bn, float) else bn)} |"
+        )
+
+    rows.append("")
+    rows.append("## Phase-3 held-out / post-freeze dispatcher")
+    rows.append("| family | n | recommended | auto | oracle | wrong | waste | regime |")
+    rows.append("| --- | ---: | --- | --- | --- | --- | ---: | --- |")
+    for d in BASE.get("dispatcher_heldout") or []:
+        waste = d.get("waste_if_follow_estimate")
+        rows.append(
+            f"| {d['name']} | {d['n']} | {d.get('recommended')} | {d.get('auto_picked')} | "
+            f"{d.get('oracle_faster')} | {d.get('wrong')} | "
+            f"{'' if waste is None else (f'{waste:.2f}' if isinstance(waste, float) else waste)} | "
+            f"{d.get('regime')} |"
+        )
+
+    rows.append("")
+    rows.append("## Phase-3 `--mode auto` vs probe")
+    rows.append("| family | n | selected | probe | match |")
+    rows.append("| --- | ---: | --- | --- | --- |")
+    for d in BASE.get("mode_auto_heldout") or []:
+        rows.append(
+            f"| {d['name']} | {d['n']} | {d.get('selected')} | {d.get('mode_recommended')} | {d.get('match_probe')} |"
+        )
+
+    rows.append("")
+    rows.append("## Phase-3 local exponents (new series)")
+    rows.append("| family | method | n0 | n1 | p_time |")
+    rows.append("| --- | --- | ---: | ---: | ---: |")
+    for e in BASE.get("exponents") or []:
+        pt = f"{e['p_time']:.2f}" if e.get("p_time") is not None else ""
+        rows.append(f"| {e['name']} | {e['method']} | {e['n0']} | {e['n1']} | {pt} |")
+
+    # runtime figure including giotto/GUDHI on circle + figure8 + held-out
+    series = []
+    for fam, label in (
+        ("circle_noisy", "circle"),
+        ("figure8", "figure8"),
+        ("disconnected_circles", "disc. circles"),
+        ("grid_holes", "grid holes"),
+    ):
+        for meth, mlab, color_i in (
+            ("pith_exact_t1", "PITH", 0),
+            ("ripser", "Ripser", 1),
+            ("giotto_t1", "giotto t1", 2),
+            ("gudhi_rips", "GUDHI", 3),
+        ):
+            xy = []
+            for r in BASE.get("comparisons") or []:
+                if r["name"] != fam:
+                    continue
+                run = (r.get("runs") or {}).get(meth) or {}
+                if run.get("wall_s"):
+                    xy.append((r["n"], run["wall_s"]))
+            if xy:
+                series.append({"name": f"{label} {mlab}", "xy": xy})
+    if series:
+        svg_scatter(
+            FIG / "runtime_baselines.svg",
+            series,
+            "1-thread exact VR: PITH vs Ripser vs giotto-ph vs GUDHI",
+            "n",
+            "wall seconds",
+        )
+
+if SPARSE:
+    rows.append("")
+    rows.append("## Sparse Rips (ε=0.6 greedy net) vs VR / scale")
+    rows.append("Not exact VR. Sheehy-style interleaving is the literature guarantee; numbers are measured.")
+    rows.append("`distances` is pairwise construction; report `edges_in` as |E| (do not use distances).")
+    rows.append("| family | n | exact (s) | scale (s) | sparse (s) | sparse |E| | unmatched | bn H1 | W1 H1 | sparse ess |")
+    rows.append("| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |")
+    for t in SPARSE.get("sparse") or []:
+        if t.get("larger"):
+            continue
+        sp = t.get("sparse_vs_ripser") or {}
+        walls = t.get("walls") or {}
+        nd = t.get("n_dist") or {}
+        ess_s = t.get("ess_sparse") or {}
+        bn = sp.get("bottleneck_h1")
+        w1 = sp.get("wasserstein1_h1")
+        rows.append(
+            f"| {t['name']} | {t['n']} | {'' if walls.get('exact') is None else f'{walls['exact']:.3f}'} | "
+            f"{'' if walls.get('scale') is None else f'{walls['scale']:.3f}'} | "
+            f"{'' if walls.get('sparse') is None else f'{walls['sparse']:.3f}'} | {nd.get('sparse')} | "
+            f"{sp.get('unmatched')} | "
+            f"{'' if bn is None else (f'{bn:.4g}' if isinstance(bn, float) else bn)} | "
+            f"{'' if w1 is None else (f'{w1:.4g}' if isinstance(w1, float) else w1)} | "
+            f"H1={ess_s.get(1, ess_s.get('1'))} H2={ess_s.get(2, ess_s.get('2'))} |"
+        )
+    rows.append("")
+    rows.append("## Failure pushes (12 s)")
+    rows.append("| family | n | PITH exact | Ripser | giotto t1 |")
+    rows.append("| --- | ---: | --- | --- | --- |")
+    for r in SPARSE.get("failures") or []:
+        def w(key):
+            run = (r.get("runs") or {}).get(key) or {}
+            if run.get("wall_s"):
+                return f"{run['wall_s']:.3f}"
+            if run.get("error") and "timed out" in str(run.get("error")).lower():
+                return "timeout"
+            return run.get("error") or ""
+
+        rows.append(f"| {r['name']} | {r['n']} | {w('pith_exact')} | {w('ripser')} | {w('giotto_t1')} |")
+
+if SSCALE:
+    rows.append("")
+    rows.append("## Fused sparse scaling (1 thread, no n×n matrix)")
+    rows.append(
+        "Same greedy-net flag as the matrix path. `distances` is FPS + T-ball evals. "
+        "Local p is empirical, not a theorem."
+    )
+    rows.append("| family | n | sparse (s) | scale (s) | construct (s) | reduce (s) | sparse |E| | sparse RSS | local p | ess H1 |")
+    rows.append("| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |")
+    scale_by = {(r.get("name"), r.get("n")): r for r in SSCALE.get("series") or [] if r.get("mode") == "scale"}
+    for r in SSCALE.get("series") or []:
+        if r.get("mode") != "sparse":
+            continue
+        sc = scale_by.get((r.get("name"), r.get("n"))) or {}
+        rss = r.get("rss")
+        rss_s = f"{rss/1e6:.0f} MB" if isinstance(rss, (int, float)) and rss else ""
+        p = r.get("local_p")
+        cons = r.get("metric_ms")
+        red = r.get("reduce_ms")
+        rows.append(
+            f"| {r.get('name')} | {r.get('n')} | "
+            f"{'' if r.get('wall_s') is None else f'{r['wall_s']:.3f}'} | "
+            f"{'' if sc.get('wall_s') is None else f'{sc['wall_s']:.3f}'} | "
+            f"{'' if cons is None else f'{cons/1000:.3f}'} | "
+            f"{'' if red is None else f'{red/1000:.3f}'} | "
+            f"{r.get('n_edges_in') or ''} | {rss_s} | "
+            f"{'' if p is None else f'{p:.2f}'} | {r.get('ess1')} |"
+        )
+
+if MAUTO:
+    rows.append("")
+    rows.append("## `--mode auto` vs probe (`eval_mode_auto.py`)")
+    rows.append(
+        f"Agreement {MAUTO.get('n_agree')}/{MAUTO.get('n')}. "
+        "`refuse` means the probe named sparse but auto exits 3 instead of starting fat H2 outside d∈{2,3}."
+    )
+    rows.append("| family | n | maxdim | selected | expect | refused | agree |")
+    rows.append("| --- | ---: | ---: | --- | --- | --- | --- |")
+    for d in MAUTO.get("receipts") or []:
+        rows.append(
+            f"| {d.get('name')} | {d.get('n')} | {d.get('maxdim')} | {d.get('selected')} | "
+            f"{d.get('expect')} | {d.get('refused', False)} | {d.get('agree')} |"
+        )
+
+if EST:
+    rows.append("")
+    rows.append("## `--estimate` vs measured wall (`eval_estimate.py`)")
+    rows.append(
+        f"Recommended-mode wall inside `[est_runtime_lo, est_runtime_hi]`: "
+        f"{EST.get('n_in_band')}/{EST.get('n_scored')}. Empirical bands; τ frozen. "
+        f"{EST.get('note', '')}"
+    )
+    rows.append("| family | n | maxdim | rec | wall (s) | lo | hi | ratio | in band |")
+    rows.append("| --- | ---: | ---: | --- | ---: | ---: | ---: | ---: | --- |")
+    for d in EST.get("receipts") or []:
+        if d.get("error"):
+            continue
+        wall = d.get("measured_recommended_wall_s")
+        ratio = d.get("ratio_actual_over_mid")
+        rows.append(
+            f"| {d.get('name')} | {d.get('n')} | {d.get('maxdim')} | {d.get('mode_recommended')} | "
+            f"{'' if wall is None else f'{wall:.3f}'} | "
+            f"{'' if d.get('est_runtime_lo_s') is None else f'{d['est_runtime_lo_s']:.3f}'} | "
+            f"{'' if d.get('est_runtime_hi_s') is None else f'{d['est_runtime_hi_s']:.3f}'} | "
+            f"{'' if ratio is None else f'{ratio:.2f}'} | {d.get('in_band')} |"
+        )
+
+if ENG:
+    rows.append("")
+    rows.append("## Engine oracle live check (`eval_engine_auto.py`)")
+    rows.append(
+        f"Oracle {ENG.get('n_oracle_ok')}/{ENG.get('n')}. "
+        f"New misses: {', '.join(ENG.get('new_misses') or []) or 'none'}. "
+        "Known misses waived; τ frozen."
+    )
+    rows.append("| family | n | rec | oracle | wrong | waived | waste |")
+    rows.append("| --- | ---: | --- | --- | --- | --- | ---: |")
+    for d in ENG.get("receipts") or []:
+        waste = d.get("waste_if_follow_estimate")
+        rows.append(
+            f"| {d.get('name')} | {d.get('n')} | {d.get('recommended')} | {d.get('oracle_faster')} | "
+            f"{d.get('wrong')} | {d.get('waived')} | "
+            f"{'' if waste is None else f'{waste:.2f}'} |"
+        )
+
+if WALL:
+    rows.append("")
+    rows.append("## `wall_kind` vs measured share (`eval_wall_kind.py`)")
+    rows.append(
+        f"Agreement {WALL.get('n_agree')}/{WALL.get('n')}. "
+        "Measured kind is the largest of metric/collapse/reduce (n≥400, ≥1 ms)."
+    )
+    rows.append("| family | n | measured | estimate | regime | agree |")
+    rows.append("| --- | ---: | --- | --- | --- | --- |")
+    for d in WALL.get("receipts") or []:
+        rows.append(
+            f"| {d.get('name')} | {d.get('n')} | {d.get('measured')} | {d.get('estimate')} | "
+            f"{d.get('regime')} | {d.get('agree')} |"
+        )
+
+if L10:
+    rows.append("")
+    rows.append("## Leftover-family exact H1 vs Ripser (`reverify_leftover_10x.py`)")
+    rows.append(
+        f"1-thread. {L10.get('n_ratio_ge10')}/{L10.get('n')} ≥10×. "
+        "Same pairing class; constant-factor only."
+    )
+    rows.append("| family | n | PITH (s) | Ripser (s) | ratio | reduce (ms) | pipeline |")
+    rows.append("| --- | ---: | ---: | ---: | ---: | ---: | --- |")
+    for d in L10.get("receipts") or []:
+        ratio = d.get("ratio")
+        rows.append(
+            f"| {d.get('name')} | {d.get('n')} | "
+            f"{'' if d.get('pith_s') is None else f'{d['pith_s']:.3f}'} | "
+            f"{'' if d.get('ripser_s') is None else f'{d['ripser_s']:.3f}'} | "
+            f"{'' if ratio is None else f'{ratio:.2f}×'} | "
+            f"{'' if d.get('reduce_ms') is None else f'{d['reduce_ms']:.0f}'} | "
+            f"{d.get('pipeline')} |"
+        )
+
+if L10N:
+    rows.append("")
+    rows.append("## Leftover H1 ratio vs n (`eval_leftover_ratio_n.py`)")
+    rows.append(
+        f"{L10N.get('note', '')} Cells ≥10×: {L10N.get('n_ratio_ge10')}/{L10N.get('n')}."
+    )
+    rows.append("| family | n | PITH (s) | Ripser (s) | ratio | p_PITH | p_Ripser |")
+    rows.append("| --- | ---: | ---: | ---: | ---: | ---: | ---: |")
+    by = {}
+    for d in L10N.get("receipts") or []:
+        rows.append(
+            "| {fam} | {n} | {pw} | {rw} | {ratio} | {pp} | {pr} |".format(
+                fam=d.get("name"),
+                n=d.get("n"),
+                pw="" if d.get("pith_s") is None else f"{d['pith_s']:.3f}",
+                rw="" if d.get("ripser_s") is None else f"{d['ripser_s']:.3f}",
+                ratio="" if d.get("ratio") is None else f"{d['ratio']:.2f}×",
+                pp="" if d.get("p_pith") is None else f"{d['p_pith']:.2f}",
+                pr="" if d.get("p_ripser") is None else f"{d['p_ripser']:.2f}",
+            )
+        )
+        if d.get("ratio") and d.get("n"):
+            by.setdefault(d.get("name"), []).append((d["n"], d["ratio"]))
+    series = [{"name": k, "xy": v} for k, v in by.items()]
+    if series:
+        svg_scatter(
+            FIG / "leftover_ratio_n.svg",
+            series,
+            "Leftover exact H1: Ripser/PITH ratio vs n (1 thread)",
+            "n",
+            "wall-clock ratio",
+            logx=True,
+            logy=False,
+        )
+
+if L10H:
+    rows.append("")
+    rows.append("## Held-out leftover H1 (`eval_leftover_heldout.py`, seed 19)")
+    rows.append(
+        f"{L10H.get('note', '')} Leftover ≥10×: {L10H.get('n_ratio_ge10')}/{L10H.get('n_leftover')}. "
+        f"Collapse cells: {L10H.get('n_collapse')}."
+    )
+    rows.append("| family | n | PITH (s) | Ripser (s) | ratio | resid | collapse | pipeline |")
+    rows.append("| --- | ---: | ---: | ---: | ---: | ---: | --- | --- |")
+    for d in L10H.get("receipts") or []:
+        rows.append(
+            "| {fam} | {n} | {pw} | {rw} | {ratio} | {res} | {cw} | {pipe} |".format(
+                fam=d.get("name"),
+                n=d.get("n"),
+                pw="" if d.get("pith_s") is None else f"{d['pith_s']:.3f}",
+                rw="" if d.get("ripser_s") is None else f"{d['ripser_s']:.3f}",
+                ratio="" if d.get("ratio") is None else f"{d['ratio']:.2f}×",
+                res="" if d.get("residual_frac") is None else f"{d['residual_frac']:.3f}",
+                cw=d.get("collapse_wall"),
+                pipe=d.get("pipeline"),
+            )
+        )
+
+if L10M:
+    rows.append("")
+    rows.append("## Leftover-miss H1 vs n (`eval_leftover_miss_n.py`, seed 19)")
+    rows.append(
+        f"{L10M.get('note', '')} Cells ≥10×: {L10M.get('n_ratio_ge10')}/{L10M.get('n')}."
+    )
+    rows.append("| family | n | PITH (s) | Ripser (s) | ratio | p_PITH | p_Ripser | pipeline |")
+    rows.append("| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |")
+    by_ratio = {}
+    by_p = {}
+    for d in L10M.get("receipts") or []:
+        rows.append(
+            "| {fam} | {n} | {pw} | {rw} | {ratio} | {pp} | {pr} | {pipe} |".format(
+                fam=d.get("name"),
+                n=d.get("n"),
+                pw="" if d.get("pith_s") is None else f"{d['pith_s']:.3f}",
+                rw="" if d.get("ripser_s") is None else f"{d['ripser_s']:.3f}",
+                ratio="" if d.get("ratio") is None else f"{d['ratio']:.2f}×",
+                pp="" if d.get("p_pith") is None else f"{d['p_pith']:.2f}",
+                pr="" if d.get("p_ripser") is None else f"{d['p_ripser']:.2f}",
+                pipe=d.get("pipeline"),
+            )
+        )
+        if d.get("ratio") and d.get("n"):
+            by_ratio.setdefault(d.get("name"), []).append((d["n"], d["ratio"]))
+        if d.get("p_pith") and d.get("n"):
+            by_p.setdefault(f"{d.get('name')} PITH", []).append((d["n"], d["p_pith"]))
+        if d.get("p_ripser") and d.get("n"):
+            by_p.setdefault(f"{d.get('name')} Ripser", []).append((d["n"], d["p_ripser"]))
+    if by_ratio:
+        svg_scatter(
+            FIG / "leftover_miss_n.svg",
+            [{"name": k, "xy": v} for k, v in by_ratio.items()],
+            "Leftover-miss H1: Ripser/PITH ratio vs n (1 thread)",
+            "n",
+            "wall-clock ratio",
+            logx=True,
+            logy=False,
+        )
+    if by_p:
+        svg_scatter(
+            FIG / "leftover_miss_exponents.svg",
+            [{"name": k, "xy": v} for k, v in by_p.items()],
+            "Leftover-miss local scaling exponent vs n",
+            "n",
+            "local p",
+            logx=True,
+            logy=False,
+        )
+
+if L10L:
+    rows.append("")
+    rows.append("## Post-freeze leftover H1 vs n (`eval_linked_n.py`, seed 23)")
+    rows.append(
+        f"{L10L.get('note', '')} Cells ≥10×: {L10L.get('n_ratio_ge10')}/{L10L.get('n')}."
+    )
+    rows.append("| family | n | PITH (s) | Ripser (s) | ratio | p_PITH | p_Ripser | pipeline |")
+    rows.append("| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |")
+    by_ratio = {}
+    for d in L10L.get("receipts") or []:
+        rows.append(
+            "| {fam} | {n} | {pw} | {rw} | {ratio} | {pp} | {pr} | {pipe} |".format(
+                fam=d.get("name"),
+                n=d.get("n"),
+                pw="" if d.get("pith_s") is None else f"{d['pith_s']:.3f}",
+                rw="" if d.get("ripser_s") is None else f"{d['ripser_s']:.3f}",
+                ratio="" if d.get("ratio") is None else f"{d['ratio']:.2f}×",
+                pp="" if d.get("p_pith") is None else f"{d['p_pith']:.2f}",
+                pr="" if d.get("p_ripser") is None else f"{d['p_ripser']:.2f}",
+                pipe=d.get("pipeline"),
+            )
+        )
+        if d.get("ratio") and d.get("n"):
+            by_ratio.setdefault(d.get("name"), []).append((d["n"], d["ratio"]))
+    if by_ratio:
+        svg_scatter(
+            FIG / "linked_ratio_n.svg",
+            [{"name": k, "xy": v} for k, v in by_ratio.items()],
+            "Post-freeze leftover H1: Ripser/PITH ratio vs n (1 thread)",
+            "n",
+            "wall-clock ratio",
+            logx=True,
+            logy=False,
+        )
+
+if AXIS:
+    rows.append("")
+    rows.append("## Axis scaling (T / noise / density / dimension)")
+    hw = AXIS.get("hardware") or {}
+    rows.append(
+        f"Budget {hw.get('budget_s')} s. PITH `--threads {hw.get('threads_pith')}`. "
+        f"Ripser 1 thread. Hardware {hw.get('cpus')} CPUs. Empirical."
+    )
+    rows.append("| axis | family | n | x | method | wall (s) | cpu (s) | threads | |E| | reduce (ms) | ok |")
+    rows.append("| --- | --- | ---: | ---: | --- | ---: | ---: | ---: | ---: | ---: | --- |")
+    for d in AXIS.get("receipts") or []:
+        if d.get("skipped_after_fail"):
+            continue
+        wall = d.get("wall_s")
+        cpu = d.get("cpu_s")
+        red = d.get("reduce_ms")
+        thr = d.get("threads_used")
+        if thr is None:
+            thr = d.get("threads_claimed") or ""
+        rows.append(
+            "| {axis} | {fam} | {n} | {x} | {meth} | {wall} | {cpu} | {thr} | {ne} | {red} | {ok} |".format(
+                axis=d.get("axis"),
+                fam=d.get("family"),
+                n=d.get("n"),
+                x=d.get("x"),
+                meth=d.get("method"),
+                wall="" if wall is None else f"{wall:.3f}",
+                cpu="" if cpu is None else f"{cpu:.3f}",
+                thr=thr,
+                ne="" if d.get("n_edges") is None else d.get("n_edges"),
+                red="" if red is None else f"{red:.0f}",
+                ok=d.get("ok"),
+            )
+        )
+    if AXIS.get("exponents"):
+        rows.append("")
+        rows.append("### Local exponents along each axis")
+        rows.append("| axis | family | n | method | x0→x1 | p_time |")
+        rows.append("| --- | --- | ---: | --- | --- | ---: |")
+        for e in AXIS["exponents"]:
+            for p in e.get("p_time") or []:
+                rows.append(
+                    f"| {e.get('axis')} | {e.get('family')} | {e.get('n')} | {e.get('method')} | "
+                    f"{p.get('x0')}→{p.get('x1')} | {p.get('p'):.2f} |"
+                )
+
+    # Runtime vs T / noise / density figures
+    def _axis_series(axis_name, family, n, methods):
+        out = []
+        recs = [
+            r
+            for r in AXIS.get("receipts") or []
+            if r.get("axis") == axis_name
+            and r.get("family") == family
+            and r.get("n") == n
+            and r.get("ok")
+            and r.get("wall_s")
+        ]
+        for m in methods:
+            xy = sorted(
+                [(float(r["x"]), r["wall_s"]) for r in recs if r.get("method") == m],
+                key=lambda z: z[0],
+            )
+            if xy:
+                out.append({"name": m, "xy": xy})
+        return out
+
+    meths = ["pith_exact_auto", "pith_exact_redzed", "ripser", "pith_scale", "pith_sparse", "giotto_t1"]
+    t_series = _axis_series("threshold", "circle_noisy", 400, meths)
+    if t_series:
+        svg_scatter(
+            FIG / "runtime_vs_T.svg",
+            t_series,
+            "Wall time vs threshold T (circle n=400, 1 thread)",
+            "T",
+            "wall seconds",
+        )
+    n_series = _axis_series("noise", "circle_noisy", 500, meths)
+    if n_series:
+        svg_scatter(
+            FIG / "runtime_vs_noise.svg",
+            n_series,
+            "Wall time vs noise σ (circle n=500, T=1.5, 1 thread)",
+            "σ",
+            "wall seconds",
+        )
+    d_series = _axis_series("density", "uniform2", 800, meths)
+    if d_series:
+        svg_scatter(
+            FIG / "runtime_vs_density.svg",
+            d_series,
+            "Wall time vs density threshold T (uniform2 n=800, 1 thread)",
+            "T (proxy for density)",
+            "wall seconds",
+        )
+
+if DORY:
+    rows.append("")
+    rows.append("## Dory (`pydory` 1.1.137 oracle, 1 thread)")
+    rows.append(
+        f"{DORY.get('note', '')} Budget {DORY.get('budget_s')} s. "
+        f"pydory {DORY.get('pydory_version')}. Not vendored. "
+        "Tracks Ripser on leftover H1; slower on sphere H2."
+    )
+    rows.append(
+        "| family | n | dim | Dory (s) | PITH (s) | Ripser (s) | Ripser/Dory | Dory/PITH | ess H1 | pipeline |"
+    )
+    rows.append("| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |")
+    dory_bars = []
+    for d in DORY.get("receipts") or []:
+        dor = d.get("dory") or {}
+        pith = d.get("pith") or {}
+        rip = d.get("ripser") or {}
+        dw = dor.get("wall_s")
+        pw = pith.get("wall_s")
+        rw = rip.get("wall_s")
+        rd = d.get("ripser_over_dory")
+        dp = d.get("dory_over_pith")
+        rows.append(
+            "| {fam} | {n} | {dim} | {dw} | {pw} | {rw} | {rd} | {dp} | {ess} | {pipe} |".format(
+                fam=d.get("name"),
+                n=d.get("n"),
+                dim=d.get("maxdim"),
+                dw="" if dw is None else f"{dw:.3f}",
+                pw="" if pw is None else f"{pw:.3f}",
+                rw="" if rw is None else f"{rw:.3f}",
+                rd="" if rd is None else f"{rd:.2f}",
+                dp="" if dp is None else f"{dp:.1f}×",
+                ess="" if dor.get("ess1") is None else dor.get("ess1"),
+                pipe=pith.get("pipeline") or "",
+            )
+        )
+        if dw and pw and rw:
+            dory_bars.append((f"{d.get('name')} n={d.get('n')}", dw, pw, rw))
+    if dory_bars:
+        # Grouped log-y scatter: one x-index per leftover cell.
+        series = [
+            {"name": "Dory", "xy": [(i + 1, t[1]) for i, t in enumerate(dory_bars)]},
+            {"name": "PITH exact", "xy": [(i + 1, t[2]) for i, t in enumerate(dory_bars)]},
+            {"name": "Ripser", "xy": [(i + 1, t[3]) for i, t in enumerate(dory_bars)]},
+        ]
+        svg_scatter(
+            FIG / "runtime_dory.svg",
+            series,
+            "1-thread leftover cells: Dory vs PITH vs Ripser",
+            "cell index (see TABLES.md Dory section)",
+            "wall seconds",
+            logx=False,
+            logy=True,
+        )
+
+if DORY_LIM:
+    rows.append("")
+    rows.append("## Dory first-timeout sweep (12 s, 1 thread)")
+    rows.append(
+        f"{DORY_LIM.get('note', '')} Complements leftover cells in dory.json."
+    )
+    ff = DORY_LIM.get("first_fail") or {}
+    if ff:
+        rows.append("| family | first Dory fail n | timed out |")
+        rows.append("| --- | ---: | --- |")
+        for fam, info in ff.items():
+            rows.append(
+                f"| {fam} | {info.get('n')} | {info.get('timed_out')} |"
+            )
+    rows.append("| family | n | dim | Dory (s) | PITH (s) | Ripser (s) | Dory ok | Ripser ok |")
+    rows.append("| --- | ---: | ---: | ---: | ---: | ---: | --- | --- |")
+    for d in DORY_LIM.get("receipts") or []:
+        dor = d.get("dory") or {}
+        pith = d.get("pith") or {}
+        rip = d.get("ripser") or {}
+        dw = dor.get("wall_s")
+        pw = pith.get("wall_s")
+        rw = rip.get("wall_s")
+        rows.append(
+            "| {fam} | {n} | {dim} | {dw} | {pw} | {rw} | {dok} | {rok} |".format(
+                fam=d.get("name"),
+                n=d.get("n"),
+                dim=d.get("maxdim"),
+                dw="timeout" if dor.get("timed_out") else ("" if dw is None else f"{dw:.3f}"),
+                pw="timeout" if pith.get("timed_out") else ("" if pw is None else f"{pw:.3f}"),
+                rw="timeout" if rip.get("timed_out") else ("" if rw is None else f"{rw:.3f}"),
+                dok=dor.get("ok"),
+                rok=rip.get("ok"),
+            )
+        )
+
+if OINEUS:
+    rows.append("")
+    rows.append("## Oineus (`oineus` 0.9.39 oracle, 1 thread)")
+    rows.append(
+        f"{OINEUS.get('note', '')} Budget {OINEUS.get('budget_s')} s. "
+        f"oineus {OINEUS.get('oineus_version')}. Not vendored. "
+        "Lock-free reduction + in-order VR generation. Same pairing class."
+    )
+    rows.append(
+        "| family | n | dim | Oineus (s) | PITH (s) | Ripser (s) | Ripser/Oineus | Oineus/PITH | ess H1 | pipeline |"
+    )
+    rows.append("| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |")
+    oineus_bars = []
+    for d in OINEUS.get("receipts") or []:
+        oin = d.get("oineus") or {}
+        pith = d.get("pith") or {}
+        rip = d.get("ripser") or {}
+        ow = oin.get("wall_s")
+        pw = pith.get("wall_s")
+        rw = rip.get("wall_s")
+        ro = d.get("ripser_over_oineus")
+        op = d.get("oineus_over_pith")
+        rows.append(
+            "| {fam} | {n} | {dim} | {ow} | {pw} | {rw} | {ro} | {op} | {ess} | {pipe} |".format(
+                fam=d.get("name"),
+                n=d.get("n"),
+                dim=d.get("maxdim"),
+                ow="timeout" if oin.get("timed_out") else ("" if ow is None else f"{ow:.3f}"),
+                pw="" if pw is None else f"{pw:.3f}",
+                rw="" if rw is None else f"{rw:.3f}",
+                ro="" if ro is None else f"{ro:.2f}",
+                op="" if op is None else f"{op:.1f}×",
+                ess="" if oin.get("ess1") is None else oin.get("ess1"),
+                pipe=pith.get("pipeline") or "",
+            )
+        )
+        if ow and pw and rw:
+            oineus_bars.append((f"{d.get('name')} n={d.get('n')}", ow, pw, rw))
+    if oineus_bars:
+        series = [
+            {"name": "Oineus", "xy": [(i + 1, t[1]) for i, t in enumerate(oineus_bars)]},
+            {"name": "PITH exact", "xy": [(i + 1, t[2]) for i, t in enumerate(oineus_bars)]},
+            {"name": "Ripser", "xy": [(i + 1, t[3]) for i, t in enumerate(oineus_bars)]},
+        ]
+        svg_scatter(
+            FIG / "runtime_oineus.svg",
+            series,
+            "1-thread leftover cells: Oineus vs PITH vs Ripser",
+            "cell index (see TABLES.md Oineus section)",
+            "wall seconds",
+            logx=False,
+            logy=True,
+        )
+
+if DION:
+    rows.append("")
+    rows.append("## Dionysus 2.2.3 (`fill_rips` + homology, 1 thread)")
+    rows.append(
+        f"{DION.get('note', '')} Budget {DION.get('budget_s')} s. "
+        f"dionysus {DION.get('dionysus_version')}. Not vendored. "
+        "Explicit VR skeleton. Same pairing class as GUDHI Rips."
+    )
+    rows.append(
+        "| family | n | dim | Dionysus (s) | PITH (s) | Ripser (s) | simplices | Dionysus/PITH | ess H1 |"
+    )
+    rows.append("| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |")
+    dion_bars = []
+    for d in DION.get("receipts") or []:
+        dio = d.get("dionysus") or {}
+        pith = d.get("pith") or {}
+        rip = d.get("ripser") or {}
+        dw = dio.get("wall_s")
+        pw = pith.get("wall_s")
+        rw = rip.get("wall_s")
+        dp = d.get("dionysus_over_pith")
+        rows.append(
+            "| {fam} | {n} | {dim} | {dw} | {pw} | {rw} | {sim} | {dp} | {ess} |".format(
+                fam=d.get("name"),
+                n=d.get("n"),
+                dim=d.get("maxdim"),
+                dw="timeout" if dio.get("timed_out") else ("" if dw is None else f"{dw:.3f}"),
+                pw="" if pw is None else f"{pw:.3f}",
+                rw="" if rw is None else f"{rw:.3f}",
+                sim="" if dio.get("n_simplices") is None else dio.get("n_simplices"),
+                dp="" if dp is None else f"{dp:.1f}×",
+                ess="" if dio.get("ess1") is None else dio.get("ess1"),
+            )
+        )
+        if dw and pw and rw:
+            dion_bars.append((f"{d.get('name')} n={d.get('n')}", dw, pw, rw))
+    if dion_bars:
+        series = [
+            {"name": "Dionysus", "xy": [(i + 1, t[1]) for i, t in enumerate(dion_bars)]},
+            {"name": "PITH exact", "xy": [(i + 1, t[2]) for i, t in enumerate(dion_bars)]},
+            {"name": "Ripser", "xy": [(i + 1, t[3]) for i, t in enumerate(dion_bars)]},
+        ]
+        svg_scatter(
+            FIG / "runtime_dionysus.svg",
+            series,
+            "1-thread leftover cells: Dionysus vs PITH vs Ripser",
+            "cell index (see TABLES.md Dionysus section)",
+            "wall seconds",
+            logx=False,
+            logy=True,
+        )
+
+if COP:
+    rows.append("")
+    rows.append("## Coperto 0.1.7 (quotient-cover approximation, 1 thread)")
+    rows.append(
+        f"{COP.get('note', '')} Budget {COP.get('budget_s')} s. "
+        "Not exact VR. greedy=False."
+    )
+    ctrl = COP.get("greedy_default_control") or {}
+    rows.append(
+        f"Library default greedy=True control: ess H1={ctrl.get('ess1')} "
+        f"n_h1={ctrl.get('n_h1')} (drops loops on a noisy circle)."
+    )
+    rows.append(
+        "| family | n | Coperto (s) | exact (s) | scale (s) | sparse (s) | Ripser (s) | tower | cop ess H1 | scale ess H1 |"
+    )
+    rows.append("| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |")
+    cop_bars = []
+    for d in COP.get("timing") or []:
+        cop = d.get("coperto") or {}
+        ex = d.get("pith_exact") or {}
+        sc = d.get("pith_scale") or {}
+        sp = d.get("pith_sparse") or {}
+        rip = d.get("ripser") or {}
+        cw, ew, sw, pw, rw = cop.get("wall_s"), ex.get("wall_s"), sc.get("wall_s"), sp.get("wall_s"), rip.get("wall_s")
+        rows.append(
+            "| {fam} | {n} | {cw} | {ew} | {sw} | {pw} | {rw} | {tw} | {ce} | {se} |".format(
+                fam=d.get("name"),
+                n=d.get("n"),
+                cw="timeout" if cop.get("timed_out") else ("" if cw is None else f"{cw:.3f}"),
+                ew="" if ew is None else f"{ew:.3f}",
+                sw="n/a" if sc.get("ok") is False and not sw else ("" if sw is None else f"{sw:.3f}"),
+                pw="" if pw is None else f"{pw:.3f}",
+                rw="timeout" if rip.get("timed_out") else ("" if rw is None else f"{rw:.3f}"),
+                tw="" if cop.get("tower_size") is None else cop.get("tower_size"),
+                ce="" if cop.get("ess1") is None else cop.get("ess1"),
+                se="" if sc.get("ess1") is None else sc.get("ess1"),
+            )
+        )
+        if cw and ew:
+            cop_bars.append((f"{d.get('name')} n={d.get('n')}", cw, ew, sw or 0, pw or 0))
+    if cop_bars:
+        series = [
+            {"name": "Coperto", "xy": [(i + 1, t[1]) for i, t in enumerate(cop_bars)]},
+            {"name": "PITH exact", "xy": [(i + 1, t[2]) for i, t in enumerate(cop_bars)]},
+        ]
+        svg_scatter(
+            FIG / "runtime_coperto.svg",
+            series,
+            "1-thread leftover cells: Coperto vs PITH exact",
+            "cell index (see TABLES.md Coperto section)",
+            "wall seconds",
+            logx=False,
+            logy=True,
+        )
+    rows.append("")
+    rows.append("### Coperto vs Ripser topology (n=400)")
+    rows.append("| family | unmatched | bn H1 | W1 H1 | cop ess H1 | VR ess H1 | scale unmatched |")
+    rows.append("| --- | ---: | ---: | ---: | ---: | ---: | ---: |")
+    for d in COP.get("accuracy") or []:
+        topo = d.get("topology") or {}
+        cv = topo.get("coperto_vs_ripser") or {}
+        sv = topo.get("scale_vs_ripser") or {}
+        rows.append(
+            "| {fam} | {um} | {bn} | {w1} | {ce} | {re} | {su} |".format(
+                fam=d.get("name"),
+                um=cv.get("unmatched"),
+                bn="" if cv.get("bottleneck_h1") is None else f"{cv.get('bottleneck_h1'):.3f}",
+                w1="" if cv.get("wasserstein1_h1") is None else f"{cv.get('wasserstein1_h1'):.3f}",
+                ce=(d.get("coperto") or {}).get("ess1"),
+                re=(d.get("ripser") or {}).get("ess1"),
+                su=sv.get("unmatched"),
+            )
+        )
+
+if U10:
+    rows.append("")
+    rows.append("## High-d control `uniform10` (d=10, T=1.8, 12 s, 1 thread)")
+    rows.append(U10.get("note", "No --mode scale. Do not retune τ."))
+    rows.append("| n | exact (s) | sparse (s) | Ripser (s) | estimate mode | exact feasible |")
+    rows.append("| ---: | ---: | ---: | ---: | --- | --- |")
+    for d in U10.get("receipts") or []:
+        ex = d.get("exact") or {}
+        sp = d.get("sparse") or {}
+        rip = d.get("ripser") or {}
+        est = d.get("estimate") or {}
+        rows.append(
+            "| {n} | {ex} | {sp} | {rip} | {mode} | {feas} |".format(
+                n=d.get("n"),
+                ex="timeout"
+                if ex.get("timed_out")
+                else ("" if ex.get("wall_s") is None else f"{ex['wall_s']:.3f}"),
+                sp="timeout"
+                if sp.get("timed_out")
+                else (
+                    "skip"
+                    if sp.get("skipped_after_fail")
+                    else ("" if sp.get("wall_s") is None else f"{sp['wall_s']:.3f}")
+                ),
+                rip="timeout"
+                if rip.get("timed_out")
+                else (
+                    "skip"
+                    if rip.get("skipped_after_fail")
+                    else ("" if rip.get("wall_s") is None else f"{rip['wall_s']:.3f}")
+                ),
+                mode=est.get("mode_recommended"),
+                feas=est.get("exact_feasible"),
+            )
+        )
+    miss = U10.get("auto_miss")
+    if miss:
+        rows.append("")
+        after = miss.get("auto_after_fix") or {}
+        rows.append(
+            f"Historical miss (τ frozen): `--mode auto` selected {miss.get('auto_selected')} "
+            f"at n={miss.get('n')} ({miss.get('auto_wall_s'):.1f} s, "
+            f"{miss.get('auto_edges_in')} edges) vs exact {miss.get('exact_wall_s'):.2f} s "
+            f"({miss.get('waste'):.0f}× waste). {miss.get('reason')}"
+        )
+        if after:
+            rows.append(
+                f"After clock-compare override: auto selects {after.get('selected')} "
+                f"in {after.get('wall_s'):.2f} s "
+                f"({after.get('pipeline')})."
+            )
+    fat = U10.get("fat_h2") or {}
+    if fat:
+        rows.append(
+            f"Fat H2 n={fat.get('n')} T={fat.get('T')}: estimate "
+            f"{(fat.get('estimate') or {}).get('mode_recommended')} "
+            f"auto_will_run={(fat.get('estimate') or {}).get('auto_will_run')}; "
+            f"auto refused={(fat.get('auto') or {}).get('refused')}."
+        )
+
+if HIGHD:
+    rows.append("")
+    rows.append("## Held-out high-d / L1 auto clock-compare")
+    rows.append(
+        f"{HIGHD.get('note', '')} Wrong picks: "
+        f"{HIGHD.get('n_wrong')}/{HIGHD.get('n_compared')}."
+    )
+    rows.append("| family | n | d | rec | exact (s) | sparse (s) | cheaper | wrong |")
+    rows.append("| --- | ---: | ---: | --- | ---: | ---: | --- | --- |")
+    for d in HIGHD.get("receipts") or []:
+        if d.get("maxdim") != 1:
+            continue
+        ex = (d.get("exact") or {}).get("wall_s")
+        sp = (d.get("sparse") or {}).get("wall_s")
+        rows.append(
+            "| {fam} | {n} | {dim} | {rec} | {ex} | {sp} | {ch} | {w} |".format(
+                fam=d.get("name"),
+                n=d.get("n"),
+                dim=d.get("d"),
+                rec=(d.get("estimate") or {}).get("mode_recommended"),
+                ex="" if ex is None else f"{ex:.3f}",
+                sp="timeout"
+                if (d.get("sparse") or {}).get("timed_out")
+                else ("" if sp is None else f"{sp:.3f}"),
+                ch=d.get("cheaper"),
+                w=d.get("wrong"),
+            )
+        )
+    refuse = [d for d in HIGHD.get("receipts") or [] if d.get("maxdim") >= 2]
+    for d in refuse:
+        rows.append(
+            f"Fat H2 {d.get('name')} n={d.get('n')}: refuse_ok={d.get('refuse_ok')}."
+        )
+
+if FATH2:
+    rows.append("")
+    rows.append("## Fat exact H2 (live `fat_h2.json`)")
+    rows.append(FATH2.get("note", ""))
+    rows.append("| family | n | exact-auto (s) | Ripser (s) | scale (s) | implicit | rec | n_cc |")
+    rows.append("| --- | ---: | ---: | ---: | ---: | --- | --- | ---: |")
+    mixed_xy = {"exact": [], "ripser": [], "scale": []}
+    for d in FATH2.get("series") or []:
+        runs = d.get("runs") or {}
+        ex = (runs.get("exact_auto") or {}).get("wall_s")
+        rp = (runs.get("ripser") or {}).get("wall_s")
+        sc = (runs.get("scale") or {}).get("wall_s")
+        imp = runs.get("implicit") or {}
+        imp_s = "timeout" if imp.get("timed_out") else (
+            "" if imp.get("wall_s") is None else f"{imp.get('wall_s'):.3f}"
+        )
+        est = d.get("estimate") or {}
+        rows.append(
+            "| {fam} | {n} | {ex} | {rp} | {sc} | {imp} | {rec} | {cc} |".format(
+                fam=d.get("name"),
+                n=d.get("n"),
+                ex="" if ex is None else f"{ex:.3f}",
+                rp="timeout" if (runs.get("ripser") or {}).get("timed_out") else (
+                    "" if rp is None else f"{rp:.3f}"
+                ),
+                sc="" if sc is None else f"{sc:.3f}",
+                imp=imp_s,
+                rec=est.get("mode_recommended"),
+                cc=est.get("n_cc_max"),
+            )
+        )
+        if d.get("name") == "mixed_1d2d3d":
+            if ex:
+                mixed_xy["exact"].append((d["n"], ex))
+            if rp:
+                mixed_xy["ripser"].append((d["n"], rp))
+            if sc:
+                mixed_xy["scale"].append((d["n"], sc))
+    series = []
+    if mixed_xy["exact"]:
+        series.append({"name": "PITH exact-auto", "xy": mixed_xy["exact"]})
+    if mixed_xy["ripser"]:
+        series.append({"name": "Ripser", "xy": mixed_xy["ripser"]})
+    if mixed_xy["scale"]:
+        series.append({"name": "PITH scale", "xy": mixed_xy["scale"]})
+    if series:
+        svg_scatter(
+            FIG / "runtime_fat_h2.svg",
+            series,
+            "Mixed 1D/2D/3D maxdim=2: exact RedZeD-cc vs Ripser vs scale",
+            "n",
+            "wall seconds (1 thread)",
+        )
+
+if NCC:
+    rows.append("")
+    rows.append("## Held-out Euclidean fat H2 (`eval_ncc_auto.py`, seed 11)")
+    rows.append(
+        f"timeout_miss {NCC.get('n_timeout_miss')}/{NCC.get('n')}, "
+        f"scale_miss {NCC.get('n_scale_miss')}/{NCC.get('n')}. "
+        f"{NCC.get('note', '')}"
+    )
+    rows.append("| family | n | n_cc | rec | exact (s) | scale (s) | timeout_miss | scale_miss |")
+    rows.append("| --- | ---: | ---: | --- | ---: | ---: | --- | --- |")
+    for d in NCC.get("receipts") or []:
+        rows.append(
+            "| {fam} | {n} | {cc} | {rec} | {ex} | {sc} | {tm} | {sm} |".format(
+                fam=d.get("name"),
+                n=d.get("n"),
+                cc=d.get("n_cc_max"),
+                rec=d.get("mode_recommended"),
+                ex="" if d.get("exact_s") is None else f"{d.get('exact_s'):.3f}",
+                sc="" if d.get("scale_s") is None else f"{d.get('scale_s'):.3f}",
+                tm=d.get("timeout_miss"),
+                sm=d.get("scale_miss"),
+            )
+        )
+
+if ADV:
+    rows.append("")
+    rows.append("## Held-out adversarial pack (`eval_adversarial.py`, seed 17)")
+    rows.append(
+        f"timeout_miss {ADV.get('n_timeout_miss')}/{ADV.get('n')}, "
+        f"scale_miss {ADV.get('n_scale_miss')}/{ADV.get('n')}, "
+        f"exact vs Ripser mismatches {ADV.get('n_exact_mismatch')}/{ADV.get('n_exact_checked')}. "
+        f"{ADV.get('note', '')}"
+    )
+    rows.append(
+        "| family | n | rec | exact (s) | scale (s) | unmatched | ess exact H1 | ess scale H1 |"
+    )
+    rows.append("| --- | ---: | --- | ---: | ---: | ---: | ---: | ---: |")
+    for d in ADV.get("receipts") or []:
+        ex_ess = (d.get("exact_ess") or {}).get("H1")
+        sc_ess = (d.get("scale_ess") or {}).get("H1")
+        rows.append(
+            "| {fam} | {n} | {rec} | {ex} | {sc} | {um} | {eh} | {sh} |".format(
+                fam=d.get("name"),
+                n=d.get("n"),
+                rec=d.get("mode_recommended"),
+                ex="" if d.get("exact_s") is None else f"{d.get('exact_s'):.3f}",
+                sc="" if d.get("scale_s") is None else f"{d.get('scale_s'):.3f}",
+                um=d.get("exact_vs_ripser_unmatched"),
+                eh="" if ex_ess is None else ex_ess,
+                sh="" if sc_ess is None else sc_ess,
+            )
+        )
+    rows.append("")
+    rows.append("### Held-out estimate mid vs exact wall (no retune)")
+    rows.append("| family | n | rec | est exact (s) | wall (s) | wall/mid |")
+    rows.append("| --- | ---: | --- | ---: | ---: | ---: |")
+    for d in list(ADV.get("receipts") or []) + list(NCC.get("receipts") or []):
+        mid = d.get("est_exact_runtime_s")
+        wall = d.get("exact_s")
+        ratio = None
+        if mid and wall:
+            ratio = wall / mid
+        rows.append(
+            "| {fam} | {n} | {rec} | {mid} | {wall} | {ratio} |".format(
+                fam=d.get("name"),
+                n=d.get("n"),
+                rec=d.get("mode_recommended"),
+                mid="" if mid is None else f"{mid:.3f}",
+                wall="" if wall is None else f"{wall:.3f}",
+                ratio="" if ratio is None else f"{ratio:.2f}",
+            )
+        )
+
+(BENCH / "results" / "consolidation" / "TABLES.md").write_text("\n".join(rows) + "\n")
+print("wrote figures and TABLES.md")

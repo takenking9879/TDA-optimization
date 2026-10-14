@@ -1,0 +1,23 @@
+{
+  "id": "no_liveadj_n4000",
+  "lever": "H01-no-liveadj-n4000",
+  "class": "experiment",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "I188 bits+no-LiveAdj vs Ripser at circle n=4000",
+  "receipts": [
+    {
+      "name": "circle_noisy",
+      "n": 4000,
+      "T": 1.5,
+      "match_ripser": true,
+      "unmatched_ripser": 0,
+      "pith_s": 9.713540994998766,
+      "ripser_s": 304.2317709349991,
+      "vs_ripser": 31.32037751131535,
+      "out": 12562,
+      "collapse_ms": 9395.6697,
+      "probes": 272172159
+    }
+  ]
+}

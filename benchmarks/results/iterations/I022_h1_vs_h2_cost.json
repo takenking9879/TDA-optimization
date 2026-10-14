@@ -1,0 +1,22 @@
+{
+  "id": "h1_vs_h2_cost",
+  "lever": "H05",
+  "class": "implementation",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "H2 adds little after collapse on sphere500",
+  "receipts": [
+    {
+      "dim": 1,
+      "pith_s": 0.06117494199997964,
+      "reduce_ms": 0.927849,
+      "cols": 1796
+    },
+    {
+      "dim": 2,
+      "pith_s": 0.0620941249999305,
+      "reduce_ms": 1.501332,
+      "cols": 2347
+    }
+  ]
+}

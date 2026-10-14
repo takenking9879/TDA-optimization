@@ -1,0 +1,40 @@
+{
+  "id": "implicit_coh_with_collapse",
+  "lever": "H02",
+  "class": "structural",
+  "fidelity": "exact",
+  "status": "reject",
+  "summary": "implicit+collapse 0/3",
+  "receipts": [
+    {
+      "dataset": "circle_noisy",
+      "n": 200,
+      "match": false,
+      "unmatched": 4,
+      "ripser_s": 0.009020842999689194,
+      "pith_s": 0.004882024999915302,
+      "collapse_ms": 3.05163,
+      "reduce_ms": 0.055565
+    },
+    {
+      "dataset": "sphere",
+      "n": 80,
+      "match": false,
+      "unmatched": 94,
+      "ripser_s": 0.00832893899996634,
+      "pith_s": 0.002137962999768206,
+      "collapse_ms": 0.412846,
+      "reduce_ms": 0.391176
+    },
+    {
+      "dataset": "torus",
+      "n": 80,
+      "match": false,
+      "unmatched": 35,
+      "ripser_s": 0.0014021970000612782,
+      "pith_s": 0.0014909529995748017,
+      "collapse_ms": 0.161487,
+      "reduce_ms": 0.088935
+    }
+  ]
+}

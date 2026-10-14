@@ -1,0 +1,42 @@
+{
+  "id": "sphere_T",
+  "lever": "H03",
+  "class": "structural",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "sphere200 H2 threshold sweep",
+  "receipts": [
+    {
+      "T": 0.8,
+      "match": true,
+      "speedup": 3.8357816322937603,
+      "ratio": 4.894245723172628,
+      "ripser_s": 0.014859749000152078,
+      "pith_s": 0.0038739820001865155
+    },
+    {
+      "T": 1.0,
+      "match": true,
+      "speedup": 5.987710174917751,
+      "ratio": 7.4275037369207775,
+      "ripser_s": 0.027328999000019394,
+      "pith_s": 0.004564181999739958
+    },
+    {
+      "T": 1.2,
+      "match": true,
+      "speedup": 10.314573651446757,
+      "ratio": 10.10296191819464,
+      "ripser_s": 0.05213273300023502,
+      "pith_s": 0.0050542789999781235
+    },
+    {
+      "T": 1.4,
+      "match": true,
+      "speedup": 14.378958065936397,
+      "ratio": 11.813186813186814,
+      "ripser_s": 0.10161736200006999,
+      "pith_s": 0.007067087999985233
+    }
+  ]
+}

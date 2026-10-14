@@ -1,0 +1,16 @@
+{
+  "id": "bitset_blobs500",
+  "lever": "H01-bitset",
+  "class": "reproduced",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "blobs n=500 after bitset",
+  "receipts": [
+    {
+      "match": true,
+      "time_ratio": 0.5288809270974397,
+      "edge_ratio": 31.058289174867525,
+      "collapse_ms": 31.575003
+    }
+  ]
+}

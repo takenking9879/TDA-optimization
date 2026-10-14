@@ -1,0 +1,40 @@
+{
+  "id": "circle1000_large_T",
+  "lever": "H03",
+  "class": "structural",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "circle1000 larger T: does H1 clock approach 10\u00d7?",
+  "receipts": [
+    {
+      "T": 1.2,
+      "match": true,
+      "ripser_s": 0.9037159500003327,
+      "pith_s": 0.3284550409998701,
+      "time_ratio": 2.7514144622328693,
+      "collapse_ms": 312.31544,
+      "edges_in": 204915,
+      "edges_out": 2265
+    },
+    {
+      "T": 1.5,
+      "match": true,
+      "ripser_s": 2.264844307999738,
+      "pith_s": 0.5526553999998214,
+      "time_ratio": 4.098113052003961,
+      "collapse_ms": 531.92575,
+      "edges_in": 270434,
+      "edges_out": 2265
+    },
+    {
+      "T": 1.8,
+      "match": true,
+      "ripser_s": 3.2414289280004596,
+      "pith_s": 1.0102513050005655,
+      "time_ratio": 3.2085372342069336,
+      "collapse_ms": 963.48897,
+      "edges_in": 358251,
+      "edges_out": 5478
+    }
+  ]
+}

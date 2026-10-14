@@ -1,0 +1,38 @@
+{
+  "id": "bitset_vs_sticky_counts",
+  "lever": "H01-bitset",
+  "class": "reproduced",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "bitset residual edge counts vs I044 sticky",
+  "receipts": [
+    {
+      "dataset": "circle_noisy",
+      "n": 80,
+      "old_out": 93,
+      "new_out": 93,
+      "same": true
+    },
+    {
+      "dataset": "circle_noisy",
+      "n": 200,
+      "old_out": 283,
+      "new_out": 283,
+      "same": true
+    },
+    {
+      "dataset": "blobs",
+      "n": 80,
+      "old_out": 142,
+      "new_out": 142,
+      "same": true
+    },
+    {
+      "dataset": "sphere",
+      "n": 80,
+      "old_out": 286,
+      "new_out": 286,
+      "same": true
+    }
+  ]
+}

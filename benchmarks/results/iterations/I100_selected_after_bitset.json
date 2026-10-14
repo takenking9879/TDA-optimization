@@ -1,0 +1,15 @@
+{
+  "id": "selected_after_I099",
+  "lever": "selection",
+  "class": "verified",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "Selected stack unchanged: sticky+degree-filter collapse + homology. Bitset rejected. D&C parallel-only. Implicit rejected.",
+  "receipts": [
+    {
+      "best_h1_clock": "circle n=2000 ~4.8\u00d7; T=1.5 n=1000 4.1\u00d7",
+      "best_h2_clock": "sphere500 59\u00d7",
+      "algebraic": "731\u20131964\u00d7 columns"
+    }
+  ]
+}

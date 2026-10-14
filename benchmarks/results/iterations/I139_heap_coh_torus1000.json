@@ -1,0 +1,59 @@
+{
+  "id": "heap_coh_torus1000",
+  "lever": "H02-heap",
+  "class": "experiment",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "torus1000 heap-coh vs homology vs E3 vs Ripser",
+  "receipts": [
+    {
+      "collapse": 1,
+      "engine": "implicit",
+      "match": true,
+      "unmatched": 0,
+      "ripser_s": 0.3982354179988761,
+      "pith_s": 0.30495565900127986,
+      "time_ratio": 1.3058797442981858,
+      "reduce_ms": 66.731705,
+      "collapse_ms": 226.15974,
+      "edges_out": 38732,
+      "cols_apparent": 35748
+    },
+    {
+      "collapse": 1,
+      "engine": "homology",
+      "match": true,
+      "unmatched": 0,
+      "ripser_s": 0.3982354179988761,
+      "pith_s": 2.0006621700013056,
+      "time_ratio": 0.19905180593214106,
+      "reduce_ms": 1744.4285,
+      "collapse_ms": 240.30011,
+      "edges_out": 38732,
+      "cols_apparent": 0
+    },
+    {
+      "collapse": -1,
+      "engine": "implicit",
+      "match": true,
+      "unmatched": 0,
+      "ripser_s": 0.3982354179988761,
+      "pith_s": 0.38234082399867475,
+      "time_ratio": 1.041571794070979,
+      "reduce_ms": 38.368844,
+      "collapse_ms": 329.67476,
+      "edges_out": 27550,
+      "cols_apparent": 24651
+    },
+    {
+      "engine": "E3",
+      "collapse": 1,
+      "match": true,
+      "collapse_s": 0.2609598229992116,
+      "ripser_residual_s": 0.05660986600014439,
+      "total_s": 0.317569688999356,
+      "ripser_orig_s": 0.3982354179988761,
+      "time_ratio": 1.2540095348951381
+    }
+  ]
+}

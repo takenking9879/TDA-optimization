@@ -1,0 +1,54 @@
+{
+  "id": "circle3000_T_sweep",
+  "lever": "H03",
+  "class": "structural",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "circle3000 T-sweep peak 7.68\u00d7",
+  "receipts": [
+    {
+      "n": 3000,
+      "T": 1.35,
+      "match": true,
+      "ripser_s": 71.68811809900035,
+      "pith_s": 11.18509411100058,
+      "time_ratio": 6.409254798177766,
+      "collapse_ms": 11035.547,
+      "edges_in": 2117488,
+      "edges_out": 8325
+    },
+    {
+      "n": 3000,
+      "T": 1.45,
+      "match": true,
+      "ripser_s": 98.87005199600026,
+      "pith_s": 13.154647082999873,
+      "time_ratio": 7.515979058364314,
+      "collapse_ms": 12993.959,
+      "edges_in": 2319170,
+      "edges_out": 8325
+    },
+    {
+      "n": 3000,
+      "T": 1.55,
+      "match": true,
+      "ripser_s": 119.81202306999967,
+      "pith_s": 15.609589585999856,
+      "time_ratio": 7.6755396040302255,
+      "collapse_ms": 15438.03,
+      "edges_in": 2536632,
+      "edges_out": 11542
+    },
+    {
+      "n": 3000,
+      "T": 1.65,
+      "match": true,
+      "ripser_s": 124.3024692300005,
+      "pith_s": 18.85440123599983,
+      "time_ratio": 6.592756124902147,
+      "collapse_ms": 18626.939,
+      "edges_in": 2777130,
+      "edges_out": 16770
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "id": "knn_more",
+  "lever": "knn",
+  "class": "structural",
+  "fidelity": "empirical",
+  "status": "reject-as-exact",
+  "summary": "k=16 NN identity is data-dependent",
+  "receipts": [
+    {
+      "name": "blobs_n200.csv",
+      "k": 16,
+      "knn_edges": 2001,
+      "match": false,
+      "unmatched": 3
+    },
+    {
+      "name": "uniform2_n200.csv",
+      "k": 16,
+      "knn_edges": 1824,
+      "match": false,
+      "unmatched": 4
+    },
+    {
+      "name": "circle_noisy_n80.csv",
+      "k": 16,
+      "knn_edges": 692,
+      "match": true,
+      "unmatched": 0
+    },
+    {
+      "name": "torus_n200.csv",
+      "k": 16,
+      "knn_edges": 1832,
+      "match": false,
+      "unmatched": 8
+    }
+  ]
+}

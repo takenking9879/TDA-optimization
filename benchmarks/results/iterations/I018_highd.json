@@ -1,0 +1,26 @@
+{
+  "id": "highd",
+  "lever": "H01-control",
+  "class": "structural",
+  "fidelity": "exact",
+  "status": "hold",
+  "summary": "high-d noise remains a negative control for 10x",
+  "receipts": [
+    {
+      "name": "uniform10_n80.csv",
+      "match": true,
+      "ripser_s": 0.0026290020000487857,
+      "pith_s": 0.00630786600004285,
+      "ratio": 3.6977567886658798,
+      "speedup": 0.4167815232649087
+    },
+    {
+      "name": "uniform10_n200.csv",
+      "match": true,
+      "ripser_s": 0.015525123000315944,
+      "pith_s": 0.5575295660000847,
+      "ratio": 2.056166823849942,
+      "speedup": 0.027846277483898646
+    }
+  ]
+}

@@ -1,0 +1,241 @@
+{
+  "note": "I331 sample-farthest greedy permutation vs FPS sparse Rips. Not exact VR. Default --mode sparse stays FPS. Stated slack: Sheehy interleaving times the approx-farthest factor.",
+  "threads": 1,
+  "budget_s": 30,
+  "receipts": [
+    {
+      "name": "figure8",
+      "n": 400,
+      "T": 1.1,
+      "maxdim": 1,
+      "fps": {
+        "ok": true,
+        "error": null,
+        "timed_out": false,
+        "wall_s": 0.00454342900775373,
+        "pipeline": "pith:sparse",
+        "edges_in": 5976,
+        "distances": 130573,
+        "ess1": 2,
+        "n_pairs": 433,
+        "threads_used": 1,
+        "net": "fps"
+      },
+      "approx": {
+        "ok": true,
+        "error": null,
+        "timed_out": false,
+        "wall_s": 0.004746216989587992,
+        "pipeline": "pith:sparse-approx",
+        "edges_in": 4635,
+        "distances": 72477,
+        "ess1": 2,
+        "n_pairs": 436,
+        "threads_used": 1,
+        "net": "approx"
+      },
+      "ripser": {
+        "ok": true,
+        "wall_s": 0.017241727997316048,
+        "threads_used": 1
+      },
+      "fps_over_approx": 0.957273765131445,
+      "unmatched_vs_fps": 17,
+      "unmatched_vs_vr": 14,
+      "threads": 1
+    },
+    {
+      "name": "figure8",
+      "n": 2000,
+      "T": 1.1,
+      "maxdim": 1,
+      "fps": {
+        "ok": true,
+        "error": null,
+        "timed_out": false,
+        "wall_s": 0.04943418399489019,
+        "pipeline": "pith:sparse",
+        "edges_in": 58089,
+        "distances": 3284198,
+        "ess1": 2,
+        "n_pairs": 2402,
+        "threads_used": 1,
+        "net": "fps"
+      },
+      "approx": {
+        "ok": true,
+        "error": null,
+        "timed_out": false,
+        "wall_s": 0.0526303250080673,
+        "pipeline": "pith:sparse-approx",
+        "edges_in": 42762,
+        "distances": 1513464,
+        "ess1": 2,
+        "n_pairs": 2411,
+        "threads_used": 1,
+        "net": "approx"
+      },
+      "ripser": {
+        "ok": true,
+        "wall_s": 1.9048626820003847,
+        "threads_used": 1
+      },
+      "fps_over_approx": 0.9392718739113392,
+      "unmatched_vs_fps": 227,
+      "unmatched_vs_vr": 170,
+      "threads": 1
+    },
+    {
+      "name": "figure8",
+      "n": 8000,
+      "T": 1.1,
+      "maxdim": 1,
+      "fps": {
+        "ok": true,
+        "error": null,
+        "timed_out": false,
+        "wall_s": 0.6203071760101011,
+        "pipeline": "pith:sparse",
+        "edges_in": 383099,
+        "distances": 52672391,
+        "ess1": 2,
+        "n_pairs": 9975,
+        "threads_used": 1,
+        "net": "fps"
+      },
+      "approx": {
+        "ok": true,
+        "error": null,
+        "timed_out": false,
+        "wall_s": 0.6641182229941478,
+        "pipeline": "pith:sparse-approx",
+        "edges_in": 260071,
+        "distances": 22478517,
+        "ess1": 2,
+        "n_pairs": 10032,
+        "threads_used": 1,
+        "net": "approx"
+      },
+      "ripser": null,
+      "fps_over_approx": 0.9340312530703848,
+      "unmatched_vs_fps": 933,
+      "unmatched_vs_vr": null,
+      "threads": 1
+    },
+    {
+      "name": "figure8",
+      "n": 16000,
+      "T": 1.1,
+      "maxdim": 1,
+      "fps": {
+        "ok": true,
+        "error": null,
+        "timed_out": false,
+        "wall_s": 2.696312569998554,
+        "pipeline": "pith:sparse",
+        "edges_in": 935022,
+        "distances": 210180494,
+        "ess1": 2,
+        "n_pairs": 20216,
+        "threads_used": 1,
+        "net": "fps"
+      },
+      "approx": {
+        "ok": true,
+        "error": null,
+        "timed_out": false,
+        "wall_s": 3.355536098999437,
+        "pipeline": "pith:sparse-approx",
+        "edges_in": 774646,
+        "distances": 87283532,
+        "ess1": 2,
+        "n_pairs": 20319,
+        "threads_used": 1,
+        "net": "approx"
+      },
+      "ripser": null,
+      "fps_over_approx": 0.8035415177928045,
+      "unmatched_vs_fps": 1851,
+      "unmatched_vs_vr": null,
+      "threads": 1
+    },
+    {
+      "name": "circle_noisy",
+      "n": 2000,
+      "T": 1.5,
+      "maxdim": 1,
+      "fps": {
+        "ok": true,
+        "error": null,
+        "timed_out": false,
+        "wall_s": 0.07288929200149141,
+        "pipeline": "pith:sparse",
+        "edges_in": 75813,
+        "distances": 3998000,
+        "ess1": 1,
+        "n_pairs": 2475,
+        "threads_used": 1,
+        "net": "fps"
+      },
+      "approx": {
+        "ok": true,
+        "error": null,
+        "timed_out": false,
+        "wall_s": 0.06365784900845028,
+        "pipeline": "pith:sparse-approx",
+        "edges_in": 50987,
+        "distances": 2226274,
+        "ess1": 1,
+        "n_pairs": 2479,
+        "threads_used": 1,
+        "net": "approx"
+      },
+      "ripser": {
+        "ok": true,
+        "wall_s": 19.167779237002833,
+        "threads_used": 1
+      },
+      "fps_over_approx": 1.1450165711979319,
+      "unmatched_vs_fps": 234,
+      "unmatched_vs_vr": 191,
+      "threads": 1
+    },
+    {
+      "name": "sphere",
+      "n": 2000,
+      "T": 1.4,
+      "maxdim": 2,
+      "fps": {
+        "ok": true,
+        "error": null,
+        "timed_out": false,
+        "wall_s": 1.7128527490131091,
+        "pipeline": "pith:sparse",
+        "edges_in": 102115,
+        "distances": 3998000,
+        "ess1": 0,
+        "n_pairs": 2601,
+        "threads_used": 1,
+        "net": "fps"
+      },
+      "approx": {
+        "ok": true,
+        "error": null,
+        "timed_out": false,
+        "wall_s": 0.5215340430004289,
+        "pipeline": "pith:sparse-approx",
+        "edges_in": 62041,
+        "distances": 2225974,
+        "ess1": 0,
+        "n_pairs": 2636,
+        "threads_used": 1,
+        "net": "approx"
+      },
+      "ripser": null,
+      "fps_over_approx": 3.2842587593303096,
+      "unmatched_vs_fps": 501,
+      "unmatched_vs_vr": null,
+      "threads": 1
+    }
+  ]
+}

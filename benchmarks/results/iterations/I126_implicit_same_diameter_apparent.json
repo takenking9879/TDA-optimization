@@ -1,0 +1,73 @@
+{
+  "id": "implicit_same_diameter_apparent",
+  "lever": "H02",
+  "class": "experiment",
+  "fidelity": "exact",
+  "status": "reject",
+  "summary": "same-diameter apparent implicit 1/7",
+  "receipts": [
+    {
+      "dataset": "circle_noisy",
+      "n": 80,
+      "collapse": 0,
+      "match": false,
+      "unmatched": 1147,
+      "h1_pith": 1144,
+      "apparent": null
+    },
+    {
+      "dataset": "circle_noisy",
+      "n": 80,
+      "collapse": 1,
+      "match": true,
+      "unmatched": 0,
+      "h1_pith": 5,
+      "apparent": null
+    },
+    {
+      "dataset": "circle_noisy",
+      "n": 200,
+      "collapse": 0,
+      "match": false,
+      "unmatched": 7913,
+      "h1_pith": 7895,
+      "apparent": null
+    },
+    {
+      "dataset": "circle_noisy",
+      "n": 200,
+      "collapse": 1,
+      "match": false,
+      "unmatched": 2,
+      "h1_pith": 22,
+      "apparent": null
+    },
+    {
+      "dataset": "blobs",
+      "n": 80,
+      "collapse": 0,
+      "match": false,
+      "unmatched": 950,
+      "h1_pith": 941,
+      "apparent": null
+    },
+    {
+      "dataset": "torus",
+      "n": 80,
+      "collapse": 1,
+      "match": false,
+      "unmatched": 82,
+      "h1_pith": 87,
+      "apparent": null
+    },
+    {
+      "dataset": "sphere",
+      "n": 80,
+      "collapse": 1,
+      "match": false,
+      "unmatched": 89,
+      "h1_pith": 82,
+      "apparent": null
+    }
+  ]
+}

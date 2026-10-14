@@ -1,0 +1,15 @@
+{
+  "id": "blobs200_reverted",
+  "lever": "H01",
+  "class": "reproduced",
+  "fidelity": "exact",
+  "status": "support",
+  "summary": "blobs200 after revert",
+  "receipts": [
+    {
+      "match": true,
+      "time_ratio": 0.9867766131343295,
+      "edge_ratio": 14.595505617977528
+    }
+  ]
+}

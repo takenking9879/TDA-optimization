@@ -1,0 +1,24 @@
+{
+  "id": "sheehy_uniform2_n4000",
+  "lever": "H00-complexity",
+  "class": "experiment",
+  "fidelity": "approx",
+  "status": "support",
+  "summary": "I211 Sheehy+implicit uniform2 n=4000 crosses 10×",
+  "receipts": [
+    {
+      "name": "uniform2",
+      "n": 4000,
+      "T": 0.35,
+      "skel_edges": 92783,
+      "total_s": 0.16312341599768843,
+      "ripser_s": 2.1290473970002495,
+      "vs_ripser": 13.051758289750502,
+      "unmatched_ripser": 788,
+      "bottleneck_vs_vr": 0.005566209999999995,
+      "ess_pith": 1,
+      "ess_vr": 1
+    }
+  ],
+  "topology_loss": "essential H1 match; finite-H1 bottleneck 0.0056"
+}

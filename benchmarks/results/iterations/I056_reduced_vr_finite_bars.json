@@ -1,0 +1,47 @@
+{
+  "id": "reduced_vr_finite_bars",
+  "lever": "H07",
+  "class": "structural",
+  "fidelity": "exact-claimed",
+  "status": "reject",
+  "summary": "H07 prototype matches essential H1 only; finite bars wildly over-count (every triangle)",
+  "receipts": [
+    {
+      "name": "circle",
+      "n": 30,
+      "n_edges": 188,
+      "n_triangles": 158,
+      "full_triangles_bound": 4060,
+      "h1_ess_reduced": 1,
+      "h1_ess_ripser": 1,
+      "h1_finite_reduced": 158,
+      "h1_finite_ripser": 0,
+      "match_ess": true
+    },
+    {
+      "name": "square",
+      "n": 25,
+      "n_edges": 172,
+      "n_triangles": 148,
+      "full_triangles_bound": 2300,
+      "h1_ess_reduced": 0,
+      "h1_ess_ripser": 0,
+      "h1_finite_reduced": 148,
+      "h1_finite_ripser": 3,
+      "match_ess": true
+    },
+    {
+      "name": "two_blobs",
+      "n": 24,
+      "n_edges": 132,
+      "n_triangles": 110,
+      "full_triangles_bound": 2024,
+      "h1_ess_reduced": 0,
+      "h1_ess_ripser": 0,
+      "h1_finite_reduced": 110,
+      "h1_finite_ripser": 2,
+      "match_ess": true
+    }
+  ],
+  "finite_match": false
+}
