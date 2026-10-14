@@ -113,4 +113,4 @@ now timed at 1 thread and is not a 10× engine.
 | Probe chooses exact / scale / sparse | `--mode auto` |
 | Large Euclidean \(d\in\{2,3\}\), essential topology | `--mode scale` |
 | Feasibility before the expensive run | `--estimate --format json` |
-| High-d \(d\ge 4\) \(H_1\) | `--mode exact` first; `--mode auto` can pick a slower sparse path (`uniform10` \(n=4000\)) |
+| High-d \(d\ge 4\) \(H_1\) | `--mode exact` or `--mode auto` (auto stays exact unless sparse is clearly cheaper) |

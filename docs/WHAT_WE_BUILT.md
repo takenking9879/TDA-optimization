@@ -47,16 +47,19 @@ collapse). **[empirical, I235+I263 + consolidation]**
 `--mode auto` runs the same probe and then **executes** the recommended
 path (`exact` / `scale` / `sparse`). Default remains `--mode exact` so
 existing scripts do not silently change complex. Held-out check: **8/8**
-(phase 2) and **10/10** on `eval_mode_auto.py` (9 execute + 1 refuse).
+(phase 2) and **11/11** on `eval_mode_auto.py` (10 execute + 1 refuse).
 Fat \(H_2\) on \(d\notin\{2,3\}\) is an exception: the probe still names
 `sparse`, but auto **refuses** (exit 3, `auto_will_run=false`) because
 that path timed out at 25 s on held-out `uniform4` \(n=250\) (same refuse
 on `uniform10` \(n=250\)). Explicit `--mode sparse` is unchanged. Engine
 choice inside exact can still be wrong (phase-3 oracle **5/9**; waste
 1.3–2.75×, tens of milliseconds). A post-freeze high-d control
-(`uniform10` \(n=4000\), \(T=1.8\)) marks exact infeasible and auto runs
-sparse in 18 s vs exact 0.65 s (**28×**) **[empirical, uniform10.json]**.
-\(\tau\) was **not** retuned.
+(`uniform10` \(n=4000\), \(T=1.8\)) used to mark exact infeasible and run
+sparse in 18 s vs exact 0.65 s (**28×**). `--mode auto` now compares the
+exact vs sparse clock models and **stays on exact** when scale is
+unavailable and sparse is not clearly cheaper (live auto 0.74 s)
+**[empirical, uniform10.json]**. \(\tau\) / engine_rec were **not**
+retuned. Fat \(H_2\) refuse is unchanged.
 
 `--estimate` exposes that probe as a feasibility guess with a
 **conservative |E| band** (probe fraction ×1.25), a residual-size band,

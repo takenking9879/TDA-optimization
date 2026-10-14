@@ -36,7 +36,7 @@ No `--mode scale`. 12 s, 1 thread (`uniform10.json`).
 | PITH `--mode exact` | \(n=8000\) 2.79 s (RedZeD) | none in this sweep | \(n=200\) is **2× slower** than Ripser (historical negative control). \(n\ge 800\) is faster. |
 | Ripser | \(n=1600\) 2.37 s | \(n=4000\) | Same pairing class; all-pairs at this \(T\). |
 | PITH `--mode sparse` | \(n=1600\) 2.16 s | \(n=4000\) | FPS + 6.5M edges at \(n=4000\) (~18 s if allowed). |
-| `--mode auto` | follows probe | \(n=4000\) picks sparse | **28× waste** vs exact 0.65 s. Probe residual band \(>1.5\times 10^6\). τ frozen. |
+| `--mode auto` | \(n=4000\) now exact 0.74 s | previously sparse 18 s | Clock-compare override: stay exact when scale is unavailable and sparse is not clearly cheaper. τ frozen. |
 | `--mode auto` fat \(H_2\) \(n=250\) | refuse (exit 3) | — | Same refuse as `uniform4`. |
 
 ## `--mode auto` refuse

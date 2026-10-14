@@ -1,5 +1,5 @@
 {
-  "note": "High-d Euclidean control, d=10. No --mode scale. 12 s, 1 thread. T=1.8 H1 and fat-H2 refuse. Probe 250-pt edge_frac\u22480.99 at n=4000 marks exact infeasible; live exact RedZeD is 0.65 s. --mode auto selects sparse (18 s / 6.5M edges). Do not retune \u03c4.",
+  "note": "High-d Euclidean control, d=10. No --mode scale. 12 s, 1 thread. T=1.8 H1 and fat-H2 refuse. Conservative exact_ok can still be false; --mode auto now stays exact unless sparse is clearly cheaper. Live auto n=4000: 0.74 s exact (was 18.3 s sparse). \u03c4 not retuned.",
   "threads": 1,
   "budget_s": 12,
   "first_fail": {
@@ -311,6 +311,13 @@
     "auto_edges_in": 6500278,
     "auto_reduce_ms": 17700.7,
     "waste": 28.110599078341014,
-    "tau_retuned": false
+    "tau_retuned": false,
+    "fixed": true,
+    "auto_after_fix": {
+      "selected": "exact",
+      "wall_s": 0.743,
+      "pipeline": "pith:auto-redzed",
+      "waste_vs_exact": 1.141321044546851
+    }
   }
 }

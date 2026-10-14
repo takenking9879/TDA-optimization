@@ -5,7 +5,7 @@ and the fused Euclidean sparse constructor.
 **Stable CLI:** `--mode exact|scale|sparse`, `--engine auto|redzed|implicit`,
 `--estimate`, `--threads N`, `--mode auto`. Auto-dispatch probes at \(n\ge 64\).
 `--estimate` marks fat `maxdim≥2` residuals as exact-infeasible.
-`--mode auto` follows that recommendation (phase-2 8/8; current eval **10/10**,
+`--mode auto` follows that recommendation (phase-2 8/8; current eval **11/11**,
 including held-out 4D `uniform4` n=5000 maxdim=1 → sparse and fat 4D H2
 `n=250` refuse). Fat `maxdim≥2` sparse on \(d\notin\{2,3\}\) is **refused**
 (exit 3, `auto_will_run=false`) instead of hanging; explicit `--mode sparse`
@@ -638,9 +638,9 @@ timeout with Ripser; sphere \(n=600\) Dory timeouts while Ripser still
 finishes (5.3 s). Not vendored. Not a 10× class. No new leftover skip.
 
 High-d `uniform10` (\(T=1.8\), 12 s): exact last-OK \(n=8000\) 2.79 s;
-Ripser / sparse first-fail \(n=4000\). `--mode auto` at \(n=4000\) picks
-sparse (18 s) vs exact 0.65 s — **28× waste**, τ frozen. Fat \(H_2\)
-refuse still correct.
+Ripser / sparse first-fail \(n=4000\). `--mode auto` now stays exact on
+that cell (0.74 s) unless sparse is clearly cheaper. τ / engine_rec
+frozen. Fat \(H_2\) refuse still correct. `eval_mode_auto` **11/11**.
 
 Named leftover follow-ups after I202 are **spent**. Do not reopen
 empty-seed skips, leftover XOR/noop, G_t apparent, add-R, D(e) memo,

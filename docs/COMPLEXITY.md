@@ -932,9 +932,8 @@ High-d `uniform10` (\(d=10\), \(T=1.8\), 12 s) is a **negative control**
 for a general 10× and a dispatcher stress test **[empirical,
 uniform10.json]**. At \(n=200\) PITH exact is 2× *slower* than Ripser.
 At \(n=1600\) exact is 0.13 s vs Ripser 2.37 s. Ripser / sparse first-fail
-at \(n=4000\); exact RedZeD last-OK \(n=8000\) 2.79 s. `--mode auto` at
-\(n=4000\) follows the conservative \(1.5\times 10^6\) leftover-edge
-cutoff and runs sparse (18 s) vs exact 0.65 s. \(\tau\) not retuned.
+at \(n=4000\); exact RedZeD last-OK \(n=8000\) 2.79 s. `--mode auto` now stays on exact there (0.74 s) unless the sparse clock
+model is clearly cheaper. \(\tau\) / engine_rec not retuned.
 
 ---
 

@@ -5,6 +5,13 @@ Do not paste long reasoning here.
 
 ---
 
+## 2026-10-14 — Dispatcher: stay exact when sparse is not cheaper
+
+- **Question:** Can `--mode auto` stop paying the uniform10 / uniform4 sparse miss without retuning \(\tau\)?
+- **Work:** Prefer exact over sparse on high-d \(H_1\) unless `1.5 × est_sparse < est_exact`. Scale path and fat-\(H_2\) refuse unchanged. Engine oracle unchanged.
+- **Result:** `uniform10` \(n=4000\) auto 0.74 s exact (was 18.3 s sparse, 25×). `uniform4` \(n=5000\) auto now exact (0.83 s vs sparse 2.07 s). `eval_mode_auto` **11/11**. `eval_estimate` **32/32**. `eval_engine_auto` **5/9**, 0 new misses. `test_cli_stable` ok. \(\tau\) frozen.
+- **Decision:** Keep. Not a new pairing algorithm. Goal not complete.
+
 ## 2026-10-14 — High-d uniform10 limits
 
 - **Question:** How far does exact / sparse / Ripser / auto go on \(d=10\) at \(T=1.8\), where scale is unsupported?

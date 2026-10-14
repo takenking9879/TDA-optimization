@@ -477,7 +477,7 @@ Same greedy-net flag as the matrix path. `distances` is FPS + T-ball evals. Loca
 | uniform4 | 1600 | 0.268 |  | 0.034 | 0.229 | 266831 | 38 MB | 1.91 | 0 |
 
 ## `--mode auto` vs probe (`eval_mode_auto.py`)
-Agreement 10/10. `refuse` means the probe named sparse but auto exits 3 instead of starting fat H2 outside d∈{2,3}.
+Agreement 11/11. `refuse` means the probe named sparse but auto exits 3 instead of starting fat H2 outside d∈{2,3}.
 | family | n | maxdim | selected | expect | refused | agree |
 | --- | ---: | ---: | --- | --- | --- | --- |
 | circle_noisy | 400 | 1 | exact | exact | False | True |
@@ -488,7 +488,8 @@ Agreement 10/10. `refuse` means the probe named sparse but auto exits 3 instead 
 | mixed_1d2d3d | 300 | 2 | scale | scale | False | True |
 | figure8 | 16000 | 1 | scale | scale | False | True |
 | sphere | 16000 | 2 | scale | scale | False | True |
-| uniform4 | 5000 | 1 | sparse | sparse | False | True |
+| uniform4 | 5000 | 1 | exact | exact | False | True |
+| uniform10 | 4000 | 1 | exact | exact | False | True |
 | uniform4 | 250 | 2 | sparse | refuse | True | True |
 
 ## `--estimate` vs measured wall (`eval_estimate.py`)
@@ -542,14 +543,14 @@ Recommended-mode wall inside `[est_runtime_lo, est_runtime_hi]`: 32/32. Empirica
 Oracle 5/9. New misses: none. Known misses waived; τ frozen.
 | family | n | rec | oracle | wrong | waived | waste |
 | --- | ---: | --- | --- | --- | --- | ---: |
-| disconnected_circles | 400 | implicit | redzed | True | True | 1.18 |
-| disconnected_circles | 1000 | implicit | redzed | True | True | 1.34 |
+| disconnected_circles | 400 | implicit | redzed | True | True | 1.42 |
+| disconnected_circles | 1000 | implicit | redzed | True | True | 1.42 |
 | random_geometric_sparse | 500 | redzed | redzed | False | False | 1.00 |
 | random_geometric_dense | 400 | redzed | redzed | False | False | 1.00 |
 | grid_holes | 400 | redzed | redzed | False | False | 1.00 |
 | grid_holes | 800 | redzed | redzed | False | False | 1.00 |
-| two_spheres_apart | 300 | redzed | implicit | True | True | 2.71 |
-| nonuniform_circle | 400 | implicit | redzed | True | True | 1.59 |
+| two_spheres_apart | 300 | redzed | implicit | True | True | 2.83 |
+| nonuniform_circle | 400 | implicit | redzed | True | True | 1.49 |
 | nested_loops | 1000 | redzed | redzed | False | False | 1.00 |
 
 ## `wall_kind` vs measured share (`eval_wall_kind.py`)
@@ -882,7 +883,7 @@ pydory 1.1.137 oracle, 1 thread, 12 s budget, not vendored. Stops a family after
 | sphere | 600 | 2 | timeout | 0.034 | 5.305 | False | True |
 
 ## High-d control `uniform10` (d=10, T=1.8, 12 s, 1 thread)
-High-d Euclidean control, d=10. No --mode scale. 12 s, 1 thread. T=1.8 H1 and fat-H2 refuse. Probe 250-pt edge_frac≈0.99 at n=4000 marks exact infeasible; live exact RedZeD is 0.65 s. --mode auto selects sparse (18 s / 6.5M edges). Do not retune τ.
+High-d Euclidean control, d=10. No --mode scale. 12 s, 1 thread. T=1.8 H1 and fat-H2 refuse. Conservative exact_ok can still be false; --mode auto now stays exact unless sparse is clearly cheaper. Live auto n=4000: 0.74 s exact (was 18.3 s sparse). τ not retuned.
 | n | exact (s) | sparse (s) | Ripser (s) | estimate mode | exact feasible |
 | ---: | ---: | ---: | ---: | --- | --- |
 | 80 | 0.003 | 0.003 | 0.003 | exact | None |
@@ -893,5 +894,6 @@ High-d Euclidean control, d=10. No --mode scale. 12 s, 1 thread. T=1.8 H1 and fa
 | 4000 | 0.651 | timeout | timeout | sparse | None |
 | 8000 | 2.787 | skip | skip | sparse | None |
 
-Dispatcher miss (τ frozen): `--mode auto` selected sparse at n=4000 (18.3 s, 6500278 edges) vs exact 0.65 s (28× waste). fat residual band exceeds 1.5e6 leftover edges; exact leftover visits explode
+Historical miss (τ frozen): `--mode auto` selected sparse at n=4000 (18.3 s, 6500278 edges) vs exact 0.65 s (28× waste). fat residual band exceeds 1.5e6 leftover edges; exact leftover visits explode
+After clock-compare override: auto selects exact in 0.74 s (pith:auto-redzed).
 Fat H2 n=250 T=1.8: estimate sparse auto_will_run=False; auto refused=True.

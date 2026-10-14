@@ -10,12 +10,12 @@
       "oracle_faster": "redzed",
       "wrong": true,
       "waived": true,
-      "waste_if_follow_estimate": 1.1773044336541787,
+      "waste_if_follow_estimate": 1.4158186972390654,
       "regime": "thin",
       "times": {
-        "auto": 0.007801117986673489,
-        "redzed": 0.00497610800084658,
-        "implicit": 0.00585839401173871
+        "auto": 0.0075943010015180334,
+        "redzed": 0.004468510000151582,
+        "implicit": 0.006326600007014349
       }
     },
     {
@@ -28,12 +28,12 @@
       "oracle_faster": "redzed",
       "wrong": true,
       "waived": true,
-      "waste_if_follow_estimate": 1.3403349741067203,
+      "waste_if_follow_estimate": 1.4169068230636965,
       "regime": "thin",
       "times": {
-        "auto": 0.038834003993542865,
-        "redzed": 0.026537445999565534,
-        "implicit": 0.03556906699668616
+        "auto": 0.03788063100364525,
+        "redzed": 0.025920185013092123,
+        "implicit": 0.0367264870001236
       }
     },
     {
@@ -49,9 +49,9 @@
       "waste_if_follow_estimate": 1.0,
       "regime": "hollow",
       "times": {
-        "auto": 0.00537421100307256,
-        "redzed": 0.004829915997106582,
-        "implicit": 0.005471784999826923
+        "auto": 0.005311859000357799,
+        "redzed": 0.004447739003808238,
+        "implicit": 0.004999740005587228
       }
     },
     {
@@ -67,9 +67,9 @@
       "waste_if_follow_estimate": 1.0,
       "regime": "fat",
       "times": {
-        "auto": 0.008222600008593872,
-        "redzed": 0.005176050995942205,
-        "implicit": 0.01039067399688065
+        "auto": 0.007970318009029143,
+        "redzed": 0.005211299998336472,
+        "implicit": 0.0100898149976274
       }
     },
     {
@@ -85,9 +85,9 @@
       "waste_if_follow_estimate": 1.0,
       "regime": "hollow",
       "times": {
-        "auto": 0.003490168004645966,
-        "redzed": 0.003058532005525194,
-        "implicit": 0.0034816080005839467
+        "auto": 0.00373774699983187,
+        "redzed": 0.002878277999116108,
+        "implicit": 0.003344445998664014
       }
     },
     {
@@ -103,9 +103,9 @@
       "waste_if_follow_estimate": 1.0,
       "regime": "hollow",
       "times": {
-        "auto": 0.0068788670032517985,
-        "redzed": 0.0064441349968547,
-        "implicit": 0.00890608600457199
+        "auto": 0.006954183001653291,
+        "redzed": 0.006341918997350149,
+        "implicit": 0.008750327993766405
       }
     },
     {
@@ -118,12 +118,12 @@
       "oracle_faster": "implicit",
       "wrong": true,
       "waived": true,
-      "waste_if_follow_estimate": 2.7071602966760215,
+      "waste_if_follow_estimate": 2.832640931993714,
       "regime": "hollow",
       "times": {
-        "auto": 0.01802827299979981,
-        "redzed": 0.016101490997243673,
-        "implicit": 0.0059477419999893755
+        "auto": 0.018368490011198446,
+        "redzed": 0.01654074499674607,
+        "implicit": 0.005839336998178624
       }
     },
     {
@@ -136,12 +136,12 @@
       "oracle_faster": "redzed",
       "wrong": true,
       "waived": true,
-      "waste_if_follow_estimate": 1.5931442141410241,
+      "waste_if_follow_estimate": 1.4946587441684387,
       "regime": "thin",
       "times": {
-        "auto": 0.01089913300529588,
-        "redzed": 0.0054444550041807815,
-        "implicit": 0.008673801989061758
+        "auto": 0.01091735799855087,
+        "redzed": 0.005661025992594659,
+        "implicit": 0.008461302000796422
       }
     },
     {
@@ -157,9 +157,9 @@
       "waste_if_follow_estimate": 1.0,
       "regime": "fat",
       "times": {
-        "auto": 0.037406324001494795,
-        "redzed": 0.036482957992120646,
-        "implicit": 0.04746324098960031
+        "auto": 0.0374478230078239,
+        "redzed": 0.03546318900771439,
+        "implicit": 0.046895179999410175
       }
     }
   ],

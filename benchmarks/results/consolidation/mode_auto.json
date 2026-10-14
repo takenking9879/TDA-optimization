@@ -124,15 +124,30 @@
       "ok": true,
       "returncode": 0,
       "refused": false,
-      "selected": "sparse",
-      "stderr": "# MODE auto selected sparse engine=redzed exact_feasible=0 regime=fat confidence=low\n# conservative |E| band exceeds 8e6; exact H1 on G_T is likely impractical\n",
+      "selected": "exact",
+      "stderr": "# MODE auto selected exact engine=redzed exact_feasible=0 regime=fat confidence=low\n# conservative |E| band exceeds 8e6; exact H1 on G_T is likely impractical; no scale path and estimated exact clock is not worse than sparse \u2014 stay on exact\n",
       "has_h1": true,
-      "pipeline": "pith:sparse",
+      "pipeline": "pith:auto-redzed",
       "name": "uniform4",
       "n": 5000,
       "T": 1.0,
       "maxdim": 1,
-      "expect": "sparse",
+      "expect": "exact",
+      "agree": true
+    },
+    {
+      "ok": true,
+      "returncode": 0,
+      "refused": false,
+      "selected": "exact",
+      "stderr": "# MODE auto selected exact engine=redzed exact_feasible=0 regime=fat confidence=low\n# fat residual band exceeds 1.5e6 leftover edges; exact leftover visits explode; no scale path and estimated exact clock is not worse than sparse \u2014 stay on exact\n",
+      "has_h1": true,
+      "pipeline": "pith:auto-redzed",
+      "name": "uniform10",
+      "n": 4000,
+      "T": 1.8,
+      "maxdim": 1,
+      "expect": "exact",
       "agree": true
     },
     {
@@ -151,6 +166,6 @@
       "agree": true
     }
   ],
-  "n_agree": 10,
-  "n": 10
+  "n_agree": 11,
+  "n": 11
 }

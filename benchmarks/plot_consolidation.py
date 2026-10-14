@@ -1026,12 +1026,19 @@ if U10:
     miss = U10.get("auto_miss")
     if miss:
         rows.append("")
+        after = miss.get("auto_after_fix") or {}
         rows.append(
-            f"Dispatcher miss (τ frozen): `--mode auto` selected {miss.get('auto_selected')} "
+            f"Historical miss (τ frozen): `--mode auto` selected {miss.get('auto_selected')} "
             f"at n={miss.get('n')} ({miss.get('auto_wall_s'):.1f} s, "
             f"{miss.get('auto_edges_in')} edges) vs exact {miss.get('exact_wall_s'):.2f} s "
             f"({miss.get('waste'):.0f}× waste). {miss.get('reason')}"
         )
+        if after:
+            rows.append(
+                f"After clock-compare override: auto selects {after.get('selected')} "
+                f"in {after.get('wall_s'):.2f} s "
+                f"({after.get('pipeline')})."
+            )
     fat = U10.get("fat_h2") or {}
     if fat:
         rows.append(
