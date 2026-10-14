@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-14 — I308 live-tet list (3D walk)
+
+- **Question:** I275 keeps dead tets (no slot reuse). Are `locate_scan` / final edge extract Θ(historical tets), and does a live-id list cut 80k metric without changing the mesh?
+- **Hypothesis:** Live tets are Θ(n); history is much larger. Same edges. No cavity-slot reuse.
+- **Work:** `live_ids` / `live_at` swap-pop. Wave 168 vs I306.
+- **Result:** **Hold / keep.** Identity held (ess2=1, |E|=403615 at 16k/50k/80k). sphere n=80000 **1.12 vs I306 1.09 s** (metric 527 vs 507 ms). n=50000 **0.67 vs 0.65 s**. Bookkeeping ≈ extract savings. The wall is walk+insphere, not the dead-tet scan.
+- **Decision:** **Hold / keep** (`locate_scan` is O(live) when walk fails). Not a selected pith lever. Do not retry dead-tet extract skips. Do not mark the goal complete.
+- **Class:** experiment (hold; keep; no metric cut)
+
 ## 2026-10-14 — I307 tet face-sign walk (revert)
 
 - **Question:** Does caching `orient(face, opposite)` at tet birth (and skipping the post-walk `contains` recheck) cut the 80k Delaunay metric wall?
