@@ -1139,8 +1139,9 @@ Do not paste long reasoning here.
 - **Question:** Can the selected portfolio be used without I-numbers, and can we state honestly what was built plus measure limits?
 - **Work:** `--mode exact|scale|sparse`, `--estimate`, `--help` vs `--help-experimental`. Docs: `WHAT_WE_BUILT.md`, `SCALE_PATH.md`, `COMPLEXITY.md`. Held-out generators. `run_consolidation.py`.
 - **Result:** Public interface no longer requires I263/I297/…. Contribution stated as portfolio + dispatcher + sparse representations + optional Euclidean scale path (not a new exact-VR Big-O).
-- **Decision:** Stay in consolidation. Do not mark the goal complete until scaling tables, topology, and dispatcher eval are filled from `run_consolidation.py`.
-- **Class:** experiment (interface + documentation)
+- **Result:** Wave ran. Exact vs Ripser: circle n=1000 **30.9×**; figure8 n=2000 **16.9×**; blobs H0 n=12000 **215×**; sphere H2 n=400 **61×**. Scale: figure8 n=16000 **0.51 s**; sphere n=50000 **0.66 s**. Topology n=400: exact 3/3 match; scale keeps ess H1/H2, sphere **52 unmatched finite**. Dispatcher 6/6 agrees with auto (same probe — not an independent oracle). giotto-ph not installed. Goal not complete (memory curves, equal-thread isolation, more density/noise series still open).
+- **Decision:** Keep consolidating. Do not mark the goal complete.
+- **Class:** experiment (interface + measured limits)
 
 ## 2026-10-14 — I312 skip post-walk contains (3D locate)
 

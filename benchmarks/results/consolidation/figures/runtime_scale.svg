@@ -1,0 +1,33 @@
+<svg xmlns='http://www.w3.org/2000/svg' width='720' height='420' font-family='sans-serif'>
+<rect width='720' height='420' fill='white'/>
+<text x='360.0' y='22' text-anchor='middle' font-size='14'>Runtime vs n (scale path vs exact, log-log)</text>
+<text x='360.0' y='410' text-anchor='middle' font-size='11'>n</text>
+<text x='14' y='210.0' text-anchor='middle' font-size='11' transform='rotate(-90 14 210.0)'>wall seconds</text>
+<path d='M 64.0 351.9 L 168.9 320.2 L 248.2 283.2 L 327.6 244.7 L 486.2 154.5 L 565.6 114.2' fill='none' stroke='#1f77b4' stroke-width='1.6'/>
+<circle cx='64.0' cy='351.9' r='3.2' fill='#1f77b4'/>
+<circle cx='168.9' cy='320.2' r='3.2' fill='#1f77b4'/>
+<circle cx='248.2' cy='283.2' r='3.2' fill='#1f77b4'/>
+<circle cx='327.6' cy='244.7' r='3.2' fill='#1f77b4'/>
+<circle cx='486.2' cy='154.5' r='3.2' fill='#1f77b4'/>
+<circle cx='565.6' cy='114.2' r='3.2' fill='#1f77b4'/>
+<text x='688' y='40' text-anchor='end' font-size='11' fill='#1f77b4'>figure8 scale</text>
+<path d='M 64.0 350.2 L 143.3 331.8 L 406.9 197.9 L 565.6 160.0 L 696.0 100.9' fill='none' stroke='#d62728' stroke-width='1.6'/>
+<circle cx='64.0' cy='350.2' r='3.2' fill='#d62728'/>
+<circle cx='143.3' cy='331.8' r='3.2' fill='#d62728'/>
+<circle cx='406.9' cy='197.9' r='3.2' fill='#d62728'/>
+<circle cx='565.6' cy='160.0' r='3.2' fill='#d62728'/>
+<circle cx='696.0' cy='100.9' r='3.2' fill='#d62728'/>
+<text x='688' y='56' text-anchor='end' font-size='11' fill='#d62728'>sphere scale</text>
+<path d='M 64.0 372.0 L 168.9 305.7 L 248.2 258.0 L 327.6 173.1' fill='none' stroke='#2ca02c' stroke-width='1.6'/>
+<circle cx='64.0' cy='372.0' r='3.2' fill='#2ca02c'/>
+<circle cx='168.9' cy='305.7' r='3.2' fill='#2ca02c'/>
+<circle cx='248.2' cy='258.0' r='3.2' fill='#2ca02c'/>
+<circle cx='327.6' cy='173.1' r='3.2' fill='#2ca02c'/>
+<text x='688' y='72' text-anchor='end' font-size='11' fill='#2ca02c'>figure8 exact (small n)</text>
+<path d='M 64.0 331.2 L 168.9 249.2 L 248.2 169.4 L 327.6 36.0' fill='none' stroke='#9467bd' stroke-width='1.6'/>
+<circle cx='64.0' cy='331.2' r='3.2' fill='#9467bd'/>
+<circle cx='168.9' cy='249.2' r='3.2' fill='#9467bd'/>
+<circle cx='248.2' cy='169.4' r='3.2' fill='#9467bd'/>
+<circle cx='327.6' cy='36.0' r='3.2' fill='#9467bd'/>
+<text x='688' y='88' text-anchor='end' font-size='11' fill='#9467bd'>figure8 Ripser (small n)</text>
+</svg>

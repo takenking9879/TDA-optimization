@@ -88,8 +88,23 @@ On **this** hardware (4 CPUs, 16 GB, no GPU), measured:
 | Sphere \(H_0{+}H_1{+}H_2\), \(n=80000\) | impractical | impractical as dense VR | **1.09 s**, ess \(H_2=1\) |
 | Blobs \(H_0\), \(n=25000\) | tens of seconds | **55 ms** (Delaunay) | n/a |
 
-Scaling curves and local exponents: `benchmarks/results/consolidation/`
-after `python3 benchmarks/run_consolidation.py`.
+Scaling curves, local exponents, and tables from
+`python3 benchmarks/run_consolidation.py`
+(4 CPU / 16 GB; Ripser 1 thread; PITH may use 4):
+
+![Exact VR runtime](benchmarks/results/consolidation/figures/runtime_exact.svg)
+
+![Scale path vs exact](benchmarks/results/consolidation/figures/runtime_scale.svg)
+
+![Local exponents](benchmarks/results/consolidation/figures/exponents.svg)
+
+Persistence diagrams at \(n=400\) (filled = essential; scale is **not** VR):
+
+![figure8 PD](benchmarks/results/consolidation/figures/pd_figure8.svg)
+![circle PD](benchmarks/results/consolidation/figures/pd_circle_noisy.svg)
+![sphere PD](benchmarks/results/consolidation/figures/pd_sphere.svg)
+
+Full numbers: [`benchmarks/results/consolidation/TABLES.md`](benchmarks/results/consolidation/TABLES.md).
 
 ## How accurate is the scale path?
 
