@@ -5,6 +5,14 @@ Do not paste long reasoning here.
 
 ---
 
+## 2026-10-14 — I329 2-level 3D Delaunay hierarchy
+
+- **Question:** Does a Devillers-lite 2-level (every 16th Morton point inserted first, later points walk from the nearest landmark tet) beat Morton + last-cavity hint?
+- **Work:** Experimental `--delaunay-hier`. Same Delaunay. Default unchanged. Live `delaunay_hier.json` plus torus/uniform3 spot. Unit n=256 |E| match. 1 thread. τ frozen.
+- **Result:** Same |E| / ess H2. Sphere construction **wins** (n=80000 metric 440 vs 504 ms; wall 1.009 vs 1.095 s). torus n=8000 same 7.64M edges, metric 4.96 vs 5.06 s, wall **20.95 vs 20.21 s**. uniform3 n=8000 wall 1.26 vs 1.23 s. Locate help does not generalize off the sphere; thicken/PH dominate fat 3D flags.
+- **Decision:** Reject as default. Keep `--delaunay-hier` experimental. 2-level landmark-first is not a general 3D location class. A full Devillers stack (coarse triangulations + downward links) would still count. Goal not complete.
+- **Class:** verified (live)
+
 ## 2026-10-14 — I328 3D nearest-vertex jump locate
 
 - **Question:** Does starting the 3D Bowyer–Watson walk at a tet incident to a spatially nearby inserted vertex (hash + walk) beat last-cavity hint + Morton order?
