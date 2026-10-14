@@ -53,11 +53,13 @@ Search on 2026-10-14:
   general 10× on this box.
 - **giotto-ph** is lock-free Ripser + collapse. We compared it at 1
   and 4 threads; it tracks Ripser on \(H_1\).
-- **Dory** (large-set VR through \(H_2\), modest parallel speedup)
-  was **not** vendored. Literature speedups are \(\sim 2\times\) on
-  sparse complexes with several threads — not a 10× exact-\(H_1\)
-  class, and not a 1-thread claim. A future comparison is allowed;
-  it is not an untried leftover skip.
+- **Dory** (`pydory` 1.1.137 oracle, **not vendored**). Live 1-thread
+  (`dory.json`): tracks Ripser on leftover \(H_1\) (figure-8 \(n=2000\)
+  2.84 vs 2.72 s; torus \(n=1000\) 0.43 vs 0.41 s; circle \(n=1000\)
+  2.79 vs 2.73 s) and is **slower** on sphere \(H_2\) \(n=400\) (4.13
+  vs 1.49 s). PITH exact is \(16\)–\(39\times\) faster than Dory on
+  those cells. Not a 10× class. Literature parallel \(\sim 2\times\)
+  does not change the 1-thread pairing class.
 - No 2026 paper we found claims a better **worst-case** pairing class
   than Ripser/RedZeD on a connected dense flag.
 
@@ -96,9 +98,10 @@ All of the following, together:
 4. Living docs state the 3/6 leftover 10× result and do not claim a
    general exact-\(H_1\) 10×.
 
-(1)–(3) are the present engineering judgment. (4) is done. This is
-**not** a completion certificate: Dory was not timed here, and a
-genuinely new pairing idea would reopen the exact path.
+(1)–(4) hold for the leftover / collapse / RedZeD / giotto / Dory
+oracles timed on this box. This is **not** a completion certificate:
+a genuinely new pairing idea would reopen the exact path. Dory is
+now timed at 1 thread and is not a 10× engine.
 
 ## What a user should do instead of waiting for a general 10×
 

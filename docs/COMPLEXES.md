@@ -105,7 +105,7 @@ The standard, general-purpose barcode for metric data. Encodes more (and noisier
 | [DIPHA](https://github.com/DIPHA/dipha) | MPI VR / cubical / general. | Mature, little recent development. |
 | [HomCloud](https://homcloud.dev/) | Wraps Ripser among other pipelines. GPL-3. | Actively maintained (v5.4.0, 2026-06). |
 | [Oineus](https://github.com/anigmetov/oineus) | Shared-memory VR + grids. BSD. | PyPI v0.9.37. |
-| [Dory](https://doi.org/10.1016/j.jocs.2024.102290) | Large VR up to dim 2 with a stopping radius. | Research (2024). |
+| [Dory](https://doi.org/10.1016/j.jocs.2024.102290) | Large VR up to dim 2 with a stopping radius. | Research (2024). Timed here as `pydory` 1.1.137, 1 thread: tracks Ripser on leftover \(H_1\); slower on sphere \(H_2\) \(n=400\). Oracle only, not vendored. |
 
 ### Valid equivalence
 

@@ -901,19 +901,25 @@ thread. giotto-ph 0.2.4 `n_threads=1` and `4` (AGPL oracle; collapse
 off unless noted). GUDHI 3.13 Rips is an explicit simplex tree (1 thread).
 **[empirical]**
 
-| Family | \(n\) | PITH 1-thr | Ripser | giotto t1 | giotto t4 | GUDHI Rips |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| circle \(H_1\) | 1000 | 0.068 s | 2.16 s | 2.47 s | 2.44 s | timeout |
-| figure-8 \(H_1\) | 2000 | 0.152 s | 2.51 s | 2.81 s | 2.78 s | timeout |
-| sphere \(H_2\) | 400 | 0.017 s | 1.02 s | 1.12 s | 0.62 s | timeout |
-| torus \(H_1\) | 1000 | 0.040 s | 0.381 s | 0.461 s | 0.417 s | 2.85 s |
-| dense RGG \(H_1\) | 800 | 0.018 s | 0.089 s | 0.119 s | 0.107 s | 6.44 s |
+| Family | \(n\) | PITH 1-thr | Ripser | giotto t1 | giotto t4 | GUDHI Rips | Dory 1-thr |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| circle \(H_1\) | 1000 | 0.068 s | 2.16 s | 2.47 s | 2.44 s | timeout | 2.79 s |
+| figure-8 \(H_1\) | 2000 | 0.152 s | 2.51 s | 2.81 s | 2.78 s | timeout | 2.84 s |
+| sphere \(H_2\) | 400 | 0.017 s | 1.02 s | 1.12 s | 0.62 s | timeout | 4.13 s |
+| torus \(H_1\) | 1000 | 0.040 s | 0.381 s | 0.461 s | 0.417 s | 2.85 s | 0.43 s |
+| dense RGG \(H_1\) | 800 | 0.018 s | 0.089 s | 0.119 s | 0.107 s | 6.44 s | — |
 
 Local slopes on the same windows: Ripser / giotto \(p\approx 2.8\)–\(4.0\);
 GUDHI Rips \(p\approx 3.2\)–\(3.4\) until timeout; PITH exact \(p\approx 1.2\)–\(2.7\)
 then leftover \(p\approx 2.7\) on figure-8. giotto 4-thread is **not** a
 4× wall cut on \(H_1\) (often slower than 1-thread). The 31–60× vs Ripser
 therefore also holds against 4-thread giotto-ph on these families.
+Dory (`pydory` 1.1.137, 1 thread, not vendored) **tracks Ripser** on leftover
+\(H_1\) (Ripser/Dory \(0.90\)–\(1.00\) on `dory.json`) and is **slower**
+on sphere \(H_2\) \(n=400\) (4.13 vs the paired Ripser 1.49 s on that
+receipt; baselines.json Ripser is 1.02 s on a separate run). Same pairing
+class. Dory column is from `dory.json`; other columns from
+`baselines.json`. Same box, different process.
 
 GUDHI Rips becomes impractical (timeout) by \(n\sim 10^3\) on a noisy
 circle \(H_1\) and by \(n=400\) on sphere \(H_2\). That is the explicit
@@ -959,6 +965,7 @@ worst-case Big-O theorem versus Ripser on connected \(G_T\).
 | Cavanna–Jahanseir–Sheehy, CCCG 2015 | Geometric / GUDHI sparse variant |
 | Kapulkin–Kershaw, *RedZeD*, arXiv:2606.06310 | Zero-differential reduction; active enumeration; Prop. 3.2 |
 | Burella Pérez et al., *giotto-ph*, arXiv:2107.05412 | Parallel CPU VR + collapse; AGPL oracle only (not vendored) |
+| Aggarwal–Periwal, *Dory*, *J. Comput. Sci.* 2024; doi:10.1016/j.jocs.2024.102290 | VR up to dim 2; `pydory` 1.1.137 1-thread oracle (not vendored); tracks Ripser on leftover \(H_1\) |
 | Bauer–Edelsbrunner, *Morse theory of Čech and Delaunay*, 2017 | Alpha / Čech / Del–Čech \(\neq\) VR |
 | Bauer–Roll, *Gromov hyperbolicity… and apparent pairs*, SoCG 2022 | Apparent-pair rate is geometric |
 | Shamos–Hoey 1975; Preparata–Shamos | Euclidean MST \(\subseteq\) Delaunay |

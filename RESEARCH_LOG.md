@@ -5,6 +5,14 @@ Do not paste long reasoning here.
 
 ---
 
+## 2026-10-14 — Dory 1-thread oracle
+
+- **Question:** Is Dory (`pydory` 1.1.137) a better exact-VR \(H_1\) engine than PITH / Ripser at 1 thread?
+- **Work:** `reverify_dory.py`. Locations input, `cpu_count=1`, `OMP_NUM_THREADS=1`, 20 s budget. Not vendored.
+- **Result:** Dory **tracks Ripser** on leftover \(H_1\): figure-8 \(n=2000\) 2.84 vs 2.72 s (ess1=2); torus \(n=1000\) 0.43 vs 0.41 s; circle \(n=1000\) 2.79 vs 2.73 s. Sphere \(H_2\) \(n=400\): Dory **4.13 vs Ripser 1.49 s**. PITH exact is \(16\)–\(39\times\) faster than Dory on those cells. Not a 10× class.
+- **Decision:** Keep as an oracle receipt (`dory.json`). Do not vendor. Do not reopen leftover pairing. Goal not complete.
+- **Class:** verified (live)
+
 ## 2026-10-14 — remaining-directions audit
 
 - **Question:** After leftover pairing and FPS sqrt are closed, is there a published exact-VR pairing algorithm we have not wrapped, or an untried leftover skip?

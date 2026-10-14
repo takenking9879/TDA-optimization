@@ -852,3 +852,16 @@ Budget 8 s. PITH `--threads 1`. Ripser 1 thread. Hardware 4 CPUs. Empirical.
 | dimension | uniform | 800 | pith:sparse:auto | 2.0→3.0 | 0.98 |
 | dimension | uniform | 800 | giotto-ph:t1 | 2.0→3.0 | -1.06 |
 | dimension | uniform | 800 | gudhi-rips | 2.0→3.0 | -4.41 |
+
+## Dory (`pydory` 1.1.137 oracle, 1 thread)
+pydory 1.1.137 oracle, 1 thread, not vendored. Same pairing class as VR. Budget 20 s. pydory 1.1.137. Not vendored. Tracks Ripser on leftover H1; slower on sphere H2.
+| family | n | dim | Dory (s) | PITH (s) | Ripser (s) | Ripser/Dory | Dory/PITH | ess H1 | pipeline |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| circle_noisy | 400 | 1 | 0.213 | 0.012 | 0.133 | 0.62 | 17.3× | 1 | pith:auto-collapse |
+| circle_noisy | 1000 | 1 | 2.793 | 0.071 | 2.727 | 0.98 | 39.4× | 1 | pith:auto-collapse |
+| figure8 | 1000 | 1 | 0.655 | 0.052 | 0.606 | 0.93 | 12.6× | 2 | pith:auto-redzed-spatial |
+| figure8 | 2000 | 1 | 2.841 | 0.174 | 2.720 | 0.96 | 16.3× | 2 | pith:auto-collapse |
+| torus | 1000 | 1 | 0.427 | 0.042 | 0.405 | 0.95 | 10.1× | 1 | pith:auto-redzed-spatial |
+| uniform2 | 2000 | 1 | 0.450 | 0.061 | 0.451 | 1.00 | 7.4× | 0 | pith:auto-redzed |
+| sphere | 400 | 2 | 4.130 | 0.017 | 1.487 | 0.36 | 246.1× | 0 | pith:auto-collapse |
+| blobs | 2000 | 1 | 0.471 | 0.044 | 0.425 | 0.90 | 10.7× | 0 | pith:auto-redzed-cc |

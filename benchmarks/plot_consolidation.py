@@ -29,6 +29,8 @@ L10_PATH = BENCH / "results" / "consolidation" / "leftover_10x.json"
 L10 = json.loads(L10_PATH.read_text()) if L10_PATH.exists() else {}
 AXIS_PATH = BENCH / "results" / "consolidation" / "axis_scaling.json"
 AXIS = json.loads(AXIS_PATH.read_text()) if AXIS_PATH.exists() else {}
+DORY_PATH = BENCH / "results" / "consolidation" / "dory.json"
+DORY = json.loads(DORY_PATH.read_text()) if DORY_PATH.exists() else {}
 FIG = BENCH / "results" / "consolidation" / "figures"
 FIG.mkdir(parents=True, exist_ok=True)
 
@@ -889,6 +891,61 @@ if AXIS:
             "Wall time vs density threshold T (uniform2 n=800, 1 thread)",
             "T (proxy for density)",
             "wall seconds",
+        )
+
+if DORY:
+    rows.append("")
+    rows.append("## Dory (`pydory` 1.1.137 oracle, 1 thread)")
+    rows.append(
+        f"{DORY.get('note', '')} Budget {DORY.get('budget_s')} s. "
+        f"pydory {DORY.get('pydory_version')}. Not vendored. "
+        "Tracks Ripser on leftover H1; slower on sphere H2."
+    )
+    rows.append(
+        "| family | n | dim | Dory (s) | PITH (s) | Ripser (s) | Ripser/Dory | Dory/PITH | ess H1 | pipeline |"
+    )
+    rows.append("| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |")
+    dory_bars = []
+    for d in DORY.get("receipts") or []:
+        dor = d.get("dory") or {}
+        pith = d.get("pith") or {}
+        rip = d.get("ripser") or {}
+        dw = dor.get("wall_s")
+        pw = pith.get("wall_s")
+        rw = rip.get("wall_s")
+        rd = d.get("ripser_over_dory")
+        dp = d.get("dory_over_pith")
+        rows.append(
+            "| {fam} | {n} | {dim} | {dw} | {pw} | {rw} | {rd} | {dp} | {ess} | {pipe} |".format(
+                fam=d.get("name"),
+                n=d.get("n"),
+                dim=d.get("maxdim"),
+                dw="" if dw is None else f"{dw:.3f}",
+                pw="" if pw is None else f"{pw:.3f}",
+                rw="" if rw is None else f"{rw:.3f}",
+                rd="" if rd is None else f"{rd:.2f}",
+                dp="" if dp is None else f"{dp:.1f}×",
+                ess="" if dor.get("ess1") is None else dor.get("ess1"),
+                pipe=pith.get("pipeline") or "",
+            )
+        )
+        if dw and pw and rw:
+            dory_bars.append((f"{d.get('name')} n={d.get('n')}", dw, pw, rw))
+    if dory_bars:
+        # Grouped log-y scatter: one x-index per leftover cell.
+        series = [
+            {"name": "Dory", "xy": [(i + 1, t[1]) for i, t in enumerate(dory_bars)]},
+            {"name": "PITH exact", "xy": [(i + 1, t[2]) for i, t in enumerate(dory_bars)]},
+            {"name": "Ripser", "xy": [(i + 1, t[3]) for i, t in enumerate(dory_bars)]},
+        ]
+        svg_scatter(
+            FIG / "runtime_dory.svg",
+            series,
+            "1-thread leftover cells: Dory vs PITH vs Ripser",
+            "cell index (see TABLES.md Dory section)",
+            "wall seconds",
+            logx=False,
+            logy=True,
         )
 
 (BENCH / "results" / "consolidation" / "TABLES.md").write_text("\n".join(rows) + "\n")

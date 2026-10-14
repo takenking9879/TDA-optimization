@@ -232,3 +232,5 @@ src/instruments/ripser_count
 # Generated large datasets (scripts recreate them)
 benchmarks/datasets/generated/
 benchmarks/results/_tmp/
+# pydory persistence-diagram dumps (oracle only; keep dory.json)
+benchmarks/results/consolidation/dory_out/

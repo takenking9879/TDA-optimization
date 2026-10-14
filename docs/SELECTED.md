@@ -631,7 +631,9 @@ Single table: [`PRACTICAL_LIMITS.md`](PRACTICAL_LIMITS.md). Direction
 audit: [`REMAINING.md`](REMAINING.md). Sparse FPS squared-distance try:
 same complex, no clock cut, reverted. A 2026 literature check still
 names RedZeD as the published exact-VR alternative; we already wrap it.
-No new leftover skip.
+Dory (`pydory` 1.1.137, 1 thread, `dory.json`) **tracks Ripser** on leftover
+\(H_1\) and is slower on sphere \(H_2\) \(n=400\) (4.13 vs 1.49 s). Not
+vendored. Not a 10× class. No new leftover skip.
 
 Named leftover follow-ups after I202 are **spent**. Do not reopen
 empty-seed skips, leftover XOR/noop, G_t apparent, add-R, D(e) memo,
