@@ -11,6 +11,8 @@ BENCH = Path(__file__).resolve().parent
 REP = json.loads((BENCH / "results" / "consolidation" / "report.json").read_text())
 LIM_PATH = BENCH / "results" / "consolidation" / "limits.json"
 LIM = json.loads(LIM_PATH.read_text()) if LIM_PATH.exists() else {}
+BASE_PATH = BENCH / "results" / "consolidation" / "baselines.json"
+BASE = json.loads(BASE_PATH.read_text()) if BASE_PATH.exists() else {}
 FIG = BENCH / "results" / "consolidation" / "figures"
 FIG.mkdir(parents=True, exist_ok=True)
 
@@ -251,7 +253,13 @@ rows = []
 rows.append("# Consolidation tables (this hardware: 4 CPU, 16 GB)")
 rows.append("")
 rows.append("Ripser is 1 thread. Phase-2 PITH times use `--threads 1` unless noted.")
-rows.append("giotto-ph was not installed. GUDHI Rips/Alpha used where n is small enough.")
+if BASE.get("have_giotto"):
+    rows.append(
+        f"giotto-ph {BASE.get('giotto')} (AGPL oracle) and GUDHI {BASE.get('gudhi')} "
+        "are compared at equal hardware in the phase-3 tables below."
+    )
+else:
+    rows.append("giotto-ph was not installed. GUDHI Rips/Alpha used where n is small enough.")
 rows.append("")
 rows.append("## Exact VR wall time (phase 1, PITH may use 4 threads)")
 rows.append("| family | n | T | dim | PITH exact (s) | Ripser (s) | ratio | pipeline |")
@@ -370,6 +378,111 @@ for e in exp:
     pt = f"{e['p_time']:.2f}" if e.get("p_time") is not None else ""
     pe = f"{e['p_edges']:.2f}" if e.get("p_edges") is not None else ""
     rows.append(f"| {e['name']} | {e['method']} | {e['n0']} | {e['n1']} | {pt} | {pe} |")
+
+if BASE:
+    rows.append("")
+    rows.append("## Phase-3 equal-hardware baselines (giotto-ph + GUDHI)")
+    rows.append(
+        "PITH `--threads 1`. Ripser 1 thread. giotto-ph `n_threads=1` and `n_threads=4` "
+        "(no edge collapse unless noted). GUDHI Rips is explicit (1 thread). "
+        f"giotto-ph {BASE.get('giotto')} is AGPLv3 — oracle only."
+    )
+    rows.append("| family | n | T | dim | PITH 1-thr | Ripser | giotto t1 | giotto t4 | GUDHI Rips |")
+    rows.append("| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |")
+    for r in BASE.get("comparisons") or []:
+        def w(key):
+            run = (r.get("runs") or {}).get(key) or {}
+            if run.get("wall_s"):
+                return f"{run['wall_s']:.3f}"
+            if run.get("timed_out") or (run.get("error") and "timed out" in str(run.get("error")).lower()):
+                return "timeout"
+            if run.get("skipped"):
+                return "skip"
+            if run.get("error"):
+                return "fail"
+            return ""
+
+        rows.append(
+            f"| {r['name']} | {r['n']} | {r['T']} | {r['maxdim']} | {w('pith_exact_t1')} | "
+            f"{w('ripser')} | {w('giotto_t1')} | {w('giotto_t4')} | {w('gudhi_rips')} |"
+        )
+
+    rows.append("")
+    rows.append("## Phase-3 topology (exact engines vs Ripser; scale unmatched)")
+    rows.append("| family | n | PITH match | giotto match | GUDHI match | scale unmatched | scale bn H1 |")
+    rows.append("| --- | ---: | --- | --- | --- | ---: | ---: |")
+    for t in BASE.get("topology") or []:
+        pith = (t.get("pith_vs_ripser") or {}).get("exact_match")
+        gio = (t.get("giotto_vs_ripser") or {}).get("exact_match")
+        gud = (t.get("gudhi_vs_ripser") or {}).get("exact_match")
+        sc = t.get("scale_vs_ripser") or {}
+        bn = sc.get("bottleneck_h1")
+        rows.append(
+            f"| {t['name']} | {t.get('n')} | {pith} | {gio} | {gud} | {sc.get('unmatched')} | "
+            f"{'' if bn is None else (f'{bn:.4g}' if isinstance(bn, float) else bn)} |"
+        )
+
+    rows.append("")
+    rows.append("## Phase-3 held-out / post-freeze dispatcher")
+    rows.append("| family | n | recommended | auto | oracle | wrong | waste | regime |")
+    rows.append("| --- | ---: | --- | --- | --- | --- | ---: | --- |")
+    for d in BASE.get("dispatcher_heldout") or []:
+        waste = d.get("waste_if_follow_estimate")
+        rows.append(
+            f"| {d['name']} | {d['n']} | {d.get('recommended')} | {d.get('auto_picked')} | "
+            f"{d.get('oracle_faster')} | {d.get('wrong')} | "
+            f"{'' if waste is None else (f'{waste:.2f}' if isinstance(waste, float) else waste)} | "
+            f"{d.get('regime')} |"
+        )
+
+    rows.append("")
+    rows.append("## Phase-3 `--mode auto` vs probe")
+    rows.append("| family | n | selected | probe | match |")
+    rows.append("| --- | ---: | --- | --- | --- |")
+    for d in BASE.get("mode_auto_heldout") or []:
+        rows.append(
+            f"| {d['name']} | {d['n']} | {d.get('selected')} | {d.get('mode_recommended')} | {d.get('match_probe')} |"
+        )
+
+    rows.append("")
+    rows.append("## Phase-3 local exponents (new series)")
+    rows.append("| family | method | n0 | n1 | p_time |")
+    rows.append("| --- | --- | ---: | ---: | ---: |")
+    for e in BASE.get("exponents") or []:
+        pt = f"{e['p_time']:.2f}" if e.get("p_time") is not None else ""
+        rows.append(f"| {e['name']} | {e['method']} | {e['n0']} | {e['n1']} | {pt} |")
+
+    # runtime figure including giotto/GUDHI on circle + figure8 + held-out
+    series = []
+    for fam, label in (
+        ("circle_noisy", "circle"),
+        ("figure8", "figure8"),
+        ("disconnected_circles", "disc. circles"),
+        ("grid_holes", "grid holes"),
+    ):
+        for meth, mlab, color_i in (
+            ("pith_exact_t1", "PITH", 0),
+            ("ripser", "Ripser", 1),
+            ("giotto_t1", "giotto t1", 2),
+            ("gudhi_rips", "GUDHI", 3),
+        ):
+            xy = []
+            for r in BASE.get("comparisons") or []:
+                if r["name"] != fam:
+                    continue
+                run = (r.get("runs") or {}).get(meth) or {}
+                if run.get("wall_s"):
+                    xy.append((r["n"], run["wall_s"]))
+            if xy:
+                series.append({"name": f"{label} {mlab}", "xy": xy})
+    if series:
+        svg_scatter(
+            FIG / "runtime_baselines.svg",
+            series,
+            "1-thread exact VR: PITH vs Ripser vs giotto-ph vs GUDHI",
+            "n",
+            "wall seconds",
+        )
 
 (BENCH / "results" / "consolidation" / "TABLES.md").write_text("\n".join(rows) + "\n")
 print("wrote figures and TABLES.md")

@@ -55,13 +55,20 @@ except Exception:
     GUDHI_VER = None
 
 HAVE_GIOTTO = False
+GIOTTO_VER = None
 try:
-    import gtda  # type: ignore
+    import gph  # type: ignore
 
     HAVE_GIOTTO = True
-    GIOTTO_VER = getattr(gtda, "__version__", "?")
+    GIOTTO_VER = getattr(gph, "__version__", "?")
 except Exception:
-    GIOTTO_VER = None
+    try:
+        import gtda  # type: ignore
+
+        HAVE_GIOTTO = True
+        GIOTTO_VER = f"gtda:{getattr(gtda, '__version__', '?')}"
+    except Exception:
+        GIOTTO_VER = None
 
 
 def local_exp(n0, t0, n1, t1):
@@ -178,35 +185,86 @@ def run_ripser(path, T, maxdim, timeout=25):
     }
 
 
+WORKER = BENCH / "_ph_worker.py"
+
+
+def _run_worker(args, method, threads_claimed, timeout=25):
+    rss0 = _rss_child()
+    try:
+        ru0 = resource.getrusage(resource.RUSAGE_CHILDREN)
+        cpu0 = ru0.ru_utime + ru0.ru_stime
+    except Exception:
+        cpu0 = 0.0
+    t0 = time.perf_counter()
+    try:
+        out, dt, _ = run_cmd([sys.executable, str(WORKER), *args], timeout)
+        rec = json.loads(out.strip().splitlines()[-1])
+        err = None if rec.get("ok") else rec.get("error") or "worker failed"
+        pairs = rec.get("pairs") or []
+        wall = rec.get("wall_s", dt)
+        extra = {k: rec[k] for k in rec if k not in ("ok", "pairs", "wall_s", "error")}
+    except Exception as e:
+        pairs, wall, err, extra = [], time.perf_counter() - t0, str(e), {}
+    rss1 = _rss_child()
+    cpu = None
+    try:
+        ru = resource.getrusage(resource.RUSAGE_CHILDREN)
+        cpu = max(0.0, ru.ru_utime + ru.ru_stime - cpu0)
+    except Exception:
+        pass
+    timed_out = err is not None and "timed out" in (err or "").lower()
+    return {
+        "method": method,
+        "ok": err is None,
+        "error": err,
+        "timed_out": timed_out,
+        "wall_s": None if err else wall,
+        "cpu_s": cpu,
+        "threads_claimed": threads_claimed,
+        "rss_delta": max(0, rss1 - rss0),
+        "n_pairs": len(pairs) if pairs else 0,
+        "ess0": ess(pairs, 0) if pairs else None,
+        "ess1": ess(pairs, 1) if pairs else None,
+        "ess2": ess(pairs, 2) if pairs else None,
+        "pairs": pairs,
+        **extra,
+    }
+
+
 def run_gudhi_rips(path, T, maxdim, timeout=25):
     if not HAVE_GUDHI:
         return {"method": "gudhi-rips", "ok": False, "error": "gudhi not importable"}
-    pts = np.loadtxt(path, delimiter=",")
-    t0 = time.perf_counter()
-    try:
-        st = gudhi.RipsComplex(points=pts, max_edge_length=float(T)).create_simplex_tree(
-            max_dimension=maxdim + 1
-        )
-        pers = st.persistence()
-        dt = time.perf_counter() - t0
-        pairs = []
-        for dim, (b, d) in pers:
-            if dim > maxdim:
-                continue
-            pairs.append({"dim": dim, "birth": b, "death": d if d != float("inf") else float("inf")})
-        return {
-            "method": "gudhi-rips",
-            "ok": True,
-            "wall_s": dt,
-            "threads_claimed": 1,
-            "n_pairs": len(pairs),
-            "ess0": ess(pairs, 0),
-            "ess1": ess(pairs, 1),
-            "ess2": ess(pairs, 2),
-            "pairs": pairs,
-        }
-    except Exception as e:
-        return {"method": "gudhi-rips", "ok": False, "error": str(e), "wall_s": time.perf_counter() - t0}
+    return _run_worker(
+        ["gudhi-rips", str(path), str(T), str(maxdim)],
+        "gudhi-rips",
+        1,
+        timeout=timeout,
+    )
+
+
+def run_gudhi_alpha(path, maxdim, timeout=25):
+    if not HAVE_GUDHI:
+        return {"method": "gudhi-alpha", "ok": False, "error": "gudhi not importable"}
+    return _run_worker(
+        ["gudhi-alpha", str(path), str(maxdim)],
+        "gudhi-alpha",
+        1,
+        timeout=timeout,
+    )
+
+
+def run_giotto(path, T, maxdim, n_threads=1, collapse_edges=False, timeout=25):
+    if not HAVE_GIOTTO:
+        return {"method": "giotto-ph", "ok": False, "error": "giotto-ph not importable"}
+    tag = f"giotto-ph:t{n_threads}{':collapse' if collapse_edges else ''}"
+    rec = _run_worker(
+        ["giotto", str(path), str(T), str(maxdim), str(n_threads), "1" if collapse_edges else "0"],
+        tag,
+        n_threads,
+        timeout=timeout,
+    )
+    rec["collapse_edges"] = bool(collapse_edges)
+    return rec
 
 
 def cloud(name, n, fn, rng):

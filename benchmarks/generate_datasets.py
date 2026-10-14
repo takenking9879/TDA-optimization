@@ -204,6 +204,46 @@ def multi_scale_loops(n: int, rng: np.random.Generator) -> np.ndarray:
     return np.vstack([small, large])
 
 
+def disconnected_circles(n: int, rng: np.random.Generator) -> np.ndarray:
+    """Two unit circles far apart so a moderate T leaves G_T disconnected."""
+    n0, n1 = _split_n(n, 2)
+    a = _noisy_circle(n0, rng, (0.0, 0.0), radius=1.0, sigma=0.05)
+    b = _noisy_circle(n1, rng, (20.0, 0.0), radius=1.0, sigma=0.05)
+    return np.vstack([a, b])
+
+
+def random_geometric(n: int, rng: np.random.Generator) -> np.ndarray:
+    """Unit-square i.i.d. sample (random geometric graph at a chosen T)."""
+    return uniform(n, 2, rng)
+
+
+def grid_holes(n: int, rng: np.random.Generator) -> np.ndarray:
+    """Post-freeze family: jittered lattice with two rectangular holes.
+
+    Chosen after the feasibility / engine thresholds were frozen so it
+    cannot have influenced τ or the hollow cutoff.
+    """
+    side = max(8, int(math.ceil(math.sqrt(n * 1.35))))
+    xs, ys = np.linspace(0.0, 1.0, side), np.linspace(0.0, 1.0, side)
+    xx, yy = np.meshgrid(xs, ys)
+    pts = np.stack([xx.ravel(), yy.ravel()], axis=1)
+    hole_a = (pts[:, 0] - 0.30) ** 2 + (pts[:, 1] - 0.30) ** 2 < 0.08**2
+    hole_b = (np.abs(pts[:, 0] - 0.72) < 0.10) & (np.abs(pts[:, 1] - 0.68) < 0.10)
+    pts = pts[~(hole_a | hole_b)]
+    if len(pts) > n:
+        pts = pts[rng.choice(len(pts), size=n, replace=False)]
+    elif len(pts) < n:
+        extra = rng.uniform(0.0, 1.0, size=(n - len(pts), 2))
+        pts = np.vstack([pts, extra])
+    return pts + rng.normal(0.0, 0.004, size=pts.shape)
+
+
+def two_spheres_apart(n: int, rng: np.random.Generator) -> np.ndarray:
+    """Post-freeze: two unit spheres whose convex hulls do not meet at T=1.4."""
+    n0, n1 = _split_n(n, 2)
+    return np.vstack([sphere(n0, rng), sphere(n1, rng) + np.array([8.0, 0.0, 0.0])])
+
+
 GENERATORS = {
     "circle_noisy": circle_noisy,
     "sphere": sphere,
@@ -221,6 +261,10 @@ GENERATORS = {
     "mixed_1d2d3d": mixed_1d2d3d,
     "nonuniform_circle": nonuniform_circle,
     "multi_scale_loops": multi_scale_loops,
+    "disconnected_circles": disconnected_circles,
+    "random_geometric": random_geometric,
+    "grid_holes": grid_holes,
+    "two_spheres_apart": two_spheres_apart,
 }
 
 
