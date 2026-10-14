@@ -286,6 +286,36 @@ PITH `--threads 1`. Ripser 1 thread. giotto-ph `n_threads=1` and `n_threads=4` (
 | nonuniform_circle | 400 | 1.5 | 1 | 0.012 | 0.032 | 0.042 | 0.055 | 0.622 |
 | mixed_1d2d3d | 300 | 1.4 | 2 |  |  |  |  |  |
 
+## Construct vs reduce (1-thread exact, from `baselines.json`)
+`metric_ms` is G_T / Delaunay construction; `collapse_ms` is flag collapse; `reduce_ms` is the pairing. Counters already stored; not a new bench.
+| family | n | wall (s) | construct (s) | collapse (s) | reduce (s) | |E| in | residual |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| circle_noisy | 200 | 0.005 | 0.000 | 0.001 | 0.000 | 10880 | 0.026011029 |
+| circle_noisy | 500 | 0.017 | 0.000 | 0.009 | 0.000 | 67370 | 0.023418364 |
+| circle_noisy | 1000 | 0.068 | 0.002 | 0.046 | 0.001 | 270262 | 0.021094029 |
+| figure8 | 500 | 0.010 | 0.000 | 0.004 | 0.000 | 31499 | 0.038026199 |
+| figure8 | 1000 | 0.023 | 0.002 | 0.000 | 0.009 |  | 0.038005987 |
+| figure8 | 2000 | 0.152 | 0.009 | 0.000 | 0.100 |  | 0.037981408 |
+| sphere | 200 | 0.007 | 0.000 | 0.002 | 0.001 | 9708 | 0.073753605 |
+| sphere | 400 | 0.017 | 0.000 | 0.008 | 0.001 | 39381 | 0.058835066 |
+| uniform2 | 500 | 0.008 | 0.000 | 0.000 | 0.003 |  | 0.077009053 |
+| uniform2 | 1000 | 0.018 | 0.002 | 0.000 | 0.009 |  | 0.081610446 |
+| nested_loops | 400 | 0.009 | 0.000 | 0.000 | 0.004 |  | 0.089686668 |
+| nested_loops | 1000 | 0.037 | 0.002 | 0.000 | 0.029 |  | 0.089188848 |
+| many_loops | 400 | 0.004 | 0.000 | 0.000 | 0.001 |  | 0.095895666 |
+| torus | 400 | 0.009 | 0.000 | 0.000 | 0.002 |  | 0.28690845 |
+| torus | 1000 | 0.040 | 0.002 | 0.000 | 0.024 |  | 0.26158851 |
+| disconnected_circles | 400 | 0.008 | 0.000 | 0.003 | 0.000 | 21469 | 0.033730876 |
+| disconnected_circles | 1000 | 0.037 | 0.002 | 0.024 | 0.000 | 134903 | 0.034462199 |
+| random_geometric_sparse | 500 | 0.006 | 0.000 | 0.000 | 0.002 |  | 0.29865424 |
+| random_geometric_sparse | 1000 | 0.009 | 0.000 | 0.000 | 0.002 |  | 0.29103304 |
+| random_geometric_dense | 400 | 0.009 | 0.000 | 0.000 | 0.002 |  | 0.044843049 |
+| random_geometric_dense | 800 | 0.018 | 0.001 | 0.000 | 0.009 |  | 0.049310461 |
+| grid_holes | 400 | 0.004 | 0.000 | 0.000 | 0.001 |  | 0.48821866 |
+| grid_holes | 800 | 0.007 | 0.000 | 0.000 | 0.003 |  | 0.39789658 |
+| two_spheres_apart | 300 | 0.018 | 0.000 | 0.000 | 0.014 |  | 0.12794255 |
+| nonuniform_circle | 400 | 0.012 | 0.000 | 0.005 | 0.000 | 37773 | 0.026211439 |
+
 ## Phase-3 topology (exact engines vs Ripser; scale unmatched)
 | family | n | PITH match | giotto match | GUDHI match | scale unmatched | scale bn H1 |
 | --- | ---: | --- | --- | --- | ---: | ---: |
@@ -507,3 +537,17 @@ Recommended-mode wall inside `[est_runtime_lo, est_runtime_hi]`: 32/32. Empirica
 | uniform4 | 400 | 1 | exact |  | 0.005 | 0.046 |  | None |
 | uniform4 | 800 | 1 | exact |  | 0.012 | 0.121 |  | None |
 | uniform4 | 1600 | 1 | exact |  | 0.043 | 0.429 |  | None |
+
+## Engine oracle live check (`eval_engine_auto.py`)
+Oracle 5/9. New misses: none. Known misses waived; τ frozen.
+| family | n | rec | oracle | wrong | waived | waste |
+| --- | ---: | --- | --- | --- | --- | ---: |
+| disconnected_circles | 400 | implicit | redzed | True | True | 1.18 |
+| disconnected_circles | 1000 | implicit | redzed | True | True | 1.34 |
+| random_geometric_sparse | 500 | redzed | redzed | False | False | 1.00 |
+| random_geometric_dense | 400 | redzed | redzed | False | False | 1.00 |
+| grid_holes | 400 | redzed | redzed | False | False | 1.00 |
+| grid_holes | 800 | redzed | redzed | False | False | 1.00 |
+| two_spheres_apart | 300 | redzed | implicit | True | True | 2.71 |
+| nonuniform_circle | 400 | implicit | redzed | True | True | 1.59 |
+| nested_loops | 1000 | redzed | redzed | False | False | 1.00 |

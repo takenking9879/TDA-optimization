@@ -485,7 +485,7 @@ if BASE:
     rows.append("")
     rows.append("## Construct vs reduce (1-thread exact, from `baselines.json`)")
     rows.append(
-        "`metric_ms` is \(G_T\) / Delaunay construction; `collapse_ms` is flag collapse; "
+        "`metric_ms` is G_T / Delaunay construction; `collapse_ms` is flag collapse; "
         "`reduce_ms` is the pairing. Counters already stored; not a new bench."
     )
     rows.append("| family | n | wall (s) | construct (s) | collapse (s) | reduce (s) | |E| in | residual |")

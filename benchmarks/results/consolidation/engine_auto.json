@@ -1,0 +1,172 @@
+{
+  "receipts": [
+    {
+      "name": "disconnected_circles",
+      "n": 400,
+      "T": 1.5,
+      "maxdim": 1,
+      "recommended": "implicit",
+      "auto_picked": "implicit",
+      "oracle_faster": "redzed",
+      "wrong": true,
+      "waived": true,
+      "waste_if_follow_estimate": 1.1773044336541787,
+      "regime": "thin",
+      "times": {
+        "auto": 0.007801117986673489,
+        "redzed": 0.00497610800084658,
+        "implicit": 0.00585839401173871
+      }
+    },
+    {
+      "name": "disconnected_circles",
+      "n": 1000,
+      "T": 1.5,
+      "maxdim": 1,
+      "recommended": "implicit",
+      "auto_picked": "implicit",
+      "oracle_faster": "redzed",
+      "wrong": true,
+      "waived": true,
+      "waste_if_follow_estimate": 1.3403349741067203,
+      "regime": "thin",
+      "times": {
+        "auto": 0.038834003993542865,
+        "redzed": 0.026537445999565534,
+        "implicit": 0.03556906699668616
+      }
+    },
+    {
+      "name": "random_geometric_sparse",
+      "n": 500,
+      "T": 0.15,
+      "maxdim": 1,
+      "recommended": "redzed",
+      "auto_picked": "redzed",
+      "oracle_faster": "redzed",
+      "wrong": false,
+      "waived": false,
+      "waste_if_follow_estimate": 1.0,
+      "regime": "hollow",
+      "times": {
+        "auto": 0.00537421100307256,
+        "redzed": 0.004829915997106582,
+        "implicit": 0.005471784999826923
+      }
+    },
+    {
+      "name": "random_geometric_dense",
+      "n": 400,
+      "T": 0.5,
+      "maxdim": 1,
+      "recommended": "redzed",
+      "auto_picked": "redzed",
+      "oracle_faster": "redzed",
+      "wrong": false,
+      "waived": false,
+      "waste_if_follow_estimate": 1.0,
+      "regime": "fat",
+      "times": {
+        "auto": 0.008222600008593872,
+        "redzed": 0.005176050995942205,
+        "implicit": 0.01039067399688065
+      }
+    },
+    {
+      "name": "grid_holes",
+      "n": 400,
+      "T": 0.12,
+      "maxdim": 1,
+      "recommended": "redzed",
+      "auto_picked": "redzed",
+      "oracle_faster": "redzed",
+      "wrong": false,
+      "waived": false,
+      "waste_if_follow_estimate": 1.0,
+      "regime": "hollow",
+      "times": {
+        "auto": 0.003490168004645966,
+        "redzed": 0.003058532005525194,
+        "implicit": 0.0034816080005839467
+      }
+    },
+    {
+      "name": "grid_holes",
+      "n": 800,
+      "T": 0.12,
+      "maxdim": 1,
+      "recommended": "redzed",
+      "auto_picked": "redzed",
+      "oracle_faster": "redzed",
+      "wrong": false,
+      "waived": false,
+      "waste_if_follow_estimate": 1.0,
+      "regime": "hollow",
+      "times": {
+        "auto": 0.0068788670032517985,
+        "redzed": 0.0064441349968547,
+        "implicit": 0.00890608600457199
+      }
+    },
+    {
+      "name": "two_spheres_apart",
+      "n": 300,
+      "T": 1.4,
+      "maxdim": 2,
+      "recommended": "redzed",
+      "auto_picked": "redzed",
+      "oracle_faster": "implicit",
+      "wrong": true,
+      "waived": true,
+      "waste_if_follow_estimate": 2.7071602966760215,
+      "regime": "hollow",
+      "times": {
+        "auto": 0.01802827299979981,
+        "redzed": 0.016101490997243673,
+        "implicit": 0.0059477419999893755
+      }
+    },
+    {
+      "name": "nonuniform_circle",
+      "n": 400,
+      "T": 1.5,
+      "maxdim": 1,
+      "recommended": "implicit",
+      "auto_picked": "implicit",
+      "oracle_faster": "redzed",
+      "wrong": true,
+      "waived": true,
+      "waste_if_follow_estimate": 1.5931442141410241,
+      "regime": "thin",
+      "times": {
+        "auto": 0.01089913300529588,
+        "redzed": 0.0054444550041807815,
+        "implicit": 0.008673801989061758
+      }
+    },
+    {
+      "name": "nested_loops",
+      "n": 1000,
+      "T": 1.6,
+      "maxdim": 1,
+      "recommended": "redzed",
+      "auto_picked": "redzed",
+      "oracle_faster": "redzed",
+      "wrong": false,
+      "waived": false,
+      "waste_if_follow_estimate": 1.0,
+      "regime": "fat",
+      "times": {
+        "auto": 0.037406324001494795,
+        "redzed": 0.036482957992120646,
+        "implicit": 0.04746324098960031
+      }
+    }
+  ],
+  "n": 9,
+  "n_oracle_ok": 5,
+  "n_wrong": 4,
+  "new_misses": [],
+  "over_cap": [],
+  "note": "Known misses are waived. \u03c4 is frozen. Do not retune from this eval."
+}

@@ -5,6 +5,14 @@ Do not paste long reasoning here.
 
 ---
 
+## 2026-10-14 — engine-oracle gate + construct/reduce table
+
+- **Question:** Can we freeze the 5/9 held-out engine misses without retuning τ, and show where exact wall time actually goes?
+- **Work:** `eval_engine_auto.py` re-runs the nine phase-3 held-out cases (auto / redzed / implicit, `--threads 1`). Known misses are waived with a waste cap. `plot_consolidation.py` prints construct/collapse/reduce from stored `baselines.json` counters. `reverify_headlines.py` re-measures circle n=1000 and sphere n=400 vs Ripser.
+- **Result:** Live gate **5/9**, 0 new misses, 0 over cap (waste 1.18 / 1.34 / 2.71 / 1.59). Headline reverify `--threads 1`: circle n=1000 **31.2×** (0.070 vs 2.17 s); sphere n=400 **58.3×** (0.018 vs 1.02 s). τ unchanged.
+- **Decision:** Keep the waiver list frozen. A new miss or a known miss above the cap fails the eval.
+- **Class:** experiment (regression gate)
+
 ## 2026-10-14 — estimate bands + sparse bottleneck/W1 surfaced
 
 - **Question:** Do `--estimate` runtime bands cover measured walls, and what is the sparse topology loss vs VR?

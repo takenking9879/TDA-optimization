@@ -1,0 +1,29 @@
+{
+  "receipts": [
+    {
+      "name": "circle_noisy",
+      "n": 1000,
+      "T": 1.5,
+      "maxdim": 1,
+      "pith_s": 0.06966918100079056,
+      "ripser_s": 2.1715035010129213,
+      "ratio": 31.16878180307991,
+      "pith_ok": true,
+      "ripser_ok": true,
+      "threads": 1
+    },
+    {
+      "name": "sphere",
+      "n": 400,
+      "T": 1.4,
+      "maxdim": 2,
+      "pith_s": 0.017541292996611446,
+      "ripser_s": 1.0223871820053319,
+      "ratio": 58.28459636372486,
+      "pith_ok": true,
+      "ripser_ok": true,
+      "threads": 1
+    }
+  ],
+  "threads": 1
+}
