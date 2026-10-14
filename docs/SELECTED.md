@@ -238,8 +238,10 @@ enough for mixed homology.
 
 **Optional approx (I207–I211):** sparse 1-skeleton → implicit, collapse=0.
 Essential \(H_1\) **correct on every measured family**. Finite-H1 bottleneck
-typically **0.005–0.04**. 1-skeleton size \(\sim n^{1.1}\). This is **not
-exact VR**. Two constructions:
+typically **0.005–0.04** (I218-era). Consolidation `sparse_limits.json`
+(\(n=400\)): figure-8 / circle bn \(H_1\approx 0.006\)–\(0.007\); many_loops
+0.028; `nested_loops` 0.11 / \(W_1\approx 1.05\). 1-skeleton size
+\(\sim n^{1.1}\) on the I218 series. This is **not exact VR**. Two constructions:
 
 - GUDHI Sheehy ε=0.5 → `--edges` (I207).
 - Owned `--sparse-eps` greedy-net flag graph, **cap = max(λ)** (I210/I213).

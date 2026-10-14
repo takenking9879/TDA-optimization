@@ -5,6 +5,14 @@ Do not paste long reasoning here.
 
 ---
 
+## 2026-10-14 — estimate bands + sparse bottleneck/W1 surfaced
+
+- **Question:** Do `--estimate` runtime bands cover measured walls, and what is the sparse topology loss vs VR?
+- **Work:** `eval_estimate.py` compares recommended-mode walls to `est_runtime_{lo,hi}`. TABLES now print sparse bn/\(W_1\) from `sparse_limits.json` and construct/reduce on fused sparse. README/SCALE_PATH/SELECTED no longer claim `nested_loops` n=400 ess H1=4 as the published receipt.
+- **Result:** Published nested_loops n=400 sparse ess \(H_1=1\), unmatched 52, \(W_1\approx 1.05\). 2D loops bn \(H_1\approx 0.006\)–\(0.028\). Phase-3b “does not thin” line marked superseded. τ unchanged.
+- **Decision:** Keep estimate bands empirical. Do not retune τ. Goal not complete.
+- **Class:** verified (receipts)
+
 ## 2026-10-14 — `--mode auto` refuses fat H2 sparse outside d=2,3
 
 - **Question:** `--mode auto` on fat 4D H2 (`uniform4` n=250 T=0.6 maxdim=2) selected sparse and timed out at 25 s. Can we stop the hang without retuning τ?
@@ -55,7 +63,7 @@ Do not paste long reasoning here.
 
 - **Question:** Does `--mode sparse` thin these clouds, where do Ripser/giotto actually fail, and can `--estimate` report growth bands without retuning τ?
 - **Work:** `growth_p` / `est_runtime_{lo,hi}` / `leaving_cheap_regime` on the frozen probe. `run_sparse_limits.py`.
-- **Result:** Sparse ε=0.6 Max does **not** thin: |E|=C(n,2) on the 2D suite; ess H1 kept; unmatched 8–52; sphere H2 timeout at n=400; figure8 n=8000 sparse 1.01 s vs scale 0.23 s. Failure: circle n=2000 PITH 0.34 s, Ripser+giotto timeout; figure8 n=4000 PITH 1.02 s, giotto timeout; sphere n=800 PITH 0.058 s, giotto timeout; nested n=2000 0.30 vs giotto 7.23 s. Estimate: mixed n=300 leave=true / scale; sphere n=400 predicted 0.006–0.019, measured 0.017. τ unchanged.
+- **Result:** *(superseded on |E|: the C(n,2) figure used the `distances` counter; see the correction above.)* Sparse ε=0.6 Max **does** thin. ess H1 kept; unmatched 8–52; sphere H2 timeout at n=400; figure8 n=8000 sparse 1.01 s vs scale 0.23 s. Failure: circle n=2000 PITH 0.34 s, Ripser+giotto timeout; figure8 n=4000 PITH 1.02 s, giotto timeout; sphere n=800 PITH 0.058 s, giotto timeout; nested n=2000 0.30 vs giotto 7.23 s. Estimate: mixed n=300 leave=true / scale; sphere n=400 predicted 0.006–0.019, measured 0.017. τ unchanged.
 - **Decision:** Document sparse as theorem-backed but not a size win here. Scale stays the Euclidean alternative. Goal not complete.
 - **Class:** verified (measurements)
 

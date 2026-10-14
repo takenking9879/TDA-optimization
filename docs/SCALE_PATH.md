@@ -116,11 +116,13 @@ the dense constructor: unit + CLI adversarial). Farthest-point
 insertion is still \(\Theta(n^2)\) **[derivation]**; emit is a \(T\)-ball
 hash when \(d\in\{2,3\}\). figure-8 \(n=8000\): **0.65 s / 28 MB**;
 \(n=24000\): **5.56 s / 101 MB / ess \(H_1=2\)** (local \(p\approx 2\)).
-Scale on that \(n=24000\) cloud is **0.82 s**. Essential \(H_1\) is usually kept;
-`nested_loops` \(n=400\) can report extra essential loops (4 vs VR 1)
-**[empirical]**. Unmatched finite bars 8–52; \(H_2\) is slow or times
-out. Scale is still the faster Euclidean alternative (0.22 s at
-\(n=8000\), 0.82 s at \(n=24000\)).
+Scale on that \(n=24000\) cloud is **0.82 s**. Essential \(H_1\) is usually kept
+**[empirical]**. Consolidation receipts (`sparse_limits.json`, \(n=400\)):
+figure-8 / circle bn \(H_1\approx 0.006\)–\(0.007\), \(W_1\approx 0.023\)–\(0.034\);
+`nested_loops` ess \(H_1=1\) but \(W_1\approx 1.05\) (52 unmatched). Some
+seeds of `nested_loops` invent extra essential loops (4 vs VR 1).
+\(H_2\) is slow or times out. Scale is still the faster Euclidean
+alternative (0.22 s at \(n=8000\), 0.82 s at \(n=24000\)).
 
 ## When not to use it
 

@@ -91,7 +91,7 @@ combinations** of known complexes and known reductions.
 | `--mode exact --engine auto` | VR\(\le T\) | Match (0 unmatched on the hold suite) **[empirical]** |
 | `--mode exact --engine redzed` | VR\(\le T\) | Match **[empirical]** |
 | `--mode scale` | Flag of Euclidean Delaunay \(\pm\) local-radius extras | Essential \(H_0/H_1/H_2\) kept on tested families; **finite bars differ** — quantify, do not treat as VR |
-| `--mode sparse` | Sparse Rips 1-skeleton | Interleaving-style guarantee in the literature; owned defaults need measured bottleneck |
+| `--mode sparse` | Sparse Rips 1-skeleton | Interleaving-style guarantee in the literature **[citation]**; owned ε=0.6 Max: ess \(H_1\) usually kept; \(n=400\) bn \(H_1\approx 0.006\)–\(0.028\) on 2D loops, \(W_1\approx 0.023\)–\(0.059\); `nested_loops` \(W_1\approx 1.05\) **[empirical, sparse_limits.json]** |
 
 ## What a user should remember
 

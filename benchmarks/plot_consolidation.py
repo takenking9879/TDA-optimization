@@ -19,6 +19,8 @@ SSCALE_PATH = BENCH / "results" / "consolidation" / "sparse_scale.json"
 SSCALE = json.loads(SSCALE_PATH.read_text()) if SSCALE_PATH.exists() else {}
 MAUTO_PATH = BENCH / "results" / "consolidation" / "mode_auto.json"
 MAUTO = json.loads(MAUTO_PATH.read_text()) if MAUTO_PATH.exists() else {}
+EST_PATH = BENCH / "results" / "consolidation" / "estimate_accuracy.json"
+EST = json.loads(EST_PATH.read_text()) if EST_PATH.exists() else {}
 FIG = BENCH / "results" / "consolidation" / "figures"
 FIG.mkdir(parents=True, exist_ok=True)
 
@@ -560,22 +562,25 @@ if SPARSE:
     rows.append("## Sparse Rips (ε=0.6 greedy net) vs VR / scale")
     rows.append("Not exact VR. Sheehy-style interleaving is the literature guarantee; numbers are measured.")
     rows.append("`distances` is pairwise construction; report `edges_in` as |E| (do not use distances).")
-    rows.append("| family | n | exact (s) | scale (s) | sparse (s) | sparse |E| | sparse unmatched | sparse ess | scale unmatched |")
-    rows.append("| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- | ---: |")
+    rows.append("| family | n | exact (s) | scale (s) | sparse (s) | sparse |E| | unmatched | bn H1 | W1 H1 | sparse ess |")
+    rows.append("| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |")
     for t in SPARSE.get("sparse") or []:
         if t.get("larger"):
             continue
         sp = t.get("sparse_vs_ripser") or {}
-        sc = t.get("scale_vs_ripser") or {}
         walls = t.get("walls") or {}
         nd = t.get("n_dist") or {}
         ess_s = t.get("ess_sparse") or {}
+        bn = sp.get("bottleneck_h1")
+        w1 = sp.get("wasserstein1_h1")
         rows.append(
             f"| {t['name']} | {t['n']} | {'' if walls.get('exact') is None else f'{walls['exact']:.3f}'} | "
             f"{'' if walls.get('scale') is None else f'{walls['scale']:.3f}'} | "
             f"{'' if walls.get('sparse') is None else f'{walls['sparse']:.3f}'} | {nd.get('sparse')} | "
-            f"{sp.get('unmatched')} | H1={ess_s.get(1, ess_s.get('1'))} H2={ess_s.get(2, ess_s.get('2'))} | "
-            f"{sc.get('unmatched')} |"
+            f"{sp.get('unmatched')} | "
+            f"{'' if bn is None else (f'{bn:.4g}' if isinstance(bn, float) else bn)} | "
+            f"{'' if w1 is None else (f'{w1:.4g}' if isinstance(w1, float) else w1)} | "
+            f"H1={ess_s.get(1, ess_s.get('1'))} H2={ess_s.get(2, ess_s.get('2'))} |"
         )
     rows.append("")
     rows.append("## Failure pushes (12 s)")
@@ -599,8 +604,8 @@ if SSCALE:
         "Same greedy-net flag as the matrix path. `distances` is FPS + T-ball evals. "
         "Local p is empirical, not a theorem."
     )
-    rows.append("| family | n | sparse (s) | scale (s) | sparse |E| | sparse RSS | local p | ess H1 |")
-    rows.append("| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |")
+    rows.append("| family | n | sparse (s) | scale (s) | construct (s) | reduce (s) | sparse |E| | sparse RSS | local p | ess H1 |")
+    rows.append("| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |")
     scale_by = {(r.get("name"), r.get("n")): r for r in SSCALE.get("series") or [] if r.get("mode") == "scale"}
     for r in SSCALE.get("series") or []:
         if r.get("mode") != "sparse":
@@ -609,10 +614,14 @@ if SSCALE:
         rss = r.get("rss")
         rss_s = f"{rss/1e6:.0f} MB" if isinstance(rss, (int, float)) and rss else ""
         p = r.get("local_p")
+        cons = r.get("metric_ms")
+        red = r.get("reduce_ms")
         rows.append(
             f"| {r.get('name')} | {r.get('n')} | "
             f"{'' if r.get('wall_s') is None else f'{r['wall_s']:.3f}'} | "
             f"{'' if sc.get('wall_s') is None else f'{sc['wall_s']:.3f}'} | "
+            f"{'' if cons is None else f'{cons/1000:.3f}'} | "
+            f"{'' if red is None else f'{red/1000:.3f}'} | "
             f"{r.get('n_edges_in') or ''} | {rss_s} | "
             f"{'' if p is None else f'{p:.2f}'} | {r.get('ess1')} |"
         )
@@ -630,6 +639,28 @@ if MAUTO:
         rows.append(
             f"| {d.get('name')} | {d.get('n')} | {d.get('maxdim')} | {d.get('selected')} | "
             f"{d.get('expect')} | {d.get('refused', False)} | {d.get('agree')} |"
+        )
+
+if EST:
+    rows.append("")
+    rows.append("## `--estimate` vs measured wall (`eval_estimate.py`)")
+    rows.append(
+        f"Recommended-mode wall inside `[est_runtime_lo, est_runtime_hi]`: "
+        f"{EST.get('n_in_band')}/{EST.get('n_scored')}. Empirical bands; τ frozen."
+    )
+    rows.append("| family | n | maxdim | rec | wall (s) | lo | hi | ratio | in band |")
+    rows.append("| --- | ---: | ---: | --- | ---: | ---: | ---: | ---: | --- |")
+    for d in EST.get("receipts") or []:
+        if d.get("error"):
+            continue
+        wall = d.get("measured_recommended_wall_s")
+        ratio = d.get("ratio_actual_over_mid")
+        rows.append(
+            f"| {d.get('name')} | {d.get('n')} | {d.get('maxdim')} | {d.get('mode_recommended')} | "
+            f"{'' if wall is None else f'{wall:.3f}'} | "
+            f"{'' if d.get('est_runtime_lo_s') is None else f'{d['est_runtime_lo_s']:.3f}'} | "
+            f"{'' if d.get('est_runtime_hi_s') is None else f'{d['est_runtime_hi_s']:.3f}'} | "
+            f"{'' if ratio is None else f'{ratio:.2f}'} | {d.get('in_band')} |"
         )
 
 (BENCH / "results" / "consolidation" / "TABLES.md").write_text("\n".join(rows) + "\n")
