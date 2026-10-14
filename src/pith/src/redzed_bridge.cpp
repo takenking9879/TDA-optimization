@@ -1685,13 +1685,14 @@ static bool delaunay_edges_3d_walk(const std::vector<std::vector<value_t>>& pts,
     struct Tet {
         int v[4];
         int nbor[4];
+        int8_t fsign[4];
         bool live;
     };
     std::vector<Tet> tets;
     std::vector<int> stamp;
     tets.reserve(static_cast<size_t>(n) * 8 + 8);
     stamp.reserve(static_cast<size_t>(n) * 8 + 8);
-    tets.push_back({{n, n + 1, n + 2, n + 3}, {-1, -1, -1, -1}, true});
+    tets.push_back({{n, n + 1, n + 2, n + 3}, {-1, -1, -1, -1}, {0, 0, 0, 0}, true});
     stamp.push_back(0);
     int gen = 1;
 
@@ -1700,6 +1701,18 @@ static bool delaunay_edges_3d_walk(const std::vector<std::vector<value_t>>& pts,
         for (int j = 0; j < 4; ++j)
             if (j != i) f[k++] = v[j];
     };
+    // I307: ov = orient(face, opposite) is fixed at tet birth. Walk
+    // was recomputing 4 determinants per visit. Same mesh, half the
+    // walk orients. Skip the post-walk contains() recheck.
+    auto fill_fsign = [&](Tet& tr) {
+        for (int i = 0; i < 4; ++i) {
+            int f[3];
+            face_opp(tr.v, i, f);
+            const double ov = o3(f[0], f[1], f[2], tr.v[i]);
+            tr.fsign[i] = static_cast<int8_t>(ov > 0.0 ? 1 : (ov < 0.0 ? -1 : 0));
+        }
+    };
+    fill_fsign(tets.back());
     auto live = [&](int t) {
         return t >= 0 && t < static_cast<int>(tets.size()) && tets[static_cast<size_t>(t)].live;
     };
@@ -1718,18 +1731,12 @@ static bool delaunay_edges_3d_walk(const std::vector<std::vector<value_t>>& pts,
         for (int i = 0; i < 4; ++i) {
             int f[3];
             face_opp(tr.v, i, f);
-            const double ov = delaunay_orient3(
-                xs[static_cast<size_t>(f[0])], ys[static_cast<size_t>(f[0])], zs[static_cast<size_t>(f[0])],
-                xs[static_cast<size_t>(f[1])], ys[static_cast<size_t>(f[1])], zs[static_cast<size_t>(f[1])],
-                xs[static_cast<size_t>(f[2])], ys[static_cast<size_t>(f[2])], zs[static_cast<size_t>(f[2])],
-                xs[static_cast<size_t>(tr.v[i])], ys[static_cast<size_t>(tr.v[i])],
-                zs[static_cast<size_t>(tr.v[i])]);
             double op = delaunay_orient3(
                 xs[static_cast<size_t>(f[0])], ys[static_cast<size_t>(f[0])], zs[static_cast<size_t>(f[0])],
                 xs[static_cast<size_t>(f[1])], ys[static_cast<size_t>(f[1])], zs[static_cast<size_t>(f[1])],
                 xs[static_cast<size_t>(f[2])], ys[static_cast<size_t>(f[2])], zs[static_cast<size_t>(f[2])],
                 px, py, pz);
-            if (ov < 0.0) op = -op;
+            if (tr.fsign[i] < 0) op = -op;
             if (op < 0.0) return false;
         }
         return true;
@@ -1752,18 +1759,12 @@ static bool delaunay_edges_3d_walk(const std::vector<std::vector<value_t>>& pts,
             for (int i = 0; i < 4; ++i) {
                 int f[3];
                 face_opp(tr.v, i, f);
-                const double ov = delaunay_orient3(
-                    xs[static_cast<size_t>(f[0])], ys[static_cast<size_t>(f[0])], zs[static_cast<size_t>(f[0])],
-                    xs[static_cast<size_t>(f[1])], ys[static_cast<size_t>(f[1])], zs[static_cast<size_t>(f[1])],
-                    xs[static_cast<size_t>(f[2])], ys[static_cast<size_t>(f[2])], zs[static_cast<size_t>(f[2])],
-                    xs[static_cast<size_t>(tr.v[i])], ys[static_cast<size_t>(tr.v[i])],
-                    zs[static_cast<size_t>(tr.v[i])]);
                 double op = delaunay_orient3(
                     xs[static_cast<size_t>(f[0])], ys[static_cast<size_t>(f[0])], zs[static_cast<size_t>(f[0])],
                     xs[static_cast<size_t>(f[1])], ys[static_cast<size_t>(f[1])], zs[static_cast<size_t>(f[1])],
                     xs[static_cast<size_t>(f[2])], ys[static_cast<size_t>(f[2])], zs[static_cast<size_t>(f[2])],
                     px, py, pz);
-                if (ov < 0.0) op = -op;
+                if (tr.fsign[i] < 0) op = -op;
                 if (op < 0.0) {
                     const int nb = tr.nbor[i];
                     if (live(nb)) {
@@ -1815,7 +1816,7 @@ static bool delaunay_edges_3d_walk(const std::vector<std::vector<value_t>>& pts,
         const double px = xs[static_cast<size_t>(p)], py = ys[static_cast<size_t>(p)],
                      pz = zs[static_cast<size_t>(p)];
         int t0 = walk(hint, px, py, pz);
-        if (t0 < 0 || !contains(t0, px, py, pz)) t0 = locate_scan(px, py, pz);
+        if (t0 < 0 || !live(t0)) t0 = locate_scan(px, py, pz);
         if (t0 < 0) return false;
         {
             const int* v = tets[static_cast<size_t>(t0)].v;
@@ -1909,7 +1910,8 @@ static bool delaunay_edges_3d_walk(const std::vector<std::vector<value_t>>& pts,
             if (o3(a, b, c, p) <= 0.0) std::swap(a, b);
             if (o3(a, b, c, p) <= 0.0) return false;
             const int id = static_cast<int>(tets.size());
-            tets.push_back({{a, b, c, p}, {-1, -1, -1, bfaces[i].outer}, true});
+            tets.push_back({{a, b, c, p}, {-1, -1, -1, bfaces[i].outer}, {0, 0, 0, 0}, true});
+            fill_fsign(tets.back());
             stamp.push_back(0);
             newids.push_back(id);
             if (bfaces[i].outer >= 0) {
