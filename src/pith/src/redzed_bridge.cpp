@@ -617,10 +617,14 @@ redzed_vr(DistanceMatrix& distIn, int n, value_t threshold, EdgeList* prebuilt) 
                 }
             };
             // I301: sparse H2 uses adj intersection; dense / H≥3 keep vendor.
-            if (d == 2 && st.edges.count <= static_cast<size_t>(nv) * 16)
+            if (d == 2 && st.edges.count <= static_cast<size_t>(nv) * 16) {
                 generate_stream_h2_adj(st.edges, nv, st.binom, emit_simp);
-            else
-                generate_stream(st.edges, st.dist, d, st.binom, emit_simp);
+            } else {
+                // Vendor EdStream stores F*; a named lambda is an lvalue
+                // and F becomes a reference (I267). Pass a temporary.
+                generate_stream(st.edges, st.dist, d, st.binom,
+                                [&](value_t sdiam, const int32_t* cv) { emit_simp(sdiam, cv); });
+            }
 
             st.cson = false;
             st.csmap.init(0);
