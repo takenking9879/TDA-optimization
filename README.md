@@ -166,6 +166,11 @@ family already timed at 4 threads on \(H_1\) (no win). Not a 10× engine.
 circle \(n=400\) **11.68 s / 2.38M simplices** vs Ripser 0.18 s
 (**65× slower**). The other leftover cells timeout at 20 s while
 Ripser still finishes. Same class as GUDHI Rips; not a 10× engine.
+**Coperto** 0.1.7 (Leitão arXiv:2602.22784) is a quotient-cover
+**approximation** (claimed log-3 interleaving), not exact VR. With
+`greedy=False`, figure-8 \(n=8000\) is 6.74 s vs scale 0.21 s; essential
+loops become finite (figure-8 / circle ess \(H_1=0\) vs VR 2 / 1).
+The library default `greedy=True` drops all \(H_1\). Not a 10× engine.
 Hardware threads (4) change circle \(n=1000\) from 0.068 s to 0.069 s —
 not the source of the 32×. giotto-ph’s 4 threads help sphere \(H_2\)
 (1.12→0.62 s) and do **not** speed up \(H_1\).
@@ -182,6 +187,8 @@ PITH **0.30 s** vs giotto **7.23 s** (24×).
 ![Oineus vs PITH vs Ripser, 1 thread](benchmarks/results/consolidation/figures/runtime_oineus.svg)
 
 ![Dionysus vs PITH vs Ripser, 1 thread](benchmarks/results/consolidation/figures/runtime_dionysus.svg)
+
+![Coperto vs PITH exact, 1 thread](benchmarks/results/consolidation/figures/runtime_coperto.svg)
 
 ![Exact VR runtime](benchmarks/results/consolidation/figures/runtime_exact.svg)
 
@@ -312,6 +319,9 @@ Full numbers: [`benchmarks/results/consolidation/TABLES.md`](benchmarks/results/
 - Dionysus 2.2.3 is a **1-thread oracle**, not vendored. Explicit VR
   is 65× slower than Ripser on circle \(n=400\) and times out earlier
   than Oineus.
+- Coperto 0.1.7 is a **1-thread approximation oracle**, not vendored.
+  Log-3 interleaving, not a VR barcode. Scale is faster and keeps
+  essential 2D loops.
 - Ripser++ was not built (no GPU).
 - `--threads 1` is the fair comparison. Default PITH may use every core for
   a few scans; that is **not** where the 30–60× exact ratios come from.
@@ -355,6 +365,8 @@ python3 benchmarks/run_dory_limits.py
 python3 benchmarks/reverify_oineus.py
 # optional oracle: pip install dionysus  (BSD wheel; not vendored)
 python3 benchmarks/reverify_dionysus.py
+# optional oracle: pip install coperto  (not vendored; not exact VR)
+python3 benchmarks/reverify_coperto.py
 python3 benchmarks/run_uniform10.py
 python3 benchmarks/eval_highd_auto.py
 python3 benchmarks/collect_topology_claims.py

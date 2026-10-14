@@ -124,6 +124,29 @@ seeds of `nested_loops` invent extra essential loops (4 vs VR 1).
 \(H_2\) is slow or times out. Scale is still the faster Euclidean
 alternative (0.22 s at \(n=8000\), 0.82 s at \(n=24000\)).
 
+## Versus Coperto (quotient covers)
+
+Coperto 0.1.7 (Leitão, arXiv:2602.22784) is a **different**
+approximation: quotient the cover by a persistent partition, claimed
+**log-3 interleaving** with VR on any metric **[citation]**. It is
+**not** exact VR. Live 1-thread (`coperto.json`, `greedy=False`):
+
+- Library default `greedy=True` drops all \(H_1\) on a noisy circle
+  (\(n_{H_1}=0\)).
+- With exact tie-breaking, the tower is linear (\(\sim 3n\)–\(4n\))
+  but essential loops/voids become **finite** (figure-8 / circle ess
+  \(H_1=0\) vs VR 2 / 1; sphere ess \(H_2=0\) vs 1). \(n=400\)
+  unmatched 24–123; bottleneck/Wasserstein are \(\infty\) when
+  essential cardinality differs. Scale on the same 2D loops is
+  unmatched 0.
+- figure-8 \(n=8000\): Coperto 6.74 s vs scale 0.21 s vs sparse 0.66 s.
+  Faster than Ripser; slower and less faithful than scale on
+  Euclidean \(d\in\{2,3\}\).
+
+Use Coperto only if you need a metric-space theorem and can accept
+finite (not essential) long bars. Do not treat it as a VR barcode
+or as a 10× exact engine.
+
 ## When not to use it
 
 - Non-Euclidean metrics (`--distances`) — there is no Delaunay.

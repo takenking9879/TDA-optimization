@@ -83,8 +83,14 @@ Search on 2026-10-14:
 - **Ripserer.jl** (literature): same Ripser algorithm, usually within
   ~30%. Julia is not on this box. Not a new pairing class.
 - **Coperto** (Leitão, arXiv:2602.22784): quotient-cover
-  **approximation**, not exact VR. Do not treat as an exact leftover
-  engine.
+  **approximation** with a claimed log-3 interleaving, not exact VR.
+  Live (`coperto.json`, `greedy=False`, 1 thread): linear tower, but
+  essential \(H_1/H_2\) become finite (figure-8 unmatched 24 vs scale
+  0). figure-8 \(n=8000\) 6.74 s vs scale 0.21 s. Default
+  `greedy=True` drops all loops. Not a leftover engine. Not vendored.
+- **Involuted PH** (Čufar 2023) and **wrapping cycles** (Bauer 2024)
+  are representative / geometric papers. They do not change the
+  leftover pairing class on a connected fat \(G_T\).
 - No 2026 paper we found claims a better **worst-case** pairing class
   than Ripser/RedZeD on a connected dense flag.
 

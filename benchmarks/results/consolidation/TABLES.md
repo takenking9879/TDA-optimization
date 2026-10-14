@@ -908,6 +908,29 @@ dionysus 2.2.3 oracle, 1 thread, not vendored. Explicit fill_rips + homology_per
 | sphere | 400 | 2 | timeout | 0.017 | 1.496 |  |  |  |
 | blobs | 2000 | 1 | timeout | 0.043 | 0.409 |  |  |  |
 
+## Coperto 0.1.7 (quotient-cover approximation, 1 thread)
+coperto 0.1.7 oracle, 1 thread, not vendored. Quotient-cover approximation of VR with a claimed log-3 interleaving (Leitão arXiv:2602.22784). greedy=False. Not exact VR. Budget 20 s. Not exact VR. greedy=False.
+Library default greedy=True control: ess H1=0 n_h1=0 (drops loops on a noisy circle).
+| family | n | Coperto (s) | exact (s) | scale (s) | sparse (s) | Ripser (s) | tower | cop ess H1 | scale ess H1 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| circle_noisy | 400 | 0.754 | 0.012 | 0.005 | 0.006 | 0.113 | 1162 | 0 | 1 |
+| circle_noisy | 1000 | 0.796 | 0.070 | 0.015 | 0.022 | 2.102 | 3306 | 0 | 1 |
+| figure8 | 1000 | 0.784 | 0.040 | 0.015 | 0.018 | 0.512 | 3026 | 0 | 2 |
+| figure8 | 2000 | 0.987 | 0.202 | 0.036 | 0.052 | 3.955 | 6571 | 0 | 2 |
+| figure8 | 8000 | 6.737 | 5.898 | 0.213 | 0.656 | timeout | 31182 | 0 | 2 |
+| torus | 1000 | 0.800 | 0.037 | 0.067 | 0.050 | 0.327 | 4142 | 0 | 1 |
+| uniform2 | 2000 | 1.039 | 0.061 | 0.030 | 0.067 | 0.476 | 8341 | 0 | 0 |
+| sphere | 400 | 0.725 | 0.017 | 0.005 |  | 1.451 | 4484 | 0 | 0 |
+| blobs | 2000 | 1.022 | 0.041 | 0.035 | 0.054 | 0.417 | 8219 | 0 | 0 |
+
+### Coperto vs Ripser topology (n=400)
+| family | unmatched | bn H1 | W1 H1 | cop ess H1 | VR ess H1 | scale unmatched |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| figure8 | 24 | inf | inf | 0 | 2 | 0 |
+| circle_noisy | 58 | inf | inf | 0 | 1 | 0 |
+| nested_loops | 41 | 0.325 | 0.799 | 0 | 0 | 0 |
+| sphere | 123 | 0.049 | 1.290 | 0 | 0 | 55 |
+
 ## High-d control `uniform10` (d=10, T=1.8, 12 s, 1 thread)
 High-d Euclidean control, d=10. No --mode scale. 12 s, 1 thread. T=1.8 H1 and fat-H2 refuse. Conservative exact_ok can still be false; --mode auto now stays exact unless sparse is clearly cheaper. Live auto n=4000: 0.74 s exact (was 18.3 s sparse). τ not retuned.
 | n | exact (s) | sparse (s) | Ripser (s) | estimate mode | exact feasible |

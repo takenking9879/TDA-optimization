@@ -37,6 +37,8 @@ OINEUS_PATH = BENCH / "results" / "consolidation" / "oineus.json"
 OINEUS = json.loads(OINEUS_PATH.read_text()) if OINEUS_PATH.exists() else {}
 DION_PATH = BENCH / "results" / "consolidation" / "dionysus.json"
 DION = json.loads(DION_PATH.read_text()) if DION_PATH.exists() else {}
+COP_PATH = BENCH / "results" / "consolidation" / "coperto.json"
+COP = json.loads(COP_PATH.read_text()) if COP_PATH.exists() else {}
 U10_PATH = BENCH / "results" / "consolidation" / "uniform10.json"
 U10 = json.loads(U10_PATH.read_text()) if U10_PATH.exists() else {}
 HIGHD_PATH = BENCH / "results" / "consolidation" / "highd_auto.json"
@@ -1098,6 +1100,80 @@ if DION:
             "wall seconds",
             logx=False,
             logy=True,
+        )
+
+if COP:
+    rows.append("")
+    rows.append("## Coperto 0.1.7 (quotient-cover approximation, 1 thread)")
+    rows.append(
+        f"{COP.get('note', '')} Budget {COP.get('budget_s')} s. "
+        "Not exact VR. greedy=False."
+    )
+    ctrl = COP.get("greedy_default_control") or {}
+    rows.append(
+        f"Library default greedy=True control: ess H1={ctrl.get('ess1')} "
+        f"n_h1={ctrl.get('n_h1')} (drops loops on a noisy circle)."
+    )
+    rows.append(
+        "| family | n | Coperto (s) | exact (s) | scale (s) | sparse (s) | Ripser (s) | tower | cop ess H1 | scale ess H1 |"
+    )
+    rows.append("| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |")
+    cop_bars = []
+    for d in COP.get("timing") or []:
+        cop = d.get("coperto") or {}
+        ex = d.get("pith_exact") or {}
+        sc = d.get("pith_scale") or {}
+        sp = d.get("pith_sparse") or {}
+        rip = d.get("ripser") or {}
+        cw, ew, sw, pw, rw = cop.get("wall_s"), ex.get("wall_s"), sc.get("wall_s"), sp.get("wall_s"), rip.get("wall_s")
+        rows.append(
+            "| {fam} | {n} | {cw} | {ew} | {sw} | {pw} | {rw} | {tw} | {ce} | {se} |".format(
+                fam=d.get("name"),
+                n=d.get("n"),
+                cw="timeout" if cop.get("timed_out") else ("" if cw is None else f"{cw:.3f}"),
+                ew="" if ew is None else f"{ew:.3f}",
+                sw="n/a" if sc.get("ok") is False and not sw else ("" if sw is None else f"{sw:.3f}"),
+                pw="" if pw is None else f"{pw:.3f}",
+                rw="timeout" if rip.get("timed_out") else ("" if rw is None else f"{rw:.3f}"),
+                tw="" if cop.get("tower_size") is None else cop.get("tower_size"),
+                ce="" if cop.get("ess1") is None else cop.get("ess1"),
+                se="" if sc.get("ess1") is None else sc.get("ess1"),
+            )
+        )
+        if cw and ew:
+            cop_bars.append((f"{d.get('name')} n={d.get('n')}", cw, ew, sw or 0, pw or 0))
+    if cop_bars:
+        series = [
+            {"name": "Coperto", "xy": [(i + 1, t[1]) for i, t in enumerate(cop_bars)]},
+            {"name": "PITH exact", "xy": [(i + 1, t[2]) for i, t in enumerate(cop_bars)]},
+        ]
+        svg_scatter(
+            FIG / "runtime_coperto.svg",
+            series,
+            "1-thread leftover cells: Coperto vs PITH exact",
+            "cell index (see TABLES.md Coperto section)",
+            "wall seconds",
+            logx=False,
+            logy=True,
+        )
+    rows.append("")
+    rows.append("### Coperto vs Ripser topology (n=400)")
+    rows.append("| family | unmatched | bn H1 | W1 H1 | cop ess H1 | VR ess H1 | scale unmatched |")
+    rows.append("| --- | ---: | ---: | ---: | ---: | ---: | ---: |")
+    for d in COP.get("accuracy") or []:
+        topo = d.get("topology") or {}
+        cv = topo.get("coperto_vs_ripser") or {}
+        sv = topo.get("scale_vs_ripser") or {}
+        rows.append(
+            "| {fam} | {um} | {bn} | {w1} | {ce} | {re} | {su} |".format(
+                fam=d.get("name"),
+                um=cv.get("unmatched"),
+                bn="" if cv.get("bottleneck_h1") is None else f"{cv.get('bottleneck_h1'):.3f}",
+                w1="" if cv.get("wasserstein1_h1") is None else f"{cv.get('wasserstein1_h1'):.3f}",
+                ce=(d.get("coperto") or {}).get("ess1"),
+                re=(d.get("ripser") or {}).get("ess1"),
+                su=sv.get("unmatched"),
+            )
         )
 
 if U10:

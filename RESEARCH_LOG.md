@@ -5,6 +5,14 @@ Do not paste long reasoning here.
 
 ---
 
+## 2026-10-14 — Coperto quotient-cover approximation
+
+- **Question:** Is Coperto 0.1.7 (Leitão arXiv:2602.22784, log-3 interleaving) a better Euclidean scale-path than `--mode scale` / `--mode sparse`, or a hidden exact-VR 10×?
+- **Work:** `reverify_coperto.py`. `greedy=False` (exact tie-break of *their* complex). 1 thread, 20 s. Not vendored. Library default `greedy=True` is a negative control.
+- **Result:** **Not exact VR.** `greedy=True` on circle \(n=400\): ess \(H_1=0\), \(n_{H_1}=0\). `greedy=False`: tower \(\sim 3n\)–\(4n\); loops become **finite** (figure-8 / circle ess \(H_1=0\) vs VR 2 / 1). Accuracy \(n=400\): figure-8 24 unmatched, bn/W1 \(=\infty\) (ess cardinality); scale unmatched 0. Sphere ess \(H_2=0\) vs VR 1 (123 unmatched). figure-8 \(n=8000\): Coperto 6.74 s vs scale 0.21 s vs sparse 0.66 s vs exact 5.90 s. Faster than Ripser; slower and less faithful than scale on Euclidean \(d\in\{2,3\}\). Involuted PH / wrapping-cycles are representative papers, not a leftover pairing class.
+- **Decision:** Keep `coperto.json`. Do not vendor. Do not add a `--mode coperto`. Do not reopen leftover pairing. Goal not complete.
+- **Class:** verified (live)
+
 ## 2026-10-14 — Dionysus 2 leftover oracle + leftover-engine scan
 
 - **Question:** Is Dionysus 2.2.3 (explicit `fill_rips` + `homology_persistence`) a better exact-VR engine, and is there a 2026 pairing algorithm besides RedZeD we have not timed?

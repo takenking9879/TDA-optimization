@@ -106,6 +106,7 @@ The standard, general-purpose barcode for metric data. Encodes more (and noisier
 | [HomCloud](https://homcloud.dev/) | Wraps Ripser among other pipelines. GPL-3. | Actively maintained (v5.4.0, 2026-06). |
 | [Oineus](https://github.com/anigmetov/oineus) | Shared-memory VR + grids. BSD. | PyPI v0.9.39. Timed here as a 1-thread oracle: slower than Ripser on leftover \(H_1\); times out earlier than Ripser and Dory (`oineus.json`). Not vendored. |
 | [Dory](https://doi.org/10.1016/j.jocs.2024.102290) | Large VR up to dim 2 with a stopping radius. | Research (2024). Timed here as `pydory` 1.1.137, 1 thread: tracks Ripser on leftover \(H_1\); slower on sphere \(H_2\) \(n=400\). Oracle only, not vendored. |
+| [Coperto](https://github.com/antonio-leitao/coperto) | Quotient-cover approximation of VR (log-3 interleaving). | PyPI v0.1.7. Timed here (`coperto.json`): not exact VR; `greedy=True` drops \(H_1\); `greedy=False` loses essential loops vs scale. Not vendored. |
 
 ### Valid equivalence
 

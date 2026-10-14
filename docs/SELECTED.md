@@ -645,7 +645,11 @@ Dionysus 2.2.3 (`dionysus.json`, 1 thread) is explicit VR: circle
 \(n=400\) **11.68 s / 2.38M simplices** vs Ripser 0.18 s (65× slower);
 later leftover cells timeout. Same class as GUDHI Rips. Ripserer.jl
 is the Ripser algorithm (~30%); Julia is not on this box. Coperto
-is a cover approximation, not exact VR. No new leftover skip.
+is a cover approximation, not exact VR. Live `coperto.json`
+(`greedy=False`): linear tower, ess \(H_1=0\) on figure-8 / circle
+(VR 2 / 1); figure-8 \(n=8000\) 6.74 s vs scale 0.21 s. Default
+`greedy=True` drops all loops. Involuted PH / wrapping-cycles are
+not a leftover pairing class. No new leftover skip.
 
 High-d `uniform10` (\(T=1.8\), 12 s): exact last-OK \(n=8000\) 2.79 s;
 Ripser / sparse first-fail \(n=4000\). `--mode auto` now stays exact on

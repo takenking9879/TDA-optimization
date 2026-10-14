@@ -936,8 +936,12 @@ explicit `fill_rips` path: circle \(n=400\) 11.68 s / 2.38M simplices
 vs Ripser 0.18 s (**65× slower**). Every other leftover cell timeouts
 at 20 s. Same explicit-complex class as GUDHI Rips. Ripserer.jl is
 documented as within ~30% of Ripser; Julia is not on this box.
-Coperto (arXiv:2602.22784) is a quotient-cover approximation, not
-exact VR.
+Coperto 0.1.7 (`coperto.json`, 1 thread, not vendored) is a
+quotient-cover approximation with a claimed log-3 interleaving
+**[citation, Leitão arXiv:2602.22784]**. Live: tower \(\sim 3n\)–\(4n\);
+essential \(H_1/H_2\) become finite (figure-8 unmatched 24, sphere
+ess \(H_2=0\)); figure-8 \(n=8000\) 6.74 s vs `--mode scale` 0.21 s.
+Not exact VR. Default `greedy=True` drops \(H_1\).
 
 GUDHI Rips becomes impractical (timeout) by \(n\sim 10^3\) on a noisy
 circle \(H_1\) and by \(n=400\) on sphere \(H_2\). That is the explicit
@@ -996,7 +1000,7 @@ worst-case Big-O theorem versus Ripser on connected \(G_T\).
 | Nigmetov–Morozov, *Oineus* 0.9.39 | 1-thread leftover oracle (not vendored); slower than Ripser (`oineus.json`) |
 | Morozov, *Dionysus 2* 2.2.3 | Explicit VR `fill_rips`; 1-thread leftover oracle (not vendored); 65× slower than Ripser on circle \(n=400\) (`dionysus.json`) |
 | Čufar, *Ripserer.jl*, JOSS 2020 | Same Ripser class, ~30%; Julia not on this box |
-| Leitão, *It's All About Covers*, arXiv:2602.22784 | Coperto: quotient-cover approximation, **not** exact VR |
+| Leitão, *It's All About Covers*, arXiv:2602.22784 | Coperto 0.1.7: log-3 interleaving; live leftover/accuracy (`coperto.json`); not exact VR |
 | Bauer–Edelsbrunner, *Morse theory of Čech and Delaunay*, 2017 | Alpha / Čech / Del–Čech \(\neq\) VR |
 | Bauer–Roll, *Gromov hyperbolicity… and apparent pairs*, SoCG 2022 | Apparent-pair rate is geometric |
 | Shamos–Hoey 1975; Preparata–Shamos | Euclidean MST \(\subseteq\) Delaunay |
