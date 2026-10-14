@@ -49,15 +49,12 @@ def main() -> int:
     for name, fn, n, T, dim in CASES:
         path = cloud(name, n, fn, rng)
         auto = run_pith(path, T, dim, "exact", "auto", threads=1, timeout=25)
-        dense = run_pith(path, T, dim, "exact", "redzed", threads=1, timeout=25)
-        # --dense-metric via extra flags is not in run_pith; use auto vs ripser.
         rip = run_ripser(path, T, dim, timeout=30)
         row = {
             "name": name,
             "n": n,
             "T": T,
             "auto": strip_pairs(auto),
-            "redzed": strip_pairs(dense),
             "ripser": strip_pairs(rip),
             "vs_ripser": {},
             "ratio": {},
