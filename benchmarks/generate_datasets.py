@@ -281,6 +281,20 @@ def sheared_loops(n: int, rng: np.random.Generator) -> np.ndarray:
     return pts @ shear.T + rng.normal(0.0, 0.02, size=pts.shape)
 
 
+def offset_rings(n: int, rng: np.random.Generator) -> np.ndarray:
+    """Post-16×-band family: two parallel unlinked noisy rings in R^3.
+
+    Chosen after leftover H1 ``hi_mult=16`` was frozen so it cannot
+    have influenced that constant.
+    """
+    n0, n1 = _split_n(n, 2)
+    t0 = rng.uniform(0.0, 2.0 * math.pi, size=n0)
+    a = np.stack([np.cos(t0), np.sin(t0), np.zeros(n0)], axis=1)
+    t1 = rng.uniform(0.0, 2.0 * math.pi, size=n1)
+    b = np.stack([0.25 + np.cos(t1), np.sin(t1), np.full(n1, 0.85)], axis=1)
+    return np.vstack([a, b]) + rng.normal(0.0, 0.04, size=(n, 3))
+
+
 def two_spheres_apart(n: int, rng: np.random.Generator) -> np.ndarray:
     """Post-freeze: two unit spheres whose convex hulls do not meet at T=1.4."""
     n0, n1 = _split_n(n, 2)
@@ -314,6 +328,7 @@ GENERATORS = {
     "swiss_roll": swiss_roll,
     "linked_circles": linked_circles,
     "sheared_loops": sheared_loops,
+    "offset_rings": offset_rings,
 }
 
 
