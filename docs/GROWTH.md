@@ -74,6 +74,8 @@ Leftover-miss families scaled in n (`leftover_miss_n.json`, seed 19, 1 thread):
 
 `--mode auto` **before** the leftover-H1 clock gate preferred scale at \(n=8000\). **After** (`leftover_miss_dispatch.json`): anisotropic stays exact (`|E|>8e6` overridden because the residual is fat and `est_exact≈1.07` s); grid_holes stays exact (`n>6000` overridden; `|E|<8e6`). Hollow leftover is **not** overridden: figure8 \(n=16000\) still goes to scale (est 3.06 s was a lie; auto timed out at 25 s). `eval_mode_auto` **11/11**. τ unchanged.
 
+Post-freeze pack (`postfreeze.json`, seed 23, families chosen after that gate): **0/10 timeout**, **1/10 scale_miss** (nonuniform_circle \(n=6000\) T=1.5, thin collapse, `|E|>8e6`, exact 5.67 s). Thin leftover H1 now also overrides `|E|>8e6` when `est_exact≤4` s. **10/10** estimate bands. linked_circles \(n=1200\) leftover **10.7×** vs Ripser (one cell).
+
 This is **not** a general leftover 10×. It is an n-dependent constant factor in the RedZeD class.
 
 The feasibility probe uses these regimes: fat `maxdim≥2` with

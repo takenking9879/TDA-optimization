@@ -5,13 +5,13 @@ Do not paste long reasoning here.
 
 ---
 
-## 2026-10-14 — Post-freeze dispatcher pack (pending live)
+## 2026-10-14 — Post-freeze dispatcher pack (seed 23)
 
 - **Question:** Does the leftover-H1 clock gate overfit anisotropic / grid_holes / figure8?
-- **Work:** `eval_postfreeze.py` seed 23. New families swiss_roll / linked_circles / sheared_loops plus unused sizes. τ / 4 s clock / hollow |E| / fat-H2 frozen.
-- **Result:** pending live sweep (script committed first).
-- **Decision:** Measurement, not leftover-skip hunting. Goal not complete.
-- **Class:** experiment (pending)
+- **Work:** `eval_postfreeze.py` seed 23. New families swiss_roll / linked_circles / sheared_loops plus unused sizes. First pass: **0/10 timeout_miss, 1/10 scale_miss, 0/2 exact mismatch, 10/10 in band**. Miss: nonuniform_circle n=6000 T=1.5 thin collapse, `|E|>8e6`, exact 5.67 s / scale 0.15 s. Override `|E|>8e6` for thin leftover H1 when `est_exact≤4` s (thin clock 1.45 s). figure8 n=16000 stays hollow+fat → scale. τ / fat-H2 / 4 s clock unchanged. linked_circles n=1200 leftover **10.7×** vs Ripser (one cell, not a general 10×).
+- **Result:** First-pass miss documented. Thin `|E|` override follows. Goal not complete.
+- **Decision:** Keep the pack. Not leftover-skip hunting.
+- **Class:** verified (live)
 
 ## 2026-10-14 — Estimate bands include leftover-miss (48/48)
 

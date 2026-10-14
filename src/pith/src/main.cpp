@@ -428,17 +428,23 @@ static Feasibility compute_feasibility(const std::vector<std::vector<value_t>>* 
     // (anisotropic n=8000: est 1.07 s / wall 1.83 s). figure8 is
     // hollow AND fat; anisotropic is fat only.
     const bool fat_h1_clock_ok = leftover_h1_clock_ok && fat && !hollow;
+    // Post-freeze nonuniform_circle n=6000 T=1.5: thin collapse, |E|>8e6
+    // (dense G_T on a unit circle), exact 5.67 s. Thin clock 1.45 s.
+    // figure8 n=16000 is hollow+fat, not thin — still goes to scale.
+    const bool thin_h1_clock_ok = leftover_h1_clock_ok && thin;
     if (fat_h2_impractical) {
         f.exact_ok = false;
         if (dim >= 2 && dim <= 3)
             f.reason = "fat H2: largest T-component is past the cheap RedZeD-cc regime; Euclidean scale is safer";
         else
             f.reason = "fat residual at maxdim>=2 on a non-scaleable metric; sparse H2 may still be impractical — lower T or maxdim";
-    } else if (maxdim >= 1 && f.est_e_hi > 8.0e6 && !fat_h1_clock_ok) {
+    } else if (maxdim >= 1 && f.est_e_hi > 8.0e6 && !fat_h1_clock_ok &&
+               !thin_h1_clock_ok) {
         f.exact_ok = false;
         f.reason = "conservative |E| band exceeds 8e6; exact H1 on G_T is likely impractical";
-    } else if (maxdim >= 1 && f.est_e_hi > 8.0e6 && fat_h1_clock_ok) {
-        f.reason = "conservative |E| band exceeds 8e6 but fat leftover H1 clock is still under 4 s — stay on exact";
+    } else if (maxdim >= 1 && f.est_e_hi > 8.0e6 &&
+               (fat_h1_clock_ok || thin_h1_clock_ok)) {
+        f.reason = "conservative |E| band exceeds 8e6 but leftover H1 clock is still under 4 s — stay on exact";
     } else if (maxdim >= 1 && fat && f.est_r_hi > 1.5e6) {
         f.exact_ok = false;
         f.reason = "fat residual band exceeds 1.5e6 leftover edges; exact leftover visits explode";

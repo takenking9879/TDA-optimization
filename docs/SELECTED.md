@@ -24,7 +24,9 @@ stays **3/6**. Held-out leftover (`leftover_heldout.json`, seed 19):
 3.0→6.1×, **0/7 ≥10×**. `--mode auto` now stays exact on those
 n=8000 fat leftover cells when `est_exact≤4` s; hollow `|E|>8e6`
 (figure8 n=16000) still goes to scale (`leftover_miss_dispatch.json`,
-`eval_mode_auto` 11/11). Not a new pairing algorithm.
+`eval_mode_auto` 11/11). Post-freeze seed 23 (`postfreeze.json`):
+**0/10 timeout**, one thin-circle `|E|>8e6` scale miss then overridden.
+Not a new pairing algorithm.
 Equal-hardware: PITH `--threads 1` still beats Ripser, giotto-ph 0.2.4
 (`n_threads=1` and `4`), and GUDHI 3.13 Rips on the measured suite.
 `--estimate` reports empirical `growth_p` and a runtime band; τ is frozen.
