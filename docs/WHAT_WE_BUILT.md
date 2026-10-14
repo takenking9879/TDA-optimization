@@ -40,10 +40,16 @@ not a new exact-VR complexity class on a connected \(G_T\).
 `--engine auto` probes a 250-point collapse residual and an edge-fraction
 oracle, then picks **RedZeD** (fat or hollow) or **collapse + implicit**
 (thin circle-like residuals). Thresholds \(\tau_{H_1}=0.04\),
-\(\tau_{H_2}=0.15\), hollow if edge-frac \(<0.25\). **[empirical, I235+I263]**
+\(\tau_{H_2}=0.15\), hollow if edge-frac \(<0.25\). The probe runs at
+\(n\ge 64\) (was 400; the higher cutoff left small abstract metrics on
+collapse). **[empirical, I235+I263 + consolidation]**
 
-`--estimate` exposes that probe as a feasibility guess. It is a
-**heuristic with low confidence**, not a certificate.
+`--estimate` exposes that probe as a feasibility guess with a
+**conservative |E| band** (probe fraction ×1.25), a residual-size band,
+and a residual regime (`thin` / `fat` / `hollow` / `h0`). Confidence is
+`medium` only when \(n\le 400\) and the residual is not near \(\tau\);
+otherwise `low`. It is **not** a certificate. `--threads N` caps the
+worker pool so 1-thread comparisons with Ripser are possible.
 
 ### New combinations of known algorithms
 

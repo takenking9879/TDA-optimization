@@ -327,7 +327,13 @@ static int print_estimate(const std::vector<std::vector<value_t>>* pts,
     else if (fat || hollow) engine_rec = "redzed";
     bool exact_ok = true;
     std::string reason = "exact VR looks feasible on the 250-pt probe (conservative |E| band)";
-    if (maxdim >= 1 && est_e_hi > 8.0e6) {
+    if (maxdim >= 2 && fat && n >= 200) {
+        exact_ok = false;
+        if (dim >= 2 && dim <= 3)
+            reason = "fat residual at maxdim>=2: exact H2 on G_T is often impractical; Euclidean scale is safer";
+        else
+            reason = "fat residual at maxdim>=2 on a non-scaleable metric; lower T or use sparse";
+    } else if (maxdim >= 1 && est_e_hi > 8.0e6) {
         exact_ok = false;
         reason = "conservative |E| band exceeds 8e6; exact H1 on G_T is likely impractical";
     } else if (maxdim >= 1 && fat && est_r_hi > 1.5e6) {
@@ -354,6 +360,8 @@ static int print_estimate(const std::vector<std::vector<value_t>>* pts,
         est_runtime = 2.0e-6 * static_cast<double>(n) * std::max(1.0, std::log2(static_cast<double>(n)));
     } else if (mode_rec == "scale" && n > 0) {
         est_runtime = (dim == 3 ? 2.0e-5 : 3.5e-5) * static_cast<double>(n);
+    } else if (maxdim >= 2 && fat && n > 0) {
+        est_runtime = 5.0e-7 * static_cast<double>(n) * static_cast<double>(n) * static_cast<double>(n);
     } else if (thin && n > 0) {
         est_runtime = 4.0e-8 * static_cast<double>(n) * static_cast<double>(n);
     } else if (est_e_hi > 0) {
@@ -578,7 +586,7 @@ int main(int argc, char** argv) {
             }
             if (engine == "auto" && maxdim >= 1 && gic_n == 0 && knn_k == 0 &&
                 witness_n == 0 && !(sparse_eps > 0 && sparse_eps < 1) && !reduced_vr &&
-                !delaunay_vr && n_metric >= 400) {
+                !delaunay_vr && n_metric >= 64) {
                 auto_dispatch = true;
                 c.residual_frac = have_pts ? probe_residual_frac_points(pts, threshold, 250)
                                            : probe_residual_frac(dist, threshold, 250);

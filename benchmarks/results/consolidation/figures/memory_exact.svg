@@ -1,0 +1,44 @@
+<svg xmlns='http://www.w3.org/2000/svg' width='720' height='420' font-family='sans-serif'>
+<rect width='720' height='420' fill='white'/>
+<text x='360.0' y='22' text-anchor='middle' font-size='14'>Peak RSS vs n (PITH VmHWM, log-log)</text>
+<text x='360.0' y='410' text-anchor='middle' font-size='11'>n</text>
+<text x='14' y='210.0' text-anchor='middle' font-size='11' transform='rotate(-90 14 210.0)'>bytes</text>
+<path d='M 64.0 367.0 L 160.7 311.7 L 233.8 232.3 L 306.9 138.4 L 380.0 36.0' fill='none' stroke='#1f77b4' stroke-width='1.6'/>
+<circle cx='64.0' cy='367.0' r='3.2' fill='#1f77b4'/>
+<circle cx='160.7' cy='311.7' r='3.2' fill='#1f77b4'/>
+<circle cx='233.8' cy='232.3' r='3.2' fill='#1f77b4'/>
+<circle cx='306.9' cy='138.4' r='3.2' fill='#1f77b4'/>
+<circle cx='380.0' cy='36.0' r='3.2' fill='#1f77b4'/>
+<text x='688' y='40' text-anchor='end' font-size='11' fill='#1f77b4'>circle PITH</text>
+<path d='M 64.0 369.1 L 160.7 326.5 L 233.8 283.4 L 306.9 200.0 L 380.0 98.7' fill='none' stroke='#d62728' stroke-width='1.6'/>
+<circle cx='64.0' cy='369.1' r='3.2' fill='#d62728'/>
+<circle cx='160.7' cy='326.5' r='3.2' fill='#d62728'/>
+<circle cx='233.8' cy='283.4' r='3.2' fill='#d62728'/>
+<circle cx='306.9' cy='200.0' r='3.2' fill='#d62728'/>
+<circle cx='380.0' cy='98.7' r='3.2' fill='#d62728'/>
+<text x='688' y='56' text-anchor='end' font-size='11' fill='#d62728'>figure8 PITH</text>
+<path d='M 64.0 365.6 L 160.7 347.4 L 233.8 317.2 L 306.9 281.3 L 380.0 232.4 L 453.1 171.3 L 526.2 111.0 L 569.0 69.5' fill='none' stroke='#2ca02c' stroke-width='1.6'/>
+<circle cx='64.0' cy='365.6' r='3.2' fill='#2ca02c'/>
+<circle cx='160.7' cy='347.4' r='3.2' fill='#2ca02c'/>
+<circle cx='233.8' cy='317.2' r='3.2' fill='#2ca02c'/>
+<circle cx='306.9' cy='281.3' r='3.2' fill='#2ca02c'/>
+<circle cx='380.0' cy='232.4' r='3.2' fill='#2ca02c'/>
+<circle cx='453.1' cy='171.3' r='3.2' fill='#2ca02c'/>
+<circle cx='526.2' cy='111.0' r='3.2' fill='#2ca02c'/>
+<circle cx='569.0' cy='69.5' r='3.2' fill='#2ca02c'/>
+<text x='688' y='72' text-anchor='end' font-size='11' fill='#2ca02c'>figure8 scale</text>
+<path d='M 64.0 362.7 L 137.1 347.0 L 380.0 107.9 L 526.2 211.9 L 646.4 140.6 L 696.0 97.6' fill='none' stroke='#9467bd' stroke-width='1.6'/>
+<circle cx='64.0' cy='362.7' r='3.2' fill='#9467bd'/>
+<circle cx='137.1' cy='347.0' r='3.2' fill='#9467bd'/>
+<circle cx='380.0' cy='107.9' r='3.2' fill='#9467bd'/>
+<circle cx='526.2' cy='211.9' r='3.2' fill='#9467bd'/>
+<circle cx='646.4' cy='140.6' r='3.2' fill='#9467bd'/>
+<circle cx='696.0' cy='97.6' r='3.2' fill='#9467bd'/>
+<text x='688' y='88' text-anchor='end' font-size='11' fill='#9467bd'>sphere scale</text>
+<path d='M 233.8 372.0 L 380.0 358.0 L 495.9 329.2 L 573.3 297.1' fill='none' stroke='#ff7f0e' stroke-width='1.6'/>
+<circle cx='233.8' cy='372.0' r='3.2' fill='#ff7f0e'/>
+<circle cx='380.0' cy='358.0' r='3.2' fill='#ff7f0e'/>
+<circle cx='495.9' cy='329.2' r='3.2' fill='#ff7f0e'/>
+<circle cx='573.3' cy='297.1' r='3.2' fill='#ff7f0e'/>
+<text x='688' y='104' text-anchor='end' font-size='11' fill='#ff7f0e'>blobs H0 PITH</text>
+</svg>

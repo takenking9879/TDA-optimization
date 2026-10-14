@@ -36,6 +36,17 @@ visits) and the data are Euclidean in dimension 2 or 3.
 Always report essential Betti **and** unmatched finite bars / bottleneck
 versus Ripser when \(n\) is small enough to run both.
 
+Phase-2 measurements (GUDHI bottleneck; Wasserstein skipped — POT missing):
+
+| Family | Scale unmatched vs VR | Bottleneck \(H_1\) | Essential |
+| --- | ---: | ---: | --- |
+| figure8, circle, nested, many_loops, bridges, multi_scale (\(n=400\)) | 0 | \(\sim 10^{-6}\) | matches VR |
+| sphere \(n=400\) | 52 | 0.024 | \(H_2=1\) kept |
+| multi_cavities \(n=300\) | 52 | 0.041 | \(H_2=3\) kept |
+| mixed 1D/2D/3D \(n=300\) | 35 | 0.030 | \(H_1=1\) kept; exact VR timed out |
+
+GUDHI Alpha on the same clouds dropped essential \(H_1/H_2\) to 0.
+
 ## What is lost
 
 Short finite loops that need a denser 1-skeleton than Delaunay+\(\alpha r_v\).

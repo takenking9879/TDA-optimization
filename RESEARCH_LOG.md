@@ -1134,6 +1134,14 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-14 — consolidation phase 2 (limits + dispatcher)
+
+- **Question:** What are the practical limits, 1-thread ratios, topology distances, and dispatcher mistakes?
+- **Work:** `--threads N`; conservative `--estimate` bands; `run_consolidation_limits.py` (held-out seed 1). After the suite: auto-dispatch from \(n\ge 64\); fat `maxdim≥2` → exact infeasible / recommend scale.
+- **Result (4 CPU / 16 GB, 12 s budget):** 1-thread circle \(n=1000\) **31×** (0.070 vs 2.21 s); sphere \(n=400\) **60×**. Hardware threads do not explain those ratios. Ripser timed out on circle \(n=2000\), figure8 \(n=4000\), sphere \(H_2\) \(n=800\). Scale: figure8 \(n=24000\) 0.79 s / ess1=2; sphere \(n=80000\) 1.08 s / ess2=1. Exact match vs Ripser on all finished topology cases. Scale bottleneck \(\sim 10^{-6}\) on 2D loops; sphere 52 unmatched / bn 0.024. Alpha drops ess \(H_1/H_2\). Dispatcher oracle **7/8**; `heavy_noise_circle` waste 2.1×. Mixed 1D/2D/3D \(n=300\) maxdim=2: exact **timeout**, scale 5 ms — estimate now recommends scale. L1 \(n=200\): auto now RedZeD (was collapse, slower than Ripser).
+- **Decision:** Keep the two dispatcher fixes (they survive the adversarial suite). Do not retune \(\tau\) on `heavy_noise_circle` (2.1× on 11 ms). Do not mark the goal complete.
+- **Class:** experiment (measured limits + two dispatcher holds)
+
 ## 2026-10-14 — consolidation phase (stable CLI)
 
 - **Question:** Can the selected portfolio be used without I-numbers, and can we state honestly what was built plus measure limits?

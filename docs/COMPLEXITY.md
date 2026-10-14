@@ -1,6 +1,7 @@
 # Complexity notes for PITH
 
-Updated 2026-10-14 after iterations I001–I312. This is a **complexity ledger**,
+Updated 2026-10-14 after iterations I001–I312 plus consolidation measurements.
+This is a **complexity ledger**,
 not a theorem paper and not a selected-algorithm rewrite. It restates what the
 literature already proves, what follows from those statements by a short
 derivation, and what the I204 / I218 / I227–I312 receipts only measure.
@@ -828,6 +829,15 @@ edge-frac \(<0.25\) → RedZeD; `maxdim=0` → Kruskal / Delaunay.
   **527× / 56 ms** (Ripser tet tax) **[empirical]** (SELECTED; I281).
 - Not a general \(H_1\) 10× (I229 losers stay 5–8× at \(n=4000\) until
   other levers). Not a better worst-case class.
+- Consolidation phase-2, **1 thread**, 12 s budget **[empirical]**:
+  circle \(n=1000\) **31×** (0.070 vs 2.21 s); sphere \(n=400\) H2 **60×**.
+  Hardware threads do not move those ratios. Ripser timed out on circle
+  \(n=2000\), figure8 \(n=4000\), sphere \(H_2\) \(n=800\). Mixed 1D/2D/3D
+  \(n=300\) `maxdim=2` fat residual: exact **timeout**; `--estimate` now
+  treats fat `maxdim≥2` as exact-infeasible. Local time exponents: scale
+  \(p\approx 1.0\)–\(1.3\); exact leftover \(H_1\) \(p\approx 2.8\) on
+  figure8 2k→4k (polynomial explosion, not a claimed exponential).
+  1-thread engine oracle **7/8**; `heavy_noise_circle` waste 2.1×.
 
 ---
 

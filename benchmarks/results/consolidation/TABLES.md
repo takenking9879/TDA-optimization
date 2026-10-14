@@ -1,9 +1,9 @@
 # Consolidation tables (this hardware: 4 CPU, 16 GB)
 
-Ripser is 1 thread. PITH may use up to 4 threads for a few scans.
-giotto-ph was not installed. GUDHI Rips ran only at n=200 (circle 0.085 s).
+Ripser is 1 thread. Phase-2 PITH times use `--threads 1` unless noted.
+giotto-ph was not installed. GUDHI Rips/Alpha used where n is small enough.
 
-## Exact VR wall time
+## Exact VR wall time (phase 1, PITH may use 4 threads)
 | family | n | T | dim | PITH exact (s) | Ripser (s) | ratio | pipeline |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
 | circle_noisy | 200 | 1.5 | 1 | 0.009 | 0.017 | 1.87× | pith:threshold+collapse-1+implicit_coh |
@@ -32,45 +32,144 @@ giotto-ph was not installed. GUDHI Rips ran only at n=200 (circle 0.085 s).
 | torus | 400 | 1.6 | 1 | 0.010 | 0.026 | 2.66× | pith:auto-redzed-spatial |
 | torus | 1000 | 1.6 | 1 | 0.043 | 0.393 | 9.11× | pith:auto-redzed-spatial |
 
+## Thread-fair exact VR (`--threads 1` vs hardware vs Ripser)
+| family | n | PITH 1-thr (s) | PITH hw-thr (s) | Ripser 1-thr (s) | 1-thr ratio | hw-thr ratio |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| figure8 | 1000 | 0.028 | 0.025 | 0.158 | 5.64× | 6.43× |
+| circle_noisy | 1000 | 0.070 | 0.069 | 2.205 | 31.40× | 32.07× |
+| uniform2 | 1000 | 0.019 | 0.023 | 0.080 | 4.32× | 3.42× |
+| sphere | 400 | 0.017 | 0.017 | 1.021 | 60.42× | 61.50× |
+| blobs | 4000 | 0.009 | 0.009 | 0.549 | 59.19× | 60.75× |
+
+## Forced engines (1 thread)
+| family | n | auto (s) | redzed (s) | implicit (s) | estimate | oracle | waste |
+| --- | ---: | ---: | ---: | ---: | --- | --- | ---: |
+| figure8 | 1000 | 0.02449003199581057 | 0.02177737100282684 | 0.035075095991487615 | redzed | redzed | 1.0 |
+| circle_noisy | 1000 | 0.07041454600403085 | 0.08397716499166563 | 0.06799374699767213 | implicit | implicit | 1.0 |
+| uniform2 | 1000 | 0.018606023004394956 | 0.01597702300932724 | 0.04378108000673819 | redzed | redzed | 1.0 |
+| torus | 1000 | 0.03993717300181743 | 0.03711949499847833 | 0.2773486849910114 | redzed | redzed | 1.0 |
+| nested_loops | 400 | 0.008636797007056884 | 0.006663234991719946 | 0.008194766996894032 | redzed | redzed | 1.0 |
+| many_loops | 400 | 0.003448286995990202 | 0.002861654997104779 | 0.003479876002529636 | redzed | redzed | 1.0 |
+| heavy_noise_circle | 400 | 0.015418022987432778 | 0.00538561400026083 | 0.011405354991438799 | implicit | redzed | 2.117744604586669 |
+| clustered | 400 | 0.003732375000254251 | 0.0024313960020663217 | 0.004315089012379758 | redzed | redzed | 1.0 |
+
 ## Scale path
-| family | n | PITH scale (s) | |E| | ess H1 | ess H2 |
-| --- | ---: | ---: | ---: | ---: | ---: |
-| figure8 | 200 | 0.004 | 3283 | 2 | 0 |
-| figure8 | 500 | 0.007 | 12451 | 2 | 0 |
-| figure8 | 1000 | 0.016 | 32842 | 2 | 0 |
-| figure8 | 2000 | 0.034 | 79853 | 2 | 0 |
-| sphere | 200 | 0.004 | 954 | 0 | 1 |
-| sphere | 400 | 0.006 | 1934 | 0 | 1 |
-| sphere | 4000 | 0.090 | 20122 | 0 | 1 |
-| sphere | 16000 | 0.197 | 80641 | 0 | 1 |
-| sphere | 50000 | 0.664 | 252311 | 0 | 1 |
-| figure8 | 8000 | 0.220 | 428139 | 2 | 0 |
-| figure8 | 16000 | 0.505 | 877739 | 2 | 0 |
-| many_loops | 400 | 0.005 | 5143 | 5 | 0 |
-| nested_loops | 400 | 0.007 | 11299 | 1 | 0 |
-| heavy_noise_circle | 400 | 0.006 | 12405 | 0 | 0 |
+| family | n | PITH scale (s) | |E| | ess H1 | ess H2 | RSS |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| figure8 | 200 | 0.004 | 3283 | 2 | 0 | 5054464 |
+| figure8 | 500 | 0.007 | 12451 | 2 | 0 | 6389760 |
+| figure8 | 1000 | 0.016 | 32842 | 2 | 0 | 9437184 |
+| figure8 | 2000 | 0.034 | 79853 | 2 | 0 | 15532032 |
+| sphere | 200 | 0.004 | 954 | 0 | 1 | 5251072 |
+| sphere | 400 | 0.006 | 1934 | 0 | 1 | 6422528 |
+| sphere | 4000 | 0.090 | 20122 | 0 | 1 | 139632640 |
+| sphere | 16000 | 0.197 | 80641 | 0 | 1 | 36597760 |
+| sphere | 50000 | 0.664 | 252311 | 0 | 1 | 91725824 |
+| figure8 | 8000 | 0.220 | 428139 | 2 | 0 | 61714432 |
+| figure8 | 16000 | 0.505 | 877739 | 2 | 0 | 134148096 |
+| many_loops | 400 | 0.005 | 5143 | 5 | 0 | 5308416 |
+| nested_loops | 400 | 0.007 | 11299 | 1 | 0 | 6123520 |
+| heavy_noise_circle | 400 | 0.006 | 12405 | 0 | 0 | 5951488 |
+| figure8 | 4000 | 0.086 | 186241 | 2 | 0 | 28102656 |
+| many_loops | 1000 | 0.011 | 21387 | 5 | 0 | 7647232 |
+| many_loops | 2000 | 0.028 | 59415 | 5 | 0 | 12185600 |
+| nested_loops | 1000 | 0.019 | 39235 | 1 | 0 | 10539008 |
+| nested_loops | 2000 | 0.036 | 76154 | 1 | 0 | 15429632 |
+| loops_with_bridges | 400 | 0.006 | 10464 | 2 | 0 | 5771264 |
+| loops_with_bridges | 1000 | 0.015 | 37423 | 2 | 0 | 9605120 |
+| multi_scale_loops | 400 | 0.005 | 8865 | 1 | 0 | 5722112 |
+| multi_scale_loops | 1000 | 0.015 | 32421 | 1 | 0 | 8130560 |
+| mixed_1d2d3d | 300 | 0.005 | 1032 | 1 | 0 | 5500928 |
+| mixed_1d2d3d | 600 | 0.011 | 2160 | 1 | 0 | 8130560 |
+| multi_cavities | 300 | 0.005 | 1342 | 0 | 3 | 5607424 |
+| multi_cavities | 600 | 0.010 | 2855 | 0 | 3 | 8450048 |
+| outliers_sphere | 400 | 0.006 | 1844 | 0 | 1 | 6209536 |
+| figure8 | 24000 | 0.794 | 1262726 | 2 | 0 | 229126144 |
+| sphere | 80000 | 1.076 | 403615 | 0 | 1 | 159600640 |
 
-## Topology at n=400 vs Ripser
-| family | exact match | exact unmatched | scale unmatched | ess exact | ess Ripser | ess scale |
-| --- | --- | ---: | ---: | --- | --- | --- |
-| figure8 | True | 0 | 0 | H1=2 H2=0 | H1=2 H2=0 | H1=2 H2=0 |
-| circle_noisy | True | 0 | 0 | H1=1 H2=0 | H1=1 H2=0 | H1=1 H2=0 |
-| sphere | True | 0 | 52 | H1=0 H2=1 | H1=0 H2=1 | H1=0 H2=1 |
+## Topology vs Ripser (phase 2, bottleneck/Wasserstein when GUDHI provides them)
+| family | n | exact match | scale unmatched | scale bn H1 | scale W1 H1 | ess scale | ess sparse |
+| --- | ---: | --- | ---: | ---: | ---: | --- | --- |
+| figure8 | 400 | True | 0 | 5e-07 |  | H1=2 H2=0 | H1=2 H2=0 |
+| circle_noisy | 400 | True | 0 | 4.6e-07 |  | H1=1 H2=0 | H1=1 H2=0 |
+| sphere | 400 | True | 52 | 0.02404 |  | H1=0 H2=1 | H1=None H2=None |
+| nested_loops | 400 | True | 0 | 5.1e-06 |  | H1=1 H2=0 | H1=1 H2=0 |
+| many_loops | 400 | True | 0 | 4.8e-07 |  | H1=5 H2=0 | H1=5 H2=0 |
+| loops_with_bridges | 400 | True | 0 | 5.1e-07 |  | H1=2 H2=0 | H1=2 H2=0 |
+| heavy_noise_circle | 400 | True | 0 | 5.1e-07 |  | H1=0 H2=0 | H1=0 H2=0 |
+| multi_scale_loops | 400 | True | 0 | 4.8e-07 |  | H1=1 H2=0 | H1=1 H2=0 |
+| mixed_1d2d3d | 300 | None | 35 | 0.02969 |  | H1=1 H2=0 | H1=None H2=None |
+| multi_cavities | 300 | True | 52 | 0.04121 |  | H1=0 H2=3 | H1=0 H2=3 |
 
-## Dispatcher (same 250-pt probe as `--engine auto`)
+## Dispatcher oracle (1-thread; wrong = estimate ≠ faster engine)
+| family | n | recommended | auto | oracle | wrong | waste | regime |
+| --- | ---: | --- | --- | --- | --- | ---: | --- |
+| figure8 | 1000 | redzed | redzed | redzed | False | 1.0 | hollow |
+| circle_noisy | 1000 | implicit | implicit | implicit | False | 1.0 | thin |
+| uniform2 | 1000 | redzed | redzed | redzed | False | 1.0 | fat |
+| torus | 1000 | redzed | redzed | redzed | False | 1.0 | hollow |
+| nested_loops | 400 | redzed | redzed | redzed | False | 1.0 | fat |
+| many_loops | 400 | redzed | redzed | redzed | False | 1.0 | hollow |
+| heavy_noise_circle | 400 | implicit | implicit | redzed | True | 2.117744604586669 | thin |
+| clustered | 400 | redzed | redzed | redzed | False | 1.0 | hollow |
 
-This check is **not** an independent oracle: `--estimate` and `--engine auto`
-share the residual-frac / edge-frac probe, so agreement is expected.
-It still catches implementation drift. Held-out families were not used
-to set τ.
-| family | recommended | picked | agree | exact feasible | wall (s) |
-| --- | --- | --- | --- | --- | ---: |
-| many_loops | redzed | redzed | True | True | 0.004 |
-| nested_loops | redzed | redzed | True | True | 0.014 |
-| clustered | redzed | redzed | True | True | 0.003 |
-| heavy_noise_circle | implicit | implicit | True | True | 0.022 |
-| figure8 | implicit | implicit | True | True | 0.009 |
-| circle_noisy | implicit | implicit | True | True | 0.017 |
+## Practical limits under a 12 s budget
+| family | dim | method | max n ok | wall (s) | first fail n |
+| --- | ---: | --- | ---: | ---: | ---: |
+| anisotropic_blob | 1 | pith_exact | 1000 | 0.020 | None |
+| anisotropic_blob | 1 | ripser | 1000 | 0.097 | None |
+| blobs | 0 | pith_exact | 25000 | 0.053 | None |
+| blobs | 0 | ripser | 12000 | 5.630 | None |
+| circle_T | 1 | pith_exact | 800 | 0.016 | None |
+| circle_T | 1 | ripser | 800 | 0.128 | None |
+| circle_noisy | 1 | pith_exact | 4000 | 2.191 | None |
+| circle_noisy | 1 | ripser | 1000 | 2.216 | 2000 |
+| clustered | 1 | pith_exact | 400 | 0.003 | None |
+| clustered | 1 | ripser | 400 | 0.005 | None |
+| figure8 | 1 | pith_exact | 4000 | 1.026 | None |
+| figure8 | 1 | pith_redzed | 4000 | 1.054 | None |
+| figure8 | 1 | pith_scale | 24000 | 0.794 | None |
+| figure8 | 1 | ripser | 2000 | 2.528 | 4000 |
+| heavy_noise_circle | 1 | pith_exact | 400 | 0.015 | None |
+| heavy_noise_circle | 1 | pith_scale | 400 | 0.006 | None |
+| heavy_noise_circle | 1 | ripser | 400 | 0.024 | None |
+| loops_with_bridges | 1 | pith_exact | 1000 | 0.041 | None |
+| loops_with_bridges | 1 | pith_scale | 1000 | 0.015 | None |
+| loops_with_bridges | 1 | ripser | 1000 | 0.161 | None |
+| many_loops | 1 | pith_exact | 2000 | 0.027 | None |
+| many_loops | 1 | pith_scale | 2000 | 0.028 | None |
+| many_loops | 1 | ripser | 2000 | 0.313 | None |
+| mixed_1d2d3d | 2 | pith_exact | None |  | 300 |
+| mixed_1d2d3d | 2 | pith_scale | 600 | 0.011 | None |
+| mixed_1d2d3d | 2 | ripser | 600 | 1.110 | None |
+| multi_cavities | 2 | pith_exact | 600 | 0.067 | None |
+| multi_cavities | 2 | pith_scale | 600 | 0.010 | None |
+| multi_cavities | 2 | ripser | 600 | 0.370 | None |
+| multi_scale_loops | 1 | pith_exact | 1000 | 0.023 | None |
+| multi_scale_loops | 1 | pith_scale | 1000 | 0.015 | None |
+| multi_scale_loops | 1 | ripser | 1000 | 0.406 | None |
+| near_degenerate | 1 | pith_exact | 1000 | 0.011 | None |
+| near_degenerate | 1 | ripser | 1000 | 0.033 | None |
+| nested_loops | 1 | pith_exact | 2000 | 0.295 | None |
+| nested_loops | 1 | pith_scale | 2000 | 0.036 | None |
+| nested_loops | 1 | ripser | 2000 | 6.436 | None |
+| outliers_sphere | 2 | pith_exact | 400 | 0.015 | None |
+| outliers_sphere | 2 | pith_scale | 400 | 0.006 | None |
+| outliers_sphere | 2 | ripser | 400 | 1.323 | None |
+| sphere | 2 | pith_exact | 800 | 0.057 | None |
+| sphere | 2 | pith_scale | 80000 | 1.076 | None |
+| sphere | 2 | ripser | 400 | 1.027 | 800 |
+| torus | 1 | pith_exact | 2000 | 0.196 | None |
+| torus | 1 | ripser | 2000 | 2.479 | None |
+| uniform2 | 1 | pith_exact | 4000 | 0.243 | None |
+| uniform2 | 1 | ripser | 4000 | 1.990 | None |
+
+## Non-Euclidean L1 (exact engine only)
+Receipt below is from the frozen suite (`n=200` auto still used collapse because dispatch required `n≥400`). After the suite, auto probes at `n≥64`; re-timed `n=200` auto-redzed **0.018 s** (was 0.042 s).
+| n | PITH auto (s) | PITH redzed (s) | Ripser (s) | exact match |
+| ---: | ---: | ---: | ---: | --- |
+| 200 | 0.04181634899578057 | 0.005313154004397802 | 0.013901921003707685 | True |
+| 400 | 0.03567516499606427 | 0.015805119997821748 | 0.06376458900922444 | True |
 
 ## Local time exponents (empirical slopes, not theorems)
 | family | method | n0 | n1 | p_time | p_edges |
@@ -106,3 +205,27 @@ to set τ.
 | sphere | pith_scale | 16000 | 50000 | 1.07 | 1.00 |
 | torus | pith_exact | 400 | 1000 | 1.63 | 2.00 |
 | torus | ripser | 400 | 1000 | 2.98 |  |
+| figure8 | exact_auto | 2000 | 4000 | 2.79 |  |
+| figure8 | exact_redzed | 2000 | 4000 | 2.79 |  |
+| figure8 | scale | 2000 | 4000 | 1.31 |  |
+| figure8 | scale | 4000 | 24000 | 1.24 |  |
+| circle_noisy | exact_auto | 2000 | 4000 | 2.70 |  |
+| many_loops | exact_auto | 1000 | 2000 | 1.72 |  |
+| many_loops | ripser | 1000 | 2000 | 2.80 |  |
+| many_loops | scale | 1000 | 2000 | 1.30 |  |
+| nested_loops | exact_auto | 1000 | 2000 | 2.98 |  |
+| nested_loops | ripser | 1000 | 2000 | 3.55 |  |
+| nested_loops | scale | 1000 | 2000 | 0.94 |  |
+| loops_with_bridges | exact_auto | 400 | 1000 | 1.75 |  |
+| loops_with_bridges | ripser | 400 | 1000 | 2.76 |  |
+| loops_with_bridges | scale | 400 | 1000 | 1.06 |  |
+| multi_scale_loops | exact_auto | 400 | 1000 | 1.44 |  |
+| multi_scale_loops | ripser | 400 | 1000 | 3.09 |  |
+| multi_scale_loops | scale | 400 | 1000 | 1.11 |  |
+| near_degenerate | exact_auto | 400 | 1000 | 1.17 |  |
+| near_degenerate | ripser | 400 | 1000 | 1.88 |  |
+| mixed_1d2d3d | ripser | 300 | 600 | 3.12 |  |
+| mixed_1d2d3d | scale | 300 | 600 | 1.06 |  |
+| multi_cavities | exact_auto | 300 | 600 | 3.65 |  |
+| multi_cavities | ripser | 300 | 600 | 3.16 |  |
+| multi_cavities | scale | 300 | 600 | 1.06 |  |
