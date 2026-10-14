@@ -1,6 +1,6 @@
 # Selected algorithm (living)
 
-Updated 2026-10-14 after iterations I001–I308. **CLI default `--engine`
+Updated 2026-10-14 after iterations I001–I309. **CLI default `--engine`
 auto` (I235+I236+I239+I240+I241+I263+I270+I271+I275):** subsample residual-frac dispatch,
 plus I263 edge-frac so hollow/manifold clouds take RedZeD. Fat →
 RedZeD (torus n=2000 **13.0×**). Thin-circle → collapse+implicit
@@ -746,7 +746,10 @@ Rips is exact and too slow.
    **1.14 vs 1.09 s** (metric 539 vs 507). Do not retry face-sign
    caching. **I308 live-tet list hold/keep:** 80k **1.12 vs 1.09 s**
    (metric 527 vs 507). `locate_scan` is O(live); not a pith cut.
-   Do not retry dead-tet extract skips.
+   Do not retry dead-tet extract skips. **I309 insphere-osign
+   reject/revert:** 80k **1.47 vs 1.09 s**. The 4×4 det dominates;
+   do not retry tet-orient caching. Cheap Delaunay-predicate
+   bookkeeping (I307–I309) is exhausted.
    ae_seeded visits remain the exact-H1 wall.
 6. Owned AE leftover-star walk is still Θ(|leftover|·deg★) — rbit cut
    has_leftover_coface, not seeded probes (circle still 875k). I288

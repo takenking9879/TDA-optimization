@@ -1585,9 +1585,9 @@ static double delaunay_orient3(double ax, double ay, double az, double bx, doubl
            adz * (bdx * cdy - bdy * cdx);
 }
 
-static double delaunay_insphere_det(double ax, double ay, double az, double bx, double by, double bz,
-                                   double cx, double cy, double cz, double dx, double dy, double dz,
-                                   double px, double py, double pz) {
+static bool delaunay_insphere(double ax, double ay, double az, double bx, double by, double bz,
+                              double cx, double cy, double cz, double dx, double dy, double dz,
+                              double px, double py, double pz) {
     const double aex = ax - px, aey = ay - py, aez = az - pz;
     const double bex = bx - px, bey = by - py, bez = bz - pz;
     const double cex = cx - px, cey = cy - py, cez = cz - pz;
@@ -1596,16 +1596,11 @@ static double delaunay_insphere_det(double ax, double ay, double az, double bx, 
     const double be2 = bex * bex + bey * bey + bez * bez;
     const double ce2 = cex * cex + cey * cey + cez * cez;
     const double de2 = dex * dex + dey * dey + dez * dez;
-    return aex * (bey * (cez * de2 - ce2 * dez) - bez * (cey * de2 - ce2 * dey) + be2 * (cey * dez - cez * dey)) -
-           aey * (bex * (cez * de2 - ce2 * dez) - bez * (cex * de2 - ce2 * dex) + be2 * (cex * dez - cez * dex)) +
-           aez * (bex * (cey * de2 - ce2 * dey) - bey * (cex * de2 - ce2 * dex) + be2 * (cex * dey - cey * dex)) -
-           ae2 * (bex * (cey * dez - cez * dey) - bey * (cex * dez - cez * dex) + bez * (cex * dey - cey * dex));
-}
-
-static bool delaunay_insphere(double ax, double ay, double az, double bx, double by, double bz,
-                              double cx, double cy, double cz, double dx, double dy, double dz,
-                              double px, double py, double pz) {
-    const double det = delaunay_insphere_det(ax, ay, az, bx, by, bz, cx, cy, cz, dx, dy, dz, px, py, pz);
+    const double det =
+        aex * (bey * (cez * de2 - ce2 * dez) - bez * (cey * de2 - ce2 * dey) + be2 * (cey * dez - cez * dey)) -
+        aey * (bex * (cez * de2 - ce2 * dez) - bez * (cex * de2 - ce2 * dex) + be2 * (cex * dez - cez * dex)) +
+        aez * (bex * (cey * de2 - ce2 * dey) - bey * (cex * de2 - ce2 * dex) + be2 * (cex * dey - cey * dex)) -
+        ae2 * (bex * (cey * dez - cez * dey) - bey * (cex * dez - cez * dex) + bez * (cex * dey - cey * dex));
     const double o = delaunay_orient3(ax, ay, az, bx, by, bz, cx, cy, cz, dx, dy, dz);
     return det * o > 0.0;
 }
@@ -1690,15 +1685,13 @@ static bool delaunay_edges_3d_walk(const std::vector<std::vector<value_t>>& pts,
     struct Tet {
         int v[4];
         int nbor[4];
-        int8_t osign;
         bool live;
     };
     std::vector<Tet> tets;
     std::vector<int> stamp;
     tets.reserve(static_cast<size_t>(n) * 8 + 8);
     stamp.reserve(static_cast<size_t>(n) * 8 + 8);
-    // Super-tet orient was forced positive just above.
-    tets.push_back({{n, n + 1, n + 2, n + 3}, {-1, -1, -1, -1}, 1, true});
+    tets.push_back({{n, n + 1, n + 2, n + 3}, {-1, -1, -1, -1}, true});
     stamp.push_back(0);
     int gen = 1;
     // I308: I275 keeps dead tets (no slot reuse). locate_scan / edge
@@ -1733,18 +1726,14 @@ static bool delaunay_edges_3d_walk(const std::vector<std::vector<value_t>>& pts,
         live_ids.pop_back();
         live_at[static_cast<size_t>(t)] = -1;
     };
-    // I309: tet orient3 is fixed at birth (and already computed to
-    // order the new tet). Insphere was recomputing it every flood.
     auto insphere_t = [&](int t, double px, double py, double pz) {
-        const Tet& tr = tets[static_cast<size_t>(t)];
-        const int* v = tr.v;
-        const double det = delaunay_insphere_det(
-            xs[static_cast<size_t>(v[0])], ys[static_cast<size_t>(v[0])], zs[static_cast<size_t>(v[0])],
-            xs[static_cast<size_t>(v[1])], ys[static_cast<size_t>(v[1])], zs[static_cast<size_t>(v[1])],
-            xs[static_cast<size_t>(v[2])], ys[static_cast<size_t>(v[2])], zs[static_cast<size_t>(v[2])],
-            xs[static_cast<size_t>(v[3])], ys[static_cast<size_t>(v[3])], zs[static_cast<size_t>(v[3])], px, py,
-            pz);
-        return det * static_cast<double>(tr.osign) > 0.0;
+        const int* v = tets[static_cast<size_t>(t)].v;
+        return delaunay_insphere(xs[static_cast<size_t>(v[0])], ys[static_cast<size_t>(v[0])],
+                                 zs[static_cast<size_t>(v[0])], xs[static_cast<size_t>(v[1])],
+                                 ys[static_cast<size_t>(v[1])], zs[static_cast<size_t>(v[1])],
+                                 xs[static_cast<size_t>(v[2])], ys[static_cast<size_t>(v[2])],
+                                 zs[static_cast<size_t>(v[2])], xs[static_cast<size_t>(v[3])],
+                                 ys[static_cast<size_t>(v[3])], zs[static_cast<size_t>(v[3])], px, py, pz);
     };
     auto contains = [&](int t, double px, double py, double pz) {
         if (!live(t)) return false;
@@ -1941,15 +1930,10 @@ static bool delaunay_edges_3d_walk(const std::vector<std::vector<value_t>>& pts,
         };
         for (size_t i = 0; i < bfaces.size(); ++i) {
             int a = bfaces[i].a, b = bfaces[i].b, c = bfaces[i].c;
-            double ov = o3(a, b, c, p);
-            if (ov <= 0.0) {
-                std::swap(a, b);
-                ov = o3(a, b, c, p);
-            }
-            if (ov <= 0.0) return false;
+            if (o3(a, b, c, p) <= 0.0) std::swap(a, b);
+            if (o3(a, b, c, p) <= 0.0) return false;
             const int id = static_cast<int>(tets.size());
-            const int8_t os = static_cast<int8_t>(ov > 0.0 ? 1 : -1);
-            tets.push_back({{a, b, c, p}, {-1, -1, -1, bfaces[i].outer}, os, true});
+            tets.push_back({{a, b, c, p}, {-1, -1, -1, bfaces[i].outer}, true});
             stamp.push_back(0);
             add_live(id);
             newids.push_back(id);

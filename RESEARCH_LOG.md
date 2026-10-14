@@ -1134,6 +1134,15 @@ Do not paste long reasoning here.
 - **Decision:** **Support as exact H1 + \(O(n^2)\) size class.** Do **not** select as default (clock). I056 reject was an evaluation bug (zero-pers counted). `--reduced-vr` stays experimental exact. Topology loss: **0**. Next H07 lever is construction (kd-tree / apparent skip), not another barcode check. Default unchanged.
 - **Class:** experiment (support identity + size; reject as default clock)
 
+## 2026-10-14 — I309 insphere osign (revert)
+
+- **Question:** Does storing the tet `orient3` sign at birth (already computed to order the new tet) cut 80k Delaunay metric by skipping that orient on every cavity `insphere`?
+- **Hypothesis:** I307 cached 4 walk face-signs and lost. Insphere uses 1 tet-orient. No extra birth orients.
+- **Work:** `Tet.osign` + `delaunay_insphere_det`. Wave 169 vs I306.
+- **Result:** **Reject.** Identity held (ess2=1, |E| match). Clock lost: sphere n=80000 **1.47 vs 1.09 s** (metric 627 vs 507). n=50000 **0.85 vs 0.65 s**. figure8 n=16000 **0.72 vs 0.54 s** (2D path — machine also slow; uniform2 9.83×). The 4×4 insphere det dominates; dropping one `orient3` is not a cut.
+- **Decision:** **Reject and revert.** Do not retry tet-orient caching for insphere. I307/I308/I309 exhausted cheap Delaunay-predicate bookkeeping. Next: a different construction or exact-H1 lever. Do not mark the goal complete.
+- **Class:** experiment (reject; exact, no faster; reverted)
+
 ## 2026-10-14 — I308 live-tet list (3D walk)
 
 - **Question:** I275 keeps dead tets (no slot reuse). Are `locate_scan` / final edge extract Θ(historical tets), and does a live-id list cut 80k metric without changing the mesh?
