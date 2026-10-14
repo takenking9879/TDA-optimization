@@ -19,6 +19,9 @@ Public runners and receipts. They talk only in `--mode` / `--engine` /
 | `eval_estimate.py` | Feasibility bands vs measured walls |
 | `eval_ncc_auto.py` | Euclidean fat-H2 \(n_{cc}\) / dense-flag |
 | `eval_adversarial.py` | Held-out families, seed 17 |
+| `eval_leftover_ratio_n.py` | Leftover H1 ratio vs n (frozen pack) |
+| `eval_leftover_heldout.py` | Held-out leftover H1 ratios, seed 19 |
+| `eval_leftover_miss_n.py` | Leftover-miss families scaled in n |
 | `eval_highd_auto.py` | High-d / L1 clock-compare |
 | `eval_wall_kind.py` | collapse vs leftover vs construction |
 | `reverify_*.py` | Headline / leftover / oracle re-measures |

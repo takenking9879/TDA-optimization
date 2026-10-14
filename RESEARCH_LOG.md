@@ -5,6 +5,14 @@ Do not paste long reasoning here.
 
 ---
 
+## 2026-10-14 — Leftover-miss n-series (pending live sweep)
+
+- **Question:** Do the leftover misses where Ripser is not already cheap (anisotropic_blob 5.5× at n=2000 / 0.48 s; grid_holes 3.2× at n=1600 / 44 ms) reach 10× as n grows?
+- **Work:** `eval_leftover_miss_n.py` seed 19, τ frozen. anisotropic T=2.5 n=2000–8000; grid_holes T=0.12 n=1600/4000/8000. No leftover-skip edits. Literature still only RedZeD as published exact-VR pairing alternative (arXiv:2606.06310 / redzed-tda).
+- **Result:** pending live sweep (script committed first).
+- **Decision:** Measurement toward leftover 10× generality, not a pairing-algorithm claim. Goal not complete.
+- **Class:** experiment (pending)
+
 ## 2026-10-14 — Held-out leftover H1 ratio (seed 19)
 
 - **Question:** Does leftover ≥10× hold on families outside leftover_10x.json?
