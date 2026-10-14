@@ -103,3 +103,12 @@ From `sparse_scale.json`. Not theorems.
 Sparse \(H_1\) stays inside the 12 s budget through figure-8 \(n=24000\)
 (**5.56 s / 101 MB / ess \(H_1=2\)**). Scale is still ~7× faster there.
 The sparse exponent is the FPS \(\Theta(n^2)\) wall, not leftover algebra.
+
+## `--estimate` bands (empirical, τ frozen)
+
+`growth_p` is a **regime bucket** (H0 1.0 / scale 1.2 / sparse 2.0 / fat H2 3.2 /
+thin 2.2 / hollow 1.8 / else 2.4), not a per-series fit from this file.
+`eval_estimate.py` scores the recommended-mode wall against
+`[est_runtime_lo, est_runtime_hi]`. After a 5 ms exact overhead and a
+25 ms hi-floor (small-n process tax), the band is meant to be conservative.
+It does **not** change `engine_rec` or \(\tau\).

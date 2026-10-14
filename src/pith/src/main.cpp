@@ -421,9 +421,15 @@ static Feasibility compute_feasibility(const std::vector<std::vector<value_t>>* 
     else if (thin) f.growth_p = 2.2;
     else if (hollow) f.growth_p = 1.8;
     else f.growth_p = 2.4;
+    // Small-n walls are dominated by ~5 ms process/startup + probe
+    // overhead (eval_estimate: grid_holes / many_loops / two_spheres
+    // sat below the old 3× band). Add a floor; do not retune τ.
+    if (f.est_runtime > 0 && f.mode_rec == "exact")
+        f.est_runtime += 0.005;
     if (f.est_runtime > 0) {
-        f.est_runtime_lo = 0.4 * f.est_runtime;
-        f.est_runtime_hi = (maxdim >= 2 && fat) ? 6.0 * f.est_runtime : 3.0 * f.est_runtime;
+        f.est_runtime_lo = std::max(0.001, 0.4 * f.est_runtime);
+        const double hi_mult = (maxdim >= 2 && fat) ? 6.0 : 4.0;
+        f.est_runtime_hi = std::max(0.025, hi_mult * f.est_runtime);
     }
     f.leaving_cheap = (maxdim >= 1 && n >= 2000 && (fat || (f.est_r_hi > 1.0e5 && !thin))) ||
                       (maxdim >= 2 && fat && n >= 200);
